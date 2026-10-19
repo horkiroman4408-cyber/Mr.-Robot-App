@@ -189,7 +189,7 @@ Kilka decyzji, które dają szybkość i łatwość utrzymania:
 ## 🗂 Struktura projektu
 
 ```
-mr-robot/
+Mr.-Robot-App/
 ├── index.html              # szkielet strony + znaczniki aplikacji (szablony Vue)
 ├── css/styles.css          # wszystkie style
 ├── js/

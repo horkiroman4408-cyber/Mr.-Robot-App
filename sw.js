@@ -5,9 +5,10 @@
  * - cache name is scoped to this app AND its registration scope (path), so
  *   several installations on the same github.io origin never clash
  * - activate: delete only obsolete caches of this scope
- * - fetch: cache-first, matched strictly against THIS cache
- * - update: the new version waits; the page asks the user and only then
- *   sends SKIP_WAITING (no automatic reloads)
+ * - fetch: NETWORK-FIRST for the app shell — every online visit gets the
+ *   fresh version (no Ctrl+F5 needed); the cache is only a fallback for
+ *   offline use and is refreshed in the background on every successful load
+ * - update banner is kept for tabs that stay open across a deploy
  *
  * CACHE_REVISION is replaced automatically by the GitHub Actions workflow
  * (content hash of the deployed files) on every deploy. If you host the app
@@ -15,8 +16,8 @@
  */
 'use strict';
 
-const APP_PREFIX = 'mr-robot';
-const CACHE_REVISION = 'v3.6.6';
+const APP_PREFIX = 'Mr.-Robot-App';
+const CACHE_REVISION = 'v3.6.7';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -78,14 +79,29 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  const shellUrl = (p) => new URL(p, self.location.href).href;
+  const isShell = PRECACHE_URLS.some((p) => shellUrl(p) === url.href);
+  if (!isShell) return; // not part of the shell: plain network
+
   event.respondWith((async () => {
     const cache = await caches.open(CACHE);
-    const cached = await cache.match(req);
-    if (cached) return cached;
-    // Not precached: network only. Never runtime-cache: the shell stays atomic.
     try {
-      return await fetch(req);
+      // 1) network first → every online visit is the current version.
+      // 'no-cache' = revalidate with the server (like Ctrl+F5, but automatic):
+      // no stale browser HTTP cache; 304 replies keep it cheap.
+      const fresh = await fetch(req, { cache: 'no-cache' });
+      if (fresh && fresh.ok) {
+        cache.put(req, fresh.clone()); // refresh the offline copy in background
+        return fresh;
+      }
+      // network said error (e.g. 404): fall back to the cached copy if any
+      const cached = await cache.match(req);
+      if (cached) return cached;
+      return fresh;
     } catch (err) {
+      // 2) offline / no network: serve from cache (PWA keeps working)
+      const cached = await cache.match(req);
+      if (cached) return cached;
       if (req.mode === 'navigate') {
         const fallback = await cache.match('index.html');
         if (fallback) return fallback;

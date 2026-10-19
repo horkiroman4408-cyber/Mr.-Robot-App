@@ -189,7 +189,7 @@ A few decisions that make it fast and maintainable:
 ## 🗂 Project structure
 
 ```
-mr-robot/
+Mr.-Robot-App/
 ├── index.html              # page skeleton + app markup (Vue templates)
 ├── css/styles.css          # all styles
 ├── js/
