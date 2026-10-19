@@ -14,7 +14,7 @@
 ![languages](https://img.shields.io/badge/languages-PL%20%2F%20RU%20%2F%20EN%20%2F%20UK-42b883)
 ![vue](https://img.shields.io/badge/vue-3-42b883)
 
-> **Try it now:** [open the live version](https://horkiroman4408-cyber.github.io/Mr.Robot/) — it runs entirely in your browser. No install, no sign-up, no server. Like it? Install it as an app — it then works offline.
+> **Try it now:** [open the live version]([https://horkiroman4408-cyber.github.io/Mr.-Robot-App/]) — it runs entirely in your browser. No install, no sign-up, no server. Like it? Install it as an app — it then works offline.
 
 ---
 
@@ -221,7 +221,7 @@ mr-robot/
 ## 🏃 Running it
 
 **Live version (easiest):**
-**[Open Mr. Robot](https://horkiroman4408-cyber.github.io/Mr.Robot/)** — or install it as an app (see above).
+**[Open Mr. Robot]([https://horkiroman4408-cyber.github.io/Mr.-Robot-App/])** — or install it as an app (see above).
 
 **From source:**
 1. Clone or download this repository.
