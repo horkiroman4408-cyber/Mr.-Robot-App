@@ -1,7 +1,6 @@
 # Mr. Robot 🤖
 
 **[ ENG ](./README.md)** | **[ RUS ](./README.ru.md)** | **[ PL ](./README.pl.md)**
-**Репозиторий:** [horkiroman4408-cyber/Mr.-Robot-App](https://github.com/horkiroman4408-cyber/Mr.-Robot-App)
 
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
@@ -318,4 +317,4 @@ Mr.-Robot-App/
 
 Открыт к фидбеку и сотрудничеству. Есть мысли — открывайте issue в этом репозитории.
 
-© 2026 Mr. Robot · Made by Raman Horki · LPP
+© 2026 Mr. Robot · Made by Raman Horki
