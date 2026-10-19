@@ -14,7 +14,7 @@
 ![języki](https://img.shields.io/badge/languages-PL%20%2F%20RU%20%2F%20EN%20%2F%20UK-42b883)
 ![vue](https://img.shields.io/badge/vue-3-42b883)
 
-> **Wypróbuj teraz:** [otwórz wersję na żywo](https://horkiroman4408-cyber.github.io/Mr.Robot/) — wszystko działa w Twojej przeglądarce. Bez instalacji, bez rejestracji, bez serwera. Podoba się? Zainstaluj jako aplikację — będzie działać offline.
+> **Wypróbuj teraz:** [otwórz wersję na żywo](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — wszystko działa w Twojej przeglądarce. Bez instalacji, bez rejestracji, bez serwera. Podoba się? Zainstaluj jako aplikację — będzie działać offline.
 
 ---
 
@@ -221,7 +221,7 @@ mr-robot/
 ## 🏃 Uruchomienie
 
 **Wersja na żywo (najprościej):**
-**[Otwórz Mr. Robot](https://horkiroman4408-cyber.github.io/Mr.Robot/)** — albo zainstaluj jako aplikację (wyżej).
+**[Otwórz Mr. Robot](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/)** — albo zainstaluj jako aplikację (wyżej).
 
 **Ze źródeł:**
 1. Sklonuj lub pobierz to repozytorium.
@@ -317,4 +317,4 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
-© 2026 Mr. Robot · Made by Raman Horki · LPP
+© 2026 Mr. Robot · Made by Raman Horki
