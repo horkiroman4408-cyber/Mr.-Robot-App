@@ -1,0 +1,105 @@
+/* Mr. Robot — Service Worker (PWA)
+ * Strategy: atomically precached, versioned app shell.
+ * - install: precache ALL core assets with cache:'reload' (no stale HTTP cache);
+ *   if any fetch fails, the update is never activated (atomic release)
+ * - cache name is scoped to this app AND its registration scope (path), so
+ *   several installations on the same github.io origin never clash
+ * - activate: delete only obsolete caches of this scope
+ * - fetch: cache-first, matched strictly against THIS cache
+ * - update: the new version waits; the page asks the user and only then
+ *   sends SKIP_WAITING (no automatic reloads)
+ *
+ * CACHE_REVISION is replaced automatically by the GitHub Actions workflow
+ * (content hash of the deployed files) on every deploy. If you host the app
+ * elsewhere, bump it manually on every change.
+ */
+'use strict';
+
+const APP_PREFIX = 'mr-robot';
+const CACHE_REVISION = 'v3.6.6';
+const SCOPE_KEY = new URL(self.registration.scope).pathname;
+const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
+
+const PRECACHE_URLS = [
+  './',
+  'index.html',
+  'css/styles.css',
+  'js/i18n.js',
+  'js/theme.js',
+  'js/vendor-tailwind.js',
+  'js/cptable.js',
+  'js/xlsx.js',
+  'js/vue.global.js',
+  'js/data/shifts.js',
+  'js/changelog.js',
+  'js/workers/kpi.js',
+  'js/workers/tote.js',
+  'js/workers/audyt.js',
+  'js/workers/mdt.js',
+  'js/workers/stock.js',
+  'js/workers/przestoje.js',
+  'js/workers/pracownicy.js',
+  'js/workers/geek.js',
+  'js/workers/common.js',
+  'js/app.js',
+  'js/pwa-register.js',
+  'manifest.webmanifest',
+  'icons/favicon.svg',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
+  'icons/icon-maskable-512.png',
+  'icons/apple-touch-icon.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    const requests = PRECACHE_URLS.map(
+      (path) => new Request(new URL(path, self.location.href), { cache: 'reload' })
+    );
+    await cache.addAll(requests); // atomic: any failure aborts the release
+  })());
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    const prefix = APP_PREFIX + '@' + SCOPE_KEY + '@';
+    const keys = await caches.keys();
+    await Promise.all(
+      keys.filter((k) => k.startsWith(prefix) && k !== CACHE).map((k) => caches.delete(k))
+    );
+    await self.clients.claim();
+  })());
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(req);
+    if (cached) return cached;
+    // Not precached: network only. Never runtime-cache: the shell stays atomic.
+    try {
+      return await fetch(req);
+    } catch (err) {
+      if (req.mode === 'navigate') {
+        const fallback = await cache.match('index.html');
+        if (fallback) return fallback;
+      }
+      throw err;
+    }
+  })());
+});
+
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data && event.data.type === 'GET_VERSION') {
+    if (event.source) event.source.postMessage({ type: 'VERSION', revision: CACHE_REVISION });
+  }
+});
