@@ -51,7 +51,7 @@ mr-robot/
 1. Создайте репозиторий на GitHub (например, `mr-robot`).
 2. Загрузите содержимое папки `mr-robot` (все файлы и подпапки — в корень репозитория).
 3. В репозитории: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-4. Откройте сайт: `https://ВАШ_ЛОГИН.github.io/mr-robot/`
+4. Откройте сайт: `https://horkiroman4408-cyber.github.io/Mr.-Robot-App/` (ваш адрес уже такой)
 
 Дальше публикация происходит автоматически при каждом push в ветку `main`.
 

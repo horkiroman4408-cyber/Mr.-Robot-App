@@ -1,6 +1,7 @@
 # Mr. Robot 🤖
 
 **[ ENG ](./README.md)** | **[ RUS ](./README.ru.md)** | **[ PL ](./README.pl.md)**
+**Repozytorium:** [horkiroman4408-cyber/Mr.-Robot-App](https://github.com/horkiroman4408-cyber/Mr.-Robot-App)
 
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
@@ -317,4 +318,4 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
-© 2026 Mr. Robot · Made by Raman Horki
+© 2026 Mr. Robot · Made by Raman Horki · LPP
