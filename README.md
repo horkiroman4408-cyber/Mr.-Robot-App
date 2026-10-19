@@ -317,4 +317,4 @@ If you'd rather just say hello and tell me what you built with it, that works to
 
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
-© 2026 Mr. Robot · Made by Raman Horki · LPP
+© 2026 Mr. Robot · Made by Raman Horki 
