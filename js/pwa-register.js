@@ -65,7 +65,23 @@
   });
 
   function watchWaiting() {
-    if (reg.waiting && navigator.serviceWorker.controller) showPill();
+    if (reg && reg.waiting && navigator.serviceWorker.controller) showPill();
+  }
+
+  // Keep the current report untouched. Only check for updates while online.
+  var CHECK_INTERVAL_MS = 15 * 60 * 1000;
+  var RETURN_CHECK_MIN_MS = 5 * 60 * 1000;
+  var lastCheckAt = 0;
+  var checking = false;
+  function checkForUpdate(minAgeMs) {
+    if (!reg || checking || !navigator.onLine) return;
+    var now = Date.now();
+    if (now - lastCheckAt < minAgeMs) return;
+    lastCheckAt = now;
+    checking = true;
+    reg.update().then(watchWaiting).catch(function () {}).then(function () {
+      checking = false;
+    });
   }
 
   navigator.serviceWorker.register('./sw.js').then(function (r) {
@@ -78,7 +94,14 @@
         if (w.state === 'installed' && navigator.serviceWorker.controller) showPill();
       });
     });
-    // periodic re-check (tab kept open for days)
-    setInterval(function () { reg.update().catch(function () {}); }, 60 * 60 * 1000);
+    // Check immediately after registration, then every 15 minutes.
+    checkForUpdate(0);
+    setInterval(function () { checkForUpdate(CHECK_INTERVAL_MS); }, CHECK_INTERVAL_MS);
+    // Returning to an existing PWA window is a good time to look for a release.
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) checkForUpdate(RETURN_CHECK_MIN_MS);
+    });
+    window.addEventListener('focus', function () { checkForUpdate(RETURN_CHECK_MIN_MS); });
+    window.addEventListener('online', function () { checkForUpdate(RETURN_CHECK_MIN_MS); });
   }).catch(function () { /* PWA is optional: app still works online */ });
 })();
