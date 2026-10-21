@@ -1082,6 +1082,41 @@ const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slo
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
 function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrTx('readwrite',st=>{st.clear();}).catch(()=>{});for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
 function mrRestoreFiles(){if(!mrHasIndexedDB())return;const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile};mrFileGetAll().then(all=>{let n=0;for(const slot of Object.keys(all||{})){const v=all[slot],h=handlers[slot];if(!h||!v||!v.blob)continue;try{const file=new File([v.blob],v.name,{type:v.type||'',lastModified:v.lastModified||Date.now()});mrSaved[slot]={name:v.name,savedAt:v.savedAt};const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt=v.savedAt||'';h({target:{files:[file]},__mrRestore:true});n++;}catch(e){console.warn('Mr. Robot: nie udało się przywrócić',slot,e);}}if(n)setTimeout(()=>showToast(`💾 Przywrócono z przeglądarki: ${n} ${n===1?'plik':(n<5?'pliki':'plików')}`),2500);}).catch(e=>console.warn('Mr. Robot: pamięć plików niedostępna',e));}
+
+// MR. BOT visual bridge: reads existing state; never writes report data.
+const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
+const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
+watch([view,rsView,mpView,kpiTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
+window.__MRBOT_CONTEXT__=mrBotContext();
+window.__MRBOT_TASKS__={};
+for(const [name,st] of Object.entries({kpiAudit,kpiScalanie,kpiRozk,kpiNv,pracownicy,toteMp,toteRs,audyt,geek,mdt,stock,przestoje})){
+ let id=null,seq=0,peak=0,priorData=null;
+ const send=(phase)=>{const detail={taskId:id,module:name,phase,percent:Number(st.progress?.percent)||0};window.__MRBOT_TASKS__[name]=detail;mrBotEmit('mrbot:task',detail);};
+ watch(()=>!!st.loading,(loading,was)=>{
+  if(loading){id=name+':'+(++seq);peak=0;priorData=st.records||st.rows||st.result;send('start');}
+  else if(was&&id){
+   const rows=st.records||st.rows||st.result?.recs;
+   // Completion is recognised only from the existing 100% progress marker.
+   const changed=(st.records||st.rows||st.result)!==priorData;
+   const phase=changed&&Math.max(peak,Number(st.progress?.percent)||0)>=100?(Array.isArray(rows)&&!rows.length?'empty':'done'):'error';
+   send(phase);id=null;
+  }
+ },{flush:'sync'});
+ watch(()=>Number(st.progress?.percent)||0,percent=>{peak=Math.max(peak,percent);if(id&&st.loading)send('progress');},{flush:'sync'});
+}
+// These cues describe a user's operation, not a claim that a download was saved.
+const mrBotCue=state=>{try{window.MRBotVisual?.play(state,1800);}catch(e){}};
+for(const [getter,setter,state] of [
+ [()=>scalanieRun,v=>scalanieRun=v,'work'],[()=>mdtRunAnalysis,v=>mdtRunAnalysis=v,'work'],
+ [()=>stockGenerate,v=>stockGenerate=v,'filter'],[()=>toteRunSearch,v=>toteRunSearch=v,'scan'],
+ [()=>toteRunManualSearch,v=>toteRunManualSearch=v,'scan'],
+ [()=>scalanieExportCSV,v=>scalanieExportCSV=v,'download'],[()=>mdtExportCSV,v=>mdtExportCSV=v,'download'],
+ [()=>audytExportExcel,v=>audytExportExcel=v,'download'],
+ [()=>kpiExportAudit,v=>kpiExportAudit=v,'download'],[()=>kpiExportScalanie,v=>kpiExportScalanie=v,'download'],
+ [()=>kpiExportRozk,v=>kpiExportRozk=v,'download'],[()=>kpiExportNv,v=>kpiExportNv=v,'download'],
+ [()=>scalanieCopyClipboard,v=>scalanieCopyClipboard=v,'copy'],[()=>stockCopySelectedLoc,v=>stockCopySelectedLoc=v,'copy']
+]){const original=getter();setter(function(...args){const value=original.apply(this,args);mrBotCue(state);return value;});}
+
 mrRestoreFiles();
 
 return{uiLanguage,uiLanguages,moduleGuides,isDarkTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
@@ -1126,3 +1161,4 @@ przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrze
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
 kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
 }}).mount('#app');
+

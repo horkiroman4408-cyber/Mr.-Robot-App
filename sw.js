@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.6.18-mrbot-expanded-idle2';
+const CACHE_REVISION = 'v3.6.18-mrbot-articulated-v1';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -143,3 +143,4 @@ self.addEventListener('message', (event) => {
     if (event.source) event.source.postMessage({ type: 'VERSION', revision: CACHE_REVISION });
   }
 });
+

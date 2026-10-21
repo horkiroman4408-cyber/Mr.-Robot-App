@@ -224,3 +224,12 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root:not(.mrbot-open) #mrbot-toggle{overflow:visible!important}
 #mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:55px!important;height:55px!important;position:relative!important;transform:translateY(-5px)!important;overflow:visible!important;flex-shrink:0!important}
 #mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot img{width:55px!important;height:55px!important;object-fit:contain!important;transform:none!important}
+
+
+/* Articulated replacement. Existing panel/theme rules are retained. */
+#mrbot-root .mrbot-mascot #mrbot-pet-image{display:none!important}
+#mrbot-root .mrbot-mascot .mrbot-avatar{display:block!important;width:100%!important;height:100%!important;object-fit:contain;pointer-events:none;transform:none!important;animation:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.12))}
+#mrbot-root .mrbot-mascot{overflow:visible!important;background:transparent!important}
+#mrbot-root:not(.mrbot-open) .mrbot-mascot{height:55px!important;width:55px!important}
+#mrbot-root.mrbot-open .mrbot-mascot{height:119px!important;width:110px!important}
+@media(max-width:550px){#mrbot-root.mrbot-open .mrbot-mascot{width:92px!important;height:103px!important}}
