@@ -136,6 +136,8 @@ Raporty `.xlsx` wrzucasz przeciągnięciem, łączysz z grafikiem (`Grafik.xlsx`
 - Kolorowy eksport do Excela z formatowaniem warunkowym.
 - Filtry budowane z pliku grafiku (grupa, proces, zmiana).
 
+**NADWE / VAS — szczegóły:** Po sekcji **4. Normy pracowników** znajduje się **5. Raport NADWE / VAS**. Raport pokazuje bezpośrednio w aplikacji zestawienie według loginu, oparte na tych samych danych co **Pobierz NADWE/VAS**. Kolumny to **NUMBER OF ITEMS**, **TOTAL TIME IN THE MASK [H]** oraz **ITEMS PER HOUR**, każda osobno dla NADWE i VAS. Pozostają filtry, oznaczenia wydajności i eksport. W normach jeden login może mieć dwa wiersze, natomiast w raporcie zbiorczym jeden.
+
 ### 2. RS — Tote Finder
 Porównuje dwie duże bazy w pamięci.
 
@@ -149,6 +151,8 @@ Porównuje dwie duże bazy w pamięci.
 - Wykrywanie i filtrowanie multi-tot.
 - Świadomość 2×2 pop-tote.
 - Kopiowanie do schowka i eksport do Excela.
+
+**AUDYT GEEK → Tryb AUDYT RET:** Pierwsza tabela pokazuje podsumowanie, a druga wyniki według grup. Raport RET obejmuje liczbę przeliczonych totów, przegródek i sztuk, poprawne toty, niepoprawne przegródki i toty, odsetek błędów oraz szczegółowe kategorie: pomieszane artykuły, nadwyżki, braki, extra SKU i uszkodzenia wraz z liczbą sztuk. Nowe kategorie błędów korzystają z wierszy z wypełnioną kolumną **Exception reason**; powtarzające się lokalizacje nadrzędne są ujmowane jako pomieszane, bez ponownego naliczania w pozostałych kategoriach. Przycisk **Kopiuj** przy grupie kopiuje wartości poziomo, rozdzielone tabulatorami, gotowe do Excela. Inne tryby audytu zachowują dotychczasowe działanie.
 
 ### 3. MP — audyt i scalanie
 **Podmoduły:**
@@ -164,10 +168,15 @@ Porównuje dwie duże bazy w pamięci.
 - Kopiowanie do schowka pozwala wklejać wyniki prosto do Excela lub WMS.
 - Pliki CSV eksportowane są z dokładnie takimi nazwami, jakich oczekują dalsze narzędzia.
 
-### 4. Inne
-- **Analiza_Przestojów** — analiza przestojów po USER ID, od 8 do 300 minut.
-- **ARTLTT** — wklej nazwy produktów, dostaniesz pliki LTT w CSV.
-- **TH Reports** — generowanie i parsowanie raportów (w trakcie).
+**Usprawnienia Scalanie:** W widoku wyników można zaznaczać wybrane lokalizacje. Ten sam wybór obowiązuje przy **Kopiuj** i eksporcie CSV, dzięki czemu do dalszej pracy trafiają tylko wskazane pozycje.
+
+### 4. Inne — narzędzia codzienne
+- **Analiza_Przestojów** — analiza przestojów według USER ID, od 8 do 300 minut.
+- **ARTLTT** — wklej nazwy produktów i wygeneruj pliki LTT w formacie CSV.
+- **Kreseczki** — generuj kody kreskowe **Code 128** z tekstu lub cyfr, zobacz podgląd i użyj **Drukuj** lub **Wyczyść**. Generator działa lokalnie i offline. W aktualnym interfejsie nie ma przycisków pobierania PNG/SVG.
+- **TH Reports** — osobne narzędzie raportowe nadal w trakcie rozwoju, niewymieniane wśród trzech aktywnych modułów.
+
+Karta Hub wyróżnia **Przestoje · ARTLTT · Kreseczki**, a ekran Inne oznacza te trzy narzędzia jako aktywne. Generator jest integralną częścią aplikacji.
 
 ---
 

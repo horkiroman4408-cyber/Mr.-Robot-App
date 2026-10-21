@@ -136,6 +136,8 @@ Load `.xlsx` reports by drag and drop, combine them with a schedule file (`Grafi
 - Coloured Excel export with conditional formatting.
 - Filters built from the schedule file (group, process, shift).
 
+**NADWE / VAS, in detail:** The KPI screen includes **4. Normy pracowników** and **5. Raport NADWE / VAS**. The fifth section shows the same per-login summary used by **Pobierz NADWE/VAS** directly in the app. Columns cover **NUMBER OF ITEMS**, **TOTAL TIME IN THE MASK [H]**, and **ITEMS PER HOUR**, each split into NADWE and VAS. Existing filters and performance highlighting remain available; export is still supported. A user may have separate NADWE and VAS rows in the norms table, then one combined row in the report.
+
 ### 2. RS — Tote Finder
 Compares two large databases in memory.
 
@@ -149,6 +151,8 @@ Compares two large databases in memory.
 - Multi-tote detection and filtering.
 - 2×2 pop-tote awareness.
 - Copy to clipboard and Excel export.
+
+**AUDYT GEEK → Tryb AUDYT RET:** The in-app stocktake summary has a first table for overall totals and a second table grouped by category. The RET summary includes counted totes/compartments/items, correct totes, incorrect compartments, incorrect totes and error rate, plus mixed-item locations, surplus, shortages, extra SKUs, major damage and the corresponding item counts. New error categories use rows with a non-empty **Exception reason**; repeated parent shelf locations are classified as mixed instead of being counted again as individual error types. The per-group **Kopiuj** action copies values horizontally, tab-separated, for pasting into Excel. Other audit modes retain their existing behaviour.
 
 ### 3. MP — Audit and merging
 **Sub-modules:**
@@ -164,10 +168,15 @@ Compares two large databases in memory.
 - Clipboard copy is there so results can be pasted straight into Excel or a WMS.
 - CSV files are exported with the exact filenames downstream tools expect.
 
-### 4. Other
-- **Analiza_Przestojów** — downtime analysis per USER ID, 8 to 300 minutes.
-- **ARTLTT** — paste product names, get LTT files as CSV.
-- **TH Reports** — report generation and parsing (in progress).
+**Recent Scalanie improvements:** The results view supports selecting locations and applying that selection consistently to both **Kopiuj** and CSV export. This is useful when a report contains more candidate locations than you want to send onward.
+
+### 4. Inne — everyday tools
+- **Analiza_Przestojów** — downtime analysis per USER ID, 8–300 minutes.
+- **ARTLTT** — paste product names and generate LTT CSV files.
+- **Kreseczki** — generate **Code 128** barcodes from entered text or numbers, preview the result, then **Drukuj** (print) or **Wyczyść** (clear). Generation runs locally and works offline. The current interface deliberately does **not** include PNG/SVG download buttons.
+- **TH Reports** — a separate reporting tool still in development, not presented as one of the three active tools.
+
+The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists all three as active. Its barcode generator is part of the same visual interface, not an external website.
 
 ---
 
