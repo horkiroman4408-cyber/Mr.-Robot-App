@@ -70,3 +70,49 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-motion{color:var(--mb-muted);border-color:var(--mb-line)}
 #mrbot-intro{left:0;right:auto;background:var(--mb-surface);border:1px solid var(--mb-line);color:var(--mb-text);box-shadow:var(--mb-shadow)}
 @media(max-width:550px){#mrbot-root{left:10px;right:auto}}
+
+/* v3.6.18 mascot refresh: native typography, expressive compact character. */
+#mrbot-root,#mrbot-root button,#mrbot-root input{font-family:inherit!important;letter-spacing:normal}
+#mrbot-toggle{min-height:70px;padding:6px 18px 6px 7px;gap:11px;transition:transform .24s ease,box-shadow .24s ease}
+#mrbot-toggle .mrbot-toggle-label{font-weight:750;font-size:14px;letter-spacing:-.025em}
+#mrbot-root .mrbot-mascot{width:67px;height:65px;position:relative;display:block;flex:none;overflow:visible}
+#mrbot-root .mrbot-mascot *{box-sizing:border-box}
+.mrbot-shadow{position:absolute;bottom:0;left:15px;width:44px;height:8px;background:rgba(31,79,122,.13);filter:blur(5px);border-radius:50%;animation:mrbot-shadow-breathe 4s ease-in-out infinite}
+.mrbot-figure{position:absolute;left:7px;top:7px;width:54px;height:57px;animation:mrbot-hover 4s ease-in-out infinite;transform-origin:center 80%}
+.mrbot-aerial{position:absolute;z-index:2;top:-4px;left:25px;width:4px;height:11px;border-radius:4px;background:linear-gradient(90deg,#9baebd,#f9ffff)}
+.mrbot-aerial-light{position:absolute;top:-7px;left:-5px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#efffff 0%,#52e8fa 32%,#00aaf2 75%);box-shadow:0 0 10px rgba(34,198,249,.42);animation:mrbot-beacon 3.5s ease-in-out infinite}
+.mrbot-ear{position:absolute;z-index:0;top:13px;width:11px;height:23px;background:linear-gradient(130deg,#d5e2ee,#819bb4);border:2px solid #eef7ff;border-radius:7px;box-shadow:0 2px 4px #1c41602a}
+.mrbot-ear.left{left:0}.mrbot-ear.right{right:0}
+.mrbot-face{position:absolute;z-index:1;top:9px;left:5px;width:44px;height:37px;border-radius:16px 16px 15px 15px;border:3px solid #e8f4ff;background:linear-gradient(135deg,#f6fdff,#a7c0d8 85%);box-shadow:inset 0 -2px 3px #617d9c55,0 4px 8px #184b7933;animation:mrbot-tilt 7s ease-in-out infinite}
+.mrbot-visor{position:absolute;inset:3px 3px 4px;border-radius:11px;background:radial-gradient(ellipse at 50% 10%,#1a4b72 0%,#0b203c 60%,#08162a 100%);box-shadow:inset 0 2px 6px #0008;overflow:hidden}
+.mrbot-visor:before{content:'';position:absolute;top:1px;left:4px;width:25px;height:8px;border-radius:50%;background:linear-gradient(180deg,#c8f8ff55,transparent);transform:rotate(-10deg)}
+#mrbot-root .mrbot-eye{position:absolute;top:8px;width:9px;height:12px;border-radius:45% 45% 50% 50%;background:#5deaff;box-shadow:0 0 6px #00bfff88;animation:mrbot-natural-blink 6.8s infinite;transform-origin:center center}
+#mrbot-root .mrbot-eye.left{left:7px}#mrbot-root .mrbot-eye.right{right:7px;animation-delay:.08s}
+.mrbot-pupil{position:absolute;top:3px;left:3px;width:3px;height:5px;border-radius:50%;background:#0a8bc7;transform:translate(var(--mrbot-look-x,0px),var(--mrbot-look-y,0px));transition:transform .12s ease}
+.mrbot-brow{position:absolute;top:5px;width:8px;height:2px;border-radius:2px;background:#52dfff;opacity:.45}
+.mrbot-brow.left{left:8px}.mrbot-brow.right{right:8px}
+.mrbot-cheek{position:absolute;top:19px;width:6px;height:3px;border-radius:50%;background:#41c8f9;opacity:.4}
+.mrbot-cheek.left{left:4px}.mrbot-cheek.right{right:4px}
+#mrbot-root .mrbot-mouth{position:absolute;top:19px;left:14px;width:8px;height:5px;border:0;border-bottom:2px solid #52e9ff;border-radius:0 0 9px 9px;background:transparent;transition:all .2s ease}
+.mrbot-torso{position:absolute;top:43px;left:17px;width:20px;height:12px;border:2px solid #d9ebf7;border-radius:9px 9px 6px 6px;background:linear-gradient(135deg,#c4d9e9,#829cb4);box-shadow:0 2px 4px #1d476044}
+.mrbot-core{position:absolute;left:6px;top:3px;width:5px;height:5px;border-radius:50%;background:#1bc5fa;box-shadow:0 0 5px #18a8f5}
+.mrbot-arm{position:absolute;z-index:0;top:45px;width:8px;height:11px;border:2px solid #e5f6ff;background:#a2b9cd;border-radius:7px;transform-origin:top center}
+.mrbot-arm.left{left:11px;transform:rotate(25deg)}.mrbot-arm.right{right:11px;transform:rotate(-25deg);animation:mrbot-wave 10s ease-in-out infinite}
+.mrbot-foot{position:absolute;bottom:0;width:10px;height:6px;background:#e0eef7;border:1px solid #a5b8c9;border-radius:5px}
+.mrbot-foot.left{left:17px}.mrbot-foot.right{right:17px}
+#mrbot-root.mrbot-thinking .mrbot-figure{animation:mrbot-think 1s ease-in-out infinite}
+#mrbot-root.mrbot-thinking .mrbot-eye{height:5px;top:12px}
+#mrbot-root.mrbot-curious .mrbot-face{transform:rotate(10deg)}
+#mrbot-root.mrbot-happy .mrbot-mouth{width:12px;left:12px;height:7px;border-bottom-width:3px}
+#mrbot-root.mrbot-happy .mrbot-figure{animation:mrbot-celebrate .42s ease-in-out 3}
+#mrbot-toggle:hover .mrbot-arm.right{animation:mrbot-wave .5s ease-in-out infinite alternate}
+@keyframes mrbot-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes mrbot-tilt{0%,36%,70%,100%{transform:rotate(0)}42%,51%{transform:rotate(6deg)}76%,83%{transform:rotate(-5deg)}}
+@keyframes mrbot-natural-blink{0%,23%,25%,52%,54%,100%{transform:scaleY(1)}24%,53%{transform:scaleY(.13)}}
+@keyframes mrbot-beacon{0%,100%{filter:brightness(1)}50%{filter:brightness(1.23)}}
+@keyframes mrbot-wave{0%,87%,100%{transform:rotate(-25deg)}91%{transform:rotate(-60deg)}95%{transform:rotate(5deg)}}
+@keyframes mrbot-shadow-breathe{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.84)}}
+@keyframes mrbot-think{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+@keyframes mrbot-celebrate{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important;transition:none!important}}
+#mrbot-root.mrbot-reduced-motion .mrbot-mascot *,#mrbot-root.mrbot-reduced-motion .mrbot-mascot *:before{animation:none!important;transition:none!important}
