@@ -229,7 +229,16 @@ html[data-theme="dark"] #mrbot-root{
 /* Articulated replacement. Existing panel/theme rules are retained. */
 #mrbot-root .mrbot-mascot #mrbot-pet-image{display:none!important}
 #mrbot-root .mrbot-mascot .mrbot-avatar{display:block!important;width:100%!important;height:100%!important;object-fit:contain;pointer-events:none;transform:none!important;animation:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.12))}
-#mrbot-root .mrbot-mascot{overflow:visible!important;background:transparent!important}
+#mrbot-root .mrbot-mascot{overflow:visible!important;background:transparent!important;animation:none!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot,#mrbot-root #mrbot-header-home .mrbot-mascot{animation:none!important}
 #mrbot-root:not(.mrbot-open) .mrbot-mascot{height:55px!important;width:55px!important}
 #mrbot-root.mrbot-open .mrbot-mascot{height:119px!important;width:110px!important}
 @media(max-width:550px){#mrbot-root.mrbot-open .mrbot-mascot{width:92px!important;height:103px!important}}
+
+/* MR. BOT: subtly larger in panel and launcher; original proportions retained. */
+#mrbot-root.mrbot-open #mrbot-header-home{width:128px!important;height:138px!important}
+#mrbot-root.mrbot-open #mrbot-header-home .mrbot-mascot{width:122px!important;height:133px!important}
+#mrbot-root.mrbot-open .mrbot-header{min-height:151px!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:60px!important;height:60px!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle{min-height:62px!important;height:62px!important}
+@media(max-width:550px){#mrbot-root.mrbot-open #mrbot-header-home{width:102px!important;height:116px!important}#mrbot-root.mrbot-open #mrbot-header-home .mrbot-mascot{width:102px!important;height:114px!important}}
