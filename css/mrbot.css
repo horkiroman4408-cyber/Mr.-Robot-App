@@ -212,3 +212,15 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root .mrbot-message.bot{white-space:pre-line!important;line-height:1.6!important}
 @media(max-width:550px){#mrbot-root #mrbot-header-home{width:92px!important;height:105px!important}#mrbot-root #mrbot-header-home .mrbot-mascot{width:92px!important;height:103px!important}}
 @media(prefers-reduced-motion:reduce){#mrbot-root #mrbot-header-home img{transition:none!important}}
+
+/* Keep README navigation as one stable row. */
+#mrbot-root .mrbot-docnav{flex:0 0 100%;position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap}
+#mrbot-root .mrbot-docnav button{white-space:nowrap}
+
+/* Animation toggle removed. Keep close button at the right edge. */
+#mrbot-root .mrbot-header #mrbot-close{margin-left:auto!important}
+
+/* Final launcher alignment: show the entire head and antenna above the button baseline. */
+#mrbot-root:not(.mrbot-open) #mrbot-toggle{overflow:visible!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:55px!important;height:55px!important;position:relative!important;transform:translateY(-5px)!important;overflow:visible!important;flex-shrink:0!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot img{width:55px!important;height:55px!important;object-fit:contain!important;transform:none!important}
