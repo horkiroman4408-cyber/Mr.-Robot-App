@@ -117,8 +117,8 @@
 <div class="app-card float-up" data-app="inne" style="--accent-soft:rgba(245,158,11,.16);animation-delay:.44s" @click="view = 'inne'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/></svg></div><div class="flex-1 min-w-0"><div class="app-title" style="background:linear-gradient(135deg,#fbbf24,#d97706);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ tr(23) }}</div><div class="app-sub">{{ tr(781) }}</div></div></div>
 <p class="app-desc">{{ tr(782) }}</p>
-<div class="tag-row"><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">{{ tr(99) }}</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">ARTLTT</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">TH Reports</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">Kreseczki</span></div>
-<div class="feature-list"><div class="feature-item"><span class="ico">📉</span><span>{{ tr(783) }}</span></div><div class="feature-item"><span class="ico">📦</span><span>{{ tr(784) }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ tr(785) }}</span></div><div class="feature-item"><span class="ico">✨</span><span>{{ tr(786) }}</span></div><div class="feature-item"><span class="ico">▥</span><span>{{ tr("Generuj kody kreskowe Code 128. Zapisz jako PNG lub SVG albo wydrukuj.") }}</span></div></div>
+<div class="tag-row"><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">{{ tr(99) }}</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">ARTLTT</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">Kreseczki</span></div>
+<div class="feature-list"><div class="feature-item"><span class="ico">📉</span><span>{{ tr(783) }}</span></div><div class="feature-item"><span class="ico">📦</span><span>{{ tr(784) }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ tr(785) }}</span></div><div class="feature-item"><span class="ico">✨</span><span>{{ tr(786) }}</span></div><div class="feature-item"><span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg></span><span>{{ tr("Generuj kody kreskowe Code 128 i drukuj je bezpośrednio z aplikacji.") }}</span></div></div>
 <button class="launch-btn" style="background:linear-gradient(180deg,#fbbf24 0%,#d97706 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(245,158,11,.35);">{{ tr(108) }} <span class="arrow">→</span></button>
 </div>
 
@@ -1332,8 +1332,8 @@
 <div class="text-xs text-slate-600 leading-relaxed">{{ tr(592) }}</div>
 </div>
 <div class="top-block" style="border-color:var(--mr-c167,rgba(245,158,11,.45));background:var(--mr-c168,rgba(245,158,11,.06));cursor:pointer;transition:all .2s ease;" @click="view='kreseczki'" @mouseover="$event.currentTarget.style.borderColor='rgba(245,158,11,.8)'" @mouseleave="$event.currentTarget.style.borderColor='rgba(245,158,11,.45)'">
-<div class="flex items-center gap-2"><div class="top-block-title" style="color:var(--mr-c20,#b45309);">▥ Kreseczki</div><span class="grafik-chip ok" style="font-size:.6rem;padding:.15rem .5rem;">{{ tr('Gotowe') }}</span></div>
-<div class="text-xs text-slate-600 leading-relaxed">{{ tr('Generuj kody kreskowe Code 128. Zapisz jako PNG lub SVG albo wydrukuj.') }}</div>
+<div class="flex items-center gap-2"><div class="top-block-title" style="color:var(--mr-c20,#b45309);display:flex;align-items:center;gap:.4rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg> Kreseczki</div><span class="grafik-chip ok" style="font-size:.6rem;padding:.15rem .5rem;">{{ tr('Gotowe') }}</span></div>
+<div class="text-xs text-slate-600 leading-relaxed">{{ tr('Generuj kody kreskowe Code 128 i drukuj je bezpośrednio z aplikacji.') }}</div>
 </div>
 <div class="top-block" style="border-color:var(--mr-c169,rgba(245,158,11,.35));background:var(--mr-c170,rgba(245,158,11,.04));">
 <div class="top-block-title" style="color:var(--mr-c20,#b45309);">📊 TH Reports</div>
@@ -1352,7 +1352,7 @@
 <template v-else-if="view === 'kreseczki'">
 <header class="px-6 pt-8 pb-4 max-w-4xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
 <button class="back-to-hub shrink-0" @click="view='inne'">← {{ tr(597) }}</button>
-<div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706] flex items-center justify-center robot-glow amber shrink-0 text-white text-[26px]">▥</div><div><h1 class="text-[22px] font-bold tracking-tight" style="color:var(--mr-c20,#b45309)">Kreseczki</h1><div class="text-[12px] font-semibold text-slate-600">{{ tr('Generator kodów kreskowych Code 128') }}</div></div></div>
+<div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706] flex items-center justify-center robot-glow amber shrink-0 text-white"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg></div><div><h1 class="text-[22px] font-bold tracking-tight" style="color:var(--mr-c20,#b45309)">Kreseczki</h1><div class="text-[12px] font-semibold text-slate-600">{{ tr('Generator kodów kreskowych Code 128') }}</div></div></div>
 </div></header>
 <main class="flex-1 px-6 pb-10 max-w-4xl w-full mx-auto space-y-6">
 <div class="glass-strong p-6 space-y-5 float-up">
@@ -1368,7 +1368,7 @@
 <div class="scalanie-section space-y-2"><div class="text-xs text-slate-500 font-semibold">{{ tr('Zakodowana wartość') }}:</div><div class="font-mono text-sm font-bold break-all">{{ kreseczki.value }}</div></div>
 <div class="kreseczki-preview" v-html="kreseczki.svg"></div>
 <div class="text-xs text-slate-500 text-center">{{ tr('Kod Code 128 gotowy do skanowania') }}</div>
-<div class="flex flex-wrap gap-2"><button class="ios-btn ios-btn-primary" @click="kreseczkiSaveSvg">{{ tr('Pobierz SVG') }}</button><button class="ios-btn ios-btn-neutral" @click="kreseczkiSavePng">{{ tr('Pobierz PNG') }}</button><button class="ios-btn ios-btn-neutral" @click="kreseczkiPrint">{{ tr('Drukuj') }}</button><button class="ios-btn ios-btn-neutral" @click="kreseczkiClear">{{ tr('Wyczyść') }}</button></div>
+<div class="flex flex-wrap gap-2"><button class="ios-btn ios-btn-neutral" @click="kreseczkiPrint">{{ tr('Drukuj') }}</button><button class="ios-btn ios-btn-neutral" @click="kreseczkiClear">{{ tr('Wyczyść') }}</button></div>
 </div>
 </main><footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
 </template>
