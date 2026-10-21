@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.6.16';
+const CACHE_REVISION = 'v3.6.17-kreseczki';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -42,6 +42,7 @@ const PRECACHE_URLS = [
   'js/workers/pracownicy.js',
   'js/workers/geek.js',
   'js/workers/common.js',
+  'js/code128.js',
   'js/app.js',
   'js/pwa-register.js',
   'manifest.webmanifest',

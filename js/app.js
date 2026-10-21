@@ -998,6 +998,25 @@ const przestoje=reactive({rows:[],fileName:'',drag:false,loading:false,progress:
 const ARTLTT_LOCATION_TYPES=['KONT_AMR','SHELF_2L','SHELF_L','SHELF_L_PLUS','SHELF_M','SHELF_S','SHELF_XL','SHELF_XS','SHELF_XXL','SHELF_XXL_PLUS'];
 const ARTLTT_VALUE_KEYS={KONT_AMR:'vA',SHELF_2L:'v2L',SHELF_L:'vL',SHELF_L_PLUS:'vLP',SHELF_S:'vS',SHELF_XXL:'vXXL'};
 const ARTLTT_PER_FILE=1000;
+
+// Inne / Kreseczki: local Code 128 barcode generation.
+const kreseczki=reactive({input:'',value:'',svg:'',width:0,height:0,error:''});
+function kreseczkiGenerate(){
+ kreseczki.error='';
+ try{const v=String(kreseczki.input);const result=window.MRCode128.render(v);
+  kreseczki.value=v;kreseczki.svg=result.svg;kreseczki.width=result.width;kreseczki.height=result.height;
+ }catch(e){kreseczki.svg='';kreseczki.value='';kreseczki.error=e.message==='ascii'?'Dozwolone są tylko znaki ASCII (bez polskich liter).':'Wprowadź od 1 do 180 znaków.';}
+}
+function kreseczkiClear(){kreseczki.input='';kreseczki.value='';kreseczki.svg='';kreseczki.error='';}
+function kreseczkiDownload(blob,extension){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='Code128_'+Date.now()+'.'+extension;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);}
+function kreseczkiSaveSvg(){if(kreseczki.svg)kreseczkiDownload(new Blob([kreseczki.svg],{type:'image/svg+xml;charset=utf-8'}),'svg');}
+function kreseczkiSavePng(){if(!kreseczki.svg)return;const img=new Image();const source=URL.createObjectURL(new Blob([kreseczki.svg],{type:'image/svg+xml;charset=utf-8'}));
+ img.onload=()=>{try{const canvas=document.createElement('canvas');canvas.width=kreseczki.width*2;canvas.height=kreseczki.height*2;const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{if(blob)kreseczkiDownload(blob,'png');else showToast(tr('Nie udało się zapisać PNG.'));},'image/png');}catch(e){showToast(tr('Nie udało się zapisać PNG.'));}finally{URL.revokeObjectURL(source);}};
+ img.onerror=()=>{URL.revokeObjectURL(source);showToast(tr('Nie udało się zapisać PNG.'));};img.src=source;
+}
+function kreseczkiPrint(){if(!kreseczki.svg)return;const w=window.open('','_blank','width=800,height=600');if(!w){showToast(tr('Zezwól na wyskakujące okna, aby drukować.'));return;}
+ w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Code 128</title><style>body{margin:30px;text-align:center;font-family:Arial,sans-serif}svg{max-width:100%;height:auto}@page{margin:14mm}</style></head><body>'+kreseczki.svg+'</body></html>');w.document.close();w.focus();w.addEventListener('load',()=>w.print(),{once:true});}
+
 const artltt=reactive({text:'',vA:0,v2L:0,vL:0,vLP:0,vS:0,vXXL:0,sep:';',result:null});
 const artlttPreview=computed(()=>{if(!artltt.result||!artltt.result.rows.length)return[];return artltt.result.rows.slice(0,20).map(r=>[r[0],r[1],r[2],r[3],String(r[4])]);});
 function artlttCsvField(v){const s=String(v==null?'':v);return /[";,\r\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
@@ -1103,6 +1122,6 @@ mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,
 mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSelected11,mdtCopySelectedLoc,mdtCopyKpiValues,mdtNum,
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
-artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
+kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
 kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
 }}).mount('#app');
