@@ -95,24 +95,46 @@ const $=id=>document.getElementById(id),toggle=$('mrbot-toggle'),panel=$('mrbot-
 let open=false,history=[],lastContext='',lastLang='';
 const locale=()=>DATA[window.MRI18N?.language]||DATA.pl;
 function context(){const v=window.__MRBOT_VIEW__?.value||'hub';return ['kpi','rs','mp','inne'].find(x=>v.toLowerCase().includes(x))||(/^kpi/i.test(v)?'kpi':/^tote|^geek|^audytret/i.test(v)?'rs':/^mp/i.test(v)?'mp':/^przestoje|^artltt|^kreseczki/i.test(v)?'inne':'hub');}
-function msg(kind,value){history.push({kind,value});if(history.length>30)history.shift();renderMessages();}
+function msg(kind,value){history.push({kind,value});if(history.length>18)history.shift();renderMessages();}
 function renderMessages(){messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
+const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
+let readmeMode=false,readmeIndex=0,readmeEntries=[];
+function ui(){return UI[window.MRI18N?.language]||UI.pl;}
+function getReadme(){const lang=window.MRI18N?.language||'pl';return (window.MRBOT_README_KB||{})[lang]||(window.MRBOT_README_KB||{}).en||[];}
 function suggestionsFor(){const lang=window.MRI18N?.language||'pl';return (GUIDE[lang]||GUIDE.pl)[context()]||(GUIDE[lang]||GUIDE.pl).home;}
-function refresh(){const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-motion').title=l.reduce;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;suggestions.replaceChildren();for(const [label,key] of suggestionsFor()){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>answer(label,key));suggestions.appendChild(b);}if(lastLang!==window.MRI18N?.language){lastLang=window.MRI18N?.language;if(!history.length)msg('bot',l.hello);}}
+function refresh(){const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-motion').title=l.reduce;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;suggestions.replaceChildren();if(readmeMode){const back=document.createElement('button');back.type='button';back.textContent=ui().back;back.addEventListener('click',()=>{readmeMode=false;refresh();});suggestions.appendChild(back);readmeEntries.forEach((entry,i)=>{const b=document.createElement('button');b.type='button';b.textContent=entry.title;b.addEventListener('click',()=>showReadme(i));suggestions.appendChild(b);});}else{for(const [label,key] of suggestionsFor()){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>answer(label,key));suggestions.appendChild(b);}const b=document.createElement('button');b.type='button';b.className='mrbot-kb-trigger';b.textContent=ui().knowledge;b.addEventListener('click',()=>{readmeMode=true;readmeEntries=getReadme();refresh();msg('bot',ui().menu);});suggestions.appendChild(b);} if(lastLang!==window.MRI18N?.language){lastLang=window.MRI18N?.language;if(!history.length)msg('bot',l.hello);}}
 function resolve(q){const s=q.toLocaleLowerCase().normalize('NFKD');const match=(...parts)=>parts.some(x=>s.includes(x));if(match('kresecz','barcode','code 128','штрих','штрихкод','штрихкод','штрихкод'))return'barcode';if(match('nadwe','vas'))return'nadwe';if(match('kpi','норм','norm','wydajno'))return'kpi';if(match('tote','geek','ret','rs1',' rs','ean'))return'rs';if(match('scalanie','konsolid','formatka','stock','mdt',' mp','локац','lokac'))return'mp';if(match('artltt','przestoj','просто','downtime','inne'))return'inne';if(match('excel','grafik','plik','file','файл','завантаж','загруз'))return'files';if(match('filtr','фильтр','фільтр','target','смен','zmian'))return'filters';if(match('csv','export','eksport','выгруз','експорт','pobier','скача','копир'))return'export';if(match('błąd','error','ошиб','пуст','empty','brak wynik','не работа','не працю'))return'error';if(match('start','zaczą','нача','почат','jak','как','how'))return context()==='hub'?'steps':context();return null;}
+function showReadme(i){if(!readmeEntries[i])return;readmeIndex=i;const e=readmeEntries[i];msg('user',e.title);petMood('think',600);msg('bot',e.text+'\n\n'+ui().source);renderReadmeNav();}
+function renderReadmeNav(){const wrap=document.createElement('div');wrap.className='mrbot-docnav';for(const [label,i] of [[ui().prev,readmeIndex-1],[ui().next,readmeIndex+1]]){if(!readmeEntries[i])continue;const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>showReadme(i));wrap.appendChild(b);}suggestions.prepend(wrap);}
 function answer(q,selectedKey){const l=locale();msg('user',q);root.classList.remove('mrbot-happy','mrbot-curious');root.classList.add('mrbot-thinking');petMood('think');setTimeout(()=>{root.classList.remove('mrbot-thinking');const key=selectedKey||resolve(q);const lang=window.MRI18N?.language||'pl';const detail=(DETAIL[lang]||FALLBACK_DETAIL[lang]||DETAIL.pl)[key];root.classList.add(key?'mrbot-happy':'mrbot-curious');petMood(key?'success':'confused',1600);msg('bot',detail||(key?l[key]:l.unknown));setTimeout(()=>root.classList.remove('mrbot-happy','mrbot-curious'),1800);},240);}
 const mascot=toggle.querySelector('.mrbot-mascot');const headerHome=$('mrbot-header-home');const toggleLabel=toggle.querySelector('.mrbot-toggle-label');
 const petImage=$('mrbot-pet-image');
-let petState='idle',petReset=null;
-function petMood(state,ms=0){petState=state;petImage.src='assets/mrbot-pet/'+(open?'':'head-')+state+'.webp';if(petReset)clearTimeout(petReset);if(ms)petReset=setTimeout(()=>petMood('idle'),ms);}
+let petState='idle',petReset=null,petIdleTimer=null,lastSprite='';
+const petFiles={idle:'idle',hello:'hello',think:'think',wait:'wait',success:'success',confused:'confused'};
+function petMood(state,ms=0){
+  petState=state;
+  if(petReset){clearTimeout(petReset);petReset=null;}
+  const sprite=(open?'':'head-')+(petFiles[state]||'idle');
+  const safeSprite=!open&&!['idle','hello','think','success'].includes(state)?'head-idle':sprite;
+  if(safeSprite!==lastSprite){petImage.src='assets/mrbot-pet/'+safeSprite+'.webp';lastSprite=safeSprite;}
+  if(ms)petReset=setTimeout(()=>petMood('idle'),ms);
+}
+function schedulePetIdle(){if(petIdleTimer)clearTimeout(petIdleTimer);petIdleTimer=setTimeout(()=>{
+ if(!root.classList.contains('mrbot-reduced-motion')&&petState==='idle'){
+  const moods=open?['wait','idle','idle','think','idle','hello','idle']:['idle','idle','hello','idle'];
+  const state=moods[Math.floor(Math.random()*moods.length)];
+  if(state!=='idle')petMood(state,2200);else petMood('idle');
+ }
+ schedulePetIdle();
+},5500+Math.random()*5500);}
 function placeMascot(inHeader){if(inHeader){headerHome.appendChild(mascot);}else{toggle.insertBefore(mascot,toggleLabel);}}
-function setOpen(v){placeMascot(v);open=v;petMood(v?'hello':'idle',v?1600:0);panel.hidden=!v;toggle.setAttribute('aria-expanded',String(v));root.classList.toggle('mrbot-open',v);if(v){refresh();root.classList.add('mrbot-curious');setTimeout(()=>root.classList.remove('mrbot-curious'),1400);}else toggle.focus();}
+function setOpen(v){placeMascot(v);open=v;petMood(v?'hello':'idle',v?1600:0);panel.hidden=!v;toggle.setAttribute('aria-expanded',String(v));root.classList.toggle('mrbot-open',v);schedulePetIdle();if(v){refresh();root.classList.add('mrbot-curious');setTimeout(()=>root.classList.remove('mrbot-curious'),1400);}else toggle.focus();}
 try{if(localStorage.getItem('mrbot-reduced-motion')==='1')root.classList.add('mrbot-reduced-motion');}catch(e){}
 $('mrbot-motion').addEventListener('click',()=>{const reduced=root.classList.toggle('mrbot-reduced-motion');$('mrbot-motion').setAttribute('aria-pressed',String(reduced));try{localStorage.setItem('mrbot-reduced-motion',reduced?'1':'0');}catch(e){}});
 root.addEventListener('pointermove',e=>{if(root.classList.contains('mrbot-reduced-motion'))return;const r=mascot.getBoundingClientRect();const x=Math.max(-2.8,Math.min(2.8,(e.clientX-r.left-r.width*.35)/r.width*5));const y=Math.max(-1.7,Math.min(1.7,(e.clientY-r.top-r.height*.5)/r.height*3));root.style.setProperty('--mrbot-look-x',x.toFixed(2)+'px');root.style.setProperty('--mrbot-look-y',y.toFixed(2)+'px');});root.addEventListener('pointerleave',()=>{root.style.setProperty('--mrbot-look-x','0px');root.style.setProperty('--mrbot-look-y','0px');});
 toggle.addEventListener('click',()=>setOpen(!open));$('mrbot-close').addEventListener('click',()=>setOpen(false));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open)setOpen(false);});
 window.MRI18N?.subscribe?.(()=>refresh());
 window.addEventListener('mrbot-view-change',refresh);
-refresh();
+refresh();schedulePetIdle();
 try{if(!localStorage.getItem('mrbot-intro-v1')){const tip=$('mrbot-intro');tip.textContent=locale().intro;tip.hidden=false;tip.addEventListener('click',()=>{tip.hidden=true;setOpen(true);});setTimeout(()=>{tip.hidden=true;},7500);localStorage.setItem('mrbot-intro-v1','1');}}catch(e){}
 })();

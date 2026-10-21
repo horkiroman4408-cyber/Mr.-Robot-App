@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.6.18-mrbot';
+const CACHE_REVISION = 'v3.6.18-mrbot-kb2';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -46,6 +46,17 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/app.js',
   'js/mrbot.js',
+  'js/mrbot-knowledge.js',
+  'assets/mrbot-pet/wait.webp',
+  'assets/mrbot-pet/think.webp',
+  'assets/mrbot-pet/success.webp',
+  'assets/mrbot-pet/idle.webp',
+  'assets/mrbot-pet/hello.webp',
+  'assets/mrbot-pet/head-think.webp',
+  'assets/mrbot-pet/head-success.webp',
+  'assets/mrbot-pet/head-idle.webp',
+  'assets/mrbot-pet/head-hello.webp',
+  'assets/mrbot-pet/confused.webp',
   'js/pwa-register.js',
   'manifest.webmanifest',
   'icons/favicon.svg',

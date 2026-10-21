@@ -18,6 +18,8 @@
 
 ---
 
+MR. BOT oferuje teraz lokalny przewodnik z instrukcjami modułów oraz fragmentami tej dokumentacji, bez wysyłania danych.
+
 ## 📖 Spis treści
 
 - [Co to jest](#-co-to-jest)

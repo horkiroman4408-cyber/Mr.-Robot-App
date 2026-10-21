@@ -197,3 +197,18 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root #mrbot-suggestions{max-height:180px;overflow-y:auto;align-content:flex-start}
 #mrbot-root .mrbot-message.bot{line-height:1.55;white-space:pre-line}
 #mrbot-root #mrbot-header-home img{max-width:100%;max-height:100%}
+
+/* Expanded mascot and rich guide browsing */
+#mrbot-root #mrbot-header-home{width:116px!important;height:123px!important;overflow:visible!important}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:110px!important;height:119px!important;transform:none!important}
+#mrbot-root .mrbot-header{min-height:138px!important;gap:12px!important}
+#mrbot-root #mrbot-header-home img{width:100%!important;height:100%!important;object-fit:contain!important;transition:transform .8s cubic-bezier(.2,.8,.2,1)!important;transform:translate(var(--mrbot-look-x,0px),var(--mrbot-look-y,0px))}
+#mrbot-root #mrbot-toggle .mrbot-mascot img{transition:transform .9s ease!important}
+#mrbot-root #mrbot-suggestions{max-height:225px!important;overflow-y:auto!important}
+#mrbot-root #mrbot-suggestions .mrbot-kb-trigger{font-weight:700!important;border-style:solid!important}
+#mrbot-root .mrbot-docnav{display:flex;gap:8px;width:100%;justify-content:space-between}
+#mrbot-root .mrbot-docnav button{font-weight:700!important}
+#mrbot-root #mrbot-messages{scroll-behavior:smooth}
+#mrbot-root .mrbot-message.bot{white-space:pre-line!important;line-height:1.6!important}
+@media(max-width:550px){#mrbot-root #mrbot-header-home{width:92px!important;height:105px!important}#mrbot-root #mrbot-header-home .mrbot-mascot{width:92px!important;height:103px!important}}
+@media(prefers-reduced-motion:reduce){#mrbot-root #mrbot-header-home img{transition:none!important}}

@@ -18,6 +18,8 @@
 
 ---
 
+MR. BOT now offers an offline guided help library, with curated passages from this README and module-specific instructions.
+
 ## 📖 Table of Contents
 
 - [What it is](#-what-it-is)
