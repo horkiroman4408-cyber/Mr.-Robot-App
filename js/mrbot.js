@@ -110,7 +110,7 @@ function answer(q,selectedKey){const l=locale();msg('user',q);root.classList.rem
 const mascot=toggle.querySelector('.mrbot-mascot');const headerHome=$('mrbot-header-home');const toggleLabel=toggle.querySelector('.mrbot-toggle-label');
 const petImage=$('mrbot-pet-image');
 let petState='idle',petReset=null,petIdleTimer=null,lastSprite='';
-const petFiles={idle:'idle',hello:'hello',think:'think',wait:'wait',success:'success',confused:'confused'};
+const petFiles={idle:'idle',hello:'hello',think:'think',wait:'wait',success:'success',confused:'confused',stretch:'stretch',sit:'sit',lookaround:'lookaround',headscratch:'headscratch',antenna:'antenna',surprise:'surprise',rest:'rest',sway:'sway',nod:'nod'};
 function petMood(state,ms=0){
   petState=state;
   if(petReset){clearTimeout(petReset);petReset=null;}
@@ -120,17 +120,19 @@ function petMood(state,ms=0){
   if(ms)petReset=setTimeout(()=>petMood('idle'),ms);
 }
 let idleStep=0;
+// Calm deterministic cycle. Greeting belongs exclusively to opening the guide.
+const fullIdleSequence=['idle','lookaround','idle','stretch','idle','sit','idle','antenna','idle','headscratch','idle','rest','idle','sway','idle','surprise','idle','nod'];
+const headIdleSequence=['idle','idle','think','idle','idle','success','idle'];
 function schedulePetIdle(){
  if(petIdleTimer)clearTimeout(petIdleTimer);
  petIdleTimer=setTimeout(()=>{
-  if(petState==='idle'){
-   // Rotate through real animated pet sprites instead of randomizing to idle repeatedly.
-   const sequence=open?['wait','hello','think','wait','hello','idle']:['hello','idle','hello','idle'];
+  if(!document.hidden&&petState==='idle'){
+   const sequence=open?fullIdleSequence:headIdleSequence;
    const state=sequence[idleStep++%sequence.length];
-   if(state!=='idle')petMood(state,3400);else petMood('idle');
+   if(state!=='idle')petMood(state,open?4300:3000);
   }
   schedulePetIdle();
- },open?4100:6900);
+ },open?16500:22000);
 }
 function placeMascot(inHeader){if(inHeader){headerHome.appendChild(mascot);}else{toggle.insertBefore(mascot,toggleLabel);}}
 function setOpen(v){placeMascot(v);open=v;petMood(v?'hello':'idle',v?1600:0);panel.hidden=!v;toggle.setAttribute('aria-expanded',String(v));root.classList.toggle('mrbot-open',v);schedulePetIdle();if(v){refresh();root.classList.add('mrbot-curious');setTimeout(()=>root.classList.remove('mrbot-curious'),1400);}else toggle.focus();}
