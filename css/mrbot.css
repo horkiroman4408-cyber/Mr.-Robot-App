@@ -116,3 +116,25 @@ html[data-theme="dark"] #mrbot-root{
 @keyframes mrbot-celebrate{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 @media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important;transition:none!important}}
 #mrbot-root.mrbot-reduced-motion .mrbot-mascot *,#mrbot-root.mrbot-reduced-motion .mrbot-mascot *:before{animation:none!important;transition:none!important}
+
+/* v3.6.18 refinement: one character, compact launcher, calm motion, header home */
+#mrbot-root #mrbot-toggle{min-height:43px!important;height:43px!important;gap:5px!important;padding:3px 11px 3px 5px!important;box-shadow:var(--mb-shadow)!important}
+#mrbot-root #mrbot-toggle .mrbot-toggle-label{font-size:11px!important;font-weight:700!important;letter-spacing:-.01em!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot{width:38px!important;height:38px!important;transform:scale(.60);transform-origin:top left;margin-right:-15px;margin-bottom:-24px}
+#mrbot-root #mrbot-header-home{display:flex;align-items:center;justify-content:center;width:66px;height:65px;flex:none}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:67px;height:65px;transform:scale(.91);transform-origin:center}
+#mrbot-root .mrbot-header{min-height:82px;gap:10px;overflow:visible}
+#mrbot-root .mrbot-header strong{font-size:15px}
+#mrbot-root .mrbot-figure{animation:mrbot-gentle-idle 7s ease-in-out infinite!important}
+#mrbot-root .mrbot-face{animation:none!important}
+#mrbot-root .mrbot-arm.right{animation:none!important}
+#mrbot-root #mrbot-toggle:hover .mrbot-arm.right{animation:none!important}
+#mrbot-root .mrbot-eye{animation:mrbot-calm-blink 9s infinite!important}
+#mrbot-root .mrbot-aerial-light{animation:mrbot-beacon 5s ease-in-out infinite}
+#mrbot-root.mrbot-thinking .mrbot-figure{animation:mrbot-think 1.6s ease-in-out infinite!important}
+#mrbot-root.mrbot-happy .mrbot-figure{animation:mrbot-gentle-idle 7s ease-in-out infinite!important}
+#mrbot-root .mrbot-shadow{animation:none!important}
+@keyframes mrbot-gentle-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes mrbot-calm-blink{0%,48%,50%,100%{transform:scaleY(1)}49%{transform:scaleY(.14)}}
+#mrbot-root.mrbot-reduced-motion .mrbot-mascot *,#mrbot-root.mrbot-reduced-motion .mrbot-mascot *:before{animation:none!important}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important}}
