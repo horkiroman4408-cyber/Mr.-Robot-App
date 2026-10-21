@@ -28,6 +28,7 @@ function closeSettings(){view.value=settingsReturn.view;requestAnimationFrame(()
 function goFromSettings(target){view.value=target;window.scrollTo(0,0);}
 
 const view=ref('hub');const toast=ref('');
+window.__MRBOT_VIEW__=view;watch(view,()=>window.dispatchEvent(new Event('mrbot-view-change')));
 const showWelcome=ref(false);
 try { if(!localStorage.getItem('mrrobot_welcomed')) showWelcome.value = true; } catch(e){}
 function closeWelcome(){ showWelcome.value = false; try{ localStorage.setItem('mrrobot_welcomed', '1'); }catch(e){} }

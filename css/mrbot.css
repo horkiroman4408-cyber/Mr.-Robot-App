@@ -1,0 +1,38 @@
+
+#mrbot-root{position:fixed;z-index:10050;right:18px;bottom:18px;font-family:system-ui,sans-serif;color:#eaf7ff}
+#mrbot-toggle{display:flex;align-items:center;gap:8px;border:1px solid #2c9ee5;border-radius:30px;padding:7px 15px 7px 8px;background:linear-gradient(140deg,#0a2447,#06152c);box-shadow:0 8px 35px #041b40a8;cursor:pointer;color:#e7faff;font-weight:800}
+#mrbot-toggle:hover{transform:translateY(-2px)}
+.mrbot-mascot{position:relative;display:inline-block;width:43px;height:47px;flex-shrink:0}
+.mrbot-antenna{position:absolute;left:20px;top:0;width:3px;height:10px;background:#8edfff;border-radius:5px}
+.mrbot-antenna:before{content:'';position:absolute;left:-4px;top:-5px;width:11px;height:11px;background:#36e5ff;border-radius:50%;box-shadow:0 0 10px #20cfff;animation:mrbot-pulse 3s infinite}
+.mrbot-head{position:absolute;top:9px;left:2px;width:39px;height:31px;border:3px solid #cdefff;border-radius:14px;background:#071427;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:inset 0 0 8px #0b82db,0 0 8px #00bbff88}
+.mrbot-eye{display:block;width:8px;height:10px;background:#28dcff;border-radius:50%;box-shadow:0 0 8px #28dcff;animation:mrbot-blink 6s infinite}
+.mrbot-eye:nth-child(2){animation-delay:.09s}
+.mrbot-mouth{position:absolute;bottom:3px;left:16px;width:8px;height:4px;border-bottom:2px solid #28dcff;border-radius:0 0 9px 9px}
+.mrbot-body{position:absolute;bottom:0;left:14px;width:15px;height:9px;background:#daeefe;border:2px solid #0f91dd;border-radius:6px}
+#mrbot-panel{width:min(380px,calc(100vw - 24px));height:min(560px,calc(100dvh - 105px));margin-bottom:12px;display:flex;flex-direction:column;border:1px solid #168de6;border-radius:19px;background:linear-gradient(145deg,#0a2345,#071429);box-shadow:0 22px 70px #001026bf;overflow:hidden}
+#mrbot-panel[hidden]{display:none}
+.mrbot-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#0c2c52;border-bottom:1px solid #164b7b}
+.mrbot-header-icon{font-size:29px}.mrbot-header strong{display:block;font-size:16px}.mrbot-header small{display:block;font-size:11px;color:#78caff}
+#mrbot-close{margin-left:auto;background:transparent;border:0;color:#d2eaff;font-size:25px;cursor:pointer}
+#mrbot-messages{flex:1;overflow:auto;padding:15px;display:flex;flex-direction:column;gap:11px}
+.mrbot-message{white-space:pre-line;max-width:93%;padding:11px 13px;border-radius:13px;line-height:1.48;font-size:13px}
+.mrbot-message.bot{align-self:flex-start;background:#17365b;border:1px solid #285079}
+.mrbot-message.user{align-self:flex-end;background:#0a78cc;color:white}
+#mrbot-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:8px 13px}
+#mrbot-suggestions button{border:1px solid #216ba5;border-radius:9px;padding:7px 9px;background:#0b315c;color:#cceaff;font-size:11px;cursor:pointer}
+#mrbot-suggestions button:hover{background:#12538d}
+#mrbot-form{display:flex;gap:8px;padding:9px 12px}
+#mrbot-input{min-width:0;flex:1;padding:11px 12px;border-radius:11px;border:1px solid #26669a;background:#102f52;color:#fff;font-size:13px;outline:none}
+#mrbot-input:focus{border-color:#32d8ff}
+#mrbot-send{width:43px;border:0;border-radius:11px;background:#118fe4;color:white;cursor:pointer}
+#mrbot-privacy{font-size:10px;color:#91b7d0;padding:0 13px 11px}
+#mrbot-intro{position:absolute;bottom:75px;right:0;width:190px;padding:12px;background:#0a3970;color:white;border:1px solid #28baff;border-radius:13px;cursor:pointer}
+#mrbot-intro[hidden]{display:none}
+.mrbot-thinking .mrbot-eye{height:4px;transform:rotate(-8deg)}
+@keyframes mrbot-blink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.12)}}
+@keyframes mrbot-pulse{0%,100%{box-shadow:0 0 5px #20cfff}50%{box-shadow:0 0 17px #20cfff}}
+@media(max-width:550px){#mrbot-root{right:10px;bottom:10px}#mrbot-panel{width:calc(100vw - 20px);height:min(510px,calc(100dvh - 90px))}}
+@media(prefers-reduced-motion:reduce){#mrbot-root *,#mrbot-root *:before{animation:none!important;transition:none!important}}
+
+#mrbot-motion{margin-left:auto;background:transparent;border:1px solid #28577d;border-radius:8px;color:#b4dcf9;padding:5px 8px;cursor:pointer}#mrbot-close{margin-left:0}#mrbot-root.mrbot-reduced-motion *,#mrbot-root.mrbot-reduced-motion *:before{animation:none!important;transition:none!important}

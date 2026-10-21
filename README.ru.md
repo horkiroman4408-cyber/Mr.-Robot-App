@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.6.17-blue)
+![версия](https://img.shields.io/badge/version-3.6.18-blue)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -327,3 +327,7 @@ Mr.-Robot-App/
 Открыт к фидбеку и сотрудничеству. Есть мысли — открывайте issue в этом репозитории.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+### MR. BOT (v3.6.18)
+
+Встроенный офлайн-помощник предлагает готовые вопросы и поиск инструкций по свободному тексту для KPI, RS, MP и Inne. Анимированный персонаж поддерживает PL/RU/EN/UK. Это **не генеративный ИИ**; помощник не читает и не отправляет данные Excel-отчётов.

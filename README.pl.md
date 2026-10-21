@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.6.17-blue)
+![wersja](https://img.shields.io/badge/version-3.6.18-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -327,3 +327,7 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+### MR. BOT (v3.6.18)
+
+Wbudowany asystent offline udostępnia gotowe pytania i wyszukiwanie wskazówek po własnym tekście dla KPI, RS, MP i Inne. Animowana postać obsługuje PL/RU/EN/UK. To **nie jest generatywna AI**; asystent nie odczytuje ani nie wysyła danych raportów Excel.

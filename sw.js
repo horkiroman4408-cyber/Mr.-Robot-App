@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.6.17-kreseczki-ui-fix';
+const CACHE_REVISION = 'v3.6.18-mrbot';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -25,6 +25,7 @@ const PRECACHE_URLS = [
   './',
   'index.html',
   'css/styles.css',
+  'css/mrbot.css',
   'js/i18n.js',
   'js/theme.js',
   'js/vendor-tailwind.js',
@@ -44,6 +45,7 @@ const PRECACHE_URLS = [
   'js/workers/common.js',
   'js/code128.js',
   'js/app.js',
+  'js/mrbot.js',
   'js/pwa-register.js',
   'manifest.webmanifest',
   'icons/favicon.svg',
