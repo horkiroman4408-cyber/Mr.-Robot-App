@@ -36,3 +36,37 @@
 @media(prefers-reduced-motion:reduce){#mrbot-root *,#mrbot-root *:before{animation:none!important;transition:none!important}}
 
 #mrbot-motion{margin-left:auto;background:transparent;border:1px solid #28577d;border-radius:8px;color:#b4dcf9;padding:5px 8px;cursor:pointer}#mrbot-close{margin-left:0}#mrbot-root.mrbot-reduced-motion *,#mrbot-root.mrbot-reduced-motion *:before{animation:none!important;transition:none!important}
+
+/* v3.6.18: match the native app theme and keep Co nowego unobstructed. */
+#mrbot-root{
+ left:18px;right:auto;
+ --mb-surface:#ffffff;--mb-panel:#ffffff;--mb-head:#f8fafc;
+ --mb-text:#24334a;--mb-muted:#66758a;--mb-line:#e1e7f0;
+ --mb-bubble:#f1f5fb;--mb-chip:#f2f7ff;--mb-chip-border:#d9e7fa;
+ --mb-input:#ffffff;--mb-accent:#198bfa;--mb-shadow:0 14px 42px rgba(39,59,99,.18);
+ color:var(--mb-text);
+}
+html[data-theme="dark"] #mrbot-root{
+ --mb-surface:#22232a;--mb-panel:#25262e;--mb-head:#2c2d36;
+ --mb-text:#f0f2f7;--mb-muted:#adb4c3;--mb-line:#454754;
+ --mb-bubble:#343643;--mb-chip:#323744;--mb-chip-border:#515a6b;
+ --mb-input:#30323c;--mb-accent:#4aa3ff;--mb-shadow:0 16px 44px rgba(0,0,0,.35);
+}
+#mrbot-toggle{background:var(--mb-surface);color:var(--mb-text);border:1px solid var(--mb-line);box-shadow:var(--mb-shadow);border-radius:999px}
+#mrbot-toggle:hover{box-shadow:0 12px 32px rgba(31,112,207,.19)}
+#mrbot-panel{background:var(--mb-panel);border:1px solid var(--mb-line);box-shadow:var(--mb-shadow);color:var(--mb-text)}
+.mrbot-header{background:var(--mb-head);border-color:var(--mb-line)}
+.mrbot-header small{color:var(--mb-muted)}
+#mrbot-close{color:var(--mb-muted)}
+.mrbot-message.bot{background:var(--mb-bubble);border:1px solid var(--mb-line);color:var(--mb-text)}
+.mrbot-message.user{background:var(--mb-accent);color:white}
+#mrbot-suggestions button{background:var(--mb-chip);border:1px solid var(--mb-chip-border);color:var(--mb-text);border-radius:999px}
+#mrbot-suggestions button:hover{background:var(--mb-bubble)}
+#mrbot-input{background:var(--mb-input);border:1px solid var(--mb-line);color:var(--mb-text)}
+#mrbot-input::placeholder{color:var(--mb-muted)}
+#mrbot-input:focus{border-color:var(--mb-accent)}
+#mrbot-send{background:var(--mb-accent)}
+#mrbot-privacy{color:var(--mb-muted)}
+#mrbot-motion{color:var(--mb-muted);border-color:var(--mb-line)}
+#mrbot-intro{left:0;right:auto;background:var(--mb-surface);border:1px solid var(--mb-line);color:var(--mb-text);box-shadow:var(--mb-shadow)}
+@media(max-width:550px){#mrbot-root{left:10px;right:auto}}
