@@ -763,6 +763,22 @@ function geekOpSelectAll(v){const o={};for(const x of geekOpOptions.value)o[x.ke
 function geekResetFilters(){geekSelectAll(true);geekOpSelectAll(true);}
 
 function geekRetCalc(list){const toty=new Set(),przeg=new Set(),totyBad=new Set(),przegBad=new Set();let sztuk=0;for(const r of list){sztuk+=r.qty;const pref=r.shelf.length>=10?r.shelf.slice(0,10):r.shelf;toty.add(pref);przeg.add(r.shelf);if(r.exc==='YES'){totyBad.add(pref);przegBad.add(r.shelf);}}return {totPrzel:toty.size,przegPrzel:przeg.size,sztuk,totPopr:toty.size-totyBad.size,przegBad:przegBad.size,sumaBad:totyBad.size};}
+// AUDYT RET: klasyfikacja nowych metryk wg pełnego Shelf bin, wyłącznie w obrębie grupy.
+// Lokalizacje powtarzające się należą tylko do kategorii pomieszanych artykułów.
+function geekRetDetails(list){
+ const counts=new Map();for(const r of list)counts.set(r.shelf,(counts.get(r.shelf)||0)+1);
+ const out={mixedTots:0,mixedPieces:0,nadwyTots:0,nadwyPieces:0,brakTots:0,brakPieces:0,extraTots:0,extraPieces:0,damageTots:0,damagePieces:0,unlabelledTots:0,unlabelledPieces:0};
+ for(const n of counts.values())if(n>=2){out.mixedTots++;out.mixedPieces+=n;}
+ for(const r of list){if(counts.get(r.shelf)!==1)continue;
+  const n=Math.max(0,r.n||0);
+  if(r.cat==='surplus'){out.nadwyTots++;out.nadwyPieces+=n;}
+  else if(r.cat==='Shortage'){out.brakTots++;out.brakPieces+=n;}
+  else if(r.cat==='Extra sku'){out.extraTots++;out.extraPieces+=n;}
+  else if(r.cat==='Major damage'){out.damageTots++;out.damagePieces+=n;}
+ }
+ return out;
+}
+
 const geekGroups=computed(()=>{if(!geek.result||!geek.result.recs||geek.result.missing2.length)return null;
 const map=new Map();const retRecs=[];
 for(const r of geek.result.recs){if(!r.key2)continue;if(!geek.sel[r.key2])continue;if(geek.result.hasOp&&!geek.opSel[r.op])continue;
@@ -774,8 +790,16 @@ const groups=[];
 for(const g of map.values()){const cats=[];for(const c of GEEK_CATS){const o=g.c[c.key];if(o.count>0)cats.push({key:c.key,label:c.label,cls:c.cls,ico:c.ico,count:o.count,szt:o.szt,skus:o.skus,skuText:o.skus.join(', ')});}
 const out={name:g.name,total:g.total,bledne:g.bledne,odsetek:g.total>0?g.bledne/g.total:0,cats};out.text=geekGroupText(out);groups.push(out);}
 if(retRecs.length){const t=geekRetCalc(retRecs);const lines=[['TOTY PRZELICZONE',t.totPrzel,'blue'],['PRZEGRÓDKI PRZELICZONE',t.przegPrzel,'purple'],['SZTUKI PRZELICZONE',t.sztuk.toLocaleString('pl-PL'),'blue'],['TOTY POPRAWNE',t.totPopr,'green'],['PRZEGRÓDKI NIE POPRAWNE',t.przegBad,'red'],['SUMA NIEPOPRAWNYCH TOTÓW',t.sumaBad,'red']];
-const pads=['TOTY PRZELICZONE:          ','PRZEGRÓDKI PRZELICZONE:    ','SZTUKI PRZELICZONE:        ','TOTY POPRAWNE:             ','PRZEGRÓDKI NIE POPRAWNE:   ','SUMA NIEPOPRAWNYCH TOTÓW: '];
-groups.push({name:'AUDYT RET',ret:true,lines,text:['AUDYT RET'].concat(lines.map((l,i)=>'     '+pads[i]+l[1])).join('\n')});}
+const d=geekRetDetails(retRecs);
+lines.push(['ODSETEK BŁĘDÓW',geekPct(t.totPrzel?t.sumaBad/t.totPrzel:0,2),'red'],
+ ['TOTY Z POMESZANYMI ART. W PRZEGRÓDKACH',d.mixedTots,'orange'],
+ ['POMIESZANYCH SZT.',d.mixedPieces,'orange'],
+ ['TOTY Z NADWE',d.nadwyTots,'orange'],['NADWE SZT.',d.nadwyPieces,'orange'],
+ ['TOTY Z BRAKIEM',d.brakTots,'red'],['BRAK SZT.',d.brakPieces,'red'],
+ ['TOTY PRZEPEŁNIONE',d.extraTots,'purple'],['PRZEPEŁNIONE SZT.',d.extraPieces,'purple'],
+ ['TOTY Z WADĄ',d.damageTots,'red'],['WADA SZT.',d.damagePieces,'red'],
+ ['TOTY Z ART. BEZ METKI',0,'gray'],['BRAK METKI SZT.',0,'gray']);
+groups.push({name:'AUDYT RET',ret:true,lines,text:['AUDYT RET'].concat(lines.map(l=>'     '+l[0]+': '+l[1])).join('\n')});}
 return groups;});
 const geekFilterNote=computed(()=>{if(!geek.result||!geek.result.recs)return '';const parts=[];if(geekSelCount.value<geekListOptions.value.length)parts.push('grupy '+geekSelCount.value+'/'+geekListOptions.value.length);if(geek.result.hasOp&&geekOpSelCount.value<geekOpOptions.value.length)parts.push('operatorzy '+geekOpSelCount.value+'/'+geekOpOptions.value.length);return parts.join(' · ');});
 const geekGroupsFiltered=computed(()=>{const gr=geekGroups.value;if(!gr)return[];const q=String(geek.filter||'').trim().toLowerCase();if(!q)return gr;return gr.filter(g=>g.name.toLowerCase().indexOf(q)>=0);});
@@ -806,9 +830,9 @@ return {hasOp:cOp>=0,recs,missing1,missing2,rowCount};
 function geekT1Rows(){const t=geekT1.value;if(!t)return[];if(t.ret)return [['TOTY PRZELICZONE',t.totPrzel],['PRZEGRÓDKI PRZELICZONE',t.przegPrzel],['SZTUKI PRZELICZONE',t.sztuk.toLocaleString('pl-PL')],['TOTY POPRAWNE',t.totPopr],['PRZEGRÓDKI NIE POPRAWNE',t.przegBad],['SUMA NIEPOPRAWNYCH TOTÓW',t.sumaBad]];return [['Toty poprawne',t.poprawne],['Toty z brakami',t.braki],['Toty z nadwyżkami',t.nadwyzki],['Toty przepełnione',t.przepelnione],['Toty z wadą',t.wada],['Total toty przeliczone',t.przeliczone],['Total toty błędne',t.bledne],['Odsetek błędnych',geekPct(t.odsetek,2)],['Sztuk przeliczone',t.sztuk]];}
 async function geekCopy(text,okMsg){try{await navigator.clipboard.writeText(text);showToast(okMsg);}catch(err){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast(okMsg);}catch(e){showToast('Nie udało się skopiować');}document.body.removeChild(ta);}}
 function geekCopyT1(){const rows=geekT1Rows();if(!rows.length)return;geekCopy(['Metryka\tWartość'].concat(rows.map(r=>r[0]+'\t'+r[1])).join('\n'),'Skopiowano Tabelę 1');}
-function geekCopyT1Values(){const rows=geekT1Rows();if(!rows.length)return;geekCopy(rows.map(r=>String(r[1])).join('\n'),'Skopiowano wartości Tabeli 1 (kolumna)');}
+function geekCopyT1Values(){const rows=geekT1Rows();if(!rows.length)return;const ret=!!(geekT1.value&&geekT1.value.ret);geekCopy(rows.map(r=>String(r[1])).join(ret?'\t':'\n'),ret?'Skopiowano wartości Tabeli 1 (wiersz)':'Skopiowano wartości Tabeli 1 (kolumna)');}
 function geekCopyT2(){const gr=geekGroups.value;if(!gr||!gr.length)return;geekCopy(gr.map(g=>g.text).join('\n\n'),'Skopiowano Tabelę 2 ('+gr.length+' grup)');}
-function geekCopyGroup(g){geekCopy(g.text,'Skopiowano grupę '+g.name);}
+function geekCopyGroup(g){geekCopy(g.ret&&geekRetMode.value?g.lines.map(l=>String(l[1])).join('\t'):g.text,'Skopiowano grupę '+g.name);}
 function geekCopyList(g,c){geekCopy(c.skus.join('\n'),'Skopiowano EAN-y: '+c.label+' ('+c.skus.length+')');}
 function geekReset(){geek.result=null;geek.sel={};geek.opSel={};geek.fileName='';geek.sheetName='';geek.filter='';geek.progress.percent=0;geek.progress.label='';geek.loading=false;}
 function geekOnFile(e){const f=e.target.files&&e.target.files[0];try{e.target.value='';}catch(x){}if(!f)return;

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.6.10</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.6.11</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -790,7 +790,7 @@
     <span v-if="geekFilterNote" class="chip bg-emerald-100/80 text-emerald-700" :title="tr(374)">{{ tr(375) }} {{ tr(geekFilterNote) }}</span>
     <div class="flex-1"></div>
     <input v-if="geekGroups && geekGroups.length > 5" v-model="geek.filter" type="text" class="geek-search" :placeholder="tr(376)"/>
-    <button v-if="geekGroups && geekGroups.length" class="ios-btn ios-btn-neutral" style="padding:.35rem .7rem;font-size:.7rem;" @click="geekCopyT2"><span>{{ tr(377) }}</span></button>
+    <button v-if="geekGroups && geekGroups.length && !geekRetMode" class="ios-btn ios-btn-neutral" style="padding:.35rem .7rem;font-size:.7rem;" @click="geekCopyT2"><span>{{ tr(377) }}</span></button>
   </div>
   <div v-if="!geekGroups" class="geek-warn">{{ tr(378) }} <b>{{ geek.result.missing2.join(', ') }}</b>.</div>
   <div v-else-if="!geekGroups.length" class="text-sm text-slate-400 italic text-center py-8">{{ tr(379) }}</div>
