@@ -766,31 +766,27 @@ function geekRetCalc(list){const toty=new Set(),przeg=new Set(),totyBad=new Set(
 // AUDYT RET: klasyfikacja nowych metryk wg pełnego Shelf bin, wyłącznie w obrębie grupy.
 // Lokalizacje powtarzające się należą tylko do kategorii pomieszanych artykułów.
 function geekRetDetails(list){
- // 1. Uwzględnij wyłącznie wiersze z niepustym Exception reason (AG).
+ // AUDYT RET: licz tylko wiersze z uzupelnionym Exception reason (AG).
  const errorRows=list.filter(r=>String(r.reason||'').trim()!=='');
- // 2. Policz wystąpienia pełnego Shelf bin (S) tylko w tym zbiorze.
- const byShelf=new Map();
+ // Shelf bin wskazuje przegrodke (np. ...F1A, ...F2A).
+ // Dla pomieszanych artykulow porownujemy wspolna lokalizacje
+ // bez dwoch koncowych znakow (numer przegrodki + jej oznaczenie).
+ const byLocation=new Map();
  for(const r of errorRows){
   const shelf=String(r.shelf||'').trim();
   if(!shelf)continue;
-  if(!byShelf.has(shelf))byShelf.set(shelf,[]);
-  byShelf.get(shelf).push(r);
+  const location=shelf.length>2?shelf.slice(0,-2):shelf;
+  if(!byLocation.has(location))byLocation.set(location,[]);
+  byLocation.get(location).push(r);
  }
  const out={mixedTots:0,mixedPieces:0,nadwyTots:0,nadwyPieces:0,brakTots:0,brakPieces:0,extraTots:0,extraPieces:0,damageTots:0,damagePieces:0,unlabelledTots:0,unlabelledPieces:0};
- // 3. Rozdziel lokalizacje na dwa rozłączne zbiory. Powtórzone Shelf bin
- //    nie mogą trafić do żadnej z pozostałych kategorii błędów.
- const singleRows=[];
- for(const shelfRows of byShelf.values()){
-  if(shelfRows.length>=2){
+ for(const locationRows of byLocation.values()){
+  if(locationRows.length>=2){
    out.mixedTots++;
-   out.mixedPieces+=shelfRows.length;
-  }else{
-   singleRows.push(shelfRows[0]);
+   out.mixedPieces+=locationRows.length;
+   continue; // wszystkie wiersze tej lokalizacji wykluczone z innych bledow
   }
- }
- // 4. Dopiero po wyłączeniu WSZYSTKICH wierszy powtórzonych lokalizacji
- //    klasyfikuj pojedyncze Shelf bin według Exception reason.
- for(const r of singleRows){
+  const r=locationRows[0];
   const n=Math.max(0,r.n||0);
   if(r.cat==='surplus'){out.nadwyTots++;out.nadwyPieces+=n;}
   else if(r.cat==='Shortage'){out.brakTots++;out.brakPieces+=n;}
