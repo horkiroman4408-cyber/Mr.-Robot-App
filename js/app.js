@@ -766,10 +766,10 @@ function geekRetCalc(list){const toty=new Set(),przeg=new Set(),totyBad=new Set(
 // AUDYT RET: klasyfikacja nowych metryk wg pełnego Shelf bin, wyłącznie w obrębie grupy.
 // Lokalizacje powtarzające się należą tylko do kategorii pomieszanych artykułów.
 function geekRetDetails(list){
- const counts=new Map();for(const r of list)counts.set(r.shelf,(counts.get(r.shelf)||0)+1);
+ const errorRows=list.filter(r=>r.reason!=='');const counts=new Map();for(const r of errorRows)counts.set(r.shelf,(counts.get(r.shelf)||0)+1);
  const out={mixedTots:0,mixedPieces:0,nadwyTots:0,nadwyPieces:0,brakTots:0,brakPieces:0,extraTots:0,extraPieces:0,damageTots:0,damagePieces:0,unlabelledTots:0,unlabelledPieces:0};
  for(const n of counts.values())if(n>=2){out.mixedTots++;out.mixedPieces+=n;}
- for(const r of list){if(counts.get(r.shelf)!==1)continue;
+ for(const r of errorRows){if(counts.get(r.shelf)!==1)continue;
   const n=Math.max(0,r.n||0);
   if(r.cat==='surplus'){out.nadwyTots++;out.nadwyPieces+=n;}
   else if(r.cat==='Shortage'){out.brakTots++;out.brakPieces+=n;}
@@ -823,7 +823,7 @@ let recs=null;
 if(cShelf>=0&&cExc>=0&&cReason>=0){recs=[];
 for(let i=1;i<=lastIdx;i++){const r=rows[i]||[];if(geekStr(r[cShelf])==='')continue;
 const nm=cName>=0?geekStr(r[cName]).replace(/\u00a0/g,' ').replace(/ +/g,' ').trim():'';
-recs.push({shelf:geekStr(r[cShelf]),op:cOp>=0?geekStr(r[cOp]):'',key1:nm?nm.split(' ')[0]:'',key2:nm?geekPrefix(nm):'',qty:cQty>=0?geekNum(r[cQty]):0,exc:geekStr(r[cExc]).toUpperCase(),cat:geekCategory(r[cReason]),n:geekReasonQty(r[cReason]),sku:cSku>=0?geekStr(r[cSku]):''});}}
+recs.push({shelf:geekStr(r[cShelf]),op:cOp>=0?geekStr(r[cOp]):'',key1:nm?nm.split(' ')[0]:'',key2:nm?geekPrefix(nm):'',qty:cQty>=0?geekNum(r[cQty]):0,exc:geekStr(r[cExc]).toUpperCase(),reason:geekStr(r[cReason]),cat:geekCategory(r[cReason]),n:geekReasonQty(r[cReason]),sku:cSku>=0?geekStr(r[cSku]):''});}}
 let rowCount=0;for(let i=1;i<=lastIdx;i++){const r=rows[i]||[];if(geekStr(r[cShelf])!=='')rowCount++;}
 return {hasOp:cOp>=0,recs,missing1,missing2,rowCount};
 }
