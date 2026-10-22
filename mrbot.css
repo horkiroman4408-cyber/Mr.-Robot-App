@@ -1,0 +1,285 @@
+
+#mrbot-root{position:fixed;z-index:10050;right:18px;bottom:18px;font-family:system-ui,sans-serif;color:#eaf7ff}
+#mrbot-toggle{display:flex;align-items:center;gap:8px;border:1px solid #2c9ee5;border-radius:30px;padding:7px 15px 7px 8px;background:linear-gradient(140deg,#0a2447,#06152c);box-shadow:0 8px 35px #041b40a8;cursor:pointer;color:#e7faff;font-weight:800}
+#mrbot-toggle:hover{transform:translateY(-2px)}
+.mrbot-mascot{position:relative;display:inline-block;width:43px;height:47px;flex-shrink:0}
+.mrbot-antenna{position:absolute;left:20px;top:0;width:3px;height:10px;background:#8edfff;border-radius:5px}
+.mrbot-antenna:before{content:'';position:absolute;left:-4px;top:-5px;width:11px;height:11px;background:#36e5ff;border-radius:50%;box-shadow:0 0 10px #20cfff;animation:mrbot-pulse 3s infinite}
+.mrbot-head{position:absolute;top:9px;left:2px;width:39px;height:31px;border:3px solid #cdefff;border-radius:14px;background:#071427;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:inset 0 0 8px #0b82db,0 0 8px #00bbff88}
+.mrbot-eye{display:block;width:8px;height:10px;background:#28dcff;border-radius:50%;box-shadow:0 0 8px #28dcff;animation:mrbot-blink 6s infinite}
+.mrbot-eye:nth-child(2){animation-delay:.09s}
+.mrbot-mouth{position:absolute;bottom:3px;left:16px;width:8px;height:4px;border-bottom:2px solid #28dcff;border-radius:0 0 9px 9px}
+.mrbot-body{position:absolute;bottom:0;left:14px;width:15px;height:9px;background:#daeefe;border:2px solid #0f91dd;border-radius:6px}
+#mrbot-panel{width:min(380px,calc(100vw - 24px));height:min(560px,calc(100dvh - 105px));margin-bottom:12px;display:flex;flex-direction:column;border:1px solid #168de6;border-radius:19px;background:linear-gradient(145deg,#0a2345,#071429);box-shadow:0 22px 70px #001026bf;overflow:hidden}
+#mrbot-panel[hidden]{display:none}
+.mrbot-header{display:flex;align-items:center;gap:10px;padding:14px 16px;background:#0c2c52;border-bottom:1px solid #164b7b}
+.mrbot-header-icon{font-size:29px}.mrbot-header strong{display:block;font-size:16px}.mrbot-header small{display:block;font-size:11px;color:#78caff}
+#mrbot-close{margin-left:auto;background:transparent;border:0;color:#d2eaff;font-size:25px;cursor:pointer}
+#mrbot-messages{flex:1;overflow:auto;padding:15px;display:flex;flex-direction:column;gap:11px}
+.mrbot-message{white-space:pre-line;max-width:93%;padding:11px 13px;border-radius:13px;line-height:1.48;font-size:13px}
+.mrbot-message.bot{align-self:flex-start;background:#17365b;border:1px solid #285079}
+.mrbot-message.user{align-self:flex-end;background:#0a78cc;color:white}
+#mrbot-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:8px 13px}
+#mrbot-suggestions button{border:1px solid #216ba5;border-radius:9px;padding:7px 9px;background:#0b315c;color:#cceaff;font-size:11px;cursor:pointer}
+#mrbot-suggestions button:hover{background:#12538d}
+#mrbot-form{display:flex;gap:8px;padding:9px 12px}
+#mrbot-input{min-width:0;flex:1;padding:11px 12px;border-radius:11px;border:1px solid #26669a;background:#102f52;color:#fff;font-size:13px;outline:none}
+#mrbot-input:focus{border-color:#32d8ff}
+#mrbot-send{width:43px;border:0;border-radius:11px;background:#118fe4;color:white;cursor:pointer}
+#mrbot-privacy{font-size:10px;color:#91b7d0;padding:0 13px 11px}
+#mrbot-intro{position:absolute;bottom:75px;right:0;width:190px;padding:12px;background:#0a3970;color:white;border:1px solid #28baff;border-radius:13px;cursor:pointer}
+#mrbot-intro[hidden]{display:none}
+.mrbot-thinking .mrbot-eye{height:4px;transform:rotate(-8deg)}
+@keyframes mrbot-blink{0%,43%,47%,100%{transform:scaleY(1)}45%{transform:scaleY(.12)}}
+@keyframes mrbot-pulse{0%,100%{box-shadow:0 0 5px #20cfff}50%{box-shadow:0 0 17px #20cfff}}
+@media(max-width:550px){#mrbot-root{right:10px;bottom:10px}#mrbot-panel{width:calc(100vw - 20px);height:min(510px,calc(100dvh - 90px))}}
+@media(prefers-reduced-motion:reduce){#mrbot-root *,#mrbot-root *:before{animation:none!important;transition:none!important}}
+
+#mrbot-motion{margin-left:auto;background:transparent;border:1px solid #28577d;border-radius:8px;color:#b4dcf9;padding:5px 8px;cursor:pointer}#mrbot-close{margin-left:0}#mrbot-root.mrbot-reduced-motion *,#mrbot-root.mrbot-reduced-motion *:before{animation:none!important;transition:none!important}
+
+/* v3.6.18: match the native app theme and keep Co nowego unobstructed. */
+#mrbot-root{
+ left:18px;right:auto;
+ --mb-surface:#ffffff;--mb-panel:#ffffff;--mb-head:#f8fafc;
+ --mb-text:#24334a;--mb-muted:#66758a;--mb-line:#e1e7f0;
+ --mb-bubble:#f1f5fb;--mb-chip:#f2f7ff;--mb-chip-border:#d9e7fa;
+ --mb-input:#ffffff;--mb-accent:#198bfa;--mb-shadow:0 14px 42px rgba(39,59,99,.18);
+ color:var(--mb-text);
+}
+html[data-theme="dark"] #mrbot-root{
+ --mb-surface:#22232a;--mb-panel:#25262e;--mb-head:#2c2d36;
+ --mb-text:#f0f2f7;--mb-muted:#adb4c3;--mb-line:#454754;
+ --mb-bubble:#343643;--mb-chip:#323744;--mb-chip-border:#515a6b;
+ --mb-input:#30323c;--mb-accent:#4aa3ff;--mb-shadow:0 16px 44px rgba(0,0,0,.35);
+}
+#mrbot-toggle{background:var(--mb-surface);color:var(--mb-text);border:1px solid var(--mb-line);box-shadow:var(--mb-shadow);border-radius:999px}
+#mrbot-toggle:hover{box-shadow:0 12px 32px rgba(31,112,207,.19)}
+#mrbot-panel{background:var(--mb-panel);border:1px solid var(--mb-line);box-shadow:var(--mb-shadow);color:var(--mb-text)}
+.mrbot-header{background:var(--mb-head);border-color:var(--mb-line)}
+.mrbot-header small{color:var(--mb-muted)}
+#mrbot-close{color:var(--mb-muted)}
+.mrbot-message.bot{background:var(--mb-bubble);border:1px solid var(--mb-line);color:var(--mb-text)}
+.mrbot-message.user{background:var(--mb-accent);color:white}
+#mrbot-suggestions button{background:var(--mb-chip);border:1px solid var(--mb-chip-border);color:var(--mb-text);border-radius:999px}
+#mrbot-suggestions button:hover{background:var(--mb-bubble)}
+#mrbot-input{background:var(--mb-input);border:1px solid var(--mb-line);color:var(--mb-text)}
+#mrbot-input::placeholder{color:var(--mb-muted)}
+#mrbot-input:focus{border-color:var(--mb-accent)}
+#mrbot-send{background:var(--mb-accent)}
+#mrbot-privacy{color:var(--mb-muted)}
+#mrbot-motion{color:var(--mb-muted);border-color:var(--mb-line)}
+#mrbot-intro{left:0;right:auto;background:var(--mb-surface);border:1px solid var(--mb-line);color:var(--mb-text);box-shadow:var(--mb-shadow)}
+@media(max-width:550px){#mrbot-root{left:10px;right:auto}}
+
+/* v3.6.18 mascot refresh: native typography, expressive compact character. */
+#mrbot-root,#mrbot-root button,#mrbot-root input{font-family:inherit!important;letter-spacing:normal}
+#mrbot-toggle{min-height:70px;padding:6px 18px 6px 7px;gap:11px;transition:transform .24s ease,box-shadow .24s ease}
+#mrbot-toggle .mrbot-toggle-label{font-weight:750;font-size:14px;letter-spacing:-.025em}
+#mrbot-root .mrbot-mascot{width:67px;height:65px;position:relative;display:block;flex:none;overflow:visible}
+#mrbot-root .mrbot-mascot *{box-sizing:border-box}
+.mrbot-shadow{position:absolute;bottom:0;left:15px;width:44px;height:8px;background:rgba(31,79,122,.13);filter:blur(5px);border-radius:50%;animation:mrbot-shadow-breathe 4s ease-in-out infinite}
+.mrbot-figure{position:absolute;left:7px;top:7px;width:54px;height:57px;animation:mrbot-hover 4s ease-in-out infinite;transform-origin:center 80%}
+.mrbot-aerial{position:absolute;z-index:2;top:-4px;left:25px;width:4px;height:11px;border-radius:4px;background:linear-gradient(90deg,#9baebd,#f9ffff)}
+.mrbot-aerial-light{position:absolute;top:-7px;left:-5px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#efffff 0%,#52e8fa 32%,#00aaf2 75%);box-shadow:0 0 10px rgba(34,198,249,.42);animation:mrbot-beacon 3.5s ease-in-out infinite}
+.mrbot-ear{position:absolute;z-index:0;top:13px;width:11px;height:23px;background:linear-gradient(130deg,#d5e2ee,#819bb4);border:2px solid #eef7ff;border-radius:7px;box-shadow:0 2px 4px #1c41602a}
+.mrbot-ear.left{left:0}.mrbot-ear.right{right:0}
+.mrbot-face{position:absolute;z-index:1;top:9px;left:5px;width:44px;height:37px;border-radius:16px 16px 15px 15px;border:3px solid #e8f4ff;background:linear-gradient(135deg,#f6fdff,#a7c0d8 85%);box-shadow:inset 0 -2px 3px #617d9c55,0 4px 8px #184b7933;animation:mrbot-tilt 7s ease-in-out infinite}
+.mrbot-visor{position:absolute;inset:3px 3px 4px;border-radius:11px;background:radial-gradient(ellipse at 50% 10%,#1a4b72 0%,#0b203c 60%,#08162a 100%);box-shadow:inset 0 2px 6px #0008;overflow:hidden}
+.mrbot-visor:before{content:'';position:absolute;top:1px;left:4px;width:25px;height:8px;border-radius:50%;background:linear-gradient(180deg,#c8f8ff55,transparent);transform:rotate(-10deg)}
+#mrbot-root .mrbot-eye{position:absolute;top:8px;width:9px;height:12px;border-radius:45% 45% 50% 50%;background:#5deaff;box-shadow:0 0 6px #00bfff88;animation:mrbot-natural-blink 6.8s infinite;transform-origin:center center}
+#mrbot-root .mrbot-eye.left{left:7px}#mrbot-root .mrbot-eye.right{right:7px;animation-delay:.08s}
+.mrbot-pupil{position:absolute;top:3px;left:3px;width:3px;height:5px;border-radius:50%;background:#0a8bc7;transform:translate(var(--mrbot-look-x,0px),var(--mrbot-look-y,0px));transition:transform .12s ease}
+.mrbot-brow{position:absolute;top:5px;width:8px;height:2px;border-radius:2px;background:#52dfff;opacity:.45}
+.mrbot-brow.left{left:8px}.mrbot-brow.right{right:8px}
+.mrbot-cheek{position:absolute;top:19px;width:6px;height:3px;border-radius:50%;background:#41c8f9;opacity:.4}
+.mrbot-cheek.left{left:4px}.mrbot-cheek.right{right:4px}
+#mrbot-root .mrbot-mouth{position:absolute;top:19px;left:14px;width:8px;height:5px;border:0;border-bottom:2px solid #52e9ff;border-radius:0 0 9px 9px;background:transparent;transition:all .2s ease}
+.mrbot-torso{position:absolute;top:43px;left:17px;width:20px;height:12px;border:2px solid #d9ebf7;border-radius:9px 9px 6px 6px;background:linear-gradient(135deg,#c4d9e9,#829cb4);box-shadow:0 2px 4px #1d476044}
+.mrbot-core{position:absolute;left:6px;top:3px;width:5px;height:5px;border-radius:50%;background:#1bc5fa;box-shadow:0 0 5px #18a8f5}
+.mrbot-arm{position:absolute;z-index:0;top:45px;width:8px;height:11px;border:2px solid #e5f6ff;background:#a2b9cd;border-radius:7px;transform-origin:top center}
+.mrbot-arm.left{left:11px;transform:rotate(25deg)}.mrbot-arm.right{right:11px;transform:rotate(-25deg);animation:mrbot-wave 10s ease-in-out infinite}
+.mrbot-foot{position:absolute;bottom:0;width:10px;height:6px;background:#e0eef7;border:1px solid #a5b8c9;border-radius:5px}
+.mrbot-foot.left{left:17px}.mrbot-foot.right{right:17px}
+#mrbot-root.mrbot-thinking .mrbot-figure{animation:mrbot-think 1s ease-in-out infinite}
+#mrbot-root.mrbot-thinking .mrbot-eye{height:5px;top:12px}
+#mrbot-root.mrbot-curious .mrbot-face{transform:rotate(10deg)}
+#mrbot-root.mrbot-happy .mrbot-mouth{width:12px;left:12px;height:7px;border-bottom-width:3px}
+#mrbot-root.mrbot-happy .mrbot-figure{animation:mrbot-celebrate .42s ease-in-out 3}
+#mrbot-toggle:hover .mrbot-arm.right{animation:mrbot-wave .5s ease-in-out infinite alternate}
+@keyframes mrbot-hover{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes mrbot-tilt{0%,36%,70%,100%{transform:rotate(0)}42%,51%{transform:rotate(6deg)}76%,83%{transform:rotate(-5deg)}}
+@keyframes mrbot-natural-blink{0%,23%,25%,52%,54%,100%{transform:scaleY(1)}24%,53%{transform:scaleY(.13)}}
+@keyframes mrbot-beacon{0%,100%{filter:brightness(1)}50%{filter:brightness(1.23)}}
+@keyframes mrbot-wave{0%,87%,100%{transform:rotate(-25deg)}91%{transform:rotate(-60deg)}95%{transform:rotate(5deg)}}
+@keyframes mrbot-shadow-breathe{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.84)}}
+@keyframes mrbot-think{0%,100%{transform:rotate(0)}50%{transform:rotate(-8deg)}}
+@keyframes mrbot-celebrate{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important;transition:none!important}}
+#mrbot-root.mrbot-reduced-motion .mrbot-mascot *,#mrbot-root.mrbot-reduced-motion .mrbot-mascot *:before{animation:none!important;transition:none!important}
+
+/* v3.6.18 refinement: one character, compact launcher, calm motion, header home */
+#mrbot-root #mrbot-toggle{min-height:43px!important;height:43px!important;gap:5px!important;padding:3px 11px 3px 5px!important;box-shadow:var(--mb-shadow)!important}
+#mrbot-root #mrbot-toggle .mrbot-toggle-label{font-size:11px!important;font-weight:700!important;letter-spacing:-.01em!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot{width:38px!important;height:38px!important;transform:scale(.60);transform-origin:top left;margin-right:-15px;margin-bottom:-24px}
+#mrbot-root #mrbot-header-home{display:flex;align-items:center;justify-content:center;width:66px;height:65px;flex:none}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:67px;height:65px;transform:scale(.91);transform-origin:center}
+#mrbot-root .mrbot-header{min-height:82px;gap:10px;overflow:visible}
+#mrbot-root .mrbot-header strong{font-size:15px}
+#mrbot-root .mrbot-figure{animation:mrbot-gentle-idle 7s ease-in-out infinite!important}
+#mrbot-root .mrbot-face{animation:none!important}
+#mrbot-root .mrbot-arm.right{animation:none!important}
+#mrbot-root #mrbot-toggle:hover .mrbot-arm.right{animation:none!important}
+#mrbot-root .mrbot-eye{animation:mrbot-calm-blink 9s infinite!important}
+#mrbot-root .mrbot-aerial-light{animation:mrbot-beacon 5s ease-in-out infinite}
+#mrbot-root.mrbot-thinking .mrbot-figure{animation:mrbot-think 1.6s ease-in-out infinite!important}
+#mrbot-root.mrbot-happy .mrbot-figure{animation:mrbot-gentle-idle 7s ease-in-out infinite!important}
+#mrbot-root .mrbot-shadow{animation:none!important}
+@keyframes mrbot-gentle-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes mrbot-calm-blink{0%,48%,50%,100%{transform:scaleY(1)}49%{transform:scaleY(.14)}}
+#mrbot-root.mrbot-reduced-motion .mrbot-mascot *,#mrbot-root.mrbot-reduced-motion .mrbot-mascot *:before{animation:none!important}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important}}
+
+/* Guide-only MR. BOT: compact head launcher and full character in the chat header. */
+#mrbot-root #mrbot-toggle{height:58px!important;min-height:58px!important;gap:10px!important;padding:5px 15px 5px 7px!important;border-radius:35px!important}
+#mrbot-root #mrbot-toggle .mrbot-toggle-label{font-size:13px!important;font-weight:700!important;letter-spacing:0!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot{width:49px!important;height:47px!important;transform:none!important;transform-origin:center!important;margin:0!important}
+#mrbot-root #mrbot-toggle .mrbot-figure{transform:scale(.81)!important;transform-origin:top left!important;left:1px!important;top:0!important;animation:none!important}
+#mrbot-root #mrbot-toggle .mrbot-arm,#mrbot-root #mrbot-toggle .mrbot-torso,#mrbot-root #mrbot-toggle .mrbot-foot,#mrbot-root #mrbot-toggle .mrbot-shadow{display:none!important}
+#mrbot-root #mrbot-toggle .mrbot-face{top:12px!important;left:5px!important}
+#mrbot-root #mrbot-header-home{width:84px!important;height:89px!important;overflow:visible}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:74px!important;height:79px!important;transform:scale(1.12)!important;transform-origin:center!important}
+#mrbot-root #mrbot-header-home .mrbot-figure{animation:mrbot-idle-new 8s ease-in-out infinite!important}
+#mrbot-root #mrbot-header-home .mrbot-face{animation:mrbot-look-new 11s ease-in-out infinite!important}
+#mrbot-root #mrbot-header-home .mrbot-arm.right{animation:mrbot-wave-once 1.5s ease-in-out 1!important}
+#mrbot-root #mrbot-header-home .mrbot-arm.left{animation:mrbot-scratch 13s ease-in-out infinite!important}
+#mrbot-root .mrbot-header{min-height:106px!important;gap:16px!important}
+#mrbot-root #mrbot-form{display:none!important}
+#mrbot-root #mrbot-suggestions{padding:13px!important;gap:8px!important}
+#mrbot-root #mrbot-suggestions button{font-size:12px!important;padding:9px 11px!important}
+#mrbot-root .mrbot-eye{animation:mrbot-soft-blink 7.7s infinite!important}
+#mrbot-root .mrbot-face{border-radius:19px 19px 18px 18px!important}
+#mrbot-root .mrbot-visor{border-radius:13px!important}
+#mrbot-root .mrbot-cheek{opacity:.75!important;background:#ff9dc3!important;width:7px!important}
+#mrbot-root .mrbot-mouth{width:11px!important;left:12px!important;height:6px!important}
+#mrbot-root.mrbot-thinking #mrbot-header-home .mrbot-figure{animation:mrbot-think-new 1.3s ease-in-out infinite!important}
+#mrbot-root.mrbot-happy #mrbot-header-home .mrbot-figure{animation:mrbot-happy-new .6s ease-in-out 2!important}
+#mrbot-root.mrbot-curious #mrbot-header-home .mrbot-face{animation:mrbot-look-new 2.4s ease-in-out 1!important}
+#mrbot-root #mrbot-toggle .mrbot-arm.right{animation:none!important}
+@keyframes mrbot-idle-new{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes mrbot-look-new{0%,30%,100%{transform:rotate(0)}35%,42%{transform:rotate(5deg)}65%,73%{transform:rotate(-4deg)}}
+@keyframes mrbot-wave-once{0%,100%{transform:rotate(-25deg)}25%,50%,75%{transform:rotate(-55deg)}40%,65%{transform:rotate(-18deg)}}
+@keyframes mrbot-scratch{0%,69%,88%,100%{transform:rotate(25deg)}73%,81%{transform:rotate(-48deg) translateY(-4px)}}
+@keyframes mrbot-soft-blink{0%,46%,48%,100%{transform:scaleY(1)}47%{transform:scaleY(.15)}}
+@keyframes mrbot-think-new{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(1px) rotate(-4deg)}}
+@keyframes mrbot-happy-new{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot *,#mrbot-root .mrbot-mascot *:before{animation:none!important}}
+
+/* Official user-supplied MR. BOT pet sprites. Replaces CSS character entirely. */
+#mrbot-root .mrbot-mascot{display:flex!important;align-items:center!important;justify-content:center!important;overflow:visible!important;flex-shrink:0!important;background:transparent!important}
+#mrbot-root .mrbot-mascot img{display:block;object-fit:contain;width:100%;height:100%;filter:drop-shadow(0 3px 4px rgba(0,0,0,.12));user-select:none;pointer-events:none}
+#mrbot-root #mrbot-toggle{height:61px!important;min-height:61px!important;gap:8px!important;padding:5px 14px 5px 7px!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot{width:53px!important;height:48px!important;transform:none!important;margin:0!important}
+#mrbot-root #mrbot-toggle .mrbot-toggle-label{font-size:13px!important}
+#mrbot-root #mrbot-header-home{width:89px!important;height:100px!important;flex:none!important}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:88px!important;height:99px!important;transform:none!important;margin:0!important}
+#mrbot-root .mrbot-header{min-height:118px!important}
+#mrbot-root .mrbot-figure,#mrbot-root .mrbot-cheek{display:none!important}
+@media(prefers-reduced-motion:reduce){#mrbot-root .mrbot-mascot img{animation:none!important}}
+
+/* 3.6.18 Guide refinement: launcher uses head only, no redundant empty button. */
+#mrbot-root:not(.mrbot-open) #mrbot-toggle{display:flex!important;align-items:center!important;gap:9px!important;width:auto!important;min-width:112px!important;height:58px!important;min-height:58px!important;padding:5px 15px 5px 7px!important}
+#mrbot-root.mrbot-open #mrbot-toggle{display:none!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot{width:50px!important;height:46px!important}
+#mrbot-root #mrbot-toggle .mrbot-toggle-label{font-size:13px!important}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:76px!important;height:84px!important}
+#mrbot-root #mrbot-header-home{width:78px!important;height:89px!important}
+#mrbot-root .mrbot-header{min-height:106px!important}
+#mrbot-root #mrbot-suggestions{max-height:180px;overflow-y:auto;align-content:flex-start}
+#mrbot-root .mrbot-message.bot{line-height:1.55;white-space:pre-line}
+#mrbot-root #mrbot-header-home img{max-width:100%;max-height:100%}
+
+/* Expanded mascot and rich guide browsing */
+#mrbot-root #mrbot-header-home{width:116px!important;height:123px!important;overflow:visible!important}
+#mrbot-root #mrbot-header-home .mrbot-mascot{width:110px!important;height:119px!important;transform:none!important}
+#mrbot-root .mrbot-header{min-height:138px!important;gap:12px!important}
+#mrbot-root #mrbot-header-home img{width:100%!important;height:100%!important;object-fit:contain!important;transition:transform .8s cubic-bezier(.2,.8,.2,1)!important;transform:translate(var(--mrbot-look-x,0px),var(--mrbot-look-y,0px))}
+#mrbot-root #mrbot-toggle .mrbot-mascot img{transition:transform .9s ease!important}
+#mrbot-root #mrbot-suggestions{max-height:225px!important;overflow-y:auto!important}
+#mrbot-root #mrbot-suggestions .mrbot-kb-trigger{font-weight:700!important;border-style:solid!important}
+#mrbot-root .mrbot-docnav{display:flex;gap:8px;width:100%;justify-content:space-between}
+#mrbot-root .mrbot-docnav button{font-weight:700!important}
+#mrbot-root #mrbot-messages{scroll-behavior:smooth}
+#mrbot-root .mrbot-message.bot{white-space:pre-line!important;line-height:1.6!important}
+@media(max-width:550px){#mrbot-root #mrbot-header-home{width:92px!important;height:105px!important}#mrbot-root #mrbot-header-home .mrbot-mascot{width:92px!important;height:103px!important}}
+@media(prefers-reduced-motion:reduce){#mrbot-root #mrbot-header-home img{transition:none!important}}
+
+/* Keep README navigation as one stable row. */
+#mrbot-root .mrbot-docnav{flex:0 0 100%;position:relative;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap}
+#mrbot-root .mrbot-docnav button{white-space:nowrap}
+
+/* Animation toggle removed. Keep close button at the right edge. */
+#mrbot-root .mrbot-header #mrbot-close{margin-left:auto!important}
+
+/* Final launcher alignment: show the entire head and antenna above the button baseline. */
+#mrbot-root:not(.mrbot-open) #mrbot-toggle{overflow:visible!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:55px!important;height:55px!important;position:relative!important;transform:translateY(-5px)!important;overflow:visible!important;flex-shrink:0!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot img{width:55px!important;height:55px!important;object-fit:contain!important;transform:none!important}
+
+
+/* Articulated replacement. Existing panel/theme rules are retained. */
+#mrbot-root .mrbot-mascot #mrbot-pet-image{display:none!important}
+#mrbot-root .mrbot-mascot .mrbot-avatar{display:block!important;width:100%!important;height:100%!important;object-fit:contain;pointer-events:none;transform:none!important;animation:none!important;filter:drop-shadow(0 3px 3px rgba(0,0,0,.12))}
+#mrbot-root .mrbot-mascot{overflow:visible!important;background:transparent!important;animation:none!important}
+#mrbot-root #mrbot-toggle .mrbot-mascot,#mrbot-root #mrbot-header-home .mrbot-mascot{animation:none!important}
+#mrbot-root:not(.mrbot-open) .mrbot-mascot{height:55px!important;width:55px!important}
+#mrbot-root.mrbot-open .mrbot-mascot{height:119px!important;width:110px!important}
+@media(max-width:550px){#mrbot-root.mrbot-open .mrbot-mascot{width:92px!important;height:103px!important}}
+
+/* MR. BOT: subtly larger in panel and launcher; original proportions retained. */
+#mrbot-root.mrbot-open #mrbot-header-home{width:128px!important;height:138px!important}
+#mrbot-root.mrbot-open #mrbot-header-home .mrbot-mascot{width:122px!important;height:133px!important}
+#mrbot-root.mrbot-open .mrbot-header{min-height:151px!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:60px!important;height:60px!important}
+#mrbot-root:not(.mrbot-open) #mrbot-toggle{min-height:62px!important;height:62px!important}
+@media(max-width:550px){#mrbot-root.mrbot-open #mrbot-header-home{width:102px!important;height:116px!important}#mrbot-root.mrbot-open #mrbot-header-home .mrbot-mascot{width:102px!important;height:114px!important}}
+
+/* MR. BOT offline conversation section: keep the existing guide and visual language. */
+#mrbot-root .mrbot-chat-entry{font-weight:700;border-color:var(--accent,#4bc5cb);}
+#mrbot-root .mrbot-chat-note{font-size:11px;opacity:.66;text-align:center;padding:5px 8px;}
+#mrbot-root .mrbot-chat-caption{opacity:.8;cursor:default;}
+#mrbot-root .mrbot-chat-follow{display:flex;gap:6px;}
+#mrbot-root .mrbot-chat-follow button{flex:1;}
+
+
+/* MR. BOT · compact project knowledge base. Scoped to documentation only. */
+#mrbot-root #mrbot-messages.mrbot-doc-active{display:block;padding:0!important;scroll-behavior:auto!important;overflow-y:auto}
+#mrbot-root .mrbot-doc-view{padding:15px 16px 22px;color:var(--mb-text);font-size:13px;line-height:1.5}
+#mrbot-root .mrbot-doc-trail{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:17px;font-size:10px;line-height:1.4}
+#mrbot-root .mrbot-doc-trail button{border:0;background:transparent;color:var(--mb-accent);padding:0;cursor:pointer;font:inherit;font-weight:650}
+#mrbot-root .mrbot-doc-separator{color:var(--mb-muted);opacity:.6}
+#mrbot-root .mrbot-doc-current{color:var(--mb-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+#mrbot-root .mrbot-doc-heading{margin-bottom:16px}
+#mrbot-root .mrbot-doc-eyebrow{font-size:10px;letter-spacing:.075em;text-transform:uppercase;color:var(--mb-accent);font-weight:800;margin-bottom:6px}
+#mrbot-root .mrbot-doc-heading h2{font-size:17px;font-weight:760;line-height:1.3;margin:0 0 6px;letter-spacing:-.02em;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-heading p{margin:0;font-size:12px;line-height:1.55}
+#mrbot-root .mrbot-doc-muted{color:var(--mb-muted)}
+#mrbot-root .mrbot-doc-list{display:flex;flex-direction:column;border:1px solid var(--mb-line);border-radius:12px;overflow:hidden;background:var(--mb-surface)}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;background:transparent;border:0;border-bottom:1px solid var(--mb-line);color:var(--mb-text);text-align:left;font:inherit;cursor:pointer;min-height:44px;border-radius:0}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem:last-child{border-bottom:0}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem:hover,#mrbot-root #mrbot-messages .mrbot-doc-listitem:focus-visible{background:var(--mb-bubble)}
+#mrbot-root .mrbot-doc-emoji{font-size:18px;width:24px;text-align:center;flex:none}
+#mrbot-root .mrbot-doc-index{font-size:11px;font-variant-numeric:tabular-nums;color:var(--mb-muted);width:23px;flex:none}
+#mrbot-root .mrbot-doc-listname{font-weight:640;font-size:12px;flex:1;min-width:0;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-count{font-size:10px;color:var(--mb-muted);white-space:nowrap}
+#mrbot-root .mrbot-doc-chevron{font-size:20px;color:var(--mb-muted);line-height:1}
+#mrbot-root .mrbot-doc-article-section{padding:0 0 15px;margin-bottom:16px;border-bottom:1px solid var(--mb-line)}
+#mrbot-root .mrbot-doc-article-section h3{font-size:12px;font-weight:760;color:var(--mb-text);margin:0 0 8px}
+#mrbot-root .mrbot-doc-prose{font-size:12px;line-height:1.75;color:var(--mb-text);white-space:pre-line;overflow-wrap:anywhere;margin:0}
+#mrbot-root .mrbot-doc-source{font-size:10px;color:var(--mb-muted);display:flex;flex-direction:column;gap:5px;margin-bottom:17px}
+#mrbot-root .mrbot-doc-source code{font-size:10px;line-height:1.6;overflow-wrap:anywhere;white-space:normal;color:var(--mb-muted);background:var(--mb-bubble);border:1px solid var(--mb-line);border-radius:7px;padding:7px 9px}
+#mrbot-root .mrbot-doc-bottomnav{display:flex;justify-content:space-between;gap:8px}
+#mrbot-root #mrbot-messages .mrbot-doc-bottomnav button{font:inherit;font-size:11px;font-weight:700;color:var(--mb-accent);border:1px solid var(--mb-line);border-radius:8px;background:var(--mb-surface);padding:8px 10px;cursor:pointer}
+#mrbot-root #mrbot-messages .mrbot-doc-bottomnav button:last-child{margin-left:auto}
+#mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){max-height:none!important;overflow:visible!important;padding:9px 13px!important;display:block}
+#mrbot-root #mrbot-suggestions .mrbot-doc-footerbtn{width:100%;border-radius:9px!important;text-align:center;font-weight:750!important;padding:10px!important}
+@media(max-width:550px){#mrbot-root .mrbot-doc-view{padding:13px 13px 18px}}
