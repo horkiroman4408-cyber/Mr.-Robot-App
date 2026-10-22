@@ -249,3 +249,37 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root .mrbot-chat-caption{opacity:.8;cursor:default;}
 #mrbot-root .mrbot-chat-follow{display:flex;gap:6px;}
 #mrbot-root .mrbot-chat-follow button{flex:1;}
+
+
+/* MR. BOT · compact project knowledge base. Scoped to documentation only. */
+#mrbot-root #mrbot-messages.mrbot-doc-active{display:block;padding:0!important;scroll-behavior:auto!important;overflow-y:auto}
+#mrbot-root .mrbot-doc-view{padding:15px 16px 22px;color:var(--mb-text);font-size:13px;line-height:1.5}
+#mrbot-root .mrbot-doc-trail{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:17px;font-size:10px;line-height:1.4}
+#mrbot-root .mrbot-doc-trail button{border:0;background:transparent;color:var(--mb-accent);padding:0;cursor:pointer;font:inherit;font-weight:650}
+#mrbot-root .mrbot-doc-separator{color:var(--mb-muted);opacity:.6}
+#mrbot-root .mrbot-doc-current{color:var(--mb-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+#mrbot-root .mrbot-doc-heading{margin-bottom:16px}
+#mrbot-root .mrbot-doc-eyebrow{font-size:10px;letter-spacing:.075em;text-transform:uppercase;color:var(--mb-accent);font-weight:800;margin-bottom:6px}
+#mrbot-root .mrbot-doc-heading h2{font-size:17px;font-weight:760;line-height:1.3;margin:0 0 6px;letter-spacing:-.02em;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-heading p{margin:0;font-size:12px;line-height:1.55}
+#mrbot-root .mrbot-doc-muted{color:var(--mb-muted)}
+#mrbot-root .mrbot-doc-list{display:flex;flex-direction:column;border:1px solid var(--mb-line);border-radius:12px;overflow:hidden;background:var(--mb-surface)}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem{width:100%;display:flex;align-items:center;gap:10px;padding:11px 12px;background:transparent;border:0;border-bottom:1px solid var(--mb-line);color:var(--mb-text);text-align:left;font:inherit;cursor:pointer;min-height:44px;border-radius:0}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem:last-child{border-bottom:0}
+#mrbot-root #mrbot-messages .mrbot-doc-listitem:hover,#mrbot-root #mrbot-messages .mrbot-doc-listitem:focus-visible{background:var(--mb-bubble)}
+#mrbot-root .mrbot-doc-emoji{font-size:18px;width:24px;text-align:center;flex:none}
+#mrbot-root .mrbot-doc-index{font-size:11px;font-variant-numeric:tabular-nums;color:var(--mb-muted);width:23px;flex:none}
+#mrbot-root .mrbot-doc-listname{font-weight:640;font-size:12px;flex:1;min-width:0;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-count{font-size:10px;color:var(--mb-muted);white-space:nowrap}
+#mrbot-root .mrbot-doc-chevron{font-size:20px;color:var(--mb-muted);line-height:1}
+#mrbot-root .mrbot-doc-article-section{padding:0 0 15px;margin-bottom:16px;border-bottom:1px solid var(--mb-line)}
+#mrbot-root .mrbot-doc-article-section h3{font-size:12px;font-weight:760;color:var(--mb-text);margin:0 0 8px}
+#mrbot-root .mrbot-doc-prose{font-size:12px;line-height:1.75;color:var(--mb-text);white-space:pre-line;overflow-wrap:anywhere;margin:0}
+#mrbot-root .mrbot-doc-source{font-size:10px;color:var(--mb-muted);display:flex;flex-direction:column;gap:5px;margin-bottom:17px}
+#mrbot-root .mrbot-doc-source code{font-size:10px;line-height:1.6;overflow-wrap:anywhere;white-space:normal;color:var(--mb-muted);background:var(--mb-bubble);border:1px solid var(--mb-line);border-radius:7px;padding:7px 9px}
+#mrbot-root .mrbot-doc-bottomnav{display:flex;justify-content:space-between;gap:8px}
+#mrbot-root #mrbot-messages .mrbot-doc-bottomnav button{font:inherit;font-size:11px;font-weight:700;color:var(--mb-accent);border:1px solid var(--mb-line);border-radius:8px;background:var(--mb-surface);padding:8px 10px;cursor:pointer}
+#mrbot-root #mrbot-messages .mrbot-doc-bottomnav button:last-child{margin-left:auto}
+#mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){max-height:none!important;overflow:visible!important;padding:9px 13px!important;display:block}
+#mrbot-root #mrbot-suggestions .mrbot-doc-footerbtn{width:100%;border-radius:9px!important;text-align:center;font-weight:750!important;padding:10px!important}
+@media(max-width:550px){#mrbot-root .mrbot-doc-view{padding:13px 13px 18px}}

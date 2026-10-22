@@ -201,7 +201,7 @@ let open=false,history=[],lastContext='',lastLang='';
 const locale=()=>DATA[window.MRI18N?.language]||DATA.pl;
 function context(){const v=window.__MRBOT_VIEW__?.value||'hub';return ['kpi','rs','mp','inne'].find(x=>v.toLowerCase().includes(x))||(/^kpi/i.test(v)?'kpi':/^tote|^geek|^audytret/i.test(v)?'rs':/^mp/i.test(v)?'mp':/^przestoje|^artltt|^kreseczki/i.test(v)?'inne':'hub');}
 function msg(kind,value){history.push({kind,value});if(history.length>18)history.shift();renderMessages();}
-function renderMessages(){messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
+function renderMessages(){messages.classList.remove('mrbot-doc-active');messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
 const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
 let readmeMode=false,readmeIndex=0,readmeEntries=[];
 let chatMode=false,chatCategory=null,chatLast=-1,chatRecent=[],chatTimer=null;
@@ -259,32 +259,69 @@ function chatReply(group,index){
 }
 
 const DOC_UI={
- pl:{home:'← Kategorie',back:'← Tematy',simple:'🟢 Prosto',tech:'🔬 Szczegółowo',choose:'Wybierz dział dokumentacji. Każdy temat zawiera opis i szczegółowy algorytm.',topics:'Wybierz temat:',source:'Zweryfikowano w kodzie:',empty:'Brak opisu dla tego tematu.'},
- ru:{home:'← Разделы',back:'← Темы',simple:'🟢 Просто',tech:'🔬 Подробно',choose:'Выбери раздел документации. У каждой темы есть объяснение и технический алгоритм.',topics:'Выбери тему:',source:'Проверено по коду:',empty:'Описание этой темы недоступно.'},
- en:{home:'← Categories',back:'← Topics',simple:'🟢 Simple',tech:'🔬 Technical',choose:'Choose a documentation section. Every topic has a quick guide and a technical explanation.',topics:'Choose a topic:',source:'Verified in source:',empty:'No documentation for this topic.'},
- uk:{home:'← Розділи',back:'← Теми',simple:'🟢 Просто',tech:'🔬 Докладно',choose:'Оберіть розділ документації. Кожна тема має просте пояснення й технічний алгоритм.',topics:'Оберіть тему:',source:'Перевірено за кодом:',empty:'Опис теми недоступний.'}
+ pl:{title:'Szczegółowa dokumentacja',subtitle:'Poznaj Mr. Robot od środka',home:'Dokumentacja',intro:'Przewodnik po projekcie, modułach i obliczeniach. Wybierz rozdział, aby przejść do szczegółów.',topics:'Tematy w rozdziale',summary:'W skrócie',details:'Jak to działa',source:'W kodzie projektu',back:'Wróć',exit:'Zamknij dokumentację',next:'Następny temat',prev:'Poprzedni temat',articles:'tematów',empty:'Brak opisu tej części.'},
+ ru:{title:'Подробная документация',subtitle:'Узнай Mr. Robot изнутри',home:'Документация',intro:'База знаний о проекте, модулях и расчётах. Выбери раздел, чтобы разобраться подробнее.',topics:'Темы раздела',summary:'Главное',details:'Как это устроено',source:'В коде проекта',back:'Назад',exit:'Закрыть документацию',next:'Следующая тема',prev:'Предыдущая тема',articles:'тем',empty:'Описание пока недоступно.'},
+ en:{title:'Detailed documentation',subtitle:'Explore Mr. Robot from the inside',home:'Documentation',intro:'A project knowledge base covering modules, data and calculations. Choose a chapter to explore.',topics:'Topics in this chapter',summary:'Overview',details:'How it works',source:'In the source code',back:'Back',exit:'Close documentation',next:'Next topic',prev:'Previous topic',articles:'topics',empty:'No description available.'},
+ uk:{title:'Докладна документація',subtitle:'Дізнайтеся, як влаштований Mr. Robot',home:'Документація',intro:'База знань про проєкт, модулі й обчислення. Оберіть розділ для подробиць.',topics:'Теми розділу',summary:'Коротко',details:'Як це працює',source:'У коді проєкту',back:'Назад',exit:'Закрити документацію',next:'Наступна тема',prev:'Попередня тема',articles:'тем',empty:'Опис недоступний.'}
 };
-let docCategory=null,docTopic=null,docDepth='simple';
+let docCategory=null,docTopic=null,docHistory=[];
 function docLanguage(){return window.MRI18N?.language||'pl';}
 function docText(){return DOC_UI[docLanguage()]||DOC_UI.pl;}
 function docTitle(obj){return obj?.title?.[docLanguage()]||obj?.title?.pl||obj?.title?.en||'';}
 function docCategories(){return window.MRBOT_DOCS||[];}
 function docCurrentCategory(){return docCategories().find(c=>c.id===docCategory);}
 function docCurrentTopic(){return docCurrentCategory()?.topics.find(t=>t.id===docTopic);}
-function docButton(text,action,cls){const b=document.createElement('button');b.type='button';b.textContent=text;if(cls)b.className=cls;b.addEventListener('click',action);suggestions.appendChild(b);return b;}
-function docOpenCategory(id){docCategory=id;docTopic=null;history=[];msg('bot',docText().topics);renderDocMenu();}
-function docOpenTopic(id){docTopic=id;docDepth='simple';docDisplayTopic();}
-function docDisplayTopic(){const topic=docCurrentTopic();if(!topic)return;const lang=docLanguage(),t=docText();const detail=topic[docDepth]?.[lang]||topic[docDepth]?.pl||t.empty;history=[];msg('user',docTitle(topic));msg('bot',detail+(docDepth==='tech'?'\n\n'+t.source+' '+topic.source:''));petMood('read',700);renderDocMenu();}
-function renderDocMenu(){if(!readmeMode)return;suggestions.replaceChildren();const t=docText();
- if(docTopic){docButton(t.back,()=>{docTopic=null;history=[];msg('bot',t.topics);renderDocMenu();});docButton(t.simple,()=>{docDepth='simple';docDisplayTopic();},docDepth==='simple'?'mrbot-kb-trigger':'');docButton(t.tech,()=>{docDepth='tech';docDisplayTopic();},docDepth==='tech'?'mrbot-kb-trigger':'');const cat=docCurrentCategory();const idx=cat?.topics.findIndex(x=>x.id===docTopic)??-1;const nav=document.createElement('div');nav.className='mrbot-docnav';for(const [label,n] of [[ui().prev,idx-1],[ui().next,idx+1]]){if(!cat?.topics[n])continue;const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>docOpenTopic(cat.topics[n].id));nav.appendChild(b);}suggestions.prepend(nav);return;}
- if(docCategory){docButton(t.home,()=>{docCategory=null;history=[];msg('bot',t.choose);renderDocMenu();});for(const item of docCurrentCategory()?.topics||[])docButton('📄 '+docTitle(item),()=>docOpenTopic(item.id));return;}
- docButton(ui().back,()=>{readmeMode=false;docCategory=null;docTopic=null;refresh();});for(const cat of docCategories())docButton(cat.emoji+' '+docTitle(cat)+' ('+cat.topics.length+')',()=>docOpenCategory(cat.id));
+function docNode(tag,cls,content){const e=document.createElement(tag);if(cls)e.className=cls;if(content!=null)e.textContent=content;return e;}
+function docAction(label,fn,cls=''){const b=docNode('button','mrbot-doc-action '+cls,label);b.type='button';b.addEventListener('click',fn);return b;}
+function docLeave(){readmeMode=false;docCategory=null;docTopic=null;history=docHistory;renderMessages();refresh();}
+function docEnter(){docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;renderDocs();}
+function docOpenCategory(id){docCategory=id;docTopic=null;renderDocs();}
+function docOpenTopic(id){docTopic=id;renderDocs();petMood('read',600);}
+function docHeader(parent,eyebrow,title,subtitle){
+ const h=docNode('div','mrbot-doc-heading');h.append(docNode('div','mrbot-doc-eyebrow',eyebrow),docNode('h2','',title));
+ if(subtitle)h.append(docNode('p','mrbot-doc-muted',subtitle));parent.append(h);
+}
+function docTrail(parent){const bar=docNode('nav','mrbot-doc-trail');bar.setAttribute('aria-label','Breadcrumb');
+ bar.append(docAction(docText().home,()=>{docCategory=null;docTopic=null;renderDocs();}));
+ if(docCategory){bar.append(docNode('span','mrbot-doc-separator','/'));const cat=docCurrentCategory();bar.append(docAction(docTitle(cat),()=>{docTopic=null;renderDocs();}));}
+ if(docTopic){bar.append(docNode('span','mrbot-doc-separator','/'));bar.append(docNode('span','mrbot-doc-current',docTitle(docCurrentTopic())));}
+ parent.append(bar);
+}
+function docParagraph(parent,content){const p=docNode('p','mrbot-doc-prose',content);parent.append(p);}
+function renderDocs(){if(!readmeMode)return;
+ const t=docText(),lang=docLanguage(),view=docNode('div','mrbot-doc-view');
+ messages.replaceChildren();messages.classList.add('mrbot-doc-active');suggestions.replaceChildren();
+ docTrail(view);
+ const category=docCurrentCategory(),topic=docCurrentTopic();
+ if(topic){
+  docHeader(view,docTitle(category),docTitle(topic));
+  const intro=docNode('section','mrbot-doc-article-section');intro.append(docNode('h3','',t.summary));
+  docParagraph(intro,topic.basic?.[lang]||topic.basic?.pl||t.empty);view.append(intro);
+  const details=topic.tech?.[lang]||topic.tech?.pl;
+  if(details){const block=docNode('section','mrbot-doc-article-section');block.append(docNode('h3','',t.details));docParagraph(block,details);view.append(block);}
+  if(topic.source){const src=docNode('div','mrbot-doc-source');src.append(docNode('span','',t.source),docNode('code','',topic.source));view.append(src);}
+  const index=category.topics.findIndex(x=>x.id===docTopic);const nav=docNode('div','mrbot-doc-bottomnav');
+  if(index>0)nav.append(docAction('← '+t.prev,()=>docOpenTopic(category.topics[index-1].id)));
+  if(index<category.topics.length-1)nav.append(docAction(t.next+' →',()=>docOpenTopic(category.topics[index+1].id),'primary'));
+  view.append(nav);
+ }else if(category){
+  docHeader(view,t.title,category.emoji+' '+docTitle(category),t.topics);
+  const list=docNode('div','mrbot-doc-list');
+  category.topics.forEach((item,i)=>{const b=docAction('',()=>docOpenTopic(item.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-index',String(i+1).padStart(2,'0')),docNode('span','mrbot-doc-listname',docTitle(item)),docNode('span','mrbot-doc-chevron','›'));list.append(b);});view.append(list);
+ }else{
+  docHeader(view,'MR. BOT · KNOWLEDGE BASE',t.title,t.intro);
+  const list=docNode('div','mrbot-doc-list');
+  for(const c of docCategories()){const b=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-emoji',c.emoji),docNode('span','mrbot-doc-listname',docTitle(c)),docNode('span','mrbot-doc-count',c.topics.length+' '+t.articles),docNode('span','mrbot-doc-chevron','›'));list.append(b);}
+  view.append(list);
+ }
+ messages.append(view);messages.scrollTop=0;
+ suggestions.append(docAction(docTopic?t.back:docCategory?t.back:t.exit,()=>{if(docTopic){docTopic=null;renderDocs();}else if(docCategory){docCategory=null;renderDocs();}else docLeave();},'mrbot-doc-footerbtn'));
 }
 function refresh(){if(chatMode){renderChat();return;}const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;suggestions.replaceChildren();
- if(readmeMode){if(docTopic)docDisplayTopic();else{renderDocMenu();if(!history.length)msg('bot',docCategory?docText().topics:docText().choose);}return;}
+ if(readmeMode){renderDocs();return;}
  chatButton(chatText().start,()=>{chatMode=true;readmeMode=false;chatCategory=null;msg('bot',chatText().intro);renderChat();},'mrbot-chat-entry');
  for(const [label,key] of suggestionsFor()){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>answer(label,key));suggestions.appendChild(b);}
- const b=document.createElement('button');b.type='button';b.className='mrbot-kb-trigger';b.textContent=ui().knowledge;b.addEventListener('click',()=>{readmeMode=true;docCategory=null;docTopic=null;history=[];msg('bot',docText().choose);renderDocMenu();});suggestions.appendChild(b);
+ const b=document.createElement('button');b.type='button';b.className='mrbot-kb-trigger';b.textContent=ui().knowledge;b.addEventListener('click',docEnter);suggestions.appendChild(b);
  if(lastLang!==window.MRI18N?.language){lastLang=window.MRI18N?.language;if(!history.length)msg('bot',l.hello);}
 }
 function resolve(q){const s=q.toLocaleLowerCase().normalize('NFKD');const match=(...parts)=>parts.some(x=>s.includes(x));if(match('kresecz','barcode','code 128','штрих','штрихкод','штрихкод','штрихкод'))return'barcode';if(match('nadwe','vas'))return'nadwe';if(match('kpi','норм','norm','wydajno'))return'kpi';if(match('tote','geek','ret','rs1',' rs','ean'))return'rs';if(match('scalanie','konsolid','formatka','stock','mdt',' mp','локац','lokac'))return'mp';if(match('artltt','przestoj','просто','downtime','inne'))return'inne';if(match('excel','grafik','plik','file','файл','завантаж','загруз'))return'files';if(match('filtr','фильтр','фільтр','target','смен','zmian'))return'filters';if(match('csv','export','eksport','выгруз','експорт','pobier','скача','копир'))return'export';if(match('błąd','error','ошиб','пуст','empty','brak wynik','не работа','не працю'))return'error';if(match('start','zaczą','нача','почат','jak','как','how'))return context()==='hub'?'steps':context();return null;}

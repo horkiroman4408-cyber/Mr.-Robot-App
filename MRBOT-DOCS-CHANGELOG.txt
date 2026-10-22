@@ -1,0 +1,6 @@
+MR. BOT / Szczegółowa dokumentacja — update within v3.6.19
+
+Seven categories, 26 topics, Polish/Russian/English/Ukrainian. Two levels per topic: simple and technical.
+Only the existing documentation section has been reworked. No changes to Excel calculations, other MR. BOT chat, avatar or operational UI.
+Source paths are included with technical descriptions. Detailed formulas are documented where inspected (especially Audyt Geek RET and KPI). Other modules have verified data-flow summaries, not unverified invented formulas.
+Changed files: js/mrbot.js, js/mrbot-knowledge.js, sw.js.
