@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.6.18-blue)
+![wersja](https://img.shields.io/badge/version-3.6.19-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -17,6 +17,8 @@
 > **Wypróbuj teraz:** [otwórz wersję na żywo](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — wszystko działa w Twojej przeglądarce. Bez instalacji, bez rejestracji, bez serwera. Podoba się? Zainstaluj jako aplikację — będzie działać offline.
 
 ---
+
+> **v3.6.19 · AUDYT RET:** `PRZEGRÓDKI PRZELICZONE` liczy unikalne `Shelf bin` przy `Stocktake qty > 0`; `POMIESZANYCH SZT.` sumuje dodatnie `Stocktake qty` dla wierszy z wypełnionym `Exception reason`. Dotychczasowy MR. BOT pozostaje bez zmian.
 
 MR. BOT oferuje teraz lokalny przewodnik z instrukcjami modułów oraz fragmentami tej dokumentacji, bez wysyłania danych.
 

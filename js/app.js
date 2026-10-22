@@ -757,19 +757,20 @@ const GEEK_RET_KEY='AUDYT RET';
 const geekRetMode=computed(()=>{const keys=geekListOptions.value.filter(o=>geek.sel[o.key]).map(o=>o.key);return keys.length>0&&keys.every(k=>String(k).toUpperCase()===GEEK_RET_KEY);});
 const geekT1=computed(()=>{if(!geek.result||!geek.result.recs||geek.result.missing1.length)return null;
 if(geekRetMode.value){const toty=new Set(),przeg=new Set(),totyBad=new Set(),przegBad=new Set();let sztuk=0,rows=0;
-for(const r of geek.result.recs){if(!geek.sel[r.key2])continue;if(geek.result.hasOp&&!geek.opSel[r.op])continue;rows++;sztuk+=r.qty;const pref=r.shelf.length>=10?r.shelf.slice(0,10):r.shelf;toty.add(pref);przeg.add(r.shelf);if(r.exc==='YES'){totyBad.add(pref);przegBad.add(r.shelf);}}
+for(const r of geek.result.recs){if(!geek.sel[r.key2])continue;if(geek.result.hasOp&&!geek.opSel[r.op])continue;rows++;sztuk+=r.qty;const pref=r.shelf.length>=10?r.shelf.slice(0,10):r.shelf;toty.add(pref);if(r.qty>0)przeg.add(r.shelf);if(r.exc==='YES'){totyBad.add(pref);przegBad.add(r.shelf);}}
 return {ret:true,przeliczone:rows,totPrzel:toty.size,przegPrzel:przeg.size,sztuk,totPopr:toty.size-totyBad.size,przegBad:przegBad.size,sumaBad:totyBad.size};}
 let poprawne=0,braki=0,nadwyzki=0,przepelnione=0,wada=0,przeliczone=0,bledne=0,sztuk=0;for(const r of geek.result.recs){if(!geek.sel[geekKeyOf(r)])continue;if(geek.result.hasOp&&!geek.opSel[r.op])continue;przeliczone++;sztuk+=r.qty;if(r.exc==='YES')bledne++;if(r.exc==='NO')poprawne++;if(r.cat==='Shortage')braki++;else if(r.cat==='surplus')nadwyzki++;else if(r.cat==='Extra sku')przepelnione++;else if(r.cat==='Major damage')wada++;}return {poprawne,braki,nadwyzki,przepelnione,wada,przeliczone,bledne,odsetek:przeliczone>0?bledne/przeliczone:0,sztuk};});
 function geekSelectAll(v){const o={};for(const x of geekListOptions.value)o[x.key]=!!v;geek.sel=o;}
 function geekOpSelectAll(v){const o={};for(const x of geekOpOptions.value)o[x.key]=!!v;geek.opSel=o;}
 function geekResetFilters(){geekSelectAll(true);geekOpSelectAll(true);}
 
-function geekRetCalc(list){const toty=new Set(),przeg=new Set(),totyBad=new Set(),przegBad=new Set();let sztuk=0;for(const r of list){sztuk+=r.qty;const pref=r.shelf.length>=10?r.shelf.slice(0,10):r.shelf;toty.add(pref);przeg.add(r.shelf);if(r.exc==='YES'){totyBad.add(pref);przegBad.add(r.shelf);}}return {totPrzel:toty.size,przegPrzel:przeg.size,sztuk,totPopr:toty.size-totyBad.size,przegBad:przegBad.size,sumaBad:totyBad.size};}
-// AUDYT RET: klasyfikacja nowych metryk wg pełnego Shelf bin, wyłącznie w obrębie grupy.
+function geekRetCalc(list){const toty=new Set(),przeg=new Set(),totyBad=new Set(),przegBad=new Set();let sztuk=0;for(const r of list){sztuk+=r.qty;const pref=r.shelf.length>=10?r.shelf.slice(0,10):r.shelf;toty.add(pref);if(r.qty>0)przeg.add(r.shelf);if(r.exc==='YES'){totyBad.add(pref);przegBad.add(r.shelf);}}return {totPrzel:toty.size,przegPrzel:przeg.size,sztuk,totPopr:toty.size-totyBad.size,przegBad:przegBad.size,sumaBad:totyBad.size};}
+// AUDYT RET: grupowanie kategorii bledow po lokalizacji; liczba sztuk mieszanych jest sumowana osobno z Stocktake qty.
 // Lokalizacje powtarzające się należą tylko do kategorii pomieszanych artykułów.
 function geekRetDetails(list){
  // AUDYT RET: licz tylko wiersze z uzupelnionym Exception reason (AG).
  const errorRows=list.filter(r=>String(r.reason||'').trim()!=='');
+ const mixedPieces=errorRows.reduce((sum,r)=>sum+(r.qty>0?r.qty:0),0);
  // Shelf bin wskazuje przegrodke (np. ...F1A, ...F2A).
  // Dla pomieszanych artykulow porownujemy wspolna lokalizacje
  // bez dwoch koncowych znakow (numer przegrodki + jej oznaczenie).
@@ -785,7 +786,7 @@ function geekRetDetails(list){
  for(const locationRows of byLocation.values()){
   if(locationRows.length>=2){
    out.mixedTots++;
-   out.mixedPieces+=locationRows.length;
+   // POMIESZANYCH SZT. is summed once across all errorRows below.
    continue; // wszystkie wiersze tej lokalizacji wykluczone z innych bledow
   }
   const r=locationRows[0];
@@ -795,6 +796,7 @@ function geekRetDetails(list){
   else if(r.cat==='Extra sku'){out.extraTots++;out.extraPieces+=n;}
   else if(r.cat==='Major damage'){out.damageTots++;out.damagePieces+=n;}
  }
+ out.mixedPieces=mixedPieces;
  return out;
 }
 

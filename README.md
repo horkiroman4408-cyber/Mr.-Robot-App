@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.6.18-blue)
+![version](https://img.shields.io/badge/version-3.6.19-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -17,6 +17,8 @@
 > **Try it now:** [open the live version](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — it runs entirely in your browser. No install, no sign-up, no server. Like it? Install it as an app — it then works offline.
 
 ---
+
+> **v3.6.19 · AUDYT RET:** `PRZEGRÓDKI PRZELICZONE` counts unique `Shelf bin` with `Stocktake qty > 0`; `POMIESZANYCH SZT.` sums positive `Stocktake qty` in rows with a filled `Exception reason`. The existing MR. BOT assistant is retained unchanged.
 
 MR. BOT now offers an offline guided help library, with curated passages from this README and module-specific instructions.
 

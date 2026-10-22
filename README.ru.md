@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.6.18-blue)
+![версия](https://img.shields.io/badge/version-3.6.19-blue)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -17,6 +17,8 @@
 > **Попробуйте сейчас:** [открыть живую версию](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — всё работает прямо в браузере. Без установки, без регистрации, без сервера. Понравилось — установите как приложение, и оно будет работать офлайн.
 
 ---
+
+> **v3.6.19 · AUDYT RET:** `PRZEGRÓDKI PRZELICZONE` считает уникальные `Shelf bin` при `Stocktake qty > 0`; `POMIESZANYCH SZT.` суммирует положительные `Stocktake qty` в строках с заполненным `Exception reason`. Существующий MR. BOT оставлен без изменений.
 
 MR. BOT теперь содержит офлайн-справочник с инструкциями по модулям и выдержками из этого README. Данные отчётов не отправляются.
 
