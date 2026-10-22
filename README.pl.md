@@ -327,7 +327,3 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-### MR. BOT (v3.6.18)
-
-Wbudowany asystent offline udostępnia gotowe pytania i wyszukiwanie wskazówek po własnym tekście dla KPI, RS, MP i Inne. Animowana postać obsługuje PL/RU/EN/UK. To **nie jest generatywna AI**; asystent nie odczytuje ani nie wysyła danych raportów Excel.

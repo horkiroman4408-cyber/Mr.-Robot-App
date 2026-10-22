@@ -327,7 +327,3 @@ If you'd rather just say hello and tell me what you built with it, that works to
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-### MR. BOT (v3.6.18)
-
-The built-in, offline assistant offers suggested questions and free-form keyword-based help for KPI, RS, MP and Inne. The animated mascot supports Polish, Russian, English and Ukrainian. It is **not** a generative AI and does not read or upload Excel report contents.
