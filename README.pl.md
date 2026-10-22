@@ -18,10 +18,6 @@
 
 ---
 
-> **v3.6.19 · AUDYT RET:** `PRZEGRÓDKI PRZELICZONE` liczy unikalne `Shelf bin` przy `Stocktake qty > 0`; `POMIESZANYCH SZT.` sumuje dodatnie `Stocktake qty` dla wierszy z wypełnionym `Exception reason`. Dotychczasowy MR. BOT pozostaje bez zmian.
-
-MR. BOT oferuje teraz lokalny przewodnik z instrukcjami modułów oraz fragmentami tej dokumentacji, bez wysyłania danych.
-
 ## 📖 Spis treści
 
 - [Co to jest](#-co-to-jest)
