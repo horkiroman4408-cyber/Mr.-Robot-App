@@ -242,3 +242,10 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root:not(.mrbot-open) #mrbot-toggle .mrbot-mascot{width:60px!important;height:60px!important}
 #mrbot-root:not(.mrbot-open) #mrbot-toggle{min-height:62px!important;height:62px!important}
 @media(max-width:550px){#mrbot-root.mrbot-open #mrbot-header-home{width:102px!important;height:116px!important}#mrbot-root.mrbot-open #mrbot-header-home .mrbot-mascot{width:102px!important;height:114px!important}}
+
+/* MR. BOT offline conversation section: keep the existing guide and visual language. */
+#mrbot-root .mrbot-chat-entry{font-weight:700;border-color:var(--accent,#4bc5cb);}
+#mrbot-root .mrbot-chat-note{font-size:11px;opacity:.66;text-align:center;padding:5px 8px;}
+#mrbot-root .mrbot-chat-caption{opacity:.8;cursor:default;}
+#mrbot-root .mrbot-chat-follow{display:flex;gap:6px;}
+#mrbot-root .mrbot-chat-follow button{flex:1;}

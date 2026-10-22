@@ -434,3 +434,6 @@ html[lang="ru"] .segment-btn,html[lang="uk"] .segment-btn{padding-inline:.8rem}
 .kreseczki-preview{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:22px 16px;overflow-x:auto;text-align:center;color:#0f172a;}
 .kreseczki-preview svg{display:block;margin:0 auto;max-width:100%;height:auto;min-width:240px;}
 @media print{.kreseczki-preview{border:0;box-shadow:none;padding:0;}}
+
+/* Mobile lite hub: full desktop modules remain untouched. */
+.mr-mobile-lite .mr-lite-card{cursor:pointer;padding:22px;min-height:170px}.mr-mobile-lite .mr-lite-card .launch-btn{margin-top:18px}.mr-mobile-lite .app-card[data-app="kpi"]{animation:none}

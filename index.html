@@ -10,6 +10,7 @@
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/mrbot.css">
+<script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/vendor-tailwind.js"></script>
@@ -99,7 +100,7 @@
 <button class="launch-btn" style="background:linear-gradient(180deg,#4aa3ff 0%,#0a84ff 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(10,132,255,.35);">{{ tr(58) }} <span class="arrow">→</span></button>
 </div>
 
-<div class="app-card float-up" data-app="tote" style="--accent-soft:rgba(48,209,88,.14);animation-delay:.28s" @click="view = 'rs'">
+<div v-if="!mobileLite" class="app-card float-up" data-app="tote" style="--accent-soft:rgba(48,209,88,.14);animation-delay:.28s" @click="view = 'rs'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#4ade80] via-[#30d158] to-[#059669]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6" stroke-width="1.8"/></svg></div><div class="flex-1 min-w-0"><div class="app-title" style="background:linear-gradient(135deg,#4ade80,#059669);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">RS</div><div class="app-sub">{{ tr(766) }}</div></div></div>
 <p class="app-desc">{{ tr(767) }}</p>
 <div class="tag-row"><span class="tag" style="background:var(--mr-c101,rgba(48,209,88,.12));color:var(--mr-c18,#059669);">{{ tr(70) }}</span><span class="tag" style="background:var(--mr-c101,rgba(48,209,88,.12));color:var(--mr-c18,#059669);">{{ tr(66) }}</span><span class="tag" style="background:var(--mr-c101,rgba(48,209,88,.12));color:var(--mr-c18,#059669);">{{ tr(71) }}</span><span class="tag" style="background:var(--mr-c101,rgba(48,209,88,.12));color:var(--mr-c18,#059669);">AUDYT GEEK</span></div>
@@ -107,7 +108,7 @@
 <button class="launch-btn" style="background:linear-gradient(180deg,#4ade80 0%,#30d158 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(48,209,88,.35);">{{ tr(81) }} <span class="arrow">→</span></button>
 </div>
 
-<div class="app-card float-up" data-app="audyt" style="--accent-soft:rgba(168,85,247,.16);animation-delay:.36s" @click="view = 'mp'">
+<div v-if="!mobileLite" class="app-card float-up" data-app="audyt" style="--accent-soft:rgba(168,85,247,.16);animation-delay:.36s" @click="view = 'mp'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#c084fc] via-[#a855f7] to-[#7e22ce]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="flex-1 min-w-0"><div class="app-title" style="background:linear-gradient(135deg,#c084fc,#7e22ce);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">MP</div><div class="app-sub">{{ tr(774) }}</div></div></div>
 <p class="app-desc">{{ tr(775) }}</p>
 <div class="tag-row"><span class="tag" style="background:var(--mr-c156,rgba(168,85,247,.12));color:var(--mr-c72,#9333ea);">{{ tr(38) }}</span><span class="tag" style="background:var(--mr-c156,rgba(168,85,247,.12));color:var(--mr-c72,#9333ea);">{{ tr(39) }}</span><span class="tag" style="background:var(--mr-c156,rgba(168,85,247,.12));color:var(--mr-c72,#9333ea);">{{ tr(88) }}</span></div>
@@ -115,7 +116,7 @@
 <button class="launch-btn" style="background:linear-gradient(180deg,#c084fc 0%,#9333ea 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(147,51,234,.35);">{{ tr(96) }} <span class="arrow">→</span></button>
 </div>
 
-<div class="app-card float-up" data-app="inne" style="--accent-soft:rgba(245,158,11,.16);animation-delay:.44s" @click="view = 'inne'">
+<div v-if="!mobileLite" class="app-card float-up" data-app="inne" style="--accent-soft:rgba(245,158,11,.16);animation-delay:.44s" @click="view = mobileLite?'hub':'inne'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="3" y="14" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#fff" stroke="none"/></svg></div><div class="flex-1 min-w-0"><div class="app-title" style="background:linear-gradient(135deg,#fbbf24,#d97706);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">{{ tr(23) }}</div><div class="app-sub">{{ tr(781) }}</div></div></div>
 <p class="app-desc">{{ tr(782) }}</p>
 <div class="tag-row"><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">{{ tr(99) }}</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">ARTLTT</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">Kreseczki</span></div>
@@ -123,6 +124,8 @@
 <button class="launch-btn" style="background:linear-gradient(180deg,#fbbf24 0%,#d97706 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(245,158,11,.35);">{{ tr(108) }} <span class="arrow">→</span></button>
 </div>
 
+<div v-if="mobileLite" class="app-card mr-lite-card" @click="view='przestoje'" role="button" tabindex="0" @keydown.enter="view='przestoje'"><div class="app-title">⏱️ {{ tr('Analiza Przestojów') }}</div><p class="app-desc">{{ tr('Analiza czasu przestojów') }}</p><button class="launch-btn">{{ tr(58) }} →</button></div>
+<div v-if="mobileLite" class="app-card mr-lite-card" @click="view='kreseczki'" role="button" tabindex="0" @keydown.enter="view='kreseczki'"><div class="app-title">▥ Kreseczki</div><p class="app-desc">Code 128</p><button class="launch-btn">{{ tr(58) }} →</button></div>
 <div v-if="mrSavedList.length" class="mr-saved-bar float-up"><span class="font-semibold text-slate-600">{{ tr(109) }}</span><span v-for="x in mrSavedList" :key="x.slot" class="grafik-chip" :title="x.name+' · '+pracownicyFmtDate(x.savedAt)">{{ tr(x.label) }}</span><div class="flex-1"></div><button class="grafik-btn danger" style="padding:.32rem .7rem" @click="mrClearAllSaved">{{ tr(110) }}</button></div>
 </div></main>
 <footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
@@ -1352,7 +1355,7 @@
 
 <template v-else-if="view === 'kreseczki'">
 <header class="px-6 pt-8 pb-4 max-w-4xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
-<button class="back-to-hub shrink-0" @click="view='inne'">← {{ tr(597) }}</button>
+<button class="back-to-hub shrink-0" @click="view=mobileLite?'hub':'inne'">← {{ tr(597) }}</button>
 <div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706] flex items-center justify-center robot-glow amber shrink-0 text-white"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg></div><div><h1 class="text-[22px] font-bold tracking-tight" style="color:var(--mr-c20,#b45309)">Kreseczki</h1><div class="text-[12px] font-semibold text-slate-600">{{ tr('Generator kodów kreskowych Code 128') }}</div></div></div>
 </div></header>
 <main class="flex-1 px-6 pb-10 max-w-4xl w-full mx-auto space-y-6">
@@ -1376,7 +1379,7 @@
 
 <template v-else-if="view === 'artltt'">
 <header class="px-6 pt-8 pb-4 max-w-4xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
-<button class="back-to-hub shrink-0" @click="view = 'inne'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>{{ tr(597) }}</button>
+<button class="back-to-hub shrink-0" @click="view = mobileLite?'hub':'inne'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>{{ tr(597) }}</button>
 <div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#fbbf24] via-[#f59e0b] to-[#d97706] flex items-center justify-center robot-glow amber shrink-0"><svg viewBox="0 0 24 24" class="w-7 h-7" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="6" rx="2"/><rect x="3" y="13" width="18" height="6" rx="2"/><circle cx="7.5" cy="6" r="1" fill="#fff"/><circle cx="7.5" cy="16" r="1" fill="#fff"/></svg></div><div class="shrink-0"><h1 class="text-[22px] font-bold tracking-tight leading-tight" style="background:linear-gradient(135deg,#fbbf24,#d97706);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">ARTLTT</h1><div class="text-[12px] font-semibold text-slate-600 tracking-tight leading-tight mt-0.5">{{ tr(598) }}</div></div></div>
 </div></header>
 <main class="flex-1 px-6 pb-10 max-w-4xl w-full mx-auto space-y-6">
@@ -1636,6 +1639,7 @@
 <script src="js/app.js"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
+<script src="js/mrbot-dialogue-data.js"></script>
 <script src="js/mrbot.js"></script>
 </body>
 </html>

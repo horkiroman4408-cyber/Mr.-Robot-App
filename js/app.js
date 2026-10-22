@@ -27,7 +27,7 @@ function openSettings(){if(view.value==='settings')return;settingsReturn={view:v
 function closeSettings(){view.value=settingsReturn.view;requestAnimationFrame(()=>window.scrollTo(0,settingsReturn.scroll));}
 function goFromSettings(target){view.value=target;window.scrollTo(0,0);}
 
-const view=ref('hub');const toast=ref('');
+const view=ref('hub');const toast=ref('');const mobileLite=!!window.MR_MOBILE_LITE;
 window.__MRBOT_VIEW__=view;watch(view,()=>window.dispatchEvent(new Event('mrbot-view-change')));
 const showWelcome=ref(false);
 try { if(!localStorage.getItem('mrrobot_welcomed')) showWelcome.value = true; } catch(e){}
@@ -1081,7 +1081,7 @@ toteResetRs=mrWrapReset('toteRs',toteResetRs);
 const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
 function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrTx('readwrite',st=>{st.clear();}).catch(()=>{});for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
-function mrRestoreFiles(){if(!mrHasIndexedDB())return;const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile};mrFileGetAll().then(all=>{let n=0;for(const slot of Object.keys(all||{})){const v=all[slot],h=handlers[slot];if(!h||!v||!v.blob)continue;try{const file=new File([v.blob],v.name,{type:v.type||'',lastModified:v.lastModified||Date.now()});mrSaved[slot]={name:v.name,savedAt:v.savedAt};const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt=v.savedAt||'';h({target:{files:[file]},__mrRestore:true});n++;}catch(e){console.warn('Mr. Robot: nie udało się przywrócić',slot,e);}}if(n)setTimeout(()=>showToast(`💾 Przywrócono z przeglądarki: ${n} ${n===1?'plik':(n<5?'pliki':'plików')}`),2500);}).catch(e=>console.warn('Mr. Robot: pamięć plików niedostępna',e));}
+function mrRestoreFiles(){if(!mrHasIndexedDB())return;const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile};mrFileGetAll().then(all=>{let n=0;for(const slot of Object.keys(all||{})){const v=all[slot],h=handlers[slot];if(mobileLite&&!['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje'].includes(slot))continue;if(!h||!v||!v.blob)continue;try{const file=new File([v.blob],v.name,{type:v.type||'',lastModified:v.lastModified||Date.now()});mrSaved[slot]={name:v.name,savedAt:v.savedAt};const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt=v.savedAt||'';h({target:{files:[file]},__mrRestore:true});n++;}catch(e){console.warn('Mr. Robot: nie udało się przywrócić',slot,e);}}if(n)setTimeout(()=>showToast(`💾 Przywrócono z przeglądarki: ${n} ${n===1?'plik':(n<5?'pliki':'plików')}`),2500);}).catch(e=>console.warn('Mr. Robot: pamięć plików niedostępna',e));}
 
 // MR. BOT visual bridge: reads existing state; never writes report data.
 const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
@@ -1119,7 +1119,7 @@ for(const [getter,setter,state] of [
 
 mrRestoreFiles();
 
-return{uiLanguage,uiLanguages,moduleGuides,isDarkTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{mobileLite,uiLanguage,uiLanguages,moduleGuides,isDarkTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
