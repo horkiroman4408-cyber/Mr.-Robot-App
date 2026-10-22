@@ -205,6 +205,7 @@ function renderMessages(){messages.replaceChildren();for(const m of history){con
 const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
 let readmeMode=false,readmeIndex=0,readmeEntries=[];
 let chatMode=false,chatCategory=null,chatLast=-1,chatRecent=[],chatTimer=null;
+const chatReplyBags=new Map();let chatRecentTexts=[];
 function ui(){return UI[window.MRI18N?.language]||UI.pl;}
 function getReadme(){const lang=window.MRI18N?.language||'pl';return (window.MRBOT_README_KB||{})[lang]||(window.MRBOT_README_KB||{}).en||[];}
 function suggestionsFor(){const lang=window.MRI18N?.language||'pl';return (GUIDE[lang]||GUIDE.pl)[context()]||(GUIDE[lang]||GUIDE.pl).home;}
