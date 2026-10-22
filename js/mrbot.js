@@ -204,7 +204,7 @@ function msg(kind,value){history.push({kind,value});if(history.length>18)history
 function renderMessages(){messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
 const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
 let readmeMode=false,readmeIndex=0,readmeEntries=[];
-let chatMode=false,chatCategory=null,chatLast=-1,chatRecent=[],chatTimer=null;
+let chatMode=false,chatCategory=null,chatLast=-1,chatRecent=[],chatTimer=null,gameState=null;
 function ui(){return UI[window.MRI18N?.language]||UI.pl;}
 function getReadme(){const lang=window.MRI18N?.language||'pl';return (window.MRBOT_README_KB||{})[lang]||(window.MRBOT_README_KB||{}).en||[];}
 function suggestionsFor(){const lang=window.MRI18N?.language||'pl';return (GUIDE[lang]||GUIDE.pl)[context()]||(GUIDE[lang]||GUIDE.pl).home;}
@@ -217,13 +217,71 @@ function renderChat(){
  suggestions.replaceChildren();const t=chatText(),lang=chatLocale(),groups=window.MRBOT_DIALOGUES||[];
  chatButton(t.guide,()=>{chatMode=false;chatCategory=null;if(chatTimer)clearTimeout(chatTimer);refresh();},'mrbot-kb-trigger');
  if(!chatCategory){chatButton(t.choose,()=>{},'mrbot-chat-caption').disabled=true;groups.forEach(g=>chatButton(g.emoji+' '+(g.title[lang]||g.title.en),()=>{chatCategory=g.id;renderChat();}));}
- else{const group=groups.find(g=>g.id===chatCategory);chatButton(t.back,()=>{chatCategory=null;renderChat();});if(group)group.items.forEach((it,i)=>chatButton(it.q[lang]||it.q.en,()=>chatReply(group,i)));}
+ else{const group=groups.find(g=>g.id===chatCategory);chatButton(t.back,()=>{chatCategory=null;gameState=null;renderChat();});if(group&&group.id==='games'){chatButton('🎮 '+(GAME_TEXT[lang]||GAME_TEXT.pl).pick,()=>gameMenu());if(!gameState)group.items.forEach((it,i)=>chatButton(it.q[lang]||it.q.en,()=>i===0?startGame('number'):i===1?startGame('riddle'):i===2?startGame('excel'):i===3?startGame('warehouse'):i===4?startGame('rps'):i===5?startGame('truth'):i===6?startGame('coin'):chatReply(group,i)));}else if(group)group.items.forEach((it,i)=>chatButton(it.q[lang]||it.q.en,()=>chatReply(group,i)));}
  const note=document.createElement('div');note.className='mrbot-chat-note';note.textContent=t.note;suggestions.appendChild(note);
 }
+
+const GAME_TEXT={
+ru:{pick:'Выбери игру',number:'Угадай число от 1 до 5',riddle:'Загадка',excel:'Викторина Excel',warehouse:'Викторина про склад',rps:'Камень · ножницы · бумага',truth:'Правда или ложь',coin:'Монетка',again:'Сыграть ещё',correct:'Верно! 🎉',wrong:'Не угадал. Правильный ответ: ',win:'Ты победил! 🏆',lose:'Я победил! 🤖',tie:'Ничья!',score:'Счёт',back:'← К играм',true:'Правда',false:'Ложь',rock:'Камень',paper:'Бумага',scissors:'Ножницы',heads:'Орёл',tails:'Решка',think:'Выбирай ответ:',question:'Вопрос:'},
+pl:{pick:'Wybierz grę',number:'Zgadnij liczbę od 1 do 5',riddle:'Zagadka',excel:'Quiz Excel',warehouse:'Quiz magazyn',rps:'Kamień · papier · nożyce',truth:'Prawda czy fałsz',coin:'Rzut monetą',again:'Zagraj ponownie',correct:'Brawo! 🎉',wrong:'Nie tym razem. Poprawna odpowiedź: ',win:'Wygrywasz! 🏆',lose:'Wygrywam! 🤖',tie:'Remis!',score:'Wynik',back:'← Do gier',true:'Prawda',false:'Fałsz',rock:'Kamień',paper:'Papier',scissors:'Nożyce',heads:'Orzeł',tails:'Reszka',think:'Wybierz odpowiedź:',question:'Pytanie:'},
+en:{pick:'Choose a game',number:'Guess a number from 1 to 5',riddle:'Riddle',excel:'Excel quiz',warehouse:'Warehouse quiz',rps:'Rock · paper · scissors',truth:'True or false',coin:'Coin flip',again:'Play again',correct:'Correct! 🎉',wrong:'Not quite. Correct answer: ',win:'You win! 🏆',lose:'I win! 🤖',tie:'Draw!',score:'Score',back:'← Games',true:'True',false:'False',rock:'Rock',paper:'Paper',scissors:'Scissors',heads:'Heads',tails:'Tails',think:'Choose your answer:',question:'Question:'},
+uk:{pick:'Обери гру',number:'Вгадай число від 1 до 5',riddle:'Загадка',excel:'Вікторина Excel',warehouse:'Вікторина про склад',rps:'Камінь · ножиці · папір',truth:'Правда чи ні',coin:'Монетка',again:'Грати ще',correct:'Правильно! 🎉',wrong:'Не вгадав. Правильна відповідь: ',win:'Ти переміг! 🏆',lose:'Я переміг! 🤖',tie:'Нічия!',score:'Рахунок',back:'← До ігор',true:'Правда',false:'Неправда',rock:'Камінь',paper:'Папір',scissors:'Ножиці',heads:'Орел',tails:'Решка',think:'Обирай відповідь:',question:'Запитання:'}
+};
+const GAME_BANK={
+excel:[
+{q:{ru:'С какого символа начинается формула Excel?',pl:'Od jakiego znaku zaczyna się formuła w Excelu?',en:'What symbol starts an Excel formula?',uk:'З якого символу починається формула Excel?'},o:['=','+','#'],a:0},
+{q:{ru:'Какая функция суммирует числа?',pl:'Która funkcja sumuje liczby?',en:'Which function adds numbers?',uk:'Яка функція підсумовує числа?'},o:['SUM','COUNT','LEFT'],a:0},
+{q:{ru:'Какое расширение у современной книги Excel?',pl:'Jakie rozszerzenie ma nowy skoroszyt Excel?',en:'What is a modern Excel workbook extension?',uk:'Яке розширення має сучасна книга Excel?'},o:['.xlsx','.jpg','.mp3'],a:0},
+{q:{ru:'Что означает A1?',pl:'Co oznacza A1?',en:'What does A1 refer to?',uk:'Що означає A1?'},o:['Ячейка A1|Komórka A1|Cell A1|Клітинка A1','Лист 1|Arkusz 1|Sheet 1|Аркуш 1','Формула|Formuła|Formula|Формула'],a:0}],
+warehouse:[
+{q:{ru:'Что лучше использовать для точной идентификации товара?',pl:'Co najlepiej identyfikuje produkt?',en:'What best identifies a product?',uk:'Що найкраще ідентифікує товар?'},o:['EAN / SKU','Цвет|Kolor|Color|Колір','Вес|Waga|Weight|Вага'],a:0},
+{q:{ru:'Что проверять при расхождении остатков?',pl:'Co sprawdzić przy różnicy stanów?',en:'What should you check when stock does not match?',uk:'Що перевірити при розбіжності залишків?'},o:['Движения товара|Ruchy towaru|Stock movements|Рух товару','Погоду|Pogodę|Weather|Погоду','Музыку|Muzykę|Music|Музику'],a:0},
+{q:{ru:'Что значит SKU?',pl:'Co oznacza SKU?',en:'What does SKU mean?',uk:'Що означає SKU?'},o:['Идентификатор позиции|Identyfikator produktu|Stock keeping unit|Ідентифікатор товару','Номер автобуса|Numer autobusu|Bus number|Номер автобуса','Номер смены|Numer zmiany|Shift number|Номер зміни'],a:0}],
+riddle:[
+{q:{ru:'Без ног, а путешествует по складу. Что это?',pl:'Nie ma nóg, a podróżuje po magazynie. Co to?',en:'No legs, yet it travels through the warehouse. What is it?',uk:'Без ніг, а подорожує складом. Що це?'},o:['Посылка|Paczka|Parcel|Посилка','Стеллаж|Regał|Shelf|Стелаж','Стена|Ściana|Wall|Стіна'],a:0},
+{q:{ru:'Что становится больше, когда из него забирают?',pl:'Co staje się większe, gdy coś z niego zabierasz?',en:'What gets bigger when you take something away?',uk:'Що стає більшим, коли з нього забирають?'},o:['Яма|Dziura|Hole|Яма','Коробка|Pudełko|Box|Коробка','Книга|Książka|Book|Книга'],a:0}],
+truth:[
+{q:{ru:'Code 128 кодирует только цифры.',pl:'Code 128 koduje tylko cyfry.',en:'Code 128 encodes only digits.',uk:'Code 128 кодує лише цифри.'},o:[],a:1},
+{q:{ru:'Фильтры могут скрыть все строки таблицы.',pl:'Filtry mogą ukryć wszystkie wiersze tabeli.',en:'Filters can hide every row in a table.',uk:'Фільтри можуть приховати всі рядки таблиці.'},o:[],a:0},
+{q:{ru:'Формула Excel обычно начинается с =.',pl:'Formuła Excela zwykle zaczyna się od =.',en:'An Excel formula usually starts with =.',uk:'Формула Excel зазвичай починається з =.'},o:[],a:0},
+{q:{ru:'CSV всегда сохраняет все формулы Excel.',pl:'CSV zawsze zachowuje formuły Excela.',en:'CSV always preserves all Excel formulas.',uk:'CSV завжди зберігає всі формули Excel.'},o:[],a:1}]
+};
+let gameScores={win:0,lose:0,tie:0};
+function gameLabel(raw,lang){if(!raw.includes('|'))return raw;return raw.split('|')[{ru:0,pl:1,en:2,uk:3}[lang]||0];}
+function gameMenu(){const t=GAME_TEXT[chatLocale()]||GAME_TEXT.pl;gameState=null;renderChat();chatButton('🎲 '+t.number,()=>startGame('number'));chatButton('❓ '+t.riddle,()=>startGame('riddle'));chatButton('📊 '+t.excel,()=>startGame('excel'));chatButton('📦 '+t.warehouse,()=>startGame('warehouse'));chatButton('✂️ '+t.rps,()=>startGame('rps'));chatButton('✓ '+t.truth,()=>startGame('truth'));chatButton('🪙 '+t.coin,()=>startGame('coin'));}
+function startGame(type){
+ const lang=chatLocale(),t=GAME_TEXT[lang]||GAME_TEXT.pl;gameState={type,secret:1+Math.floor(Math.random()*5),round:Math.floor(Math.random()*(GAME_BANK[type]?.length||1)),done:false};
+ renderGame();
+}
+function renderGame(){
+ if(!gameState)return;const lang=chatLocale(),t=GAME_TEXT[lang]||GAME_TEXT.pl,g=gameState;
+ suggestions.replaceChildren();chatButton(t.back,()=>{gameState=null;renderChat();});
+ const ask=(label,value)=>chatButton(label,()=>gameMove(value));
+ if(g.type==='number'){msg('bot',t.number+' · '+t.think);for(let i=1;i<=5;i++)ask(String(i),i);}
+ else if(g.type==='rps'){msg('bot',t.rps+' · '+t.think);['rock','paper','scissors'].forEach((k,i)=>ask(t[k],i));}
+ else if(g.type==='coin'){msg('bot',t.coin+' · '+t.think);ask(t.heads,0);ask(t.tails,1);}
+ else{const q=GAME_BANK[g.type][g.round];msg('bot',t.question+' '+q.q[lang]);const opts=g.type==='truth'?[t.true,t.false]:q.o.map(x=>gameLabel(x,lang));opts.forEach((x,i)=>ask(x,i));}
+}
+function gameMove(choice){
+ if(!gameState||gameState.done)return;
+ const g=gameState,lang=chatLocale(),t=GAME_TEXT[lang]||GAME_TEXT.pl;
+ const keys=['rock','paper','scissors'];let answer,correct=false,draw=false;
+ if(g.type==='number'){answer=g.secret;correct=choice===answer;}
+ else if(g.type==='rps'){const bot=Math.floor(Math.random()*3);answer=t[keys[bot]];draw=choice===bot;correct=(choice-bot+3)%3===1;}
+ else if(g.type==='coin'){const coin=Math.floor(Math.random()*2);answer=coin?t.tails:t.heads;correct=choice===coin;}
+ else{const q=GAME_BANK[g.type][g.round];answer=g.type==='truth'?(q.a?t.false:t.true):gameLabel(q.o[q.a],lang);correct=choice===q.a;}
+ g.done=true;gameScores[draw?'tie':correct?'win':'lose']++;
+ const display=g.type==='number'?String(choice):g.type==='rps'?t[keys[choice]]:g.type==='coin'?(choice?t.tails:t.heads):g.type==='truth'?(choice?t.false:t.true):gameLabel(GAME_BANK[g.type][g.round].o[choice],lang);
+ msg('user',display);
+ msg('bot',(draw?t.tie:correct?(g.type==='rps'?t.win:t.correct):(g.type==='rps'?t.lose:t.wrong+answer))+(g.type==='rps'?' '+answer:'')+'\\n'+t.score+': '+gameScores.win+' / '+gameScores.lose+' / '+gameScores.tie);
+ petMood(correct?'success':'think',900);
+ suggestions.replaceChildren();chatButton(t.again,()=>startGame(g.type));chatButton(t.back,()=>{gameState=null;renderChat();});
+}
+
 function chatReply(group,index){
  if(chatTimer)clearTimeout(chatTimer);const it=group.items[index],lang=chatLocale();msg('user',it.q[lang]||it.q.en);petMood('think',550);
- const candidates=it.a.map((_,i)=>i).filter(i=>!(chatLast===index&&chatRecent[chatRecent.length-1]===i));const pick=candidates[Math.floor(Math.random()*candidates.length)]??0;chatLast=index;chatRecent.push(pick);if(chatRecent.length>6)chatRecent.shift();
- chatTimer=setTimeout(()=>{if(!chatMode)return;msg('bot',it.a[pick]);petMood('success',900);renderChat();const t=chatText();const row=document.createElement('div');row.className='mrbot-chat-follow';const more=document.createElement('button');more.type='button';more.textContent=t.again;more.addEventListener('click',()=>chatReply(group,index));row.appendChild(more);suggestions.prepend(row);},350+Math.floor(Math.random()*500));
+ const candidates=(it.a[lang]||it.a.en||[]).map((_,i)=>i).filter(i=>!(chatLast===index&&chatRecent[chatRecent.length-1]===i));const pick=candidates[Math.floor(Math.random()*candidates.length)]??0;chatLast=index;chatRecent.push(pick);if(chatRecent.length>6)chatRecent.shift();
+ chatTimer=setTimeout(()=>{if(!chatMode)return;msg('bot',it.a[lang]?.[pick % it.a[lang].length]||it.a.en?.[0]||'…');petMood('success',900);renderChat();const t=chatText();const row=document.createElement('div');row.className='mrbot-chat-follow';const more=document.createElement('button');more.type='button';more.textContent=t.again;more.addEventListener('click',()=>chatReply(group,index));row.appendChild(more);suggestions.prepend(row);},350+Math.floor(Math.random()*500));
 }
 
 function refresh(){if(chatMode){renderChat();return;}const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;suggestions.replaceChildren();if(!readmeMode){chatButton(chatText().start,()=>{chatMode=true;readmeMode=false;chatCategory=null;msg('bot',chatText().intro);renderChat();},'mrbot-chat-entry');}if(readmeMode){const back=document.createElement('button');back.type='button';back.textContent=ui().back;back.addEventListener('click',()=>{readmeMode=false;refresh();});suggestions.appendChild(back);readmeEntries.forEach((entry,i)=>{const b=document.createElement('button');b.type='button';b.textContent=entry.title;b.addEventListener('click',()=>showReadme(i));suggestions.appendChild(b);});renderReadmeNav();}else{for(const [label,key] of suggestionsFor()){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>answer(label,key));suggestions.appendChild(b);}const b=document.createElement('button');b.type='button';b.className='mrbot-kb-trigger';b.textContent=ui().knowledge;b.addEventListener('click',()=>{readmeMode=true;readmeEntries=getReadme();refresh();msg('bot',ui().menu);});suggestions.appendChild(b);} if(lastLang!==window.MRI18N?.language){lastLang=window.MRI18N?.language;if(!history.length)msg('bot',l.hello);}}
