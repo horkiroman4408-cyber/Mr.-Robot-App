@@ -16,9 +16,8 @@ createApp({setup(){
 const uiLanguage=ref(window.MRI18N.language);
 window.MRI18N.subscribe(v=>{uiLanguage.value=v;});
 const uiLanguages=[{code:'pl',name:'Polski'},{code:'ru',name:'Русский'},{code:'en',name:'English'},{code:'uk',name:'Українська'}];
-const moduleGuides=[{"view":"kpi","mark":"KPI","name":"KPI Norms","color":"#0787ed","subtitle":"Wydajność pracowników i normy","lines":["Wczytaj Grafik.xlsx jako bazę pracowników, a następnie raport odpowiedniego procesu. Ustaw filtry i próg normy; odczytaj wyniki lub pobierz Excel.","Audyt, Scalanie, Rozkładanie oraz NADWE/VAS pokazują wyniki właściwego procesu. Statystyki zbierają rankingi TOP 3/5/10, średnią, medianę i efektywność zespołu."]},{"view":"rs","mark":"RS","name":"RS","color":"#13b878","subtitle":"Toty, EAN i analiza Stocktake","lines":["Wczytaj wspólne bazy MP i RS w górnej części sekcji RS. Są używane przez Tote Finder i wyszukiwanie po EAN.","MP → RS Tote Finder dopasowuje EAN-y z MP do totów w RS. Wyszukiwanie po EAN przyjmuje wklejoną listę; ustaw strategię i filtry, a następnie skopiuj lub wyeksportuj wyniki.","AUDYT GEEK korzysta z osobnego pliku Stocktake order: wczytaj go, wybierz grupy i operatorów, a otrzymasz podsumowanie totów oraz błędów i listy EAN."]},{"view":"mp","mark":"MP","name":"MP","color":"#a44ae2","subtitle":"Audyty, lokalizacje i konsolidacja","lines":["AL_AUDYT: wczytaj ECM_AI_Audit.xlsx i uruchom analizę KPI/INFO. FORMATKA_59 używa tego samego pliku do własnego zestawienia kontrolnego.","GODZINY_MDT: wczytaj raport przyjęcia i przeanalizuj półki 1/1 oraz listy lokalizacji. STOCK: wybierz godziny przyjęcia, utwórz listę i skopiuj lokalizacje.","Scalanie: wczytaj bazę MP, ustaw shelf, ABC, zakres SKU i tryb EAN, a następnie wyeksportuj CSV. Konsolidacja: ustaw próg procentowy i minimum lokalizacji, aby znaleźć małe lokalizacje do połączenia."]},{"view":"inne","mark":"+","name":"Inne","color":"#e39908","subtitle":"Przestoje i generowanie LTT","lines":["Analiza_Przestojów: wczytaj raport, wybierz dolny próg czasu i odczytaj przerwy między wpisami tego samego USER ID. Raport obejmuje przedział od wybranego progu do 300 minut.","ARTLTT: wklej nazwy produktów, po jednej w linii, ustaw wartości typów lokalizacji i wygeneruj CSV. Nazwy są skracane przed pierwszym myślnikiem, a duplikaty łączone.","TH Reports jest w przygotowaniu; nie jest jeszcze aktywnym narzędziem."]}];
-const isDarkTheme=ref(document.documentElement.dataset.theme==='dark');
-new MutationObserver(()=>{isDarkTheme.value=document.documentElement.dataset.theme==='dark';}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+const currentTheme=ref(document.documentElement.dataset.theme||'light');
+new MutationObserver(()=>{currentTheme.value=document.documentElement.dataset.theme||'light';}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
 function tr(value){uiLanguage.value;return window.MRI18N.t(value);}
 function setLanguage(value){window.MRI18N.set(value);}
 function setTheme(value){window.MRTheme.set(value);}
@@ -26,6 +25,17 @@ let settingsReturn={view:'hub',scroll:0};
 function openSettings(){if(view.value==='settings')return;settingsReturn={view:view.value,scroll:window.scrollY};view.value='settings';window.scrollTo(0,0);}
 function closeSettings(){view.value=settingsReturn.view;requestAnimationFrame(()=>window.scrollTo(0,settingsReturn.scroll));}
 function goFromSettings(target){view.value=target;window.scrollTo(0,0);}
+
+async function openSettingsMemory(){
+ if(!mrMemoryItems.value.length)return;
+ mrRestore.expanded=true;
+ view.value='hub';
+ await Vue.nextTick();
+ const panel=document.getElementById('mr-memory-manager');
+ if(panel)panel.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
+}
+
+
 
 const view=ref('hub');const toast=ref('');const mobileLite=!!window.MR_MOBILE_LITE;
 window.__MRBOT_VIEW__=view;watch(view,()=>window.dispatchEvent(new Event('mrbot-view-change')));
@@ -1266,7 +1276,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{mobileLite,uiLanguage,uiLanguages,moduleGuides,isDarkTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

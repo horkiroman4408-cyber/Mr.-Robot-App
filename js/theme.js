@@ -7,7 +7,7 @@
    root.dataset.theme=theme;
    const button=document.getElementById('theme-toggle');
    if(button){
-     const dark=theme==='dark';
+     const dark=theme==='dark'||theme==='graphite';
      button.setAttribute('aria-pressed',String(dark));
      button.setAttribute('aria-label',window.MRI18N.t(dark?'Włącz jasny motyw':'Włącz ciemny motyw'));
      button.title=window.MRI18N.t(dark?'Włącz jasny motyw':'Włącz ciemny motyw');
@@ -19,7 +19,7 @@
    if(!db)return;
    try{const tx=db.transaction('settings','readwrite');tx.objectStore('settings').put(theme,'theme');tx.oncomplete=()=>{if(pending===theme)pending=null;};}catch(e){}
  }
- window.MRTheme={set:function(theme){if(theme!=='light'&&theme!=='dark')return;explicit=true;render(theme);save(theme);}};
+ window.MRTheme={set:function(theme){if(theme!=='light'&&theme!=='dark'&&theme!=='graphite')return;explicit=true;render(theme);save(theme);}};
  render(system.matches?'dark':'light');
  try{
    const request=indexedDB.open('mrrobot-preferences',1);
@@ -29,7 +29,7 @@
      db.onversionchange=()=>{db.close();db=null;};
      if(pending){save(pending);return;}
      const read=db.transaction('settings').objectStore('settings').get('theme');
-     read.onsuccess=()=>{if(!explicit&&(read.result==='light'||read.result==='dark')){explicit=true;render(read.result);}};
+     read.onsuccess=()=>{if(!explicit&&(read.result==='light'||read.result==='dark'||read.result==='graphite')){explicit=true;render(read.result);}};
    };
    request.onerror=()=>{};
  }catch(e){}
@@ -38,7 +38,7 @@
  document.addEventListener('click',e=>{
    if(!e.target.closest('#theme-toggle'))return;
    explicit=true;
-   const theme=root.dataset.theme==='dark'?'light':'dark';
+   const theme=root.dataset.theme==='light'?'dark':'light';
    render(theme);save(theme);
  });
  document.addEventListener('DOMContentLoaded',()=>render(root.dataset.theme));
