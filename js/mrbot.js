@@ -234,7 +234,7 @@ function navStart(section){navSection=section;guideCategory=null;guideTopic=null
 function navFooter(t,back){suggestions.replaceChildren();suggestions.append(docAction('← '+t.back,back,'mrbot-doc-footerbtn'));}
 function navView(){messages.classList.add('mrbot-doc-active');messages.replaceChildren();suggestions.replaceChildren();return docNode('div','mrbot-doc-view mrbot-nav-view');}
 function navFinish(view){messages.append(view);messages.scrollTop=0;}
-function navGuideOptions(){const l=chatLocale();return GUIDE[l]||GUIDE.pl;}
+function navGuideOptions(){const l=chatLocale();const source=GUIDE[l]||GUIDE.pl;return {...source,hub:source.home||[]};}
 function navGuideLabel(key){return {hub:navT().general,kpi:'KPI Norms',rs:'RS · Audyt Geek',mp:'MP',inne:'Inne'}[key]||key;}
 function navGuideAnswer(key){const l=chatLocale();const x=(DETAIL[l]||FALLBACK_DETAIL[l]||DETAIL.pl)[key];return x||(DATA[l]||DATA.pl)[key]||(DATA[l]||DATA.pl).unknown;}
 function renderNavigator(){
@@ -266,7 +266,7 @@ function renderNavigator(){
   }
   navFinish(view);navFooter(t,back);return;
  }else if(navSection==='chat'){
-  const lang=chatLocale(),groups=window.MRBOT_DIALOGUES||[];
+  const lang=chatLocale(),groups=(window.MRBOT_DIALOGUES||[]).filter(g=>g.id!=='help');
   const back=()=>{if(chatQuestion!==null){chatQuestion=null;chatAnswer='';renderNavigator();}else if(chatCategory){chatCategory=null;renderNavigator();}else home();};
   docTrailMini(view,t,back);
   const group=groups.find(g=>g.id===chatCategory);
