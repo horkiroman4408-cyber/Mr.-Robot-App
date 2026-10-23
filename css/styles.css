@@ -546,3 +546,25 @@ html[data-theme="graphite"] .choice-check{color:#0d2923}
  .settings-heading>div{min-width:0;flex:1}
  .settings-version{margin-left:0;flex-shrink:0}
 }
+
+
+/* v3.7.1 contrast hotfix: graphite/dark secondary text must remain readable. */
+html:is([data-theme="dark"],[data-theme="graphite"]) .app-footer{color:rgba(214,226,239,.78)}
+html:is([data-theme="dark"],[data-theme="graphite"]) .app-footer .divider{background:linear-gradient(90deg,transparent,rgba(170,192,214,.34),transparent)}
+html:is([data-theme="dark"],[data-theme="graphite"]) .app-footer .sig b{color:#f5f9ff}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-panel{background:rgba(24,32,45,.32)}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-count,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-summary,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-filename,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-meta,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-note,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-title small,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-item-name span{color:rgba(214,226,239,.76);opacity:1}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-title strong,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-summary b,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-filemain>b,
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-item-name strong{color:#f3f8ff}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-fileicon{background:rgba(255,255,255,.08);color:#dce9f8}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-item{background:rgba(101,218,197,.08);border:1px solid rgba(137,172,158,.20)}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-mgr-file{background:rgba(101,218,197,.06);border-color:rgba(137,172,158,.20)}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mr-memory-status{color:#d8e4ef;background:rgba(137,172,158,.14)}
