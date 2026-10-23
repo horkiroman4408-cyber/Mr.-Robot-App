@@ -34,7 +34,12 @@ class Avatar{
  p[k+'x']=sx+Math.cos(a)*d;p[k+'y']=sy+Math.sin(a)*d;
  }
  return p;}
- tick(now){this.frame=0;if(document.hidden)return;if(this.mobile&&this.lastRender&&now-this.lastRender<42){this.frame=requestAnimationFrame(this.tick);return;}this.lastRender=now;const dt=this.last?Math.min((now-this.last)/1000,.05):1/60;this.last=now;if(this.until&&now>this.until){this.until=0;this.play(this.jobs.size?'work':'idle');}const reduced=this.motion.matches,t=reduced?0:(now-this.since)/1000;const goal=this.target(t);if(!this.pose||reduced)this.pose={...goal};else{const a=1-Math.exp(-dt*11);for(const k in goal)this.pose[k]+=(goal[k]-this.pose[k])*a;}this.draw(this.pose,reduced?0:now/1000);if(!reduced)this.frame=requestAnimationFrame(this.tick);}
+ tick(now){this.frame=0;if(document.hidden)return;// Limit Canvas work without changing gestures or their wall-clock timing.
+// Mobile: ~24 fps; desktop: ~30 fps. During heavy Excel operations: ~20 fps.
+const tasks=window.__MRBOT_TASKS__;
+const busy=tasks&&Object.values(tasks).some(v=>v&&['start','progress'].includes(v.phase));
+const minFrameMs=busy?50:(this.mobile?42:33);
+if(this.lastRender&&now-this.lastRender<minFrameMs){this.frame=requestAnimationFrame(this.tick);return;}this.lastRender=now;const dt=this.last?Math.min((now-this.last)/1000,.05):1/60;this.last=now;if(this.until&&now>this.until){this.until=0;this.play(this.jobs.size?'work':'idle');}const reduced=this.motion.matches,t=reduced?0:(now-this.since)/1000;const goal=this.target(t);if(!this.pose||reduced)this.pose={...goal};else{const a=1-Math.exp(-dt*11);for(const k in goal)this.pose[k]+=(goal[k]-this.pose[k])*a;}this.draw(this.pose,reduced?0:now/1000);if(!reduced)this.frame=requestAnimationFrame(this.tick);}
  eyeOpenness(now){
  if(this.state==='sleep')return .04;
  if(this.motion.matches)return 1;
