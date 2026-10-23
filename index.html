@@ -128,7 +128,7 @@
 <div v-if="mobileLite" class="app-card mr-lite-card" @click="view='kreseczki'" role="button" tabindex="0" @keydown.enter="view='kreseczki'"><div class="app-title">▥ Kreseczki</div><p class="app-desc">Code 128</p><button class="launch-btn">{{ tr(58) }} →</button></div>
 <div v-if="mrMemoryItems.length || mrRestore.phase==='checking'" class="mr-saved-bar float-up mr-memory-panel">
  <div class="mr-memory-head">
-  <div class="mr-mgr-title"><span class="mr-mgr-icon" aria-hidden="true">💾</span><div><strong>{{ tr(109) }}</strong><small>{{ mrRestoreText('manager') }}</small></div></div>
+  <div class="mr-mgr-title"><span class="mr-mgr-icon" aria-hidden="true">💾</span><div><strong>{{ tr(109).replace('💾 ', '') }}</strong><small>{{ mrRestoreText('manager') }}</small></div></div>
   <div class="mr-mgr-summary" v-if="mrMemoryItems.length">
    <span><b>{{ mrMemoryItems.length }}</b> {{ mrRestoreText('total').toLowerCase() }}</span>
    <span><b>{{ mrRestoreStats.ready + (pracownicy.savedAt ? 1 : 0) }}</b> {{ mrRestoreText('ready').toLowerCase() }}</span>
