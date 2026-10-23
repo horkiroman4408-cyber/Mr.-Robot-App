@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.7.0-performance-memory-queue-v2';
+const CACHE_REVISION = 'v3.7.0-performance-memory-manager-v3';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 

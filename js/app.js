@@ -1045,7 +1045,7 @@ function przestojeReset(){przestoje.rows=[];przestoje.fileName='';przestoje.save
 const przestojeReport=computed(()=>{if(!przestoje.rows.length)return null;const rows=przestoje.rows;const minMin=przestoje.minMin||8;const pairs=[];for(let i=2;i<rows.length-1;i++){const a=rows[i],b=rows[i+1];if(a.userId&&a.userId===b.userId&&a.ts!=null&&b.ts!=null){const diffMin=(a.ts-b.ts)/60000;if(diffMin>0)pairs.push({userId:b.userId,od:b.ts,do:a.ts,diffMin,process:b.process});}}const incidents=pairs.filter(p=>p.diffMin>=minMin&&p.diffMin<=300);const groups=[];const gmap=new Map();for(const p of incidents){const d=new Date(p.od);const key=d.getFullYear()+'-'+mrPad2(d.getMonth()+1)+'-'+mrPad2(d.getDate());if(!gmap.has(key)){const g={date:key,items:[],total:0};gmap.set(key,g);groups.push(g);}const g=gmap.get(key);g.items.push(p);g.total+=p.diffMin;}const totalMin=incidents.reduce((s,p)=>s+p.diffMin,0);const maxMin=incidents.length?Math.max(...incidents.map(p=>p.diffMin)):0;const avg=incidents.length?totalMin/incidents.length:0;return{pairs,incidents,groups,totalRows:rows.length,pairsCount:pairs.length,totalMin,maxMin,avg};});
 
 // ==================== 💾 PAMIĘĆ PLIKÓW (IndexedDB) ====================
-const MR_FILES_DB='mrrobot_files',MR_FILES_STORE='files';
+const MR_FILES_DB='mrrobot_files',MR_FILES_STORE='files',MR_META_STORE='fileMeta';
 const MR_SLOT_LABELS={kpiAudit:'KPI · Audyt',kpiScalanie:'KPI · Scalanie',kpiRozk:'KPI · Rozkładanie',kpiNv:'KPI · NADWE/VAS',audyt:'MP · Audyt',mdt:'MP · GODZINY_MDT',stock:'MP · STOCK',przestoje:'Inne · Analiza_Przestojów',toteMp:'RS · Baza MP',toteRs:'RS · Baza RS'};
 const MR_SLOT_STATE={kpiAudit,kpiScalanie,kpiRozk,kpiNv,audyt,mdt,stock,przestoje,toteMp,toteRs};
 const mrSaved=reactive({});
@@ -1054,14 +1054,14 @@ const mrPending={};
 // up front; the actual XLSX Blob is fetched when its turn comes.
 const mrRestore=reactive({phase:'checking',expanded:false,items:[],runId:0});
 const MR_RESTORE_TEXT={
- pl:{total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Na komputerze',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
- ru:{total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Только на компьютере',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
- en:{total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Desktop only',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
- uk:{total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Лише на комп’ютері',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
+ pl:{manager:'Menedżer zapisanych plików',added:'Dodano',unknown:'Data niedostępna',size:'Rozmiar',remove:'Usuń',removing:'Usuwanie…',confirmRemove:'Usunąć zapisany plik oraz jego wczytane dane?',cannotRemove:'Nie można usunąć pliku w trakcie przetwarzania.',deleteFailed:'Nie udało się usunąć pliku.',removed:'Plik usunięty',totalSize:'Łączny rozmiar',unknownSize:'Nieznany',note:'Pliki są przechowywane tylko w tej przeglądarce. Usunięcie powoduje też wyczyszczenie danych danego modułu.',total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Na komputerze',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
+ ru:{manager:'Менеджер сохранённых файлов',added:'Добавлен',unknown:'Дата неизвестна',size:'Размер',remove:'Удалить',removing:'Удаление…',confirmRemove:'Удалить сохранённый файл и загруженные из него данные?',cannotRemove:'Нельзя удалить файл во время обработки.',deleteFailed:'Не удалось удалить файл.',removed:'Файл удалён',totalSize:'Общий размер',unknownSize:'Неизвестно',note:'Файлы хранятся только в этом браузере. Удаление также очищает данные соответствующего модуля.',total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Только на компьютере',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
+ en:{manager:'Saved files manager',added:'Added',unknown:'Date unavailable',size:'Size',remove:'Remove',removing:'Removing…',confirmRemove:'Delete the saved file and its currently loaded data?',cannotRemove:'Cannot remove a file while processing.',deleteFailed:'Could not delete the file.',removed:'File removed',totalSize:'Total size',unknownSize:'Unknown',note:'Files are stored only in this browser. Removing a file also clears its module data.',total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Desktop only',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
+ uk:{manager:'Керування збереженими файлами',added:'Додано',unknown:'Дата невідома',size:'Розмір',remove:'Видалити',removing:'Видалення…',confirmRemove:'Видалити збережений файл і завантажені з нього дані?',cannotRemove:'Не можна видалити файл під час обробки.',deleteFailed:'Не вдалося видалити файл.',removed:'Файл видалено',totalSize:'Загальний розмір',unknownSize:'Невідомо',note:'Файли зберігаються тільки в цьому браузері. Видалення також очищає дані відповідного модуля.',total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Лише на комп’ютері',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
 };
 function mrRestoreText(key){return (MR_RESTORE_TEXT[uiLanguage.value]||MR_RESTORE_TEXT.pl)[key]||key;}
 const mrRestoreStats=computed(()=>{
- const items=mrRestore.items;
+ const items=mrRestore.items.filter(x=>x.status!=='removed');
  const ready=items.filter(x=>x.status==='done').length;
  const waiting=items.filter(x=>x.status==='queued').length;
  const active=items.filter(x=>x.status==='loading').length;
@@ -1070,16 +1070,51 @@ const mrRestoreStats=computed(()=>{
  const applicable=items.length-skipped;
  return {total:items.length,ready,waiting,active,failed,skipped,applicable,percent:applicable?Math.round(100*(ready+failed)/applicable):100};
 });
+const mrMemoryItems=computed(()=>{
+ const rows=mrRestore.items.filter(item=>item.status!=='removed');
+ if(pracownicy.savedAt) return [{slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt,size:null,status:'done',local:true},...rows];
+ return rows;
+});
+const mrMemoryBytes=computed(()=>mrMemoryItems.value.reduce((total,item)=>total+(Number(item.size)>0?Number(item.size):0),0));
+function mrMemorySize(size){if(size==null||!Number.isFinite(Number(size)))return mrRestoreText('unknownSize');const n=Number(size);if(n<1024)return n+' B';if(n<1048576)return (n/1024).toFixed(1).replace('.',',')+' KB';return (n/1048576).toFixed(1).replace('.',',')+' MB';}
+function mrMemoryDate(iso){if(!iso)return mrRestoreText('unknown');const d=new Date(iso);return Number.isNaN(d.getTime())?mrRestoreText('unknown'):pracownicyFmtDate(iso);}
 const mrRestoreActive=computed(()=>mrRestore.items.find(x=>x.status==='loading')||null);
-function mrRestoreStatus(item){return mrRestoreText({queued:'waiting',loading:'active',done:'ready',error:'failed',missing:'notFound',paused:'paused',skipped:'skipped'}[item.status]||'waiting');}
+function mrRestoreStatus(item){return mrRestoreText({queued:'waiting',loading:'active',done:'ready',error:'failed',missing:'notFound',paused:'paused',skipped:'skipped',removing:'removing'}[item.status]||'waiting');}
 function mrRestorePercent(slot){const n=Number(MR_SLOT_STATE[slot]?.progress?.percent)||0;return Math.max(0,Math.min(100,Math.round(n)));}
 
 function mrHasIndexedDB(){try{return typeof indexedDB!=='undefined';}catch(e){return false;}}
 let mrDbPromise=null;
-function mrDb(){if(mrDbPromise)return mrDbPromise;mrDbPromise=new Promise((res,rej)=>{try{const rq=indexedDB.open(MR_FILES_DB,1);rq.onupgradeneeded=()=>{if(!rq.result.objectStoreNames.contains(MR_FILES_STORE))rq.result.createObjectStore(MR_FILES_STORE);};rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);}catch(e){rej(e);}});return mrDbPromise;}
+function mrDb(){if(mrDbPromise)return mrDbPromise;mrDbPromise=new Promise((res,rej)=>{try{const rq=indexedDB.open(MR_FILES_DB,2);rq.onupgradeneeded=()=>{if(!rq.result.objectStoreNames.contains(MR_FILES_STORE))rq.result.createObjectStore(MR_FILES_STORE);if(!rq.result.objectStoreNames.contains(MR_META_STORE))rq.result.createObjectStore(MR_META_STORE);};rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);}catch(e){rej(e);}});return mrDbPromise;}
 function mrTx(mode,fn){return mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction(MR_FILES_STORE,mode);const holder=fn(tx.objectStore(MR_FILES_STORE));tx.oncomplete=()=>res(holder&&holder.value);tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);}));}
-function mrFilePut(slot,file){const savedAt=new Date().toISOString();const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt=savedAt;if(!mrHasIndexedDB())return Promise.resolve();return mrTx('readwrite',st=>{st.put({name:file.name,type:file.type||'',lastModified:file.lastModified||Date.now(),savedAt,blob:file},slot);}).then(()=>{mrSaved[slot]={name:file.name,savedAt};}).catch(e=>{console.warn('Mr. Robot: nie udało się zapamiętać pliku',slot,e);});}
-function mrFileDel(slot){delete mrSaved[slot];const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt='';return mrTx('readwrite',st=>{st.delete(slot);}).catch(()=>{});}
+function mrMetaTx(mode,fn){return mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction(MR_META_STORE,mode);const holder=fn(tx.objectStore(MR_META_STORE));tx.oncomplete=()=>res(holder&&holder.value);tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);}));}
+function mrStoredMeta(){return mrMetaTx('readonly',st=>{const holder={value:[]};const q=st.getAll();q.onsuccess=()=>{holder.value=q.result||[];};return holder;});}
+function mrMetaFromRecord(slot,v){return {slot,name:String(v.name||''),savedAt:v.savedAt||'',size:v.blob&&typeof v.blob.size==='number'?v.blob.size:null};}
+function mrMetaSave(meta){return mrMetaTx('readwrite',st=>{st.put(meta,meta.slot);});}
+function mrMemoryUpdate(slot,metadata,status){let item=mrRestore.items.find(x=>x.slot===slot);if(!item){item={slot,label:MR_SLOT_LABELS[slot]||slot,name:'',savedAt:'',size:null,status:'queued'};mrRestore.items.push(item);}
+ item.name=metadata.name||item.name;item.savedAt=metadata.savedAt||item.savedAt;item.size=metadata.size==null?item.size:metadata.size;if(status)item.status=status;
+}
+function mrFilePut(slot,file){
+ const savedAt=new Date().toISOString();
+ if(!mrHasIndexedDB())return Promise.resolve();
+ const meta={slot,name:file.name,savedAt,size:file.size};
+ return mrDb().then(db=>new Promise((res,rej)=>{
+  const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');
+  tx.objectStore(MR_FILES_STORE).put({name:file.name,type:file.type||'',lastModified:file.lastModified||Date.now(),savedAt,blob:file},slot);
+  tx.objectStore(MR_META_STORE).put(meta,slot);
+  tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);
+ })).then(()=>{const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt=savedAt;mrSaved[slot]={name:file.name,savedAt};mrMemoryUpdate(slot,meta,'done');})
+ .catch(e=>{console.warn('Mr. Robot: nie udało się zapamiętać pliku',slot,e);});
+}
+const mrSkipNextFileDelete=new Set();
+function mrFileDel(slot){
+ if(mrSkipNextFileDelete.delete(slot)){delete mrSaved[slot];const st=MR_SLOT_STATE[slot];if(st)st.savedAt='';return Promise.resolve();}
+ delete mrSaved[slot];const ms=MR_SLOT_STATE[slot];if(ms)ms.savedAt='';
+ return mrDb().then(db=>new Promise((res,rej)=>{
+  const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');
+  tx.objectStore(MR_FILES_STORE).delete(slot);tx.objectStore(MR_META_STORE).delete(slot);
+  tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);
+ })).catch(e=>{console.warn('Mr. Robot: nie udało się usunąć pliku',slot,e);});
+}
 function mrFileGetAll(){return mrTx('readonly',st=>{const holder={value:{}};const c=st.openCursor();c.onsuccess=()=>{const cur=c.result;if(cur){holder.value[cur.key]=cur.value;cur.continue();}};return holder;});}
 function mrWrapLoad(slot,fn){return function(e){const f=e&&e.target&&e.target.files&&e.target.files[0];if(f&&!e.__mrRestore)mrPending[slot]=f;return fn(e);};}
 function mrWrapReset(slot,fn){return function(...a){delete mrPending[slot];mrFileDel(slot);return fn.apply(this,a);};}
@@ -1106,7 +1141,30 @@ toteResetMp=mrWrapReset('toteMp',toteResetMp);
 toteResetRs=mrWrapReset('toteRs',toteResetRs);
 const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
-function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrTx('readwrite',st=>{st.clear();}).catch(()=>{});for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
+function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
+// Remove one saved file, not the entire browser memory. Never interrupt a running worker.
+const MR_MEMORY_RESET={kpiAudit:()=>kpiResetAudit(),kpiScalanie:()=>kpiResetScalanie(),kpiRozk:()=>kpiResetRozk(),kpiNv:()=>kpiResetNv(),audyt:()=>audytReset(),mdt:()=>mdtReset(),stock:()=>stockReset(),przestoje:()=>przestojeReset(),toteMp:()=>toteResetMp(),toteRs:()=>toteResetRs()};
+async function mrMemoryRemove(slot){
+ const item=mrRestore.items.find(x=>x.slot===slot);
+ if(item?.status==='loading'||item?.status==='removing'||MR_SLOT_STATE[slot]?.loading||slot==='pracownicy'&&pracownicy.loading){showToast(mrRestoreText('cannotRemove'));return;}
+ const label=slot==='pracownicy'?'Grafik pracowników':MR_SLOT_LABELS[slot]||slot;
+ if(!window.confirm(mrRestoreText('confirmRemove')+'\n'+label+' — '+(item?.name||pracownicy.fileName||'')))return;
+ if(slot==='pracownicy'){pracownicyReset();showToast(mrRestoreText('removed'));return;}
+ if(!item)return;
+ const previous=item.status;item.status='removing';
+ try{
+  await mrDb().then(db=>new Promise((res,rej)=>{
+   const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');
+   tx.objectStore(MR_FILES_STORE).delete(slot);tx.objectStore(MR_META_STORE).delete(slot);
+   tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);
+  }));
+  item.status='removed';delete mrPending[slot];delete mrSaved[slot];
+  // Wrapped reset also clears all results and dependent data (and does an idempotent delete).
+  mrSkipNextFileDelete.add(slot);MR_MEMORY_RESET[slot]?.();
+  if(mrRestore.phase!=='running')mrRestore.items=mrRestore.items.filter(x=>x.status!=='removed');
+  showToast(mrRestoreText('removed'));
+ }catch(e){item.status=previous;console.warn('Mr. Robot: nie udało się usunąć zapisanego pliku',slot,e);showToast(mrRestoreText('deleteFailed'));}
+}
 // Restore only one saved workbook at a time. Avoid cloning every stored Blob and
 // starting several XLSX workers simultaneously during application startup.
 function mrStoredKeys(){return mrTx('readonly',st=>{const h={value:[]};const q=st.getAllKeys();q.onsuccess=()=>{h.value=q.result||[];};return h;});}
@@ -1123,23 +1181,27 @@ async function mrRestoreFiles(){
  const permittedMobile=new Set(['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje']);
  let n=0;
  try{
-  const keys=await mrStoredKeys();
+  const [keys,metadata]=await Promise.all([mrStoredKeys(),mrStoredMeta()]);
   if(runId!==mrRestore.runId)return;
+  const metadataMap=new Map(metadata.map(m=>[m.slot,m]));
   mrRestore.items=keys.filter(slot=>handlers[slot]&&MR_SLOT_STATE[slot]).map(slot=>({
-   slot,label:MR_SLOT_LABELS[slot],name:mrSaved[slot]?.name||'',
+   slot,label:MR_SLOT_LABELS[slot],name:metadataMap.get(slot)?.name||'',
+   savedAt:metadataMap.get(slot)?.savedAt||'',size:metadataMap.get(slot)?.size??null,
    status:mobileLite&&!permittedMobile.has(slot)?'skipped':'queued'
   }));
   mrRestore.phase='running';
   for(const item of mrRestore.items){
    if(runId!==mrRestore.runId)return;
-   if(item.status==='skipped')continue;
+   if(item.status!=='queued')continue;
    const slot=item.slot,h=handlers[slot],ms=MR_SLOT_STATE[slot];
    item.status='loading';
    let v;
    try{v=await mrStoredOne(slot);}catch(e){item.status='error';console.warn('Mr. Robot: plik niedostępny',slot,e);continue;}
    if(runId!==mrRestore.runId)return;
    if(!v||!v.blob){item.status='missing';continue;}
-   item.name=v.name||item.name;
+   const info=mrMetaFromRecord(slot,v);
+   item.name=info.name;item.savedAt=info.savedAt;item.size=info.size;
+   if(!item.metadataWritten){item.metadataWritten=true;try{await mrMetaSave(info);}catch(e){console.warn('Mr. Robot: metadata',e);}}
    try{
     const file=new File([v.blob],v.name,{type:v.type||'',lastModified:v.lastModified||Date.now()});
     mrSaved[slot]={name:v.name,savedAt:v.savedAt};ms.savedAt=v.savedAt||'';
@@ -1161,6 +1223,7 @@ async function mrRestoreFiles(){
   }
   if(runId!==mrRestore.runId)return;
   mrRestore.phase='complete';
+  mrRestore.items=mrRestore.items.filter(x=>x.status!=='removed');
   if(n)setTimeout(()=>showToast(`💾 Przywrócono z przeglądarki: ${n} ${n===1?'plik':(n<5?'pliki':'plików')}`),500);
  }catch(e){if(runId!==mrRestore.runId)return;mrRestore.phase='error';console.warn('Mr. Robot: pamięć plików niedostępna',e);}
 }
@@ -1243,6 +1306,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
 }}).mount('#app');
 
