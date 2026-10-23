@@ -283,3 +283,16 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){max-height:none!important;overflow:visible!important;padding:9px 13px!important;display:block}
 #mrbot-root #mrbot-suggestions .mrbot-doc-footerbtn{width:100%;border-radius:9px!important;text-align:center;font-weight:750!important;padding:10px!important}
 @media(max-width:550px){#mrbot-root .mrbot-doc-view{padding:13px 13px 18px}}
+
+/* MR. BOT unified navigator, v3.6.19. Matches the compact documentation design. */
+#mrbot-root #mrbot-messages.mrbot-doc-active .mrbot-nav-view{padding-bottom:18px}
+#mrbot-root .mrbot-nav-itembody{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+#mrbot-root .mrbot-nav-description{font-size:11px;line-height:1.45;color:var(--mb-muted);overflow-wrap:anywhere}
+#mrbot-root #mrbot-messages .mrbot-nav-item{min-height:53px;gap:11px;padding:12px}
+#mrbot-root .mrbot-nav-item .mrbot-doc-emoji{width:27px;flex:none;font-size:17px;font-variant-numeric:tabular-nums;color:var(--mb-muted)}
+#mrbot-root .mrbot-nav-item .mrbot-doc-listname{font-size:12.5px;line-height:1.4}
+#mrbot-root .mrbot-nav-note{margin:15px 1px 0;font-size:10.5px;color:var(--mb-muted);line-height:1.55;text-align:center}
+#mrbot-root #mrbot-messages .mrbot-nav-more{width:100%;padding:10px 12px;border:1px solid var(--mb-line);border-radius:9px;background:var(--mb-chip);color:var(--mb-text);font-size:12px;font-weight:700;cursor:pointer}
+#mrbot-root #mrbot-messages .mrbot-nav-more:hover{background:var(--mb-bubble)}
+#mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){border-top:1px solid var(--mb-line)}
+@media(max-width:550px){#mrbot-root #mrbot-messages .mrbot-nav-item{padding:11px 10px}}
