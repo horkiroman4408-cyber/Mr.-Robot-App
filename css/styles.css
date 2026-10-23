@@ -437,3 +437,26 @@ html[lang="ru"] .segment-btn,html[lang="uk"] .segment-btn{padding-inline:.8rem}
 
 /* Mobile lite hub: full desktop modules remain untouched. */
 .mr-mobile-lite .mr-lite-card{cursor:pointer;padding:22px;min-height:170px}.mr-mobile-lite .mr-lite-card .launch-btn{margin-top:18px}.mr-mobile-lite .app-card[data-app="kpi"]{animation:none}
+
+/* Saved Excel restore queue: extends the existing Zapamiętane w przeglądarce bar. */
+.mr-memory-panel{display:flex;flex-direction:column;align-items:stretch;gap:.45rem}
+.mr-memory-head{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;width:100%}
+.mr-memory-head .font-semibold{flex-shrink:0}
+.mr-memory-count{font-size:.69rem;color:var(--mr-c23,#64748b)}
+.mr-memory-active{font-size:.69rem;font-weight:600;color:var(--mr-c16,#0a84ff)}
+.mr-memory-error{font-size:.69rem;color:var(--mr-c25,#dc2626);font-weight:600}
+.mr-memory-spacer{flex:1;min-width:8px}
+.mr-memory-meter{width:100%;height:4px;border-radius:10px;overflow:hidden;background:var(--mr-c15,rgba(10,132,255,.09))}
+.mr-memory-meter>div{height:100%;border-radius:inherit;background:var(--ios-blue,#0a84ff);transition:width .22s ease}
+.mr-memory-chips{display:flex;flex-wrap:wrap;gap:.3rem}
+.mr-memory-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:.35rem;width:100%;padding-top:.25rem;border-top:1px solid var(--mr-c14,rgba(148,163,184,.25))}
+.mr-memory-item{display:flex;justify-content:space-between;align-items:center;gap:.5rem;padding:.43rem .55rem;border-radius:10px;background:var(--mr-c15,rgba(10,132,255,.045));min-width:0}
+.mr-memory-item-name{display:flex;flex-direction:column;gap:.1rem;min-width:0}
+.mr-memory-item-name strong{font-size:.69rem;font-weight:650}
+.mr-memory-item-name span{font-size:.6rem;opacity:.7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+.mr-memory-status{font-size:.62rem;white-space:nowrap;font-weight:650;border-radius:20px;padding:.18rem .43rem;color:var(--mr-c23,#64748b);background:var(--mr-c14,rgba(148,163,184,.14))}
+.mr-memory-done{color:var(--mr-c18,#059669);background:var(--mr-c17,rgba(48,209,88,.13))}
+.mr-memory-loading{color:var(--mr-c16,#0a84ff);background:var(--mr-c15,rgba(10,132,255,.11))}
+.mr-memory-error,.mr-memory-missing,.mr-memory-paused{color:var(--mr-c25,#dc2626);background:var(--mr-c28,rgba(239,68,68,.08))}
+@media(max-width:560px){.mr-memory-list{grid-template-columns:1fr}.mr-memory-head{gap:.38rem}.mr-memory-count{font-size:.64rem}}
+@media(prefers-reduced-motion:reduce){.mr-memory-meter>div{transition:none}}

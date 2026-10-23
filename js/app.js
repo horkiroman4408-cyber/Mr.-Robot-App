@@ -1050,6 +1050,30 @@ const MR_SLOT_LABELS={kpiAudit:'KPI · Audyt',kpiScalanie:'KPI · Scalanie',kpiR
 const MR_SLOT_STATE={kpiAudit,kpiScalanie,kpiRozk,kpiNv,audyt,mdt,stock,przestoje,toteMp,toteRs};
 const mrSaved=reactive({});
 const mrPending={};
+// Small, reactive status of the startup restore queue. Only file keys are read
+// up front; the actual XLSX Blob is fetched when its turn comes.
+const mrRestore=reactive({phase:'checking',expanded:false,items:[],runId:0});
+const MR_RESTORE_TEXT={
+ pl:{total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Na komputerze',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
+ ru:{total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Только на компьютере',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
+ en:{total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Desktop only',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
+ uk:{total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Лише на комп’ютері',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
+};
+function mrRestoreText(key){return (MR_RESTORE_TEXT[uiLanguage.value]||MR_RESTORE_TEXT.pl)[key]||key;}
+const mrRestoreStats=computed(()=>{
+ const items=mrRestore.items;
+ const ready=items.filter(x=>x.status==='done').length;
+ const waiting=items.filter(x=>x.status==='queued').length;
+ const active=items.filter(x=>x.status==='loading').length;
+ const failed=items.filter(x=>x.status==='error'||x.status==='missing'||x.status==='paused').length;
+ const skipped=items.filter(x=>x.status==='skipped').length;
+ const applicable=items.length-skipped;
+ return {total:items.length,ready,waiting,active,failed,skipped,applicable,percent:applicable?Math.round(100*(ready+failed)/applicable):100};
+});
+const mrRestoreActive=computed(()=>mrRestore.items.find(x=>x.status==='loading')||null);
+function mrRestoreStatus(item){return mrRestoreText({queued:'waiting',loading:'active',done:'ready',error:'failed',missing:'notFound',paused:'paused',skipped:'skipped'}[item.status]||'waiting');}
+function mrRestorePercent(slot){const n=Number(MR_SLOT_STATE[slot]?.progress?.percent)||0;return Math.max(0,Math.min(100,Math.round(n)));}
+
 function mrHasIndexedDB(){try{return typeof indexedDB!=='undefined';}catch(e){return false;}}
 let mrDbPromise=null;
 function mrDb(){if(mrDbPromise)return mrDbPromise;mrDbPromise=new Promise((res,rej)=>{try{const rq=indexedDB.open(MR_FILES_DB,1);rq.onupgradeneeded=()=>{if(!rq.result.objectStoreNames.contains(MR_FILES_STORE))rq.result.createObjectStore(MR_FILES_STORE);};rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error);}catch(e){rej(e);}});return mrDbPromise;}
@@ -1082,7 +1106,7 @@ toteResetMp=mrWrapReset('toteMp',toteResetMp);
 toteResetRs=mrWrapReset('toteRs',toteResetRs);
 const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
-function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrTx('readwrite',st=>{st.clear();}).catch(()=>{});for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
+function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrTx('readwrite',st=>{st.clear();}).catch(()=>{});for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
 // Restore only one saved workbook at a time. Avoid cloning every stored Blob and
 // starting several XLSX workers simultaneously during application startup.
 function mrStoredKeys(){return mrTx('readonly',st=>{const h={value:[]};const q=st.getAllKeys();q.onsuccess=()=>{h.value=q.result||[];};return h;});}
@@ -1093,32 +1117,52 @@ function mrRestoreWait(st,limitMs=180000){return new Promise(resolve=>{
  setTimeout(check,120);
 });}
 async function mrRestoreFiles(){
- if(!mrHasIndexedDB())return;
+ if(!mrHasIndexedDB()){mrRestore.phase='unavailable';return;}
+ const runId=++mrRestore.runId;
  const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile};
  const permittedMobile=new Set(['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje']);
  let n=0;
  try{
   const keys=await mrStoredKeys();
-  for(const slot of keys){
-   if(mobileLite&&!permittedMobile.has(slot))continue;
-   const h=handlers[slot],ms=MR_SLOT_STATE[slot];
-   if(!h||!ms)continue;
+  if(runId!==mrRestore.runId)return;
+  mrRestore.items=keys.filter(slot=>handlers[slot]&&MR_SLOT_STATE[slot]).map(slot=>({
+   slot,label:MR_SLOT_LABELS[slot],name:mrSaved[slot]?.name||'',
+   status:mobileLite&&!permittedMobile.has(slot)?'skipped':'queued'
+  }));
+  mrRestore.phase='running';
+  for(const item of mrRestore.items){
+   if(runId!==mrRestore.runId)return;
+   if(item.status==='skipped')continue;
+   const slot=item.slot,h=handlers[slot],ms=MR_SLOT_STATE[slot];
+   item.status='loading';
    let v;
-   try{v=await mrStoredOne(slot);}catch(e){console.warn('Mr. Robot: plik niedostępny',slot,e);continue;}
-   if(!v||!v.blob)continue;
+   try{v=await mrStoredOne(slot);}catch(e){item.status='error';console.warn('Mr. Robot: plik niedostępny',slot,e);continue;}
+   if(runId!==mrRestore.runId)return;
+   if(!v||!v.blob){item.status='missing';continue;}
+   item.name=v.name||item.name;
    try{
     const file=new File([v.blob],v.name,{type:v.type||'',lastModified:v.lastModified||Date.now()});
     mrSaved[slot]={name:v.name,savedAt:v.savedAt};ms.savedAt=v.savedAt||'';
-    h({target:{files:[file]},__mrRestore:true});n++;
-    // The next workbook is not read from IndexedDB until the previous worker completes.
+    h({target:{files:[file]},__mrRestore:true});
     const completed=await mrRestoreWait(ms);
-    if(!completed){console.warn('Mr. Robot: przywracanie trwa zbyt długo, przerwano kolejkę',slot);break;}
-    // Yield a frame for the UI between large result-set updates.
+    if(runId!==mrRestore.runId)return;
+    if(!completed){
+     item.status='paused';
+     for(const pending of mrRestore.items)if(pending.status==='queued')pending.status='paused';
+     console.warn('Mr. Robot: przywracanie trwa zbyt długo, przerwano kolejkę',slot);
+     break;
+    }
+    // Do not claim success merely because the worker stopped; verify the
+    // existing module has accepted the workbook under its original filename.
+    if(ms.fileName===file.name){item.status='done';n++;}
+    else item.status='error';
     await new Promise(resolve=>setTimeout(resolve,80));
-   }catch(e){console.warn('Mr. Robot: nie udało się przywrócić',slot,e);}
+   }catch(e){item.status='error';console.warn('Mr. Robot: nie udało się przywrócić',slot,e);}
   }
+  if(runId!==mrRestore.runId)return;
+  mrRestore.phase='complete';
   if(n)setTimeout(()=>showToast(`💾 Przywrócono z przeglądarki: ${n} ${n===1?'plik':(n<5?'pliki':'plików')}`),500);
- }catch(e){console.warn('Mr. Robot: pamięć plików niedostępna',e);}
+ }catch(e){if(runId!==mrRestore.runId)return;mrRestore.phase='error';console.warn('Mr. Robot: pamięć plików niedostępna',e);}
 }
 
 // MR. BOT visual bridge: reads existing state; never writes report data.
@@ -1199,6 +1243,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
 }}).mount('#app');
 

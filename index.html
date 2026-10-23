@@ -126,7 +126,27 @@
 
 <div v-if="mobileLite" class="app-card mr-lite-card" @click="view='przestoje'" role="button" tabindex="0" @keydown.enter="view='przestoje'"><div class="app-title">⏱️ {{ tr('Analiza Przestojów') }}</div><p class="app-desc">{{ tr('Analiza czasu przestojów') }}</p><button class="launch-btn">{{ tr(58) }} →</button></div>
 <div v-if="mobileLite" class="app-card mr-lite-card" @click="view='kreseczki'" role="button" tabindex="0" @keydown.enter="view='kreseczki'"><div class="app-title">▥ Kreseczki</div><p class="app-desc">Code 128</p><button class="launch-btn">{{ tr(58) }} →</button></div>
-<div v-if="mrSavedList.length" class="mr-saved-bar float-up"><span class="font-semibold text-slate-600">{{ tr(109) }}</span><span v-for="x in mrSavedList" :key="x.slot" class="grafik-chip" :title="x.name+' · '+pracownicyFmtDate(x.savedAt)">{{ tr(x.label) }}</span><div class="flex-1"></div><button class="grafik-btn danger" style="padding:.32rem .7rem" @click="mrClearAllSaved">{{ tr(110) }}</button></div>
+<div v-if="mrSavedList.length || mrRestore.items.length || mrRestore.phase==='checking'" class="mr-saved-bar float-up mr-memory-panel">
+ <div class="mr-memory-head">
+  <span class="font-semibold text-slate-600">{{ tr(109) }}</span>
+  <span v-if="mrRestore.items.length" class="mr-memory-count">{{ mrRestoreText('total') }}: {{ mrRestoreStats.total + (pracownicy.savedAt ? 1 : 0) }} · {{ mrRestoreText('ready') }}: {{ mrRestoreStats.ready }} · {{ mrRestoreText('waiting') }}: {{ mrRestoreStats.waiting }}</span>
+  <span v-if="mrRestoreActive" class="mr-memory-active" role="status">⏳ {{ mrRestoreText('active') }}: {{ mrRestoreActive.label }}</span>
+  <span v-else-if="mrRestore.phase==='checking'" class="mr-memory-count" role="status">{{ mrRestoreText('reading') }}</span>
+  <span v-else-if="mrRestoreStats.failed" class="mr-memory-error">{{ mrRestoreText('failed') }}: {{ mrRestoreStats.failed }}</span>
+  <span v-if="mrRestoreStats.skipped" class="mr-memory-count">{{ mrRestoreText('skipped') }}: {{ mrRestoreStats.skipped }}</span>
+  <span class="mr-memory-spacer"></span>
+  <button v-if="mrRestore.items.length" class="grafik-btn" type="button" :aria-expanded="mrRestore.expanded" @click="mrRestore.expanded=!mrRestore.expanded">{{ mrRestore.expanded ? mrRestoreText('hide') : mrRestoreText('details') }} <span aria-hidden="true">{{ mrRestore.expanded ? '▴' : '▾' }}</span></button>
+  <button class="grafik-btn danger" type="button" style="padding:.32rem .7rem" @click="mrClearAllSaved">{{ tr(110) }}</button>
+ </div>
+ <div v-if="mrRestore.items.length && mrRestore.phase==='running'" class="mr-memory-meter" role="progressbar" :aria-label="mrRestoreText('progress')" :aria-valuenow="mrRestoreStats.percent" aria-valuemin="0" aria-valuemax="100"><div :style="{width:mrRestoreStats.percent+'%'}"></div></div>
+ <div v-if="mrRestore.expanded && mrRestore.items.length" class="mr-memory-list">
+  <div v-for="item in mrRestore.items" :key="item.slot" class="mr-memory-item">
+   <div class="mr-memory-item-name"><strong>{{ item.label }}</strong><span v-if="item.name" :title="item.name">{{ item.name }}</span></div>
+   <span class="mr-memory-status" :class="'mr-memory-'+item.status">{{ mrRestoreStatus(item) }}<span v-if="item.status==='loading' && mrRestorePercent(item.slot)"> {{ mrRestorePercent(item.slot) }}%</span></span>
+  </div>
+ </div>
+ <div v-if="mrSavedList.length && !mrRestore.expanded" class="mr-memory-chips"><span v-for="x in mrSavedList" :key="x.slot" class="grafik-chip" :title="x.name+' · '+pracownicyFmtDate(x.savedAt)">{{ tr(x.label) }}</span></div>
+</div>
 </div></main>
 <footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
 </template>
