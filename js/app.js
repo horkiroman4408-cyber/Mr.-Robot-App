@@ -38,6 +38,8 @@ async function openSettingsMemory(){
 
 
 const view=ref('hub');const toast=ref('');const mobileLite=!!window.MR_MOBILE_LITE;
+// Visual-only marker for theme-specific module accents; it does not affect application logic.
+watch(view,active=>{const host=document.getElementById('app');if(host)host.dataset.activeModule=active;},{immediate:true});
 window.__MRBOT_VIEW__=view;watch(view,()=>window.dispatchEvent(new Event('mrbot-view-change')));
 const showWelcome=ref(false);
 try { if(!localStorage.getItem('mrrobot_welcomed')) showWelcome.value = true; } catch(e){}
