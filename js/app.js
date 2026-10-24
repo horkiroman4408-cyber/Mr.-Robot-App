@@ -759,7 +759,7 @@ const GEEK_CATS=[
 {key:'Extra sku',label:'Extra sku',cls:'purple',ico:'📦'},
 {key:'Major damage',label:'Major damage',cls:'gray',ico:'🛠️'}
 ];
-const geek=reactive({drag:false,loading:false,progress:{percent:0,label:''},fileName:'',sheetName:'',result:null,filter:'',sel:{},opSel:{}});
+const geek=reactive({drag:false,loading:false,progress:{percent:0,label:''},fileName:'',sheetName:'',result:null,filter:'',sel:{},opSel:{},savedAt:''});
 function geekKeyOf(rec){return rec.key2;}
 const geekListOptions=computed(()=>{if(!geek.result||!geek.result.recs)return[];const m=new Map();for(const r of geek.result.recs){const k=geekKeyOf(r);m.set(k,(m.get(k)||0)+1);}return [...m.entries()].map(([key,count])=>({key,count,label:key===''?'(bez nazwy)':key})).sort((a,b)=>b.count-a.count||a.label.localeCompare(b.label));});
 const geekOpLabel=v=>v===''?'(brak operatora)':v;
@@ -1059,8 +1059,8 @@ const przestojeReport=computed(()=>{if(!przestoje.rows.length)return null;const 
 
 // ==================== 💾 PAMIĘĆ PLIKÓW (IndexedDB) ====================
 const MR_FILES_DB='mrrobot_files',MR_FILES_STORE='files',MR_META_STORE='fileMeta';
-const MR_SLOT_LABELS={kpiAudit:'KPI · Audyt',kpiScalanie:'KPI · Scalanie',kpiRozk:'KPI · Rozkładanie',kpiNv:'KPI · NADWE/VAS',audyt:'MP · Audyt',mdt:'MP · GODZINY_MDT',stock:'MP · STOCK',przestoje:'Inne · Analiza_Przestojów',toteMp:'RS · Baza MP',toteRs:'RS · Baza RS'};
-const MR_SLOT_STATE={kpiAudit,kpiScalanie,kpiRozk,kpiNv,audyt,mdt,stock,przestoje,toteMp,toteRs};
+const MR_SLOT_LABELS={kpiAudit:'KPI · Audyt',kpiScalanie:'KPI · Scalanie',kpiRozk:'KPI · Rozkładanie',kpiNv:'KPI · NADWE/VAS',audyt:'MP · Audyt',mdt:'MP · GODZINY_MDT',stock:'MP · STOCK',przestoje:'Inne · Analiza_Przestojów',toteMp:'RS · Baza MP',toteRs:'RS · Baza RS',geek:'Audyt Geek · Stocktake order'};
+const MR_SLOT_STATE={kpiAudit,kpiScalanie,kpiRozk,kpiNv,audyt,mdt,stock,przestoje,toteMp,toteRs,geek};
 const mrSaved=reactive({});
 const mrPending={};
 // Small, reactive status of the startup restore queue. Only file keys are read
@@ -1131,7 +1131,7 @@ function mrFileDel(slot){
 function mrFileGetAll(){return mrTx('readonly',st=>{const holder={value:{}};const c=st.openCursor();c.onsuccess=()=>{const cur=c.result;if(cur){holder.value[cur.key]=cur.value;cur.continue();}};return holder;});}
 function mrWrapLoad(slot,fn){return function(e){const f=e&&e.target&&e.target.files&&e.target.files[0];if(f&&!e.__mrRestore)mrPending[slot]=f;return fn(e);};}
 function mrWrapReset(slot,fn){return function(...a){delete mrPending[slot];mrFileDel(slot);return fn.apply(this,a);};}
-for(const slot of Object.keys(MR_SLOT_STATE)){const st=MR_SLOT_STATE[slot];watch(()=>[st.fileName,st.records,st.rows],()=>{const f=mrPending[slot];if(f&&st.fileName===f.name){delete mrPending[slot];mrFilePut(slot,f);}});}
+for(const slot of Object.keys(MR_SLOT_STATE)){const st=MR_SLOT_STATE[slot];watch(()=>[st.fileName,st.records,st.rows],()=>{const f=mrPending[slot];if(f&&st.fileName===f.name&&(slot!=='geek'||st.result)){delete mrPending[slot];mrFilePut(slot,f);}});}
 kpiOnAuditFile=mrWrapLoad('kpiAudit',kpiOnAuditFile);
 kpiOnScalanieFile=mrWrapLoad('kpiScalanie',kpiOnScalanieFile);
 kpiOnRozkFile=mrWrapLoad('kpiRozk',kpiOnRozkFile);
@@ -1142,6 +1142,7 @@ stockOnFile=mrWrapLoad('stock',stockOnFile);
 przestojeOnFile=mrWrapLoad('przestoje',przestojeOnFile);
 toteOnMpFile=mrWrapLoad('toteMp',toteOnMpFile);
 toteOnRsFile=mrWrapLoad('toteRs',toteOnRsFile);
+geekOnFile=mrWrapLoad('geek',geekOnFile);
 kpiResetAudit=mrWrapReset('kpiAudit',kpiResetAudit);
 kpiResetScalanie=mrWrapReset('kpiScalanie',kpiResetScalanie);
 kpiResetRozk=mrWrapReset('kpiRozk',kpiResetRozk);
@@ -1152,11 +1153,12 @@ stockReset=mrWrapReset('stock',stockReset);
 przestojeReset=mrWrapReset('przestoje',przestojeReset);
 toteResetMp=mrWrapReset('toteMp',toteResetMp);
 toteResetRs=mrWrapReset('toteRs',toteResetRs);
+geekReset=mrWrapReset('geek',geekReset);
 const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
-function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
+function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();geekReset();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();showToast('Pamięć przeglądarki wyczyszczona');}
 // Remove one saved file, not the entire browser memory. Never interrupt a running worker.
-const MR_MEMORY_RESET={kpiAudit:()=>kpiResetAudit(),kpiScalanie:()=>kpiResetScalanie(),kpiRozk:()=>kpiResetRozk(),kpiNv:()=>kpiResetNv(),audyt:()=>audytReset(),mdt:()=>mdtReset(),stock:()=>stockReset(),przestoje:()=>przestojeReset(),toteMp:()=>toteResetMp(),toteRs:()=>toteResetRs()};
+const MR_MEMORY_RESET={kpiAudit:()=>kpiResetAudit(),kpiScalanie:()=>kpiResetScalanie(),kpiRozk:()=>kpiResetRozk(),kpiNv:()=>kpiResetNv(),audyt:()=>audytReset(),mdt:()=>mdtReset(),stock:()=>stockReset(),przestoje:()=>przestojeReset(),toteMp:()=>toteResetMp(),toteRs:()=>toteResetRs(),geek:()=>geekReset()};
 async function mrMemoryRemove(slot){
  const item=mrRestore.items.find(x=>x.slot===slot);
  if(item?.status==='loading'||item?.status==='removing'||MR_SLOT_STATE[slot]?.loading||slot==='pracownicy'&&pracownicy.loading){showToast(mrRestoreText('cannotRemove'));return;}
@@ -1190,7 +1192,7 @@ function mrRestoreWait(st,limitMs=180000){return new Promise(resolve=>{
 async function mrRestoreFiles(){
  if(!mrHasIndexedDB()){mrRestore.phase='unavailable';return;}
  const runId=++mrRestore.runId;
- const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile};
+ const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile,geek:geekOnFile};
  const permittedMobile=new Set(['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje']);
  let n=0;
  try{
