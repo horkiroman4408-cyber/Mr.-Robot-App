@@ -629,3 +629,121 @@ html[data-theme="graphite"] .stat-row .value,
 html[data-theme="graphite"] .stat-subrow .value{color:#eef6f2!important}
 html[data-theme="graphite"] .mr-memory-item-name span,
 html[data-theme="graphite"] .mr-memory-count{color:#c8d8d2!important;opacity:1}
+
+
+/* Mr. Robot v3.7.1 · Ivory: warm, accessible light theme. Scoped overrides only. */
+html[data-theme="ivory"]{
+ color-scheme:light;
+ --ios-text:#29362d;
+ --ios-blue:#246951;
+ --ios-green:#247450;
+ --mr-page:#f5f0e7;
+ --mr-focus:#246951;
+ --mr-control-bg:#fffaf3;
+ --mr-control-text:#56645b;
+ --mr-control-border:#d9d0c0;
+ --mr-c0:#f5f0e7;
+ --mr-c1:rgba(227,190,140,.15);
+ --mr-c2:rgba(154,191,164,.14);
+ --mr-c3:rgba(205,184,159,.13);
+ --mr-c4:rgba(255,250,243,.91);
+ --mr-c5:#e1d7c8;
+ --mr-c6:rgba(255,255,255,.9);
+ --mr-c7:rgba(255,250,243,.97);
+ --mr-c8:#e2d8ca;
+ --mr-c9:rgba(255,255,255,.95);
+ --mr-c13:rgba(255,250,243,.91);
+ --mr-c14:rgba(147,125,101,.28);
+ --mr-c15:rgba(36,105,81,.085);
+ --mr-c16:#246951;
+ --mr-c17:rgba(36,116,80,.11);
+ --mr-c18:#216c49;
+ --mr-c21:#fffaf3;
+ --mr-c22:#d8ccbb;
+ --mr-c23:#56645b;
+ --mr-c24:rgba(36,105,81,.38);
+ --mr-c29:rgba(36,105,81,.37);
+ --mr-c30:rgba(255,250,243,.78);
+ --mr-c31:rgba(36,105,81,.06);
+ --mr-c32:rgba(36,105,81,.10);
+ --mr-c34:rgba(36,105,81,.15);
+ --mr-c35:#617064;
+ --mr-c36:rgba(138,123,101,.30);
+ --mr-c37:#56645b;
+ --mr-c39:#657166;
+ --mr-c81:rgba(138,123,101,.30);
+ --mr-c82:rgba(36,105,81,.3);
+ --mr-c83:rgba(138,123,101,.30);
+ --mr-c84:rgba(36,105,81,.4);
+ --mr-c85:rgba(75,98,82,.07);
+ --mr-c87:#58665c;
+ --mr-c95:rgba(244,235,222,.97);
+ --mr-c96:rgba(138,123,101,.19);
+ --mr-c97:rgba(112,90,63,.025);
+ --mr-c104:rgba(36,105,81,.12);
+ --mr-c105:#d8ccbb;
+ --mr-c106:rgba(255,250,243,.96);
+ --mr-c108:#35453a;
+ --mr-c117:rgba(116,101,81,.30);
+}
+html[data-theme="ivory"] body{
+ background-color:#f5f0e7;
+ background-image:radial-gradient(850px 590px at 4% 0%,rgba(232,198,149,.19),transparent 65%),radial-gradient(900px 650px at 100% 10%,rgba(143,180,155,.15),transparent 67%);
+}
+html[data-theme="ivory"] :is(.glass,.glass-strong,.app-card,.subcard,.filter-tile,.stat-section,.top-block,.changelog-entry,.settings-card){
+ border-color:#e1d7c8;
+ box-shadow:0 1px 0 rgba(255,255,255,.88) inset,0 8px 28px rgba(82,66,47,.065);
+}
+html[data-theme="ivory"] :is(.filter-tile,.stat-section,.top-block){background:#fffaf3}
+html[data-theme="ivory"] .app-card:hover{border-color:#c8b7a1;box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 14px 34px rgba(79,73,52,.13)}
+html[data-theme="ivory"] .gradient-text-neutral{
+ background-image:linear-gradient(125deg,#3d5445,#246951,#6c785e);color:#246951;
+}
+html[data-theme="ivory"] .gradient-text{background-image:linear-gradient(120deg,#27775b,#246951)}
+html[data-theme="ivory"] :is(.settings-cog,.theme-toggle,.settings-entry){border-color:#cdbfab}
+html[data-theme="ivory"] .settings-cog{background:#246951;color:#fff}
+html[data-theme="ivory"] .settings-tool-icon.memory{color:#246951;background:#e5eee7}
+html[data-theme="ivory"] .settings-tool-icon.updates{color:#246951;background:#e5eee7}
+html[data-theme="ivory"] :is(.ios-btn-primary,.back-to-hub,.save-all-btn,.grafik-btn.primary){background:linear-gradient(180deg,#32765b,#246951);color:#fff}
+html[data-theme="ivory"] .segment-control{background:#eae3d7}
+html[data-theme="ivory"] :is(.segment-btn.active,.geek-seg button.active){background:#fffdf8;color:#246951}
+html[data-theme="ivory"] .sort-btn.active{color:#246951;background:#e2ede5}
+html[data-theme="ivory"] .sort-btn{color:#56645b}
+html[data-theme="ivory"] .sort-btn:hover{color:#246951;background:#e7eee7}
+html[data-theme="ivory"] :is(input,textarea,select){color-scheme:light}
+html[data-theme="ivory"] :is(.input-field,.geek-search){background:#fffcf7;color:#29362d;border-color:#d8ccbb}
+html[data-theme="ivory"] :is(.mr-table-card table thead th,thead th){background:#eee5d8;color:#435349;border-color:#d9cbbb}
+html[data-theme="ivory"] tbody tr:nth-child(even){background:rgba(123,101,78,.035)}
+html[data-theme="ivory"] tbody tr:hover{background:rgba(36,105,81,.085)}
+html[data-theme="ivory"] :is(.text-slate-400,.text-slate-500){color:#637165!important}
+html[data-theme="ivory"] :is(.text-slate-600,.text-slate-700){color:#48584c!important}
+html[data-theme="ivory"] .text-slate-800{color:#29362d!important}
+html[data-theme="ivory"] .app-footer{color:#617064}
+html[data-theme="ivory"] .app-footer .sig b{color:#35453a}
+html[data-theme="ivory"] .mr-memory-panel{background:#fffbf5}
+html[data-theme="ivory"] .mr-mgr-title strong,
+html[data-theme="ivory"] .mr-mgr-summary b,
+html[data-theme="ivory"] .mr-mgr-filemain>b{color:#29362d}
+html[data-theme="ivory"] .mr-mgr-summary,
+html[data-theme="ivory"] .mr-mgr-title small,
+html[data-theme="ivory"] .mr-mgr-meta,
+html[data-theme="ivory"] .mr-mgr-note{color:#58665c;opacity:1}
+html[data-theme="ivory"] :is(.mr-mgr-file,.mr-memory-item){background:rgba(241,232,216,.53);border-color:#ded2c1}
+html[data-theme="ivory"] .mr-mgr-fileicon{background:#fffcf7}
+html[data-theme="ivory"] .mr-mgr-delete{color:#a72b32;border-color:rgba(168,43,50,.25);background:rgba(168,43,50,.06)}
+html[data-theme="ivory"] .mr-memory-status{color:#48584c;background:#eae6da}
+html[data-theme="ivory"] .mr-memory-done{color:#246951;background:#e1eee5}
+html[data-theme="ivory"] .app-footer .divider{background:linear-gradient(90deg,transparent,rgba(112,95,70,.36),transparent)}
+/* Four equal-sized choices: two columns in settings on both desktop and mobile. */
+.theme-mini-ivory{background:#f5f0e7}
+.theme-mini-ivory .mini-sidebar{background:#c9baa3}
+.theme-mini-ivory .mini-main i{background:#fffaf3}
+.theme-mini-ivory .mini-main i:first-child{background:#246951}
+.theme-choices{grid-template-columns:repeat(2,minmax(0,1fr))}
+.theme-choice[data-theme-choice="graphite"]{grid-column:auto}
+@media(min-width:721px){.theme-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.theme-choice[data-theme-choice="graphite"]{grid-column:auto}}
+/* Ivory final legibility: small warning and module labels on pale backgrounds. */
+html[data-theme="ivory"] .grafik-chip.warn{color:#944806;background:#f8e8d0}
+html[data-theme="ivory"] .app-card[data-app="inne"] .tag{color:#934909}
+html[data-theme="ivory"] .app-card[data-app="audyt"] .tag{color:#7827ae}

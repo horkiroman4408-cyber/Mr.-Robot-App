@@ -299,3 +299,13 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #mrbot-root{
 
 /* Match MR. BOT surfaces to the Graphite theme; no animation or dialogue changes. */
 html[data-theme="graphite"] #mrbot-root{--mb-surface:#25352e;--mb-panel:#25342e;--mb-head:#30483d;--mb-text:#edf7f2;--mb-muted:#b5d0c4;--mb-line:#466154;--mb-bubble:#32493d;--mb-chip:#304e42;--mb-chip-border:#4a7060;--mb-input:#253b31;--mb-accent:#287e70;--mb-shadow:0 16px 44px rgba(0,0,0,.36)}
+
+
+/* Ivory palette: appearance only; preserves MR. BOT behavior and motion. */
+html[data-theme="ivory"] #mrbot-root{
+ --mb-surface:#fffaf3;--mb-panel:#fffcf8;--mb-head:#f1e9dc;
+ --mb-text:#29382f;--mb-muted:#5b695e;--mb-line:#d8cdbd;
+ --mb-bubble:#f0e9de;--mb-chip:#ecf3eb;--mb-chip-border:#c6d9ca;
+ --mb-input:#fffcf7;--mb-accent:#246951;--mb-shadow:0 16px 44px rgba(83,69,49,.19);
+}
+html[data-theme="ivory"] #mrbot-suggestions button:hover{background:#e0ede2;color:#205b46}

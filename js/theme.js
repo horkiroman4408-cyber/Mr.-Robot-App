@@ -19,7 +19,7 @@
    if(!db)return;
    try{const tx=db.transaction('settings','readwrite');tx.objectStore('settings').put(theme,'theme');tx.oncomplete=()=>{if(pending===theme)pending=null;};}catch(e){}
  }
- window.MRTheme={set:function(theme){if(theme!=='light'&&theme!=='dark'&&theme!=='graphite')return;explicit=true;render(theme);save(theme);}};
+ window.MRTheme={set:function(theme){if(theme!=='light'&&theme!=='dark'&&theme!=='graphite'&&theme!=='ivory')return;explicit=true;render(theme);save(theme);}};
  render(system.matches?'dark':'light');
  try{
    const request=indexedDB.open('mrrobot-preferences',1);
@@ -29,7 +29,7 @@
      db.onversionchange=()=>{db.close();db=null;};
      if(pending){save(pending);return;}
      const read=db.transaction('settings').objectStore('settings').get('theme');
-     read.onsuccess=()=>{if(!explicit&&(read.result==='light'||read.result==='dark'||read.result==='graphite')){explicit=true;render(read.result);}};
+     read.onsuccess=()=>{if(!explicit&&(read.result==='light'||read.result==='dark'||read.result==='graphite'||read.result==='ivory')){explicit=true;render(read.result);}};
    };
    request.onerror=()=>{};
  }catch(e){}
