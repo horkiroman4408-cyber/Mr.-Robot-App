@@ -408,13 +408,13 @@
 <thead><tr><th class="py-3.5 px-4 text-left">USER LOGIN</th><th class="py-3.5 px-4 text-right">{{ tr(164) }}</th><th class="py-3.5 px-4 text-right">{{ tr(165) }}</th><th class="py-3.5 px-4 text-right">{{ tr(166) }}</th><th class="py-3.5 px-4 text-center">{{ tr(169) }}</th></tr></thead>
 <tbody>
 <tr v-if="kpiNvFiltered.length===0"><td colspan="5" class="py-12 text-center text-slate-400 italic text-sm">{{ tr(177) }}</td></tr>
-<tr v-for="(r,idx) in kpiNvFiltered" :key="r.login+'-'+r.rodzaj+'-'+idx" class="mr-table-row" :class="{'below-norm':kpiIsNvBelow(r),'above-norm':!kpiIsNvBelow(r)}"><td class="py-3 px-4 font-mono font-semibold text-[#0a84ff]">{{ r.login }}<template v-if="pracownicy.loaded"><span v-if="r.firma" class="grp-badge attr-firma" :title="tr('Agencja: '+r.firma)">{{ r.firma }}</span><span v-else class="grp-badge attr-none">{{ tr(171) }}</span><span v-if="r.proces" class="grp-badge attr-proces" :title="tr('Proces: '+r.proces)">{{ r.proces }}</span></template><span v-else class="grp-badge" :class="kpiGroupByKey(r.group).badgeClass">{{ tr(kpiGroupByKey(r.group).shortLabel) }}</span><span v-if="r.shift" class="shift-badge" :class="r.shift==='AB'?'ab':'cd'">{{ r.shift }}</span><span class="nv-badge" :class="r.rodzaj==='NADWE'?'nadwe':'vas'">{{ r.rodzaj }}</span></td><td class="py-3 px-4 font-mono text-slate-700 text-right">{{ r.items.toLocaleString('pl-PL') }}</td><td class="py-3 px-4 font-mono text-slate-700 text-right">{{ r.time.toFixed(2) }}</td><td class="py-3 px-4 font-mono font-bold text-right" :class="kpiIsNvBelow(r)?'text-red-600':'text-emerald-600'">{{ r.perHour }}</td><td class="py-3 px-4 text-center"><span v-if="kpiIsNvBelow(r)" class="chip bg-red-100 text-red-700">{{ tr(172) }}</span><span v-else class="chip bg-emerald-100 text-emerald-700">✓ OK</span></td></tr>
+<tr v-for="(r,idx) in kpiNvFiltered" :key="r.login+'-'+r.rodzaj+'-'+idx" class="mr-table-row" :class="{'below-norm':kpiIsNvBelow(r),'above-norm':!kpiIsNvBelow(r)}"><td class="py-3 px-4 font-mono font-semibold text-[#0a84ff]">{{ r.login }}<template v-if="pracownicy.loaded"><span v-if="r.firma" class="grp-badge attr-firma" :title="tr('Agencja: '+r.firma)">{{ r.firma }}</span><span v-else class="grp-badge attr-none">{{ tr(171) }}</span><span v-if="r.proces" class="grp-badge attr-proces" :title="tr('Proces: '+r.proces)">{{ r.proces }}</span></template><span v-else class="grp-badge" :class="kpiGroupByKey(r.group).badgeClass">{{ tr(kpiGroupByKey(r.group).shortLabel) }}</span><span v-if="r.shift" class="shift-badge" :class="r.shift==='AB'?'ab':'cd'">{{ r.shift }}</span><span class="nv-badge" :class="r.rodzaj==='NADWE'?'nadwe':'vas'">{{ r.rodzaj }}</span></td><td class="py-3 px-4 font-mono text-slate-700 text-right">{{ r.items.toLocaleString('pl-PL') }}</td><td class="py-3 px-4 font-mono text-slate-700 text-right">{{ r.time.toFixed(2) }}</td><td class="py-3 px-4 font-mono font-bold text-right" :class="kpiIsNvBelow(r)?'text-red-600':'text-emerald-600'"><button type="button" class="mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': '+r.login" @click="intelOpenNv(r)">{{ r.perHour }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></td><td class="py-3 px-4 text-center"><span v-if="kpiIsNvBelow(r)" class="chip bg-red-100 text-red-700">{{ tr(172) }}</span><span v-else class="chip bg-emerald-100 text-emerald-700">✓ OK</span></td></tr>
 </tbody></table></div></div>
 <div v-if="kpiNv.loaded && kpiHasNvSelection" class="glass-strong p-7 space-y-5 float-up">
   <div class="flex flex-wrap justify-between items-center gap-3"><div class="flex items-center gap-2.5"><span class="w-7 h-7 rounded-full bg-gradient-to-br from-[#5ac8fa] to-[#0a84ff] text-white text-xs font-bold flex items-center justify-center">5</span><h2 class="text-lg font-semibold tracking-tight">{{ tr('Raport NADWE / VAS') }}</h2></div><span class="text-xs text-slate-500">{{ tr('Pracownicy:') }} <b>{{ kpiNvReportRows.length }}</b></span></div>
   <div class="mr-table-card" style="max-height:600px;overflow:auto"><table class="w-full text-sm text-center" style="min-width:760px;border-collapse:separate;border-spacing:0">
     <thead><tr><th colspan="7" class="py-3 px-4 text-center">NADWE / VAS</th></tr><tr><th rowspan="2" class="py-3 px-4 text-left align-bottom">USER LOGIN</th><th colspan="2" class="py-3 px-4 text-center">NUMBER OF ITEMS</th><th colspan="2" class="py-3 px-4 text-center">TOTAL TIME IN THE MASK [H]</th><th colspan="2" class="py-3 px-4 text-center">ITEMS PER HOUR</th></tr><tr><th class="py-2 px-3">NADWE</th><th class="py-2 px-3">VAS</th><th class="py-2 px-3">NADWE</th><th class="py-2 px-3">VAS</th><th class="py-2 px-3">NADWE</th><th class="py-2 px-3">VAS</th></tr></thead>
-    <tbody><tr v-if="!kpiNvReportRows.length"><td colspan="7" class="py-10 text-slate-400">{{ tr(177) }}</td></tr><tr v-for="entry in kpiNvReportRows" :key="entry.login" class="mr-table-row"><td class="py-3 px-4 text-left font-mono font-semibold text-[#0a84ff]">{{ entry.login }}</td><td class="py-3 px-3 font-mono">{{ entry.NADWE ? entry.NADWE.items : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.VAS ? entry.VAS.items : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.NADWE ? entry.NADWE.time : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.VAS ? entry.VAS.time : '' }}</td><td class="py-3 px-3 font-mono text-center rounded-l-2xl transition-colors duration-200" :style="entry.NADWE ? kpiNvCellStyle(entry.NADWE.perHour,kpiNvNormThreshold) : {}">{{ entry.NADWE ? entry.NADWE.perHour : '' }}</td><td class="py-3 px-3 font-mono text-center rounded-r-2xl transition-colors duration-200" :style="entry.VAS ? kpiNvCellStyle(entry.VAS.perHour,kpiNvNormThreshold) : {}">{{ entry.VAS ? entry.VAS.perHour : '' }}</td></tr></tbody>
+    <tbody><tr v-if="!kpiNvReportRows.length"><td colspan="7" class="py-10 text-slate-400">{{ tr(177) }}</td></tr><tr v-for="entry in kpiNvReportRows" :key="entry.login" class="mr-table-row"><td class="py-3 px-4 text-left font-mono font-semibold text-[#0a84ff]">{{ entry.login }}</td><td class="py-3 px-3 font-mono">{{ entry.NADWE ? entry.NADWE.items : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.VAS ? entry.VAS.items : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.NADWE ? entry.NADWE.time : '' }}</td><td class="py-3 px-3 font-mono">{{ entry.VAS ? entry.VAS.time : '' }}</td><td class="py-3 px-3 font-mono text-center rounded-l-2xl transition-colors duration-200" :style="entry.NADWE ? kpiNvCellStyle(entry.NADWE.perHour,kpiNvNormThreshold) : {}"><button v-if="entry.NADWE" type="button" class="mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': '+entry.login+' NADWE'" @click="intelOpenNv(entry.NADWE)">{{ entry.NADWE.perHour }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></td><td class="py-3 px-3 font-mono text-center rounded-r-2xl transition-colors duration-200" :style="entry.VAS ? kpiNvCellStyle(entry.VAS.perHour,kpiNvNormThreshold) : {}"><button v-if="entry.VAS" type="button" class="mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': '+entry.login+' VAS'" @click="intelOpenNv(entry.VAS)">{{ entry.VAS.perHour }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></td></tr></tbody>
   </table></div>
 </div>
 </div>
@@ -809,7 +809,7 @@
   </div>
   <div v-if="geekT1 && geekT1.ret" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
     <div class="audyt-stat blue"><div class="ico">📦</div><div class="label">{{ tr(357) }}</div><div class="value">{{ geekT1.totPrzel.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat purple"><div class="ico">🗂️</div><div class="label">{{ tr(358) }}</div><div class="value">{{ geekT1.przegPrzel.toLocaleString('pl-PL') }}</div></div>
+    <div class="audyt-stat purple"><div class="ico">🗂️</div><div class="label">{{ tr(358) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': PRZEGRÓDKI PRZELICZONE'" @click="intelOpenRet('bins')">{{ geekT1.przegPrzel.toLocaleString('pl-PL') }} <span aria-hidden="true" class="mr-intel-spark">⌕</span></button></div>
     <div class="audyt-stat blue"><div class="ico">🔢</div><div class="label">{{ tr(359) }}</div><div class="value">{{ geekT1.sztuk.toLocaleString('pl-PL') }}</div></div>
     <div class="audyt-stat green"><div class="ico">✅</div><div class="label">{{ tr(360) }}</div><div class="value">{{ geekT1.totPopr.toLocaleString('pl-PL') }}</div></div>
     <div class="audyt-stat red"><div class="ico">🔻</div><div class="label">{{ tr(361) }}</div><div class="value">{{ geekT1.przegBad.toLocaleString('pl-PL') }}</div></div>
@@ -850,7 +850,7 @@
         <button class="geek-mini" :title="tr(382)" @click="geekCopyGroup(g)">{{ tr(94) }}</button>
       </div>
       <div v-if="g.ret" class="geek-group-body">
-        <div v-for="l in g.lines" :key="l[0]" class="geek-kv"><span>{{ tr(l[0]) }}</span><b :class="l[2]==='red' ? 'text-red-600' : (l[2]==='green' ? 'text-emerald-600' : '')">{{ l[1] }}</b></div>
+        <div v-for="l in g.lines" :key="l[0]" class="geek-kv"><span>{{ tr(l[0]) }}</span><button v-if="l[0]==='PRZEGRÓDKI PRZELICZONE'||l[0]==='POMIESZANYCH SZT.'" type="button" class="mr-intel-report-value" :aria-label="intelT('open')+': '+tr(l[0])" :title="intelT('open')" @click="intelOpenRet(l[0]==='PRZEGRÓDKI PRZELICZONE'?'bins':'mixed')">{{ l[1] }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button><b v-else :class="l[2]==='red' ? 'text-red-600' : (l[2]==='green' ? 'text-emerald-600' : '')">{{ l[1] }}</b></div>
       </div>
       <div v-else class="geek-group-body">
         <div class="geek-kv"><span>{{ tr(383) }}</span><b>{{ g.total.toLocaleString('pl-PL') }}</b></div>
@@ -1675,6 +1675,67 @@
 <footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
 </template>
 
+<!-- MR. BOT Intelligence · accurate explanation on demand, without a separate chat -->
+<div v-if="intelPanel" class="mr-intel-overlay" @click.self="intelClose">
+  <section class="mr-intel-dialog" :data-intel-module="intelPanel.module" role="dialog" aria-modal="true" aria-labelledby="mr-intel-heading" @click.stop>
+    <header class="mr-intel-head">
+      <div class="mr-intel-head-icon" aria-hidden="true">✧</div>
+      <div class="mr-intel-head-title"><h2 id="mr-intel-heading">MR. BOT <strong>Intelligence</strong></h2><p>{{ intelT('subtitle') }}</p></div>
+      <button type="button" class="mr-intel-close" @click="intelClose" :aria-label="intelT('close')" :title="intelT('close')">✕</button>
+    </header>
+    <div class="mr-intel-content">
+      <div class="mr-intel-eyebrow">{{ intelPanel.type==='ret' ? 'AUDYT GEEK · AUDYT RET' : ('KPI NORMS · '+intelPanel.rodzaj) }}</div>
+      <div class="mr-intel-metric"><div><span>{{ intelPanel.title }}</span><strong>{{ intelPanel.type==='ret' ? mrIntel.compact(intelPanel.expected) : mrIntel.compact(intelPanel.perHour) }}</strong></div><span class="mr-intel-check" :class="intelPanel.matched?'ok':'alert'">{{ intelPanel.type==='nv' ? ('✓ '+intelT('readDirectly')) : (intelPanel.matched ? ('✓ '+intelT('matched')) : ('! '+intelT('mismatch'))) }}</span></div>
+      <div class="mr-intel-section"><h3>◫ {{ intelT('source') }}</h3>
+        <div class="mr-intel-meta"><span>{{ intelT('source') }}</span><strong>{{ intelPanel.fileName || '—' }}</strong></div>
+        <div class="mr-intel-meta"><span>{{ intelT('sheet') }}</span><strong>{{ intelPanel.type==='ret' ? (intelPanel.sheetName||'—') : intelT('firstSheet') }}</strong></div>
+        <div v-if="intelPanel.type==='nv'" class="mr-intel-meta"><span>{{ intelT('row') }}</span><strong>{{ intelPanel.excelRow || intelT('sourceNotTracked') }}</strong></div>
+      </div>
+      <template v-if="intelPanel.type==='ret'">
+        <div class="mr-intel-section"><h3>⎇ {{ intelT('filters') }}</h3>
+          <div class="mr-intel-meta"><span>{{ intelT('group') }}</span><strong>AUDYT RET</strong></div>
+          <div class="mr-intel-meta" v-if="intelPanel.operatorFilter"><span>{{ intelT('operator') }}</span><strong>{{ intelPanel.operatorFilter }}</strong></div>
+          <p class="mr-intel-hint">{{ intelT('currentFilters') }}</p>
+        </div>
+        <div class="mr-intel-section"><h3>≡ {{ intelT('algorithm') }}</h3>
+          <p>{{ intelT(intelPanel.metric==='bins'?'retBinsRule':'retPiecesRule') }}</p>
+          <div class="mr-intel-stats"><div><span>{{ intelT('included') }}</span><strong>{{ intelPanel.included.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('excluded') }}</span><strong>{{ intelPanel.excluded.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('calculated') }}</span><strong>{{ mrIntel.compact(intelPanel.computed) }}</strong></div></div>
+          <div v-if="!intelPanel.matched" class="mr-intel-warning">{{ intelT('mismatch') }}: {{ mrIntel.compact(intelPanel.computed) }} ≠ {{ mrIntel.compact(intelPanel.expected) }}</div>
+        </div>
+        <div class="mr-intel-section"><h3>▤ {{ intelT('rows') }}</h3>
+          <div class="mr-intel-filters"><button type="button" v-for="choice in ['all','included','excluded']" :key="choice" :class="{active:intelRowsMode===choice}" @click="intelSelectRows(choice)">{{ intelT(choice==='all'?'all':choice==='included'?'onlyIncluded':'onlyExcluded') }}</button></div>
+          <div class="mr-intel-table-wrap"><table class="mr-intel-table"><thead><tr><th>{{ intelT('row') }}</th><th>Shelf bin</th><th>{{ intelT('qty') }}</th><th>{{ intelT('reason') }}</th></tr></thead><tbody>
+            <tr v-for="(r,i) in intelVisibleRows" :key="(r.excelRow||i)+'-'+i"><td>{{ r.excelRow || '—' }}</td><td class="mr-intel-cell-bin">{{ r.shelf }}<small v-if="r.reasonText">{{ r.reasonText }}</small></td><td>{{ mrIntel.compact(r.qty) }}</td><td><span :class="r.ok?'mr-intel-included':'mr-intel-excluded'">{{ r.ok ? '✓' : '−' }} {{ intelT(r.reason) }}</span></td></tr>
+            <tr v-if="!intelVisibleRows.length"><td colspan="4">{{ intelT('noRows') }}</td></tr>
+          </tbody></table></div>
+          <p v-if="intelPanel.truncated" class="mr-intel-hint">{{ intelT('showingLimit') }}</p>
+          <div class="mr-intel-pagination" v-if="intelPageCount>1"><button type="button" :disabled="intelPage===0" @click="intelPage--">← {{ intelT('previous') }}</button><span>{{ intelPage+1 }} / {{ intelPageCount }}</span><button type="button" :disabled="intelPage>=intelPageCount-1" @click="intelPage++">{{ intelT('next') }} →</button></div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="mr-intel-section"><h3>⎇ {{ intelT('filters') }}</h3>
+          <div class="mr-intel-meta"><span>USER LOGIN</span><strong>{{ intelPanel.login }}</strong></div>
+          <div class="mr-intel-meta"><span>{{ intelT('process') }}</span><strong>{{ intelPanel.rodzaj }}</strong></div>
+          <div class="mr-intel-meta" v-if="intelPanel.statusFilter&&intelPanel.statusFilter!=='all'"><span>{{ intelT('status') }}</span><strong>{{ intelT(intelPanel.statusFilter==='below'?'below':'above') }}</strong></div>
+          <div class="mr-intel-meta" v-if="intelPanel.shiftFilter"><span>{{ intelT('shift') }}</span><strong>{{ intelPanel.shiftFilter }}</strong></div>
+          <div class="mr-intel-meta" v-if="intelPanel.firmaFilter"><span>{{ intelT('agency') }}</span><strong>{{ intelPanel.firmaFilter }}</strong></div>
+          <div class="mr-intel-meta" v-if="intelPanel.procesFilter"><span>{{ intelT('process') }}</span><strong>{{ intelPanel.procesFilter }}</strong></div>
+          <p class="mr-intel-hint">{{ intelT('currentFilters') }}</p>
+        </div>
+        <div class="mr-intel-section"><h3>▤ {{ intelT('rows') }}</h3>
+          <div class="mr-intel-meta"><span>{{ intelT('itemCount') }}</span><strong>{{ mrIntel.compact(intelPanel.items) }}</strong></div>
+          <div class="mr-intel-meta"><span>{{ intelT('totalTime') }}</span><strong>{{ mrIntel.compact(intelPanel.time) }}</strong></div>
+          <div class="mr-intel-meta"><span>{{ intelT('perHour') }}</span><strong>{{ mrIntel.compact(intelPanel.perHour) }}</strong></div>
+        </div>
+        <div class="mr-intel-section"><h3>≡ {{ intelT('algorithm') }}</h3><p>{{ intelT('nvRule') }}</p>
+          <div class="mr-intel-stats"><div><span>{{ intelT('norm') }}</span><strong>{{ mrIntel.compact(intelPanel.norm) }}</strong></div><div><span>{{ intelT('difference') }}</span><strong>{{ intelPanel.delta>0?'+':'' }}{{ mrIntel.compact(intelPanel.delta) }}</strong></div><div><span>{{ intelT('status') }}</span><strong>{{ intelT(intelPanel.below?'below':'above') }}</strong></div></div>
+        </div>
+      </template>
+      <div class="mr-intel-footer">✓ {{ intelT('noChange') }}</div>
+    </div>
+  </section>
+</div>
+
 <transition name="toast"><div v-if="toast" class="fixed bottom-8 right-8 bg-slate-900/85 backdrop-blur-xl text-white px-6 py-3.5 rounded-3xl shadow-2xl text-sm z-50 flex items-center gap-2 font-medium"><span>✓</span><span>{{ tr(toast) }}</span></div></transition>
 </div>
 
@@ -1690,6 +1751,7 @@
 <script src="js/workers/geek.js"></script>
 <script src="js/workers/common.js"></script>
 <script src="js/code128.js"></script>
+<script src="js/mrbot-intelligence.js"></script>
 <script src="js/app.js"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>

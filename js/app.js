@@ -857,7 +857,7 @@ let recs=null;
 if(cShelf>=0&&cExc>=0&&cReason>=0){recs=[];
 for(let i=1;i<=lastIdx;i++){const r=rows[i]||[];if(geekStr(r[cShelf])==='')continue;
 const nm=cName>=0?geekStr(r[cName]).replace(/\u00a0/g,' ').replace(/ +/g,' ').trim():'';
-recs.push({shelf:geekStr(r[cShelf]),op:cOp>=0?geekStr(r[cOp]):'',key1:nm?nm.split(' ')[0]:'',key2:nm?geekPrefix(nm):'',qty:cQty>=0?geekNum(r[cQty]):0,exc:geekStr(r[cExc]).toUpperCase(),reason:geekStr(r[cReason]),cat:geekCategory(r[cReason]),n:geekReasonQty(r[cReason]),sku:cSku>=0?geekStr(r[cSku]):''});}}
+recs.push({excelRow:i+1,shelf:geekStr(r[cShelf]),op:cOp>=0?geekStr(r[cOp]):'',key1:nm?nm.split(' ')[0]:'',key2:nm?geekPrefix(nm):'',qty:cQty>=0?geekNum(r[cQty]):0,exc:geekStr(r[cExc]).toUpperCase(),reason:geekStr(r[cReason]),cat:geekCategory(r[cReason]),n:geekReasonQty(r[cReason]),sku:cSku>=0?geekStr(r[cSku]):''});}}
 let rowCount=0;for(let i=1;i<=lastIdx;i++){const r=rows[i]||[];if(geekStr(r[cShelf])!=='')rowCount++;}
 return {hasOp:cOp>=0,recs,missing1,missing2,rowCount};
 }
@@ -1241,6 +1241,51 @@ async function mrRestoreFiles(){
  }catch(e){if(runId!==mrRestore.runId)return;mrRestore.phase='error';console.warn('Mr. Robot: pamięć plików niedostępna',e);}
 }
 
+// MR. BOT Intelligence: provenance is prepared on-demand; existing calculations are untouched.
+const intelPanel=ref(null);
+const intelRowsMode=ref('all');
+const intelPage=ref(0);
+const intelPageSize=24;
+function intelT(key){uiLanguage.value;return window.MRIntelligence.t(uiLanguage.value,key);}
+function intelClose(){intelPanel.value=null;intelRowsMode.value='all';intelPage.value=0;}
+function intelOpenRet(metric){
+ const groups=geekGroups.value;
+ const report=groups&&groups.find(g=>g.ret);
+ if(!report||!geek.result?.recs)return;
+ const title=metric==='bins'?'PRZEGRÓDKI PRZELICZONE':'POMIESZANYCH SZT.';
+ const line=report.lines.find(l=>l[0]===title);
+ if(!line)return;
+ const expected=typeof line[1]==='number'?line[1]:Number(String(line[1]).replace(/\s/g,''));
+ const details=window.MRIntelligence.buildRet(geek.result.recs,geek.opSel,geek.result.hasOp,metric,expected);
+ details.fileName=geek.fileName;details.sheetName=geek.sheetName;
+ details.operatorFilter=geek.result.hasOp?geekOpOptions.value.filter(x=>geek.opSel[x.key]).map(x=>x.label).join(', '):'';
+ intelPanel.value=details;intelRowsMode.value='all';intelPage.value=0;
+ Vue.nextTick(()=>document.querySelector('.mr-intel-dialog .mr-intel-close')?.focus());
+}
+function intelOpenNv(record){
+ if(!record||!kpiNv.loaded)return;
+ const details=window.MRIntelligence.buildNv(record,kpiNvNormThreshold.value);
+ details.fileName=kpiNv.fileName;
+ details.statusFilter=kpiNv.statusFilter;
+ details.shiftFilter=kpiNv.selectedShifts.length===allShiftKeys.length?'':kpiNv.selectedShifts.join(', ');
+ details.firmaFilter=kpiNv.selectedFirmy.map(attrLabel).join(', ');
+ details.procesFilter=kpiNv.selectedProcesy.map(attrLabel).join(', ');
+ intelPanel.value=details;intelPage.value=0;intelRowsMode.value='all';
+ Vue.nextTick(()=>document.querySelector('.mr-intel-dialog .mr-intel-close')?.focus());
+}
+const intelFilteredRows=computed(()=>{
+ if(!intelPanel.value||intelPanel.value.type!=='ret')return [];
+ const rows=intelPanel.value.rows;
+ if(intelRowsMode.value==='included')return rows.filter(r=>r.ok);
+ if(intelRowsMode.value==='excluded')return rows.filter(r=>!r.ok);
+ return rows;
+});
+const intelPageCount=computed(()=>Math.max(1,Math.ceil(intelFilteredRows.value.length/intelPageSize)));
+const intelVisibleRows=computed(()=>intelFilteredRows.value.slice(intelPage.value*intelPageSize,(intelPage.value+1)*intelPageSize));
+function intelSelectRows(filter){intelRowsMode.value=filter;intelPage.value=0;}
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value)intelClose();});
+watch([()=>geek.result,()=>kpiNv.records],()=>intelClose());
+
 // MR. BOT visual bridge: reads existing state; never writes report data.
 const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
 const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
@@ -1279,7 +1324,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
