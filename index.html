@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.8.2</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.8.3</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -1577,7 +1577,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.8.2">v3.8.2</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.8.3">v3.8.3</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1633,7 +1633,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.8.2</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.8.3</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -1668,8 +1668,8 @@
 <div class="changelog-era current"><span>{{ tr(683) }}</span></div>
 <div v-for="(entry, idx) in changelogAll" :key="entry.version" :lang="uiLanguage" class="changelog-entry float-up" :style="{animationDelay:(idx*.06)+'s'}">
 <div class="changelog-entry-header"><span class="changelog-version">v{{ entry.version }}</span><span v-if="isChangelogEntryNew(entry)" class="changelog-fresh">{{ tr(685) }}</span><span class="changelog-date">{{ entry.date }}</span><span class="changelog-count">{{ entry.changes.length }} {{ tr(686) }}</span></div>
-<h2 class="changelog-title">{{ tr(entry.title) }}</h2>
-<div class="changelog-changes"><div v-for="(change,i) in entry.changes" :key="i" class="changelog-change" :style="{background:moduleLabels[change.module].bg}"><span class="module-chip" :style="{background:moduleLabels[change.module].color}">{{ tr(moduleLabels[change.module].label) }}</span><span class="type-tag" :style="{color:change.type==='new'?'var(--mr-c18,#059669)':(change.type==='fix'?'var(--mr-c27,#dc2626)':'var(--mr-c69,#0284c7)')}">{{ tr(change.type==='new'?'NEW':(change.type==='fix'?'FIX':'UPD')) }}</span><span class="text" v-html="tr(change.text)"></span></div></div>
+<h2 class="changelog-title">{{ (entry.titleI18n && entry.titleI18n[uiLanguage]) || tr(entry.title) }}</h2>
+<div class="changelog-changes"><div v-for="(change,i) in entry.changes" :key="i" class="changelog-change" :style="{background:moduleLabels[change.module].bg}"><span class="module-chip" :style="{background:moduleLabels[change.module].color}">{{ tr(moduleLabels[change.module].label) }}</span><span class="type-tag" :style="{color:change.type==='new'?'var(--mr-c18,#059669)':(change.type==='fix'?'var(--mr-c27,#dc2626)':'var(--mr-c69,#0284c7)')}">{{ tr(change.type==='new'?'NEW':(change.type==='fix'?'FIX':'UPD')) }}</span><span class="text" v-html="(change.textI18n && change.textI18n[uiLanguage]) || tr(change.text)"></span></div></div>
 </div>
 <div class="glass-strong p-6 text-center float-up" style="animation-delay:.4s"><div class="text-xs text-slate-500">{{ tr(687) }} <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-700 font-mono text-[10px]">CHANGELOG_ALL</code>.</div></div>
 </main>
