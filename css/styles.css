@@ -858,3 +858,10 @@ html:is([data-theme="ivory"],[data-theme="dark"],[data-theme="graphite"]) #app[d
 html:is([data-theme="ivory"],[data-theme="dark"],[data-theme="graphite"]) #app[data-active-module="mp"] .sort-btn.active{color:var(--module-accent)!important;background:var(--module-soft)!important;}
 /* Standard blue decorative section badges in RS use RS green, without recoloring alerts. */
 html:is([data-theme="ivory"],[data-theme="dark"],[data-theme="graphite"]) #app[data-active-module="rs"] .bg-gradient-to-br.from-\[\#5ac8fa\].to-\[\#0a84ff\]{background-image:var(--module-icon)!important;}
+
+/* v3.8.4: targeted MP database color and focus repair. No global light recoloring. */
+#app[data-active-module="mp"] #scalanie-upload-block .mp-database-head-icon{background:var(--module-icon,linear-gradient(135deg,#c084fc,#9333ea))!important;}
+#app[data-active-module="mp"] #scalanie-drop-mp .grafik-ico{background:var(--module-icon,linear-gradient(135deg,#c084fc,#9333ea))!important;}
+/* Keep native keyboard accessibility, but prevent mouse-click black focus rings. */
+#app .segment-btn:focus:not(:focus-visible){outline:none!important;box-shadow:0 2px 8px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);}
+#app .segment-btn:focus-visible{outline:2px solid var(--module-accent,var(--mr-focus,#0a84ff));outline-offset:2px;}
