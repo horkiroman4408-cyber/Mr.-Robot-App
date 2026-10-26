@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.8.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.8.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -817,15 +817,15 @@
     <div class="audyt-stat red"><div class="ico">⚠️</div><div class="label">{{ tr(362) }}</div><div class="value">{{ geekT1.sumaBad.toLocaleString('pl-PL') }}</div></div>
   </div>
   <div v-if="geekT1 && !geekT1.ret" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-    <div class="audyt-stat green"><div class="ico">✅</div><div class="label">{{ tr(363) }}</div><div class="value">{{ geekT1.poprawne.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat red"><div class="ico">🔻</div><div class="label">{{ tr(364) }}</div><div class="value">{{ geekT1.braki.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat orange"><div class="ico">🔺</div><div class="label">{{ tr(365) }}</div><div class="value">{{ geekT1.nadwyzki.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat purple"><div class="ico">📦</div><div class="label">{{ tr(366) }}</div><div class="value">{{ geekT1.przepelnione.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat gray"><div class="ico">🛠️</div><div class="label">{{ tr(367) }}</div><div class="value">{{ geekT1.wada.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat blue"><div class="ico">📊</div><div class="label">{{ tr(368) }}</div><div class="value">{{ geekT1.przeliczone.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat red"><div class="ico">⚠️</div><div class="label">{{ tr(369) }}</div><div class="value">{{ geekT1.bledne.toLocaleString('pl-PL') }}</div></div>
-    <div class="audyt-stat" :class="geekT1.odsetek > 0.1 ? 'red' : (geekT1.odsetek >= 0.05 ? 'orange' : 'green')"><div class="ico">🎯</div><div class="label">{{ tr(370) }}</div><div class="value">{{ geekPct(geekT1.odsetek, 2) }}</div></div>
-    <div class="audyt-stat blue"><div class="ico">🔢</div><div class="label">{{ tr(371) }}</div><div class="value">{{ geekT1.sztuk.toLocaleString('pl-PL') }}</div></div>
+    <div class="audyt-stat green"><div class="ico">✅</div><div class="label">{{ tr(363) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Toty poprawne'" @click="intelOpenGeekT1('Toty poprawne')">{{ geekT1.poprawne.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat red"><div class="ico">🔻</div><div class="label">{{ tr(364) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Toty z brakami'" @click="intelOpenGeekT1('Toty z brakami')">{{ geekT1.braki.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat orange"><div class="ico">🔺</div><div class="label">{{ tr(365) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Toty z nadwyżkami'" @click="intelOpenGeekT1('Toty z nadwyżkami')">{{ geekT1.nadwyzki.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat purple"><div class="ico">📦</div><div class="label">{{ tr(366) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Toty przepełnione'" @click="intelOpenGeekT1('Toty przepełnione')">{{ geekT1.przepelnione.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat gray"><div class="ico">🛠️</div><div class="label">{{ tr(367) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Toty z wadą'" @click="intelOpenGeekT1('Toty z wadą')">{{ geekT1.wada.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat blue"><div class="ico">📊</div><div class="label">{{ tr(368) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Total toty przeliczone'" @click="intelOpenGeekT1('Total toty przeliczone')">{{ geekT1.przeliczone.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat red"><div class="ico">⚠️</div><div class="label">{{ tr(369) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Total toty błędne'" @click="intelOpenGeekT1('Total toty błędne')">{{ geekT1.bledne.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat" :class="geekT1.odsetek > 0.1 ? 'red' : (geekT1.odsetek >= 0.05 ? 'orange' : 'green')"><div class="ico">🎯</div><div class="label">{{ tr(370) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Odsetek błędnych'" @click="intelOpenGeekT1('Odsetek błędnych')">{{ geekPct(geekT1.odsetek, 2) }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
+    <div class="audyt-stat blue"><div class="ico">🔢</div><div class="label">{{ tr(371) }}</div><button type="button" class="value mr-intel-number" :title="intelT('open')" :aria-label="intelT('open')+': Sztuk przeliczone'" @click="intelOpenGeekT1('Sztuk przeliczone')">{{ geekT1.sztuk.toLocaleString('pl-PL') }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
   </div>
 </div>
 
@@ -851,7 +851,7 @@
         <button class="geek-mini" :title="tr(382)" @click="geekCopyGroup(g)">{{ tr(94) }}</button>
       </div>
       <div v-if="g.ret" class="geek-group-body">
-        <div v-for="l in g.lines" :key="l[0]" class="geek-kv"><span>{{ tr(l[0]) }}</span><button v-if="l[0]==='PRZEGRÓDKI PRZELICZONE'||l[0]==='POMIESZANYCH SZT.'" type="button" class="mr-intel-report-value" :aria-label="intelT('open')+': '+tr(l[0])" :title="intelT('open')" @click="intelOpenRet(l[0]==='PRZEGRÓDKI PRZELICZONE'?'bins':'mixed')">{{ l[1] }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button><b v-else :class="l[2]==='red' ? 'text-red-600' : (l[2]==='green' ? 'text-emerald-600' : '')">{{ l[1] }}</b></div>
+        <div v-for="l in g.lines" :key="l[0]" class="geek-kv"><span>{{ tr(l[0]) }}</span><button type="button" class="mr-intel-report-value" :aria-label="intelT('open')+': '+tr(l[0])" :title="intelT('open')" @click="intelOpenRet(l[0])">{{ l[1] }} <span class="mr-intel-spark" aria-hidden="true">⌕</span></button></div>
       </div>
       <div v-else class="geek-group-body">
         <div class="geek-kv"><span>{{ tr(383) }}</span><b>{{ g.total.toLocaleString('pl-PL') }}</b></div>
@@ -1577,7 +1577,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.8.0">v3.8.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.8.1">v3.8.1</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1633,7 +1633,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.8.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.8.1</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -1686,8 +1686,8 @@
       <button type="button" class="mr-intel-close" @click="intelClose" :aria-label="intelT('close')" :title="intelT('close')">✕</button>
     </header>
     <div class="mr-intel-content">
-      <div class="mr-intel-eyebrow">{{ intelPanel.type==='ret' ? 'AUDYT GEEK · AUDYT RET' : ('KPI NORMS · '+intelPanel.rodzaj) }}</div>
-      <div class="mr-intel-metric"><div><span>{{ intelPanel.title }}</span><strong>{{ intelPanel.type==='ret' ? mrIntel.compact(intelPanel.expected) : mrIntel.compact(intelPanel.perHour) }}</strong></div><span class="mr-intel-check" :class="intelPanel.matched?'ok':'alert'">{{ intelPanel.type==='nv' ? ('✓ '+intelT('readDirectly')) : (intelPanel.matched ? ('✓ '+intelT('matched')) : ('! '+intelT('mismatch'))) }}</span></div>
+      <div class="mr-intel-eyebrow">{{ intelPanel.type==='ret' ? ('AUDYT GEEK · '+(intelPanel.groupLabel||'AUDYT RET')) : ('KPI NORMS · '+intelPanel.rodzaj) }}</div>
+      <div class="mr-intel-metric"><div><span>{{ intelPanel.title }}</span><strong>{{ intelPanel.type==='ret' ? (intelPanel.displayExpected||mrIntel.compact(intelPanel.expected)) : mrIntel.compact(intelPanel.perHour) }}</strong></div><span class="mr-intel-check" :class="intelPanel.matched?'ok':'alert'">{{ intelPanel.type==='nv' ? ('✓ '+intelT('readDirectly')) : (intelPanel.matched ? ('✓ '+intelT('matched')) : ('! '+intelT('mismatch'))) }}</span></div>
       <div class="mr-intel-section"><h3>◫ {{ intelT('source') }}</h3>
         <div class="mr-intel-meta"><span>{{ intelT('source') }}</span><strong>{{ intelPanel.fileName || '—' }}</strong></div>
         <div class="mr-intel-meta"><span>{{ intelT('sheet') }}</span><strong>{{ intelPanel.type==='ret' ? (intelPanel.sheetName||'—') : intelT('firstSheet') }}</strong></div>
@@ -1695,14 +1695,14 @@
       </div>
       <template v-if="intelPanel.type==='ret'">
         <div class="mr-intel-section"><h3>⎇ {{ intelT('filters') }}</h3>
-          <div class="mr-intel-meta"><span>{{ intelT('group') }}</span><strong>AUDYT RET</strong></div>
+          <div class="mr-intel-meta"><span>{{ intelT('group') }}</span><strong>{{ intelPanel.groupFilter || 'AUDYT RET' }}</strong></div>
           <div class="mr-intel-meta" v-if="intelPanel.operatorFilter"><span>{{ intelT('operator') }}</span><strong>{{ intelPanel.operatorFilter }}</strong></div>
           <p class="mr-intel-hint">{{ intelT('currentFilters') }}</p>
         </div>
         <div class="mr-intel-section"><h3>≡ {{ intelT('algorithm') }}</h3>
-          <p>{{ intelT(intelPanel.metric==='bins'?'retBinsRule':'retPiecesRule') }}</p>
-          <div class="mr-intel-stats"><div><span>{{ intelT('included') }}</span><strong>{{ intelPanel.included.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('excluded') }}</span><strong>{{ intelPanel.excluded.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('calculated') }}</span><strong>{{ mrIntel.compact(intelPanel.computed) }}</strong></div></div>
-          <div v-if="!intelPanel.matched" class="mr-intel-warning">{{ intelT('mismatch') }}: {{ mrIntel.compact(intelPanel.computed) }} ≠ {{ mrIntel.compact(intelPanel.expected) }}</div>
+          <p>{{ intelT(intelPanel.ruleKey || (intelPanel.metric==='bins'?'retBinsRule':'retPiecesRule')) }}</p>
+          <div class="mr-intel-stats"><div><span>{{ intelT('included') }}</span><strong>{{ intelPanel.included.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('excluded') }}</span><strong>{{ intelPanel.excluded.toLocaleString('pl-PL') }}</strong></div><div><span>{{ intelT('calculated') }}</span><strong>{{ intelPanel.displayComputed || mrIntel.compact(intelPanel.computed) }}</strong></div></div>
+          <div v-if="!intelPanel.matched" class="mr-intel-warning">{{ intelT('mismatch') }}: {{ intelPanel.displayComputed || mrIntel.compact(intelPanel.computed) }} ≠ {{ intelPanel.displayExpected || mrIntel.compact(intelPanel.expected) }}</div>
         </div>
         <div class="mr-intel-section"><h3>▤ {{ intelT('rows') }}</h3>
           <div class="mr-intel-filters"><button type="button" v-for="choice in ['all','included','excluded']" :key="choice" :class="{active:intelRowsMode===choice}" @click="intelSelectRows(choice)">{{ intelT(choice==='all'?'all':choice==='included'?'onlyIncluded':'onlyExcluded') }}</button></div>

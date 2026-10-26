@@ -1251,19 +1251,23 @@ const intelPageSize=24;
 function intelT(key){uiLanguage.value;return window.MRIntelligence.t(uiLanguage.value,key);}
 function intelClose(){intelPanel.value=null;intelRowsMode.value='all';intelPage.value=0;}
 function intelOpenRet(metric){
- const groups=geekGroups.value;
- const report=groups&&groups.find(g=>g.ret);
+ const report=geekGroups.value?.find(g=>g.ret);
  if(!report||!geek.result?.recs)return;
- const title=metric==='bins'?'PRZEGRÓDKI PRZELICZONE':'POMIESZANYCH SZT.';
+ const title=metric==='bins'?'PRZEGRÓDKI PRZELICZONE':metric==='mixed'?'POMIESZANYCH SZT.':metric;
  const line=report.lines.find(l=>l[0]===title);
  if(!line)return;
- const expected=typeof line[1]==='number'?line[1]:Number(String(line[1]).replace(/\s/g,''));
- const details=window.MRIntelligence.buildRet(geek.result.recs,geek.opSel,geek.result.hasOp,metric,expected);
+ intelShowGeek(title,line[1],'ret');
+}
+function intelShowGeek(title,expected,scope){
+ if(!geek.result?.recs)return;
+ const details=window.MRIntelligence.buildGeek(geek.result.recs,geek.sel,geek.opSel,geek.result.hasOp,title,expected,scope);
  details.fileName=geek.fileName;details.sheetName=geek.sheetName;
  details.operatorFilter=geek.result.hasOp?geekOpOptions.value.filter(x=>geek.opSel[x.key]).map(x=>x.label).join(', '):'';
+ details.groupFilter=scope==='ret'?'AUDYT RET':geekListOptions.value.filter(x=>geek.sel[x.key]).map(x=>x.label).join(', ');
  intelPanel.value=details;intelRowsMode.value='all';intelPage.value=0;
  Vue.nextTick(()=>document.querySelector('.mr-intel-dialog .mr-intel-close')?.focus());
 }
+function intelOpenGeekT1(metric){const t=geekT1.value;if(!t||t.ret)return;const row=geekT1Rows().find(x=>x[0]===metric);if(row)intelShowGeek(metric,row[1],'all');}
 function intelOpenNv(record){
  if(!record||!kpiNv.loaded)return;
  const details=window.MRIntelligence.buildNv(record,kpiNvNormThreshold.value);
@@ -1326,7 +1330,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
