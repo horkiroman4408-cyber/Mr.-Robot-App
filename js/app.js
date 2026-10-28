@@ -501,7 +501,7 @@ pracownicyRestore();
 
 // Baza szkoleń integrated with the existing Grafik loader. All records remain local.
 const employeeSearch=ref(''),employeeFilter=ref(''),employeeProfile=ref(''),employeeProfileTab=ref('overview');
-const employeeTraining=reactive({rows:[],fileName:'',savedAt:'',loading:false,error:''});
+const employeeTraining=reactive({rows:[],fileName:'',savedAt:'',fileSize:0,loading:false,error:''});
 const eKey=v=>String(v??'').replace(/\s+/g,'').toUpperCase();
 const eNorm=v=>String(v??'').trim().toLocaleLowerCase('pl');
 const eText=v=>v==null||v===''?'—':String(v);
@@ -510,19 +510,23 @@ const eTime=v=>{if(v==null||v==='')return '—';if(typeof v!=='number')return St
 const eDuration=v=>{if(v==null||v==='')return '—';if(typeof v!=='number')return String(v);const m=Math.round(v*1440);return `${Math.floor(m/60)?Math.floor(m/60)+' godz. ':''}${m%60?m%60+' min':m===0?'0 min':''}`;};
 const eMsg=(pl,ru,en,uk)=>({pl,ru,en,uk})[uiLanguage.value]||pl;
 const employeeResignations=computed(()=>pracownicy.resignations||[]);
-const employeeCurrent=computed(()=>employeeTraining.rows.filter(r=>r.current));
+const employeeCurrent=computed(()=>employeeCurrentRows.value);
+// Build the PD index only when the register is loaded, not on every profile click.
+const employeeTrainingByPd=computed(()=>{const index=new Map();for(const row of employeeTraining.rows){const id=eKey(row.id);if(!index.has(id))index.set(id,[]);index.get(id).push(row);}return index;});
+const employeeResignationsByPd=computed(()=>{const index=new Map();for(const row of employeeResignations.value){const id=eKey(row.id);if(!index.has(id))index.set(id,[]);index.get(id).push(row);}return index;});
 const employeeRoster=computed(()=>{
-  const people=[...pracownicy.byLogin.values()].map(r=>({id:eKey(r.login),name:r.name||'',source:'grafik'}));
+  const people=[...pracownicy.byLogin.values()].map(r=>({id:eKey(r.login),name:r.name||'',source:'grafik',search:eNorm(eKey(r.login)+' '+(r.name||''))}));
   const ids=new Set(people.map(r=>r.id));
-  for(const r of employeeResignations.value){if(!ids.has(r.id)){ids.add(r.id);people.push({id:r.id,name:r.name||'',source:'rezygnacje'});}}
+  for(const r of employeeResignations.value){if(!ids.has(r.id)){ids.add(r.id);people.push({id:r.id,name:r.name||'',source:'rezygnacje',search:eNorm(r.id+' '+(r.name||''))});}}
   return people;
 });
-const employeeMatches=computed(()=>{const q=eNorm(employeeSearch.value);return employeeRoster.value.filter(p=>!q||eNorm(p.id+' '+p.name).includes(q)).slice(0,120);});
+const employeeMatches=computed(()=>{const q=eNorm(employeeSearch.value);return employeeRoster.value.filter(p=>!q||p.search.includes(q)).slice(0,120);});
+const employeeTrainerByPd=computed(()=>{const index=new Map();for(const row of employeeTraining.rows){const id=eKey(row.trainer);if(id&&!index.has(id))index.set(id,row);}return index;});
 const employeeSelected=computed(()=>{
   const id=eKey(employeeProfile.value);const p=pracownicy.byLogin.get(id);
-  const resignations=employeeResignations.value.filter(r=>r.id===id);
-  const training=employeeTraining.rows.filter(r=>r.id===id);
-  const trainer=employeeTraining.rows.find(r=>eKey(r.trainer)===id);
+  const resignations=employeeResignationsByPd.value.get(id)||[];
+  const training=employeeTrainingByPd.value.get(id)||[];
+  const trainer=employeeTrainerByPd.value.get(id);
   if(!p&&!resignations.length&&!training.length&&!trainer)return null;
   return {id,p:p||resignations[0]||null,name:p?.name||resignations[0]?.name||training[0]?.name||trainer?.trainerName||id,active:!!p,resignations,training};
 });
@@ -564,11 +568,11 @@ const employeeCurrentRows=ref([]);
 async function employeeLoadTraining(file,restored=null){if(!file&&!restored)return;employeeTraining.loading=true;employeeTraining.error='';try{
  const bytes=restored?restored.bytes:await file.arrayBuffer();const parsed=employeeParseTraining(bytes);
  employeeTraining.rows=markRaw(parsed.rows);employeeCurrentRows.value=markRaw(parsed.current);
- employeeTraining.fileName=restored?restored.name:file.name;employeeTraining.savedAt=restored?restored.savedAt:new Date().toISOString();
+ employeeTraining.fileName=restored?restored.name:file.name;employeeTraining.savedAt=restored?restored.savedAt:new Date().toISOString();employeeTraining.fileSize=restored?restored.bytes?.byteLength||0:file.size;
  if(!restored){try{await employeeStorage('set',{bytes,name:file.name,savedAt:employeeTraining.savedAt});}catch(e){employeeTraining.error=eMsg('Nie można zapisać pliku lokalnie','Файл не удалось сохранить','Could not save locally','Не вдалося зберегти локально');}}
  }catch(e){employeeTraining.error=e.message||String(e);showToast(employeeTraining.error);}finally{employeeTraining.loading=false;}}
 async function employeeOnTrainingFile(e){const f=e.target.files?.[0];if(f)await employeeLoadTraining(f);e.target.value='';}
-async function employeeClearTraining(){employeeTraining.rows=[];employeeCurrentRows.value=[];employeeTraining.fileName='';employeeTraining.savedAt='';employeeTraining.error='';try{await employeeStorage('delete');}catch(e){console.warn(e);}}
+async function employeeClearTraining(){employeeTraining.rows=[];employeeCurrentRows.value=[];employeeTraining.fileName='';employeeTraining.savedAt='';employeeTraining.fileSize=0;employeeTraining.error='';try{await employeeStorage('delete');}catch(e){console.warn(e);}}
 (async()=>{try{const saved=await employeeStorage('get');if(saved)await employeeLoadTraining(null,saved);}catch(e){console.warn('Training restore unavailable',e);}})();
 
 // ==================== RS (Tote + Manual) ====================
@@ -1161,7 +1165,8 @@ const mrRestoreStats=computed(()=>{
 });
 const mrMemoryItems=computed(()=>{
  const rows=mrRestore.items.filter(item=>item.status!=='removed');
- if(pracownicy.savedAt) return [{slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt,size:null,status:'done',local:true},...rows];
+ if(pracownicy.savedAt)rows.unshift({slot:'pracownicy',label:eMsg('Grafik pracowników','График сотрудников','Employee roster','Графік працівників'),name:pracownicy.fileName,savedAt:pracownicy.savedAt,size:null,status:'done',local:true});
+ if(employeeTraining.savedAt)rows.push({slot:'employeeTraining',label:eMsg('Rejestr szkoleń','Реестр обучения','Training register','Реєстр навчання'),name:employeeTraining.fileName,savedAt:employeeTraining.savedAt,size:employeeTraining.fileSize||null,status:'done',local:true});
  return rows;
 });
 const mrMemoryBytes=computed(()=>mrMemoryItems.value.reduce((total,item)=>total+(Number(item.size)>0?Number(item.size):0),0));
@@ -1230,7 +1235,7 @@ przestojeReset=mrWrapReset('przestoje',przestojeReset);
 toteResetMp=mrWrapReset('toteMp',toteResetMp);
 toteResetRs=mrWrapReset('toteRs',toteResetRs);
 geekReset=mrWrapReset('geek',geekReset);
-const mrSavedList=computed(()=>{const out=[];if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
+const mrSavedList=computed(()=>{const out=[];if(employeeTraining.savedAt)out.push({slot:'employeeTraining',label:eMsg('Rejestr szkoleń','Реестр обучения','Training register','Реєстр навчання'),name:employeeTraining.fileName,savedAt:employeeTraining.savedAt});if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
 function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();geekReset();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();employeeClearTraining();showToast('Pamięć przeglądarki wyczyszczona');}
 // Remove one saved file, not the entire browser memory. Never interrupt a running worker.
@@ -1238,9 +1243,10 @@ const MR_MEMORY_RESET={kpiAudit:()=>kpiResetAudit(),kpiScalanie:()=>kpiResetScal
 async function mrMemoryRemove(slot){
  const item=mrRestore.items.find(x=>x.slot===slot);
  if(item?.status==='loading'||item?.status==='removing'||MR_SLOT_STATE[slot]?.loading||slot==='pracownicy'&&pracownicy.loading){showToast(mrRestoreText('cannotRemove'));return;}
- const label=slot==='pracownicy'?'Grafik pracowników':MR_SLOT_LABELS[slot]||slot;
- if(!window.confirm(mrRestoreText('confirmRemove')+'\n'+label+' — '+(item?.name||pracownicy.fileName||'')))return;
+ const label=slot==='pracownicy'?'Grafik pracowników':slot==='employeeTraining'?'Rejestr szkoleń':MR_SLOT_LABELS[slot]||slot;
+ if(!window.confirm(mrRestoreText('confirmRemove')+'\n'+label+' — '+(item?.name||(slot==='employeeTraining'?employeeTraining.fileName:pracownicy.fileName)||'')))return;
  if(slot==='pracownicy'){pracownicyReset();showToast(mrRestoreText('removed'));return;}
+ if(slot==='employeeTraining'){await employeeClearTraining();showToast(mrRestoreText('removed'));return;}
  if(!item)return;
  const previous=item.status;item.status='removing';
  try{
