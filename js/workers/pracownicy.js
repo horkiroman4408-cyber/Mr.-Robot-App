@@ -26,16 +26,19 @@ function parsePracownicySheet(rows, sheetName) {
   }
   if (hIdx === -1) return out;
   
+  const headers = rows[hIdx].map(v=>String(v??'').trim().toLocaleLowerCase('pl').replace(/\\s+/g,' '));
+  const column=(...names)=>{for(const n of names){const pos=headers.indexOf(n.toLocaleLowerCase('pl'));if(pos>=0)return pos;}return -1;};
+  const val=(r,...names)=>{const pos=column(...names);return pos>=0?r[pos]:'';};
   for (let i = hIdx + 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.every(c => c === '' || c === null || c === undefined)) continue;
     
-    const login = String(r[0] || '').trim();
+    const login = String(val(r,'PDXXXXX','PD') || r[0] || '').trim();
     if (!login || login.toUpperCase() === 'PDXXXXX') continue;
     
-    const firma = String(r[1] || '').trim();
-    const grupa = String(r[2] || '').trim();
-    const bus   = String(r[3] || '').trim().toUpperCase();
+    const firma = String(val(r,'Firma','Agencja') || r[1] || '').trim();
+    const grupa = String(val(r,'Grupa','Funkcja dodatkowa') || r[2] || '').trim();
+    const bus   = String(val(r,'Autobus') || r[3] || '').trim().toUpperCase();
     
     // Pomijaj wiersze bez loginu (nagłówki sekcji)
     if (!/^[A-Z0-9]+$/i.test(login)) continue;
@@ -45,6 +48,8 @@ function parsePracownicySheet(rows, sheetName) {
     
     out.push({
       login, firma, grupa, bus, shift, proces,
+      name: val(r,'Nazwisko i Imię','Imię Nazwisko','Nazwisko Imię'),
+      sex:val(r,'Płeć'), country:val(r,'K'), start:val(r,'Pierwszy dzień','Pierwszy dzień w pracy'),
       sourceSheet: sheetName
     });
   }
@@ -85,7 +90,23 @@ self.onmessage = function(e) {
       self.postMessage({ type: 'progress', stage: 'parse', percent: Math.floor(processed/total*100) });
     }
     
-    self.postMessage({ type: 'done', records: all });
+    const resignations=[];
+    const rsName=wb.SheetNames.find(name=>name.trim().toUpperCase()==='REZYGNACJE');
+    if(rsName){
+      const rsRows=XLSX.utils.sheet_to_json(wb.Sheets[rsName],{header:1,defval:''});
+      const normalize=v=>String(v??'').toLocaleLowerCase('pl').replace(/\\s+/g,'').trim();
+      const h=rsRows.findIndex(row=>row.some(c=>['pd','pdxxxxx'].includes(normalize(c)))&&row.some(c=>normalize(c).includes('nazwisko')));
+      if(h>=0){
+        const headings=rsRows[h].map(normalize);
+        const field=(row,...names)=>{for(const n of names){const j=headings.indexOf(normalize(n));if(j>=0)return row[j];}return '';};
+        for(const row of rsRows.slice(h+1)){
+          const id=String(field(row,'PD','PDXXXXX')||'').replace(/\\s+/g,'').toUpperCase();
+          if(!/^(PD\\d+|\\d+)$/.test(id))continue;
+          resignations.push({id,name:field(row,'Imię Nazwisko','Nazwisko i Imię','Nazwisko Imię'),sex:field(row,'Płeć'),country:field(row,'K','Kraj'),firma:field(row,'Firma','Agencja'),grupa:field(row,'GRUPA'),start:field(row,'Pierwszy dzień w pracy','Pierwszy dzień'),end:field(row,'Ostatni dzień w pracy','Ostatni dzień'),location:field(row,'Lokalizacja'),reason:field(row,'Przyczyna'),type:field(row,'Powód'),workedDays:field(row,'Przepracowany okres (dni)','Przepracowany okres','Przepracowane dni')});
+        }
+      }
+    }
+    self.postMessage({ type: 'done', records: all, resignations });
   } catch (err) {
     self.postMessage({ type: 'error', message: err.message });
   }
