@@ -82,8 +82,7 @@
       const qty=Number(r.qty)||0;
       let ok=false,reason='';
       if(metric==='bins'){
-        if(qty<=0)reason='zero';
-        else if(bins.has(r.shelf))reason='duplicate';
+        if(bins.has(r.shelf))reason='duplicate';
         else {bins.add(r.shelf);ok=true;reason='unique';computed++;}
       }else{
         if(!String(r.reason||'').trim())reason='empty';
@@ -135,7 +134,7 @@
           if(ok){seen.add(key);contribution=1;reason='firstUnique';}
           else reason=seen.has(key)?'duplicateValue':'notRelevant';
         }else if(title==='PRZEGRÓDKI PRZELICZONE'||title==='PRZEGRÓDKI NIE POPRAWNE'){
-          key=r.shelf;ok=(title==='PRZEGRÓDKI PRZELICZONE'?qty>0:exc==='YES')&&!seen.has(key);
+          key=r.shelf;ok=(title==='PRZEGRÓDKI PRZELICZONE'?true:exc==='YES')&&!seen.has(key);
           if(ok){seen.add(key);contribution=1;reason='firstUnique';}
           else reason=seen.has(key)?'duplicateValue':'notRelevant';
         }else if(title==='SZTUKI PRZELICZONE'){ok=true;contribution=qty;reason='counted';}
