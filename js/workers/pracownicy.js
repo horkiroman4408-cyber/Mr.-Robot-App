@@ -16,42 +16,39 @@ function collapseProces(grupa) {
   return grupa;
 }
 
+function grafikHeader(v) {
+  return String(v ?? '').toLocaleLowerCase('pl').normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+}
+function findGrafikHeader(rows) {
+  for (let i = 0; i < Math.min(35, rows.length); i++) {
+    const h = (rows[i] || []).map(grafikHeader);
+    const hasPD = h.some(x => ['pdxxxxx','pd','pd xxxxx','numer pd','pd pracownika','login','user login','user id'].includes(x));
+    const hasPerson = h.some(x => ['nazwisko i imie','imie nazwisko','nazwisko imie','imie i nazwisko','pracownik','employee name'].includes(x));
+    if (hasPD && hasPerson) return i;
+  }
+  return -1;
+}
 function parsePracownicySheet(rows, sheetName) {
   const out = [];
-  // Znajdź wiersz nagłówka (kolumna A === 'PDXXXXX')
-  let hIdx = -1;
-  for (let i = 0; i < Math.min(15, rows.length); i++) {
-    const a = String(rows[i][0] || '').trim().toUpperCase();
-    if (a === 'PDXXXXX') { hIdx = i; break; }
-  }
-  if (hIdx === -1) return out;
-  
-  const headers = rows[hIdx].map(v=>String(v??'').trim().toLocaleLowerCase('pl').replace(/\\s+/g,' '));
-  const column=(...names)=>{for(const n of names){const pos=headers.indexOf(n.toLocaleLowerCase('pl'));if(pos>=0)return pos;}return -1;};
-  const val=(r,...names)=>{const pos=column(...names);return pos>=0?r[pos]:'';};
-  for (let i = hIdx + 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.every(c => c === '' || c === null || c === undefined)) continue;
-    
-    const login = String(val(r,'PDXXXXX','PD') || r[0] || '').trim();
-    if (!login || login.toUpperCase() === 'PDXXXXX') continue;
-    
-    const firma = String(val(r,'Firma','Agencja') || r[1] || '').trim();
-    const grupa = String(val(r,'Grupa','Funkcja dodatkowa') || r[2] || '').trim();
-    const bus   = String(val(r,'Autobus') || r[3] || '').trim().toUpperCase();
-    
-    // Pomijaj wiersze bez loginu (nagłówki sekcji)
-    if (!/^[A-Z0-9]+$/i.test(login)) continue;
-    
-    const shift  = BUS_TO_SHIFT[bus] || null;
-    const proces = collapseProces(grupa);
-    
-    out.push({
-      login, firma, grupa, bus, shift, proces,
-      name: val(r,'Nazwisko i Imię','Imię Nazwisko','Nazwisko Imię'),
-      sex:val(r,'Płeć'), country:val(r,'K'), start:val(r,'Pierwszy dzień','Pierwszy dzień w pracy'),
-      sourceSheet: sheetName
-    });
+  const hIdx = findGrafikHeader(rows);
+  if (hIdx < 0) return out;
+  const headers = rows[hIdx].map(grafikHeader);
+  const column = (...names) => {for(const n of names){const pos=headers.indexOf(grafikHeader(n));if(pos>=0)return pos;}return -1;};
+  const val = (r,...names) => {const pos=column(...names);return pos>=0?(r[pos]??''):'';};
+  const extra = ['pl','lpp'].includes(grafikHeader(sheetName));
+  for (const r of rows.slice(hIdx + 1)) {
+    if (!r || !r.length) continue;
+    const login = String(val(r,'PDXXXXX','PD','PD XXXXX','Numer PD','PD pracownika','Login','USER LOGIN','USER ID')).replace(/\\s+/g,'').toUpperCase();
+    if (!/^(PD\\d+|\\d+)$/.test(login)) continue;
+    const firma = String(val(r,'Firma','Agencja','Agencja pracy') || '').trim();
+    const grupa = String(extra ? val(r,'FUNKCJA DODATKOWA','GRUPA','PROCES','DZIAŁ') : val(r,'GRUPA','FUNKCJA DODATKOWA','PROCES','DZIAŁ') || '').trim();
+    const bus = String(val(r,'Autobus','Bus') || '').trim().toUpperCase();
+    const shift = BUS_TO_SHIFT[bus] || (['AB','A/B'].includes(bus)?'AB':['CD','C/D'].includes(bus)?'CD':null);
+    out.push({login, firma, grupa, bus, shift, proces:collapseProces(grupa),
+      name:val(r,'Nazwisko i Imię','Imię Nazwisko','Nazwisko Imię','Imię i nazwisko','Pracownik','Employee name'),
+      sex:val(r,'Płeć','Plec'),country:val(r,'K','Kraj'),
+      start:val(r,'Pierwszy dzień','Pierwszy dzień w pracy','Data rozpoczęcia'), sourceSheet:sheetName});
   }
   return out;
 }
@@ -73,23 +70,19 @@ self.onmessage = function(e) {
     self.postMessage({ type: 'progress', stage: 'excel', percent: 50 });
     
     const all = [];
-    const total = SHEETS_TO_READ.length;
+    const graphSheets = wb.SheetNames.filter(n=>n.trim().toLocaleUpperCase('pl')!=='REZYGNACJE');
+    const total = graphSheets.length || 1;
     let processed = 0;
-    
-    for (const sheetName of SHEETS_TO_READ) {
-      if (!wb.SheetNames.includes(sheetName)) {
-        processed++;
-        self.postMessage({ type: 'progress', stage: 'parse', percent: Math.floor(processed/total*100) });
-        continue;
-      }
+    for (const sheetName of graphSheets) {
       const sheet = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-      const parsed = parsePracownicySheet(rows, sheetName);
-      all.push(...parsed);
+      all.push(...parsePracownicySheet(rows, sheetName));
       processed++;
       self.postMessage({ type: 'progress', stage: 'parse', percent: Math.floor(processed/total*100) });
     }
-    
+    // Never overwrite a valid cached Grafik with an unrecognized workbook.
+    if (!all.length) throw Error('Nie znaleziono pracowników. Sprawdź kolumny PD oraz Nazwisko i Imię w grafiku.');
+
     const resignations=[];
     const rsName=wb.SheetNames.find(name=>name.trim().toUpperCase()==='REZYGNACJE');
     if(rsName){
