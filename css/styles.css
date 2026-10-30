@@ -977,3 +977,19 @@ html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dia
 .employee-calendar-legend{display:flex;flex-wrap:wrap;gap:9px 15px;margin:18px 0}.employee-legend-item{display:flex;align-items:center;gap:6px}.employee-legend-item span{font-size:10px;font-weight:700;padding:5px 8px;border-radius:6px;background:rgba(148,163,184,.16)}.employee-legend-item small{font-size:10px;opacity:.75}.employee-legend-off{color:#2483d9}.employee-legend-leave{color:#d12a9e}.employee-legend-sick{color:#ba8700}.employee-legend-unexcused{color:#dd3b3b}.employee-legend-excused{color:#079e91}
 .employee-calendar-totals{border-top:1px solid var(--mr-control-border,rgba(130,145,165,.22));padding-top:14px}.employee-calendar-totals>b{font-size:12px}.employee-calendar-totals>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}.employee-calendar-totals span{border-radius:10px;border:1px solid var(--mr-control-border,rgba(130,145,165,.22));padding:9px 11px}.employee-calendar-totals span small{display:block;font-size:10px;opacity:.65}.employee-calendar-totals span strong{font-size:15px}.employee-calendar-unavailable{padding:24px 8px;opacity:.7;font-size:13px}
 @media(max-width:700px){.employee-calendar-section{margin:0 14px 20px}.employee-calendar-stats{grid-template-columns:repeat(3,minmax(0,1fr))}.employee-calendar-day{padding:4px;min-height:48px}.employee-calendar-day b{font-size:12px}.employee-calendar-totals>div{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* v3.9.9 hotfix: brand filter chips use the same explicit active state as the other KPI filters. */
+.grp-chip.active[data-brand="MOHITO"]{background:linear-gradient(135deg,#38bdf8,#0284c7);color:#fff;border-color:transparent}
+.grp-chip.active[data-brand="SINSAY"]{background:linear-gradient(135deg,#4ade80,#16a34a);color:#fff;border-color:transparent}
+.grp-chip[data-brand="MOHITO"] .dot{background:#0284c7}
+.grp-chip[data-brand="SINSAY"] .dot{background:#16a34a}
+.grp-chip.active[data-brand] .dot{background:#fff!important}
+.grp-chip.active[data-brand] .cnt{color:rgba(255,255,255,.88)}
+/* MOHITO is inferred from KPI login; not a claim that the employee is in Grafik. */
+.grp-badge.attr-brand-mohito{background:rgba(14,165,233,.13);color:#0369a1;border:1px solid rgba(14,165,233,.2);font-style:normal;text-transform:none}
+html[data-theme="dark"] .grp-badge.attr-brand-mohito,html[data-theme="graphite"] .grp-badge.attr-brand-mohito{background:rgba(56,189,248,.15);color:#7dd3fc;border-color:rgba(125,211,252,.22)}
+
+/* v3.9.9: brand identity is always shown independently of Grafik availability. */
+.grp-badge.attr-brand-sinsay{background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.24);font-style:normal;text-transform:none}
+html[data-theme="dark"] .grp-badge.attr-brand-sinsay,html[data-theme="graphite"] .grp-badge.attr-brand-sinsay{background:rgba(74,222,128,.12);color:#86efac;border-color:rgba(74,222,128,.24)}
