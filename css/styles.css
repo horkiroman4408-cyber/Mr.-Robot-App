@@ -932,12 +932,14 @@ html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dia
 .mp-kreseczki-shortcut:focus-visible{outline:2px solid var(--module-accent,#9333ea);outline-offset:3px}
 
 /* v3.9.6: MP hub subcard descriptions, local to the two MP cards */
-#app[data-active-module="mp"] .mp-card-intro { margin-bottom: 12px; line-height: 1.55; }
-#app[data-active-module="mp"] .mp-card-details { display: grid; gap: 10px; margin-bottom: 18px; }
-#app[data-active-module="mp"] .mp-card-detail { display: grid; grid-template-columns: 20px minmax(0,1fr); align-items: start; gap: 9px; font-size: 12px; line-height: 1.35; }
-#app[data-active-module="mp"] .mp-card-detail-ico { color: var(--module-accent,#a855f7); text-align: center; font-size: 16px; line-height: 18px; }
-#app[data-active-module="mp"] .mp-card-detail b { color: inherit; font-size: 12px; display: block; margin-bottom: 2px; }
-#app[data-active-module="mp"] .mp-card-detail-desc { display: block; color: var(--text-secondary, #64748b); font-size: 11.5px; line-height: 1.45; }
+/* MP cards: same information hierarchy as RS AUDYT GEEK; scope only to MP hub cards. */
+#app[data-active-module="mp"] .mp-card-intro{margin-bottom:15px;line-height:1.65}
+#app[data-active-module="mp"] .mp-card-details{display:grid;gap:.72rem;margin:.2rem 0 1rem}
+#app[data-active-module="mp"] .mp-card-detail{display:flex;align-items:flex-start;gap:.62rem;min-width:0}
+#app[data-active-module="mp"] .mp-card-detail-ico{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;min-width:1.5rem;height:1.5rem;font-size:.95rem;color:var(--module-accent,#a855f7)}
+#app[data-active-module="mp"] .mp-card-detail>span:last-child{display:grid;gap:.14rem;min-width:0}
+#app[data-active-module="mp"] .mp-card-detail b{display:block;font-size:.76rem;font-weight:750;color:var(--module-accent,#9333ea)}
+#app[data-active-module="mp"] .mp-card-detail-desc{display:block;font-size:.73rem;line-height:1.5;color:var(--mr-c23,#475569)}
 
 /* v3.9.6: Local RS AUDYT GEEK card refinement; other modules untouched. */
 #app[data-active-module="rs"] .rs-geek-features{display:grid;gap:.72rem;margin:.2rem 0 1rem}
