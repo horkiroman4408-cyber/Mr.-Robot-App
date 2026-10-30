@@ -462,7 +462,7 @@ function pracownicyReset() {
 }
 // 💾 Zapamiętanie grafiku w przeglądarce (localStorage)
 const PRACOWNICY_STORE_KEY = 'mrrobot_pracownicy_v1';
-const PRACOWNICY_FIELDS = ['login','firma','grupa','bus','shift','proces','sourceSheet','name','sex','country','start'];
+const PRACOWNICY_FIELDS = ['login','firma','grupa','bus','shift','proces','sourceSheet','name','sex','country','start','calendar','calendarTotals'];
 function pracownicyFmtDate(iso) {
   try { const d = new Date(iso); const p = n => String(n).padStart(2,'0');
     return `${p(d.getDate())}.${p(d.getMonth()+1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; } catch (e) { return ''; }
@@ -541,6 +541,26 @@ const employeeProfileFields=computed(()=>{const s=employeeSelected.value;if(!s)r
 ['PD',s.id],[eMsg('Status','Статус','Status','Статус'),s.active?eMsg('W grafiku','В графике','Active roster','У графіку'):eMsg('Poza grafikiem','Не в графике','Not on roster','Поза графіком')]
 ];});
 function employeeOpen(id){employeeProfile.value=eKey(id);employeeProfileTab.value='overview';employeeFilter.value='';if(!employeeSelected.value)showToast(eMsg('Brak danych dla '+id,'Нет данных для '+id,'No data for '+id,'Немає даних для '+id));}
+// Grafik pracownika: kod źródłowy pozostaje widoczny; 1L4 i L4 są wspólnie liczone.
+const employeeCalendarMonth=computed(()=>{const d=new Date();return {year:d.getFullYear(),month:d.getMonth(),days:new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),label:new Intl.DateTimeFormat(({pl:'pl-PL',ru:'ru-RU',en:'en-GB',uk:'uk-UA'}[uiLanguage.value]||'pl-PL'),{month:'long',year:'numeric'}).format(d)};});
+const employeeSchedule=computed(()=>{
+ const p=employeeSelected.value?.active?employeeSelected.value.p:null;
+ if(!p||!Array.isArray(p.calendar)||!p.calendar.length)return null;
+ const m=employeeCalendarMonth.value;
+ const days=Array.from({length:m.days},(_,i)=>{const raw=String(p.calendar[i]??'').trim();const code=raw.toUpperCase().replace(/\s+/g,'');
+ const category=code==='W'?'off':code==='U'?'leave':code==='L4'||code==='1L4'?'sick':code==='NN'?'unexcused':code==='NUN'?'excused':!code?'empty':/^(?:I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII)$/.test(code)?'shift':'other';
+ return {day:i+1,raw,category};});
+ const count={shift:0,off:0,leave:0,sick:0,unexcused:0,excused:0,other:0};for(const day of days)if(Object.prototype.hasOwnProperty.call(count,day.category))count[day.category]++;
+ const offset=(new Date(m.year,m.month,1).getDay()+6)%7;
+ return {days,count,offset,totals:Array.isArray(p.calendarTotals)?p.calendarTotals:[],...m};
+});
+const employeeCalendarLegend=computed(()=>[
+ {code:'I–XII',label:eMsg('Zmiany robocze','Рабочие смены','Work shifts','Робочі зміни'),kind:'shift'},
+ {code:'W',label:eMsg('Wolne','Выходной','Day off','Вихідний'),kind:'off'},
+ {code:'U',label:eMsg('Urlop','Отпуск','Leave','Відпустка'),kind:'leave'},
+ {code:'L4 / 1L4',label:eMsg('Zwolnienie lekarskie','Больничный','Sick leave','Лікарняний'),kind:'sick'},
+ {code:'NUN',label:eMsg('Nieobecność usprawiedliwiona','Подтверждённое отсутствие','Excused absence','Підтверджена відсутність'),kind:'excused'},
+ {code:'NN',label:eMsg('Nieobecność nieusprawiedliwiona','Отсутствие без причины','Unexcused absence','Відсутність без причини'),kind:'unexcused'}]);
 function employeeClose(){employeeProfile.value='';}
 function employeeParseTraining(data){
  const wb=XLSX.read(new Uint8Array(data),{type:'array',dense:true,cellFormula:false});const all=[],seen=new Map(),archived=new Set(),current=[];
@@ -1458,6 +1478,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr};
 }}).mount('#app');
 

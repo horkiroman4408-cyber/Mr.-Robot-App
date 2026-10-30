@@ -37,6 +37,8 @@ function parsePracownicySheet(rows, sheetName) {
   const column = (...names) => {for(const n of names){const pos=headers.indexOf(grafikHeader(n));if(pos>=0)return pos;}return -1;};
   const val = (r,...names) => {const pos=column(...names);return pos>=0?(r[pos]??''):'';};
   const extra = ['pl','lpp'].includes(grafikHeader(sheetName));
+  // Grafik: M=1. dzień, AQ=31. dzień. AR:AY = podsumowanie z Excela.
+  const totalNames = (rows[hIdx] || []).slice(43,51).map(v => String(v ?? '').trim());
   for (const r of rows.slice(hIdx + 1)) {
     if (!r || !r.length) continue;
     const login = String(val(r,'PDXXXXX','PD','PD XXXXX','Numer PD','PD pracownika','Login','USER LOGIN','USER ID')).replace(/\\s+/g,'').toUpperCase();
@@ -48,7 +50,9 @@ function parsePracownicySheet(rows, sheetName) {
     out.push({login, firma, grupa, bus, shift, proces:collapseProces(grupa),
       name:val(r,'Nazwisko i Imię','Imię Nazwisko','Nazwisko Imię','Imię i nazwisko','Pracownik','Employee name'),
       sex:val(r,'Płeć','Plec'),country:val(r,'K','Kraj'),
-      start:val(r,'Pierwszy dzień','Pierwszy dzień w pracy','Data rozpoczęcia'), sourceSheet:sheetName});
+      start:val(r,'Pierwszy dzień','Pierwszy dzień w pracy','Data rozpoczęcia'), sourceSheet:sheetName,
+      calendar:r.slice(12,43).map(v=>String(v??'').trim()),
+      calendarTotals:r.slice(43,51).map((v,i)=>({label:totalNames[i]||['I zmiana','II zmiana','W','UW','L4','NN','X','SUMA'][i],value:v??''}))});
   }
   return out;
 }
