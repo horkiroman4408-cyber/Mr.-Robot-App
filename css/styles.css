@@ -917,3 +917,11 @@ html[data-theme="light"] .employee-dialog-head,html:not([data-theme]) .employee-
 html[data-theme="dark"] .employee-dialog,html[data-theme="dark"] .employee-dialog-head{background:#192333!important}
 html[data-theme="graphite"] .employee-dialog,html[data-theme="graphite"] .employee-dialog-head{background:#242a32!important}
 html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dialog-head{background:#fffaf2!important}
+
+/* 3.9.3: KPI / Pracownicy compact training source, shared roster upload remains above. */
+.employee-page .employee-training-upload{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:14px 16px;border-radius:14px;background:var(--mr-control-bg,rgba(255,255,255,.5));border:1px solid var(--mr-control-border,#dfe5eb)}
+.employee-page .employee-training-upload>div{min-width:0}.employee-page .employee-training-upload>div>div{font-size:12px;overflow-wrap:anywhere}.employee-page .employee-training-upload .grafik-btn{justify-self:end;white-space:nowrap}
+@media(max-width:540px){.employee-page .employee-training-upload{grid-template-columns:minmax(0,1fr) auto}.employee-page .employee-training-upload>div{grid-column:1/-1}.employee-page .employee-training-upload .grafik-btn{justify-self:start}}
+
+/* v3.9.4: STOCK closed-by PD uses the existing employee profile. */
+.stock-pd-link{font:inherit;font-weight:700;color:var(--module-accent,#9333ea);background:transparent;border:0;padding:2px 3px;border-radius:5px;cursor:pointer;text-align:left}.stock-pd-link:hover{text-decoration:underline;background:var(--module-soft,rgba(147,51,234,.08))}.stock-pd-link:focus-visible{outline:2px solid var(--module-accent,#9333ea);outline-offset:2px}.stock-pd-link span{font-size:.8em;opacity:.75}

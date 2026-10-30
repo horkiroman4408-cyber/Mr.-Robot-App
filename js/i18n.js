@@ -40,6 +40,11 @@
  payload.table["Dodatkowe narzędzia do codziennych zadań magazynowych: analiza przestojów pracowników, pliki ARTLTT oraz generator kodów kreskowych Code 128 z bezpośrednim drukowaniem."]=["Дополнительные инструменты склада: анализ простоев, файлы ARTLTT и генератор штрихкодов Code 128 с прямой печатью.", "Additional warehouse tools: employee downtime analysis, ARTLTT files and a Code 128 barcode generator with direct printing.", "Додаткові складські інструменти: аналіз простоїв, файли ARTLTT і генератор штрихкодів Code 128 із прямим друком."];
  payload.keys[785]="Kreseczki: generuj lokalnie kody Code 128, sprawdzaj podgląd i drukuj bezpośrednio z aplikacji.";
  payload.table["Kreseczki: generuj lokalnie kody Code 128, sprawdzaj podgląd i drukuj bezpośrednio z aplikacji."]=["Kreseczki: создавай Code 128 локально, проверяй предпросмотр и печатай прямо из приложения.", "Kreseczki: generate Code 128 barcodes locally, preview and print them directly in the app.", "Kreseczki: створюй Code 128 локально, переглядай і друкуй безпосередньо в застосунку."];
+
+ // Hub: one distinct explanation per RS feature; localizations for all four UI languages.
+ payload.keys[772]="Tryb AUDYT RET: sprawdzaj niedobory, nadwyżki, pomieszane artykuły i błędy w przegródkach.";
+ payload.table[payload.keys[772]]=["Режим AUDYT RET: проверяй недостачи, излишки, смешанные товары и ошибки в ячейках.","AUDYT RET mode: review shortages, overages, mixed items and bin errors.","Режим AUDYT RET: перевіряй нестачі, надлишки, змішані товари та помилки в комірках."];
+ payload.table['Pracownicy']=['Сотрудники','Employees','Працівники'];
  const table=payload.table;
  const localeIndex=()=>language==='ru'?0:language==='en'?1:2;
  const listeners=new Set();
