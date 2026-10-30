@@ -957,3 +957,10 @@ html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dia
 #app[data-active-module="mp"] .mp-rs-feature strong{display:block;font-size:.81rem;line-height:1.4;font-weight:750;color:var(--module-accent,#9333ea)}
 #app[data-active-module="mp"] .mp-rs-feature>div>span{display:block;font-size:.77rem;line-height:1.6;color:var(--mr-c23,#475569)}
 #app[data-active-module="mp"] .mp-card-intro{margin-bottom:.3rem}
+
+/* v3.9.6: Training register shares the existing employee-roster upload bar style. */
+.employee-page .employee-training-bar{min-height:56px;gap:.75rem}
+.employee-page .employee-training-bar .grafik-ico{background:linear-gradient(135deg,#5ac8fa,#0a84ff)}
+.employee-page .employee-training-bar .grafik-ico.ok{background:linear-gradient(135deg,#4ade80,#30d158)}
+.employee-page .employee-training-bar .grafik-btn{flex-shrink:0}
+@media(max-width:480px){.employee-page .employee-training-bar{flex-wrap:wrap}.employee-page .employee-training-bar .min-w-0{flex-basis:calc(100% - 46px)}}
