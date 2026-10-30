@@ -522,6 +522,7 @@ const employeeRoster=computed(()=>{
 });
 const employeeMatches=computed(()=>{const q=eNorm(employeeSearch.value);return employeeRoster.value.filter(p=>!q||p.search.includes(q)).slice(0,120);});
 const employeeTrainerByPd=computed(()=>{const index=new Map();for(const row of employeeTraining.rows){const id=eKey(row.trainer);if(id&&!index.has(id))index.set(id,row);}return index;});
+function employeeTrainerName(row){const id=eKey(row?.trainer);if(!id)return '';const person=pracownicy.byLogin.get(id);const archived=employeeResignationsByPd.value.get(id)?.[0];const training=employeeTrainingByPd.value.get(id)?.[0];const found=person?.name||archived?.name||row?.trainerName||training?.name||employeeTrainerByPd.value.get(id)?.trainerName||'';return String(found).trim();}
 const employeeSelected=computed(()=>{
   const id=eKey(employeeProfile.value);const p=pracownicy.byLogin.get(id);
   const resignations=employeeResignationsByPd.value.get(id)||[];

@@ -897,3 +897,23 @@ html:is([data-theme="ivory"],[data-theme="dark"],[data-theme="graphite"]) #app[d
 .employee-dialog>.employee-fields{gap:10px;padding:4px 0 15px;grid-template-columns:repeat(auto-fit,minmax(185px,1fr))}.employee-dialog>.employee-fields>div{border:1px solid var(--mr-control-border,rgba(115,135,160,.2));border-radius:13px;padding:13px 15px;min-width:0}.employee-dialog>.employee-fields b{font-size:13px}.employee-dialog>.employee-fields small{font-size:11px}
 .employee-dialog>.employee-metrics{gap:12px;margin-top:9px;margin-bottom:20px}.employee-dialog>.employee-metrics>div{border-radius:15px;padding:17px;background:color-mix(in srgb,var(--module-accent,#0a84ff) 5%,var(--mr-control-bg,#fff))}.employee-dialog>.employee-metrics b{font-size:24px;line-height:1.2}.employee-dialog>.employee-input{width:calc(100% - 52px);margin-bottom:14px}.employee-dialog>.overflow-auto{margin-bottom:26px;border:1px solid var(--mr-control-border,rgba(115,135,160,.2));border-radius:15px;max-height:380px}.employee-dialog .employee-table{font-size:12px}.employee-dialog .employee-table th{font-size:11px;text-transform:uppercase;letter-spacing:.045em;padding:14px 12px}.employee-dialog .employee-table td{padding:12px}.employee-dialog>.employee-notice{margin-top:17px}
 @media(max-width:640px){.employee-page>.glass{padding:16px!important;border-radius:17px!important}.employee-dialog{max-height:95vh;border-radius:18px}.employee-dialog-head{padding:15px}.employee-avatar{width:42px;height:42px}.employee-dialog-identity h2{font-size:18px}.employee-dialog>.employee-notice,.employee-dialog>.employee-tabs,.employee-dialog>.employee-fields,.employee-dialog>.employee-metrics,.employee-dialog>.employee-input,.employee-dialog>.overflow-auto{margin-left:15px;margin-right:15px}.employee-dialog>.employee-input{width:calc(100% - 30px)}.employee-dialog>.employee-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.employee-dialog>.employee-metrics>div{padding:12px 9px}.employee-dialog>.employee-metrics b{font-size:17px}.employee-page .employee-person small{display:none}}
+
+/* v3.9.1: Compact employee directory and opaque profile modal header (scoped). */
+.employee-page .employee-search-panel{padding:18px 20px!important;box-shadow:0 5px 22px rgba(14,32,54,.035)}
+.employee-search-panel h3{font-size:14px;letter-spacing:0;margin-bottom:1px}
+.employee-search-panel .employee-input{min-height:40px;padding:8px 12px;font-size:13px}
+.employee-search-panel .employee-list{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;max-height:232px;padding:1px}
+.employee-search-panel .employee-person{padding:9px 12px;border-radius:10px;gap:9px;font-size:12px;min-height:38px}
+.employee-search-panel .employee-person b{font-size:11px}.employee-search-panel .employee-person small{font-size:9px}
+.employee-trainer-name{display:block;font-size:10px;line-height:1.45;opacity:.7;margin-top:3px;overflow-wrap:anywhere}
+.employee-overlay{isolation:isolate;background:rgba(7,17,31,.84);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.employee-dialog{isolation:isolate;background:var(--mr-control-bg,#fff);overflow:auto}
+.employee-dialog-head{background:var(--mr-control-bg,#fff)!important;isolation:isolate;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+@media(max-width:640px){.employee-page .employee-search-panel{padding:14px!important}.employee-search-panel .employee-list{grid-template-columns:1fr;max-height:220px}}
+
+/* v3.9.1: opaque modal surface for every supported theme. */
+html[data-theme="light"] .employee-dialog,html:not([data-theme]) .employee-dialog{background:#ffffff}
+html[data-theme="light"] .employee-dialog-head,html:not([data-theme]) .employee-dialog-head{background:#ffffff!important}
+html[data-theme="dark"] .employee-dialog,html[data-theme="dark"] .employee-dialog-head{background:#192333!important}
+html[data-theme="graphite"] .employee-dialog,html[data-theme="graphite"] .employee-dialog-head{background:#242a32!important}
+html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dialog-head{background:#fffaf2!important}
