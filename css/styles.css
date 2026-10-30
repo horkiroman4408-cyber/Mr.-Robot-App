@@ -948,3 +948,12 @@ html[data-theme="ivory"] .employee-dialog,html[data-theme="ivory"] .employee-dia
 #app[data-active-module="rs"] .rs-geek-feature>div{display:grid;gap:.14rem;min-width:0}
 #app[data-active-module="rs"] .rs-geek-feature strong{font-size:.76rem;font-weight:750;color:var(--module-accent,#15803d)}
 #app[data-active-module="rs"] .rs-geek-feature span:not(.rs-geek-feature-icon){font-size:.73rem;line-height:1.5;color:var(--mr-c23,#475569)}
+
+/* v3.9.6: MP hub uses the same feature layout as RS AUDYT GEEK. Scoped only to these two cards. */
+#app[data-active-module="mp"] .mp-rs-features{display:grid;gap:1rem;margin:1.1rem 0 1.6rem}
+#app[data-active-module="mp"] .mp-rs-feature{display:flex;align-items:flex-start;gap:.7rem;min-width:0}
+#app[data-active-module="mp"] .mp-rs-feature-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 1.55rem;width:1.55rem;height:1.55rem;font-size:1rem;line-height:1.2}
+#app[data-active-module="mp"] .mp-rs-feature>div{display:grid;gap:.2rem;min-width:0}
+#app[data-active-module="mp"] .mp-rs-feature strong{display:block;font-size:.81rem;line-height:1.4;font-weight:750;color:var(--module-accent,#9333ea)}
+#app[data-active-module="mp"] .mp-rs-feature>div>span{display:block;font-size:.77rem;line-height:1.6;color:var(--mr-c23,#475569)}
+#app[data-active-module="mp"] .mp-card-intro{margin-bottom:.3rem}
