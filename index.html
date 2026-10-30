@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.2</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -96,7 +96,7 @@
 <div class="app-card float-up" data-app="kpi" style="--accent-soft:rgba(10,132,255,.14);animation-delay:.2s" @click="view = 'kpi'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#5ac8fa] via-[#0a84ff] to-[#0066cc]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" rx="1" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" rx="1" fill="#fff" stroke="none"/></svg></div><div class="flex-1 min-w-0"><div class="app-title gradient-text">KPI Norms</div><div class="app-sub">{{ tr(759) }}</div></div></div>
 <p class="app-desc">{{ tr(760) }}</p>
-<div class="tag-row"><span class="tag">{{ tr(38) }}</span><span class="tag">{{ tr(39) }}</span><span class="tag">{{ tr(40) }}</span><span class="tag">NADWE/VAS</span><span class="tag">{{ tr(48) }}</span></div>
+<div class="tag-row"><span class="tag">{{ tr(38) }}</span><span class="tag">{{ tr(39) }}</span><span class="tag">{{ tr(40) }}</span><span class="tag">NADWE/VAS</span><span class="tag">{{ tr(48) }}</span><span class="tag">{{ tr('Pracownicy') }}</span></div>
 <div class="feature-list"><div class="feature-item"><span class="ico">📥</span><span>{{ tr(761) }}</span></div><div class="feature-item"><span class="ico">👥</span><span>{{ tr(762) }}</span></div><div class="feature-item"><span class="ico">🔎</span><span>{{ tr(763) }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ tr(764) }}</span></div><div class="feature-item"><span class="ico">📤</span><span>{{ tr(765) }}</span></div></div>
 <button class="launch-btn" style="background:linear-gradient(180deg,#4aa3ff 0%,#0a84ff 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(10,132,255,.35);">{{ tr(58) }} <span class="arrow">→</span></button>
 </div>
@@ -1390,10 +1390,7 @@
 <div class="flex items-center gap-2"><div class="top-block-title" style="color:var(--mr-c20,#b45309);display:flex;align-items:center;gap:.4rem;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg> Kreseczki</div><span class="grafik-chip ok" style="font-size:.6rem;padding:.15rem .5rem;">{{ tr(589) }}</span></div>
 <div class="text-xs text-slate-600 leading-relaxed">{{ tr('Generuj kody kreskowe Code 128 i drukuj je bezpośrednio z aplikacji.') }}</div>
 </div>
-<div class="top-block" style="border-color:var(--mr-c169,rgba(245,158,11,.35));background:var(--mr-c170,rgba(245,158,11,.04));">
-<div class="top-block-title" style="color:var(--mr-c20,#b45309);">📊 TH Reports</div>
-<div class="text-xs text-slate-600 leading-relaxed">{{ tr(594) }}</div>
-</div>
+
 <div class="top-block" style="border-color:var(--mr-c169,rgba(245,158,11,.35));background:var(--mr-c170,rgba(245,158,11,.04));">
 <div class="top-block-title" style="color:var(--mr-c20,#b45309);">{{ tr(595) }}</div>
 <div class="text-xs text-slate-600 leading-relaxed">{{ tr(596) }}</div>
@@ -1592,7 +1589,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.9.1">v3.9.1</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.9.2">v3.9.2</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1648,7 +1645,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.1</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.2</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

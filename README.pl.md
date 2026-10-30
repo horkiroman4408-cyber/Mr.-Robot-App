@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.9.1-blue)
+![wersja](https://img.shields.io/badge/version-3.9.2-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -174,7 +174,6 @@ Porównuje dwie duże bazy w pamięci.
 - **Analiza_Przestojów** — analiza przestojów według USER ID, od 8 do 300 minut.
 - **ARTLTT** — wklej nazwy produktów i wygeneruj pliki LTT w formacie CSV.
 - **Kreseczki** — generuj kody kreskowe **Code 128** z tekstu lub cyfr, zobacz podgląd i użyj **Drukuj** lub **Wyczyść**. Generator działa lokalnie i offline. W aktualnym interfejsie nie ma przycisków pobierania PNG/SVG.
-- **TH Reports** — osobne narzędzie raportowe nadal w trakcie rozwoju, niewymieniane wśród trzech aktywnych modułów.
 
 Karta Hub wyróżnia **Przestoje · ARTLTT · Kreseczki**, a ekran Inne oznacza te trzy narzędzia jako aktywne. Generator jest integralną częścią aplikacji.
 
@@ -299,7 +298,6 @@ Jeśli budujesz coś podobnego — otwórz issue i się przywitaj. Wolę wymieni
 - [x] Modularny kod (workery per moduł, osobny changelog)
 
 **Zaplanowane lub rozważane:**
-- [ ] Moduł TH Reports (w trakcie)
 - [ ] Eksport do PDF
 - [ ] Przetwarzanie wsadowe wielu plików
 - [ ] Wzory i filtry definiowane przez użytkownika

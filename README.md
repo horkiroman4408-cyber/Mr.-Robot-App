@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.9.1-blue)
+![version](https://img.shields.io/badge/version-3.9.2-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -174,7 +174,6 @@ Compares two large databases in memory.
 - **Analiza_Przestojów** — downtime analysis per USER ID, 8–300 minutes.
 - **ARTLTT** — paste product names and generate LTT CSV files.
 - **Kreseczki** — generate **Code 128** barcodes from entered text or numbers, preview the result, then **Drukuj** (print) or **Wyczyść** (clear). Generation runs locally and works offline. The current interface deliberately does **not** include PNG/SVG download buttons.
-- **TH Reports** — a separate reporting tool still in development, not presented as one of the three active tools.
 
 The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists all three as active. Its barcode generator is part of the same visual interface, not an external website.
 
@@ -299,7 +298,6 @@ If you're working on something similar, open an issue and say hi. I'd rather com
 - [x] Modular codebase (per-module workers, separate changelog)
 
 **Planned or under consideration:**
-- [ ] TH Reports module (in progress)
 - [ ] PDF export
 - [ ] Batch processing of multiple files
 - [ ] User-defined formulas and filters
