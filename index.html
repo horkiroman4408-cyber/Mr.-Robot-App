@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.4</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.5</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -933,6 +933,7 @@
 <button class="segment-btn" :class="{active:audytTab==='formatka_59'}" @click="audytTab='formatka_59'"><span>FORMATKA_59</span></button>
 <button class="segment-btn" :class="{active:audytTab==='godziny_mdt'}" @click="audytTab='godziny_mdt'"><span>GODZINY_MDT</span></button>
 <button class="segment-btn" :class="{active:audytTab==='stock'}" @click="audytTab='stock'"><span>STOCK</span></button>
+<button v-if="audytTab==='godziny_mdt' || audytTab==='stock'" type="button" class="mp-kreseczki-shortcut" @click="view='kreseczki'" :title="eMsg('Otwórz Kreseczki','Открыть Kreseczki','Open Kreseczki','Відкрити Kreseczki')" :aria-label="eMsg('Otwórz Kreseczki','Открыть Kreseczki','Open Kreseczki','Відкрити Kreseczki')">▥ Kreseczki <span aria-hidden="true">↗</span></button>
 </div>
 </div></header>
 <main class="flex-1 px-6 pb-8 max-w-6xl w-full mx-auto space-y-6">
@@ -1556,7 +1557,7 @@
 </tr></thead>
 <tbody>
 <tr v-for="(p,idx) in grp.items" :key="grp.date+'-'+idx" class="przestoj-row">
-<td class="py-2.5 px-4 font-mono text-slate-800 font-semibold text-[13px]">{{ p.userId }}</td>
+<td class="py-2.5 px-4 font-mono text-slate-800 font-semibold text-[13px]"><button v-if="p.userId && /^(?:PD)?\d+$/i.test(String(p.userId).trim())" type="button" class="stock-pd-link" @click.stop="employeeOpen(p.userId)" :title="eMsg('Otwórz profil pracownika','Открыть карточку сотрудника','Open employee profile','Відкрити картку працівника')">{{ p.userId }} <span aria-hidden="true">↗</span></button><span v-else>{{ p.userId }}</span></td>
 <td class="py-2.5 px-4 font-mono text-slate-600 text-[13px]">{{ fmtDateTime(p.od) }}</td>
 <td class="py-2.5 px-4 font-mono text-slate-600 text-[13px]">{{ fmtDateTime(p.do) }}</td>
 <td class="py-2.5 px-4"><span class="przestoj-badge" :style="przestojColor(p.diffMin)">{{ fmtPrzestoj(p.diffMin) }}</span></td>
@@ -1584,7 +1585,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.9.4">v3.9.4</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.9.5">v3.9.5</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1640,7 +1641,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.4</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.5</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
