@@ -692,6 +692,11 @@ function konsolidacjaSelAll(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;
 async function konsolidacjaCopyCard(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;const lines=[];for(let i=0;i<e.small.length;i++){if(arr[i])lines.push(e.small[i].loc);}if(!lines.length){showToast('Zaznacz przynajmniej jedną lokalizację');return;}await konsolidacjaCopyText(lines.join('\n'),`Skopiowano ${lines.length} lokalizacji (${e.ean})`);}
 
 const audytTab=ref('al_audyt');
+// Remember the MP sub-tab when opening Kreseczki from its shortcut.
+const kreseczkiReturnTab=ref('');
+function openKreseczkiFromMp(){kreseczkiReturnTab.value=audytTab.value;view.value='kreseczki';}
+function closeKreseczki(){if(kreseczkiReturnTab.value){audytTab.value=kreseczkiReturnTab.value;mpView.value='audyt';view.value='mp';kreseczkiReturnTab.value='';}else{view.value=mobileLite?'hub':'inne';}}
+
 const audyt=reactive({rows:[],formatkaRows:[],fileName:'',drag:false,loading:false,progress:{percent:0,label:''},savedAt:'',result:null});
 const formatka59=reactive({result:null});
 Object.defineProperty(audyt,'loaded',{get(){return this.rows.length>0;}});
@@ -1446,7 +1451,7 @@ toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
 toteRunSearch,toteExportExcel,toteToggleAll,toteAllChecked,
 toteManualText,toteManualResults,toteManualMissing,toteManualFiltered,toteManualSearched,toteManualStats,totePickStrategy,toteManualToteType,toteManualMultiTote,
 toteManualEanCount,toteCanManualSearch,toteRunManualSearch,toteExportManualExcel,toteCopyManualToClipboard,
-audytTab,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
+audytTab,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
 formatka59,formatka59RunAnalysis,formatka59CopyToClipboard,
 mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,
 mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSelected11,mdtCopySelectedLoc,mdtCopyKpiValues,mdtNum,
