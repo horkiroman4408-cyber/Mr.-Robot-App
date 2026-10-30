@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.6</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.7</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -1188,7 +1188,7 @@
 </div>
 <div v-if="stock.loaded" class="glass-strong p-6 space-y-5 float-up">
 <div class="flex items-center gap-2.5 flex-wrap"><span class="w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc] to-[#9333ea] text-white text-xs font-bold flex items-center justify-center">2</span><h2 class="text-lg font-semibold tracking-tight">{{ tr(500) }}</h2><span class="text-[10px] text-slate-400 font-medium ml-auto">{{ tr(501) }} <b class="text-[#9333ea]">{{ stock.rows.length.toLocaleString('pl-PL') }}</b> {{ tr(502) }} <b class="text-[#0a84ff]">{{ stockStats.filtered.toLocaleString('pl-PL') }}</b></span></div>
-<div class="scalanie-desc">{{ tr(503) }} <b>MP1</b> {{ tr(505) }} <b>PKECOM</b> {{ tr(507) }} <b>S</b> {{ tr(509) }}</div>
+<div class="scalanie-desc">{{ tr(503) }} <b>MP1 / MP3</b> {{ tr(505) }} <b>PKECOM</b> {{ tr(507) }} <b>S</b> {{ tr(509) }}</div>
 <div v-if="stockPeriodsGrouped.length===0" class="empty-state"><div class="empty-icon">🕐</div><div class="empty-title">{{ tr(510) }}</div><div class="empty-desc">{{ tr(511) }}</div></div>
 <div v-for="grp in stockPeriodsGrouped" :key="grp.date" class="scalanie-section space-y-2">
 <div class="grp-label">📅 {{ grp.date }}</div>
@@ -1607,7 +1607,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.9.6">v3.9.6</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.9.7">v3.9.7</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1663,7 +1663,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.6</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.7</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

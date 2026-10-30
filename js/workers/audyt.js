@@ -21,7 +21,7 @@ const locRaw=String(val(r,cLocation)).trim();
 const itemRaw=String(val(r,cItemNo)).trim();
 const incidentRaw=String(val(r,cIncident)).trim();
 const infoRaw=String(val(r,cInfo)).trim();
-if(locRaw.substring(0,3)==='MP1'){continue;}
+if(['MP1','MP3'].some(prefix=>locRaw.toUpperCase().startsWith(prefix))){continue;}
 if(itemRaw==='-'){continue;}
 out.push({location:locRaw,incident:incidentRaw,info:infoRaw});
 const pct=Math.floor((i-hIdx)/total*100);
