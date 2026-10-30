@@ -552,7 +552,7 @@ const employeeSchedule=computed(()=>{
  return {day:i+1,raw,category};});
  const count={shift:0,off:0,leave:0,sick:0,unexcused:0,excused:0,other:0};for(const day of days)if(Object.prototype.hasOwnProperty.call(count,day.category))count[day.category]++;
  const offset=(new Date(m.year,m.month,1).getDay()+6)%7;
- return {days,count,offset,totals:Array.isArray(p.calendarTotals)?p.calendarTotals:[],...m};
+ return {...m,days,count,offset,totals:Array.isArray(p.calendarTotals)?p.calendarTotals:[]};
 });
 const employeeCalendarLegend=computed(()=>[
  {code:'I–XII',label:eMsg('Zmiany robocze','Рабочие смены','Work shifts','Робочі зміни'),kind:'shift'},
