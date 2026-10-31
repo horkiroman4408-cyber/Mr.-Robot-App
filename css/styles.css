@@ -1053,3 +1053,14 @@ html[data-theme="ivory"] .mp-audit-brand-hint,html[data-theme="ivory"] .mp-locat
 html[data-theme="ivory"] .mp-audit-brand-options button:not(.active){color:#725b82}
 html[data-theme="ivory"] .mp-location-filter-chip:not(.active){color:#8052b6;background:rgba(147,51,234,.055)}
 @media(max-width:620px){.mp-audit-brand-switch{gap:9px}.mp-audit-brand-hint{flex-basis:100%}}
+
+/* v3.10.1 MOHITO location family selection, scoped to MP audit only */
+.mp-audit-mohito-types{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.mp-audit-mohito-label{font-size:11px;font-weight:650;color:var(--module-accent,#9333ea)}
+.mp-audit-mohito-types button{border:1px solid rgba(147,51,234,.35);background:rgba(147,51,234,.06);color:var(--module-accent,#7e22ce);border-radius:999px;padding:6px 12px;font-size:12px;font-weight:750;cursor:pointer;transition:background .16s ease,border-color .16s ease}
+.mp-audit-mohito-types button.active{background:linear-gradient(135deg,#a855f7,#7e22ce);color:#fff;border-color:transparent;box-shadow:0 2px 8px rgba(147,51,234,.18)}
+.mp-audit-mohito-types button:not(.active):hover{background:rgba(147,51,234,.15)}
+.mp-audit-mohito-types button:focus-visible{outline:2px solid #a855f7;outline-offset:2px}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-label,html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-types button:not(.active){color:#dec3ff}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-types button:not(.active){background:rgba(147,51,234,.15);border-color:rgba(200,164,250,.36)}
+html[data-theme="ivory"] .mp-audit-mohito-label,html[data-theme="ivory"] .mp-audit-mohito-types button:not(.active){color:#70409b}

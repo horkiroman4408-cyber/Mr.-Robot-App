@@ -961,7 +961,12 @@
   <button type="button" :class="{active:mpAuditBrand==='mohito'}" :aria-pressed="mpAuditBrand==='mohito'" @click="mpAuditBrand='mohito'">MOHITO</button>
  </div>
  <span class="mp-audit-brand-hint" v-if="audytTab==='formatka_59'">{{ eMsg('FORMATKA_59: tylko MP2, niezależnie od marki','FORMATKA_59: только MP2, независимо от бренда','FORMATKA_59: MP2 only, regardless of brand','FORMATKA_59: лише MP2, незалежно від бренду') }}</span>
- <span class="mp-audit-brand-hint" v-else>{{ mpAuditBrand==='sinsay' ? eMsg('Pomija MP1 i MP3','Исключает MP1 и MP3','Excludes MP1 and MP3','Виключає MP1 та MP3') : eMsg('Pomija MP2','Исключает MP2','Excludes MP2','Виключає MP2') }}</span>
+ <span class="mp-audit-brand-hint" v-else-if="mpAuditBrand==='sinsay'">{{ eMsg('Pomija MP1 i MP3','Исключает MP1 и MP3','Excludes MP1 and MP3','Виключає MP1 та MP3') }}</span>
+ <div v-else class="mp-audit-mohito-types" role="group" :aria-label="eMsg('Typ lokalizacji MOHITO','Тип локаций MOHITO','MOHITO location type','Тип локацій MOHITO')">
+  <span class="mp-audit-mohito-label">{{ eMsg('Lokalizacje','Локации','Locations','Локації') }}</span>
+  <button v-for="type in ['MP1','MP3']" :key="type" type="button" :class="{active:mpAuditMohitoTypes.includes(type)}" :aria-pressed="mpAuditMohitoTypes.includes(type)" @click="mpAuditToggleMohitoType(type)"><span aria-hidden="true">{{ mpAuditMohitoTypes.includes(type)?'✓':'+' }}</span> {{ type }}</button>
+  <span class="mp-audit-brand-hint">{{ eMsg('MP2 pomijane','MP2 исключается','MP2 excluded','MP2 виключається') }}</span>
+ </div>
 </div>
 <div class="segment-control shrink-0 flex-wrap">
 <button class="segment-btn" :class="{active:audytTab==='al_audyt'}" @click="audytTab='al_audyt'"><span>AL_AUDYT</span></button>

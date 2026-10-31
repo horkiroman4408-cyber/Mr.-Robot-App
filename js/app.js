@@ -739,12 +739,23 @@ function konsolidacjaSelAll(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;
 async function konsolidacjaCopyCard(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;const lines=[];for(let i=0;i<e.small.length;i++){if(arr[i])lines.push(e.small[i].loc);}if(!lines.length){showToast('Zaznacz przynajmniej jedną lokalizację');return;}await konsolidacjaCopyText(lines.join('\n'),`Skopiowano ${lines.length} lokalizacji (${e.ean})`);}
 
 const mpAuditBrand=ref('sinsay');
+// MOHITO: select which non-MP2 location families are included.
+const mpAuditMohitoTypes=ref(['MP1','MP3']);
+function mpAuditToggleMohitoType(type){
+ const current=mpAuditMohitoTypes.value;
+ if(current.includes(type)){if(current.length===1)return;mpAuditMohitoTypes.value=current.filter(v=>v!==type);}
+ else mpAuditMohitoTypes.value=[...current,type];
+}
 // Only location-prefix filtering changes with the brand. All other rules remain intact.
 function mpAuditLocationAllowed(value){
  const location=String(value??'').trim().toUpperCase();
- return mpAuditBrand.value==='mohito' ? !location.startsWith('MP2') : !location.startsWith('MP1')&&!location.startsWith('MP3');
+ return mpAuditBrand.value==='mohito'
+  ? (mpAuditMohitoTypes.value.some(prefix=>location.startsWith(prefix)) || (!location.startsWith('MP1')&&!location.startsWith('MP2')&&!location.startsWith('MP3')))
+  : !location.startsWith('MP1')&&!location.startsWith('MP3');
 }
-watch(mpAuditBrand,()=>{audyt.result=null;formatka59.result=null;mdt.result=null;mdt.etap2=null;mdt.selectedLoc=new Set();stock.result=null;stock.selectedPeriods=new Set();stock.selectedLoc=new Set();});
+function mpAuditClearResults(){audyt.result=null;formatka59.result=null;mdt.result=null;mdt.etap2=null;mdt.selectedLoc=new Set();stock.result=null;stock.selectedPeriods=new Set();stock.selectedLoc=new Set();}
+watch(mpAuditBrand,mpAuditClearResults);
+watch(mpAuditMohitoTypes,mpAuditClearResults);
 const audytTab=ref('al_audyt');
 // Remember the MP sub-tab when opening Kreseczki from its shortcut.
 const kreseczkiReturnTab=ref('');
@@ -1506,7 +1517,7 @@ toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
 toteRunSearch,toteExportExcel,toteToggleAll,toteAllChecked,
 toteManualText,toteManualResults,toteManualMissing,toteManualFiltered,toteManualSearched,toteManualStats,totePickStrategy,toteManualToteType,toteManualMultiTote,
 toteManualEanCount,toteCanManualSearch,toteRunManualSearch,toteExportManualExcel,toteCopyManualToClipboard,
-audytTab,mpAuditBrand,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
+audytTab,mpAuditBrand,mpAuditMohitoTypes,mpAuditToggleMohitoType,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
 formatka59,formatka59RunAnalysis,formatka59CopyToClipboard,
 mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,
 mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSelected11,mdtCopySelectedLoc,mdtCopyKpiValues,mdtNum,
