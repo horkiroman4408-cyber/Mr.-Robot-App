@@ -1065,9 +1065,15 @@ html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-label,html
 html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-types button:not(.active){background:rgba(147,51,234,.15);border-color:rgba(200,164,250,.36)}
 html[data-theme="ivory"] .mp-audit-mohito-label,html[data-theme="ivory"] .mp-audit-mohito-types button:not(.active){color:#70409b}
 
-/* v3.10.1: calendar period selector, scoped to the employee page. */
-.employee-page .employee-period-control{display:flex;align-items:center;flex-wrap:wrap;gap:9px 12px;padding:12px 15px;border:1px solid var(--border,rgba(140,155,180,.28));border-radius:16px;background:var(--glass-bg,rgba(130,145,170,.07));margin-bottom:12px}
-.employee-page .employee-period-control label{font-size:12px;font-weight:750;color:inherit}
-.employee-page .employee-period-control input{min-height:35px;padding:5px 10px;border:1px solid rgba(130,145,170,.38);border-radius:10px;background:var(--card-bg,transparent);color:inherit;color-scheme:normal}
-html[data-theme=dark] .employee-page .employee-period-control input,html[data-theme=graphite] .employee-page .employee-period-control input{color-scheme:dark}
-.employee-page .employee-period-control span{font-size:11px;opacity:.7;line-height:1.5}
+/* v3.10.1: compact, app-localized roster period selector; no browser-native month dialog. */
+.employee-page .employee-period-control{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;padding:9px 12px;border:1px solid var(--border,rgba(140,155,180,.28));border-radius:14px;background:var(--glass-bg,rgba(130,145,170,.07));margin-bottom:12px}
+.employee-page .employee-period-title{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:750;color:inherit;white-space:nowrap}
+.employee-page .employee-period-title svg{opacity:.8;flex-shrink:0}
+.employee-page .employee-period-pickers{display:flex;align-items:center;gap:8px;min-width:0}
+.employee-page .employee-period-pickers select{min-height:33px;padding:5px 27px 5px 10px;border:1px solid var(--border,rgba(130,145,170,.38));border-radius:9px;background-color:var(--card-bg,#fff);color:inherit;font:inherit;font-size:12px;font-weight:650;cursor:pointer;max-width:100%;color-scheme:light}
+.employee-page .employee-period-pickers .employee-period-month{min-width:134px}
+.employee-page .employee-period-pickers .employee-period-year{min-width:79px}
+.employee-page .employee-period-pickers select:focus-visible{outline:2px solid var(--module-accent,#0a84ff);outline-offset:2px}
+.employee-page .employee-period-pickers select:disabled{opacity:.55;cursor:wait}
+html:is([data-theme="dark"],[data-theme="graphite"]) .employee-page .employee-period-pickers select{color-scheme:dark}
+@media(max-width:480px){.employee-page .employee-period-control{align-items:flex-start;flex-direction:column}.employee-page .employee-period-pickers{width:100%}.employee-page .employee-period-month{flex:1}}

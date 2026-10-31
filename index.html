@@ -209,10 +209,16 @@
   <button v-if="pracownicy.loaded && !pracownicy.loading" class="grafik-btn danger" :title="tr(128)" @click="pracownicyReset">✕</button>
 </div>
 <div v-show="kpiTab==='pracownicy'" class="employee-page space-y-5">
-<div class="employee-period-control">
- <label for="grafik-period-select">{{ eMsg('Okres grafiku','Период графика','Roster month','Період графіка') }}</label>
- <input id="grafik-period-select" type="month" :value="pracownicy.period" :disabled="pracownicy.loading" @change="pracownicySetPeriod($event.target.value)" />
- <span>{{ eMsg('Miesiąc dotyczy całego pliku. Zmiana okresu nie wymaga ponownego wczytania.','Месяц относится ко всему файлу. Его можно изменить без повторной загрузки.','The selected month applies to the whole roster. No re-upload is needed.','Місяць стосується всього файлу. Змінити його можна без повторного завантаження.') }}</span>
+<div class="employee-period-control" role="group" :aria-label="eMsg('Okres grafiku','Период графика','Roster period','Період графіка')">
+ <span class="employee-period-title"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>{{ eMsg('Okres grafiku','Период графика','Roster period','Період графіка') }}</span>
+ <div class="employee-period-pickers">
+  <select class="employee-period-month" :aria-label="eMsg('Miesiąc','Месяц','Month','Місяць')" :value="pracownicy.period.slice(5)" :disabled="pracownicy.loading" @change="pracownicySetPeriod(pracownicy.period.slice(0,4)+'-'+$event.target.value)">
+   <option v-for="(name,i) in [eMsg('Styczeń','Январь','January','Січень'),eMsg('Luty','Февраль','February','Лютий'),eMsg('Marzec','Март','March','Березень'),eMsg('Kwiecień','Апрель','April','Квітень'),eMsg('Maj','Май','May','Травень'),eMsg('Czerwiec','Июнь','June','Червень'),eMsg('Lipiec','Июль','July','Липень'),eMsg('Sierpień','Август','August','Серпень'),eMsg('Wrzesień','Сентябрь','September','Вересень'),eMsg('Październik','Октябрь','October','Жовтень'),eMsg('Listopad','Ноябрь','November','Листопад'),eMsg('Grudzień','Декабрь','December','Грудень')]" :key="i" :value="String(i+1).padStart(2,'0')">{{ name }}</option>
+  </select>
+  <select class="employee-period-year" :aria-label="eMsg('Rok','Год','Year','Рік')" :value="pracownicy.period.slice(0,4)" :disabled="pracownicy.loading" @change="pracownicySetPeriod($event.target.value+'-'+pracownicy.period.slice(5))">
+   <option v-for="year in 17" :key="year" :value="String(2023+year)">{{ 2023+year }}</option>
+  </select>
+ </div>
 </div>
 
   <div class="glass grafik-bar employee-training-bar" :class="{loaded:!!employeeTraining.fileName}">
@@ -1811,7 +1817,6 @@
   <div class="employee-calendar-grid"><div v-for="label in ['Pn','Wt','Śr','Cz','Pt','Sb','Nd']" :key="label" class="employee-calendar-weekday">{{ label }}</div><div v-for="n in employeeSchedule.offset" :key="'offset-'+n" class="employee-calendar-empty"></div><div v-for="day in employeeSchedule.days" :key="day.day" :class="['employee-calendar-day','employee-day-'+day.category]" :title="day.raw||'—'"><small>{{ day.day }}</small><b>{{ day.raw||'·' }}</b></div></div>
   <p v-if="employeeSchedule.hasExtraDay" class="employee-calendar-unavailable">{{ eMsg('Uwaga: plik zawiera wpis w 31. kolumnie dnia, ale wybrany miesiąc ma mniej dni. Dodatkowy wpis nie jest wyświetlany.','Внимание: в файле заполнен 31-й день, но в выбранном месяце меньше дней. Лишняя запись не показана.','Note: the roster has a value for day 31, but the selected month is shorter. That entry is not displayed.','Увага: у файлі заповнений день 31, але вибраний місяць коротший. Зайвий запис не показано.') }}</p>
   <div class="employee-calendar-legend"><div v-for="item in employeeCalendarLegend" :key="item.kind" class="employee-legend-item"><span :class="'employee-legend-'+item.kind">{{ item.code }}</span><small>{{ item.label }}</small></div></div>
-  <div v-if="employeeSchedule.totals.length" class="employee-calendar-totals"><b>{{ eMsg('Podsumowanie z Excela','Итоги из Excel','Excel totals','Підсумки з Excel') }}</b><div><span v-for="(t,i) in employeeSchedule.totals" :key="i"><small>{{ t.label }}</small><strong>{{ t.value===''?'—':t.value }}</strong></span></div></div>
  </template><p v-else class="employee-calendar-unavailable">{{ eMsg('Wczytaj ponownie aktualny Grafik pracowników, aby zobaczyć dni miesiąca.','Загрузите актуальный график сотрудников заново, чтобы увидеть дни месяца.','Reload the current employee roster to display the monthly schedule.','Завантажте актуальний графік працівників повторно, щоб побачити дні місяця.') }}</p>
 </section></div></div>
 
