@@ -993,3 +993,28 @@ html[data-theme="dark"] .grp-badge.attr-brand-mohito,html[data-theme="graphite"]
 /* v3.9.9: brand identity is always shown independently of Grafik availability. */
 .grp-badge.attr-brand-sinsay{background:rgba(22,163,74,.12);color:#15803d;border:1px solid rgba(22,163,74,.24);font-style:normal;text-transform:none}
 html[data-theme="dark"] .grp-badge.attr-brand-sinsay,html[data-theme="graphite"] .grp-badge.attr-brand-sinsay{background:rgba(74,222,128,.12);color:#86efac;border-color:rgba(74,222,128,.24)}
+
+/* v3.10.0 · Brand mode in MP Audyt; isolated from other themes and tabs. */
+.mp-audit-brand-switch{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;width:100%;padding:10px 13px;margin-top:10px;border:1px solid var(--module-border,rgba(147,51,234,.22));border-radius:15px;background:var(--module-soft,rgba(147,51,234,.07));}
+.mp-audit-brand-label{font-size:12px;font-weight:750;color:var(--module-accent,#9333ea)}
+.mp-audit-brand-options{display:inline-flex;padding:3px;gap:3px;background:var(--mr-c18,rgba(120,110,150,.08));border-radius:12px}
+.mp-audit-brand-options button{border:0;background:transparent;padding:7px 13px;border-radius:10px;color:var(--mr-c32,#64748b);font-size:11px;font-weight:800;cursor:pointer;transition:background .18s,color .18s,box-shadow .18s}
+.mp-audit-brand-options button.active{background:var(--module-button,linear-gradient(135deg,#a855f7,#7e22ce));color:white;box-shadow:0 2px 9px rgba(100,50,150,.14)}
+.mp-audit-brand-options button:focus-visible{outline:2px solid var(--module-accent,#a855f7);outline-offset:2px}
+.mp-audit-brand-hint{font-size:11px;color:var(--mr-c32,#64748b)}
+
+/* v3.10.1 — shared MP location selector, local to Scalanie / Konsolidacja */
+.mp-location-filter{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:15px 19px}
+.mp-location-filter-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.mp-location-filter-text strong{font-size:13px;font-weight:750;color:var(--text-primary,#334155)}
+.mp-location-filter-text span{font-size:11px;color:var(--text-muted,#64748b);line-height:1.5}
+.mp-location-filter-options{display:flex;gap:7px;flex-wrap:wrap}
+.mp-location-filter-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(147,51,234,.23);background:rgba(147,51,234,.045);color:#8054af;border-radius:999px;padding:8px 13px;font-weight:750;font-size:12px;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .16s}
+.mp-location-filter-chip:hover{border-color:#a855f7;background:rgba(168,85,247,.1)}
+.mp-location-filter-chip.active{background:linear-gradient(135deg,#b868ff,#9333ea);color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(147,51,234,.2)}
+.mp-location-filter-dot{height:7px;width:7px;border-radius:50%;background:currentColor;opacity:.6}
+.mp-location-filter-chip.active .mp-location-filter-dot{background:#fff;opacity:1}
+.mp-location-filter-chip:focus-visible{outline:2px solid #9333ea;outline-offset:3px}
+html:is([data-theme="dark"],[data-theme="graphite"]) .mp-location-filter-chip:not(.active){background:rgba(168,85,247,.1);color:#c79bff;border-color:rgba(168,85,247,.3)}
+html[data-theme="ivory"] .mp-location-filter-chip:not(.active){background:rgba(147,51,234,.06);color:#8052b6}
+@media(max-width:620px){.mp-location-filter{align-items:flex-start;padding:14px}.mp-location-filter-options{width:100%}.mp-location-filter-chip{flex:1;justify-content:center}}

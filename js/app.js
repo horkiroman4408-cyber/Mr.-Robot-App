@@ -645,6 +645,26 @@ async function toteCopyManualToClipboard(){if(!toteManualResults.value.length)re
 
 // ==================== MP (Audyt) ====================
 // ==================== MP Scalanie ====================
+// Shared location-prefix filter for Scalanie and Konsolidacja.
+// Default includes all types and preserves the original unfiltered behavior.
+const mpLocationPrefixes=ref(['MP1','MP2','MP3']);
+const MP_LOCATION_PREFIXES=['MP1','MP2','MP3'];
+function mpLocationAllowed(location){
+ const selected=mpLocationPrefixes.value;
+ if(selected.length===MP_LOCATION_PREFIXES.length)return true;
+ const loc=String(location??'').trim().toUpperCase();
+ return selected.some(prefix=>loc.startsWith(prefix));
+}
+function mpToggleLocationPrefix(prefix){
+ if(!MP_LOCATION_PREFIXES.includes(prefix))return;
+ const current=mpLocationPrefixes.value;
+ if(current.includes(prefix)){
+  if(current.length===1)return; // Keep one selected type at minimum.
+  mpLocationPrefixes.value=current.filter(x=>x!==prefix);
+ }else mpLocationPrefixes.value=MP_LOCATION_PREFIXES.filter(x=>current.includes(x)||x===prefix);
+ scalanieState.results=[];scalanieState.selectedLocations={};scalanieState.result=null;scalanieState.searched=false;
+ konsolidacjaInvalidate();
+}
 const scalanieState=reactive({shelfChoice:'',eanChoice:'',abcChoice:'',skuMin:1,skuMax:3,exportQty:300,results:[],selectedLocations:{},result:null,searched:false});
 const SCALANIE_SHELF_OPTIONS=[
   {key:'1',label:'SHELF_S',desc:'Standardowe lokalizacje S',file:'SINSAY.csv'},
@@ -663,7 +683,7 @@ function scalanieMatchShelf(locType,mode){if(mode==='')return false;switch(mode)
 function scalanieMatchABC(abc,mode){const v=String(abc).trim().toUpperCase();switch(mode){case '1':return v==='A';case '2':return v==='B';case '3':return v==='C';case '4':return v==='D';case '5':return v==='A'||v==='B';case '6':return v==='C'||v==='D';case '7':return v==='A'||v==='B'||v==='C'||v==='D';default:return false;}}
 function scalanieMatchEAN(count,mode){if(mode==='1')return count===1;return count>1;}
 function scalanieBlank(v){if(v===undefined||v===null)return true;return String(v).trim()==='';}
-function scalanieRun(){if(!scalanieCanRun.value)return;const recs=toteMp.records;const dict=new Map();for(const r of recs){if(r.ean){dict.set(r.ean,(dict.get(r.ean)||0)+1);}}const min=scalanieState.skuMin,max=scalanieState.skuMax,exportQty=scalanieState.exportQty;const shelfMode=scalanieState.shelfChoice;const eanMode=scalanieNeedEan.value?scalanieState.eanChoice||'2':'2';const abcMode=scalanieState.abcChoice;const out=[];for(const r of recs){const eanCount=dict.get(r.ean)||0;if(scalanieMatchShelf(r.locationType,shelfMode)&&scalanieMatchABC(r.abc,abcMode)&&r.qty>=min&&r.qty<=max&&scalanieBlank(r.raw4)&&scalanieBlank(r.raw5)&&scalanieBlank(r.raw15)&&scalanieBlank(r.raw16)&&scalanieMatchEAN(eanCount,eanMode)){out.push(r);}}const sorted=[...out].sort((a,b)=>a.location.localeCompare(b.location));const exported=sorted.slice(0,exportQty);scalanieState.results=exported;scalanieState.selectedLocations=Object.fromEntries(exported.map(r=>[r.location,true]));scalanieState.result={totalFound:out.length,exported:exported.length,shelfMode,eanMode,abcMode,eanCount:dict.size};scalanieState.searched=true;showToast(`Scalanie: ${out.length} rekordow, wyeksportowano ${exported.length}`);}
+function scalanieRun(){if(!scalanieCanRun.value)return;const recs=toteMp.records.filter(r=>mpLocationAllowed(r.location));const dict=new Map();for(const r of recs){if(r.ean){dict.set(r.ean,(dict.get(r.ean)||0)+1);}}const min=scalanieState.skuMin,max=scalanieState.skuMax,exportQty=scalanieState.exportQty;const shelfMode=scalanieState.shelfChoice;const eanMode=scalanieNeedEan.value?scalanieState.eanChoice||'2':'2';const abcMode=scalanieState.abcChoice;const out=[];for(const r of recs){const eanCount=dict.get(r.ean)||0;if(scalanieMatchShelf(r.locationType,shelfMode)&&scalanieMatchABC(r.abc,abcMode)&&r.qty>=min&&r.qty<=max&&scalanieBlank(r.raw4)&&scalanieBlank(r.raw5)&&scalanieBlank(r.raw15)&&scalanieBlank(r.raw16)&&scalanieMatchEAN(eanCount,eanMode)){out.push(r);}}const sorted=[...out].sort((a,b)=>a.location.localeCompare(b.location));const exported=sorted.slice(0,exportQty);scalanieState.results=exported;scalanieState.selectedLocations=Object.fromEntries(exported.map(r=>[r.location,true]));scalanieState.result={totalFound:out.length,exported:exported.length,shelfMode,eanMode,abcMode,eanCount:dict.size};scalanieState.searched=true;showToast(`Scalanie: ${out.length} rekordow, wyeksportowano ${exported.length}`);}
 function scalanieExportCSV(){if(!scalanieState.results.length)return;const shelfOpt=SCALANIE_SHELF_OPTIONS.find(o=>o.key===scalanieState.shelfChoice);const fileName=shelfOpt?shelfOpt.file:'Scalanie.csv';const lines=scalanieState.results.filter(r=>scalanieState.selectedLocations[r.location]!==false).map(r=>r.location);if(!lines.length){showToast(tr('Nie zaznaczono żadnych lokalizacji'));return;}const csv=lines.join('\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fileName;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast(`Wyeksportowano: ${fileName}`);}
 async function scalanieCopyClipboard(){if(!scalanieState.results.length)return;const selected=scalanieState.results.filter(r=>scalanieState.selectedLocations[r.location]!==false);if(!selected.length){showToast(tr('Nie zaznaczono żadnych lokalizacji'));return;}const text=selected.map(r=>r.location).join('\n');try{await navigator.clipboard.writeText(text);showToast(tr('Skopiowano {count} lokalizacji').replace('{count}',selected.length));}catch(err){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast(tr('Skopiowano {count} lokalizacji').replace('{count}',selected.length));}catch(e){showToast('Nie udało się skopiować');}document.body.removeChild(ta);}}
 function scalanieReset(){scalanieState.shelfChoice='';scalanieState.eanChoice='';scalanieState.abcChoice='';scalanieState.skuMin=1;scalanieState.skuMax=3;scalanieState.exportQty=300;scalanieState.results=[];scalanieState.selectedLocations={};scalanieState.result=null;scalanieState.searched=false;}
@@ -682,6 +702,7 @@ const minLoc=Number(konsolidacja.minLocations);
 if(!Number.isInteger(minLoc)||minLoc<1){showToast('Minimalna liczba lokalizacji: podaj liczbę całkowitą co najmniej 1');return;}
 const dict=new Map();
 for(const r of toteMp.records){
+if(!mpLocationAllowed(r.location))continue;
 const ean=String(r.ean||'').trim();if(!ean)continue;
 const loc=String(r.location||'').trim();
 const qty=Number(r.qty)||0;
@@ -717,6 +738,13 @@ function konsolidacjaIsAllSel(e){const arr=konsolidacja.sel[e.ean];if(!arr||!e.s
 function konsolidacjaSelAll(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;const all=konsolidacjaIsAllSel(e);for(let i=0;i<arr.length;i++)arr[i]=!all;}
 async function konsolidacjaCopyCard(e){const arr=konsolidacja.sel[e.ean];if(!arr)return;const lines=[];for(let i=0;i<e.small.length;i++){if(arr[i])lines.push(e.small[i].loc);}if(!lines.length){showToast('Zaznacz przynajmniej jedną lokalizację');return;}await konsolidacjaCopyText(lines.join('\n'),`Skopiowano ${lines.length} lokalizacji (${e.ean})`);}
 
+const mpAuditBrand=ref('sinsay');
+// Only location-prefix filtering changes with the brand. All other rules remain intact.
+function mpAuditLocationAllowed(value){
+ const location=String(value??'').trim().toUpperCase();
+ return mpAuditBrand.value==='mohito' ? !location.startsWith('MP2') : !location.startsWith('MP1')&&!location.startsWith('MP3');
+}
+watch(mpAuditBrand,()=>{audyt.result=null;formatka59.result=null;mdt.result=null;mdt.etap2=null;mdt.selectedLoc=new Set();stock.result=null;stock.selectedPeriods=new Set();stock.selectedLoc=new Set();});
 const audytTab=ref('al_audyt');
 // Remember the MP sub-tab when opening Kreseczki from its shortcut.
 const kreseczkiReturnTab=ref('');
@@ -734,6 +762,7 @@ if(!audyt.rows.length){showToast('Brak danych');return;}
 let correctLoc=0,shortage=0,surplus=0;
 const dict=new Map();
 for(const r of audyt.rows){
+if(!mpAuditLocationAllowed(r.location))continue;
 const inc=String(r.incident||'').toLowerCase().trim();
 if(inc==='-'||inc===''){correctLoc++;}
 else if(inc.indexOf('shortage')>=0){shortage++;}
@@ -1052,7 +1081,7 @@ const rows=mdt.rows;
 // Actually VBA uses row 2 as header, data starts at row 3 (index 2)
 // Columns (0-based): A=0, B=1, D=3, E=4, K=10
 const filtered=[];let sumaMDT=0;
-for(let i=2;i<rows.length;i++){const r=rows[i];if(!r||r.every(c=>c===''||c===null))continue;const bVal=String(r[1]||'').trim();const dVal=String(r[3]||'').trim();if(['MP1','MP3'].some(prefix=>bVal.toUpperCase().startsWith(prefix))||dVal.substring(0,1)==='1'){continue;}const eVal=mdtNum(r[4]);sumaMDT+=eVal;filtered.push(r);}
+for(let i=2;i<rows.length;i++){const r=rows[i];if(!r||r.every(c=>c===''||c===null))continue;const bVal=String(r[1]||'').trim();const dVal=String(r[3]||'').trim();if(!mpAuditLocationAllowed(bVal)||dVal.substring(0,1)==='1'){continue;}const eVal=mdtNum(r[4]);sumaMDT+=eVal;filtered.push(r);}
 // Remove duplicates by column B (index 1)
 const seen=new Set();const deduped=[];for(const r of filtered){const bVal=String(r[1]||'').trim();if(!seen.has(bVal)){seen.add(bVal);deduped.push(r);}}
 const sumaPolek=deduped.length;
@@ -1103,7 +1132,7 @@ Object.defineProperty(stock,'loaded',{get(){return this.rows.length>0;}});
 function stockOnFile(e){const f=e.target.files[0];if(!f)return;stock.loading=true;stock.progress.percent=0;stock.progress.label=STAGE_LABELS.read;stock.result=null;stock.selectedPeriods=new Set();stock.selectedLoc=new Set();const reader=new FileReader();reader.onload=ev=>{const buffer=ev.target.result;const worker=createStockWorker();worker.onmessage=msg=>{const d=msg.data;if(d.type==='progress'){let pct=d.percent;if(d.stage==='read')pct=5;else if(d.stage==='excel')pct=d.percent;else if(d.stage==='parse')pct=95;stock.progress.percent=Math.min(pct,99);stock.progress.label=STAGE_LABELS[d.stage]||'Przetwarzanie…';}else if(d.type==='done'){stock.progress.percent=100;stock.progress.label='Gotowe';setTimeout(()=>{stock.rows=markRaw(d.records);stock.fileName=f.name;stock.loading=false;mrRobotDisposeWorker(worker);showToast(`STOCK: ${d.records.length} wierszy (arkusz: ${d.sheetName})`);},200);}else if(d.type==='error'){mrRobotDisposeWorker(worker);stock.loading=false;stock.progress.percent=0;stock.progress.label='';showToast('Błąd: '+d.message);}};worker.onerror=err=>{console.error('Mr. Robot STOCK Worker error',err);mrRobotDisposeWorker(worker);stock.loading=false;stock.progress.percent=0;stock.progress.label='';showToast('Błąd modułu Excel. Spróbuj ponownie.');};worker.postMessage({buffer});};reader.onerror=()=>{stock.loading=false;showToast('Błąd czytania pliku');};reader.readAsArrayBuffer(f);}
 function stockOnDrop(e){stock.drag=false;const f=e.dataTransfer.files[0];if(f)stockOnFile({target:{files:[f]}});}
 function stockReset(){stock.rows=[];stock.fileName='';stock.savedAt='';stock.result=null;stock.selectedPeriods=new Set();stock.selectedLoc=new Set();stock.locSearch='';stock.progress.percent=0;stock.progress.label='';}
-const stockFilteredRows=computed(()=>{return stock.rows.filter(r=>{const a=String(r.loc||'').trim().toUpperCase();const f=String(r.who||'').trim().toUpperCase();if(['MP1','MP3'].some(prefix=>a.startsWith(prefix)))return false;if(f.substring(0,6)==='PKECOM')return false;if(f.substring(0,1)==='S')return false;return true;});});
+const stockFilteredRows=computed(()=>{return stock.rows.filter(r=>{const a=String(r.loc||'').trim().toUpperCase();const f=String(r.who||'').trim().toUpperCase();if(!mpAuditLocationAllowed(a))return false;if(f.substring(0,6)==='PKECOM')return false;if(f.substring(0,1)==='S')return false;return true;});});
 const stockStats=computed(()=>({total:stock.rows.length,filtered:stockFilteredRows.value.length}));
 const stockPeriods=computed(()=>{const list=[];const seen=new Set();for(const r of stockFilteredRows.value){if(!r.date||!r.hour)continue;const key=r.date+' '+r.hour;if(!seen.has(key)){seen.add(key);list.push({key,date:r.date,hour:r.hour});}}return list;});
 const stockPeriodsGrouped=computed(()=>{const groups=[];const gmap=new Map();for(const p of stockPeriods.value){if(!gmap.has(p.date)){const g={date:p.date,periods:[]};gmap.set(p.date,g);groups.push(g);}gmap.get(p.date).periods.push(p);}return groups;});
@@ -1445,7 +1474,7 @@ for(const [getter,setter,state] of [
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
 return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
-rsView,mpView,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
+rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
 kpiNormThreshold,kpiScalanieNormThreshold,kpiRozkNormThreshold,kpiNvNormThreshold,
@@ -1477,7 +1506,7 @@ toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
 toteRunSearch,toteExportExcel,toteToggleAll,toteAllChecked,
 toteManualText,toteManualResults,toteManualMissing,toteManualFiltered,toteManualSearched,toteManualStats,totePickStrategy,toteManualToteType,toteManualMultiTote,
 toteManualEanCount,toteCanManualSearch,toteRunManualSearch,toteExportManualExcel,toteCopyManualToClipboard,
-audytTab,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
+audytTab,mpAuditBrand,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
 formatka59,formatka59RunAnalysis,formatka59CopyToClipboard,
 mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,
 mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSelected11,mdtCopySelectedLoc,mdtCopyKpiValues,mdtNum,

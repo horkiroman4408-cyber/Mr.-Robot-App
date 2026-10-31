@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.9.9</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.10.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -954,6 +954,15 @@
 <header class="px-6 pt-8 pb-4 max-w-6xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
 <button class="back-to-hub shrink-0" @click="mpView = 'cards'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>{{ tr(415) }}</button>
 <div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#c084fc] via-[#a855f7] to-[#7e22ce] flex items-center justify-center robot-glow purple shrink-0"><svg viewBox="0 0 48 48" class="w-7 h-7" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="24" y1="6" x2="24" y2="11" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="5" r="2" fill="#fff"/><rect x="11" y="11" width="26" height="22" rx="7" fill="#fff"/><circle cx="19" cy="21" r="2.3" fill="#7e22ce"/><circle cx="29" cy="21" r="2.3" fill="#7e22ce"/><path d="M18 26.5 Q24 30.5 30 26.5" stroke="#7e22ce" stroke-width="1.8" stroke-linecap="round" fill="none"/><rect x="6" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="38" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="16" y="35" width="16" height="8" rx="3" fill="#fff" opacity="0.9"/></svg></div><div class="shrink-0"><h1 class="text-[22px] font-bold tracking-tight leading-tight" style="background:linear-gradient(135deg,#c084fc,#7e22ce);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Mr. Robot</h1><div class="text-[12px] font-semibold text-slate-600 tracking-tight leading-tight mt-0.5">{{ tr(38) }}</div></div></div>
+<div class="mp-audit-brand-switch" role="group" :aria-label="eMsg('Marka','Бренд','Brand','Бренд')">
+ <span class="mp-audit-brand-label">{{ eMsg('Marka','Бренд','Brand','Бренд') }}</span>
+ <div class="mp-audit-brand-options">
+  <button type="button" :class="{active:mpAuditBrand==='sinsay'}" :aria-pressed="mpAuditBrand==='sinsay'" @click="mpAuditBrand='sinsay'">SINSAY</button>
+  <button type="button" :class="{active:mpAuditBrand==='mohito'}" :aria-pressed="mpAuditBrand==='mohito'" @click="mpAuditBrand='mohito'">MOHITO</button>
+ </div>
+ <span class="mp-audit-brand-hint" v-if="audytTab==='formatka_59'">{{ eMsg('FORMATKA_59: tylko MP2, niezależnie od marki','FORMATKA_59: только MP2, независимо от бренда','FORMATKA_59: MP2 only, regardless of brand','FORMATKA_59: лише MP2, незалежно від бренду') }}</span>
+ <span class="mp-audit-brand-hint" v-else>{{ mpAuditBrand==='sinsay' ? eMsg('Pomija MP1 i MP3','Исключает MP1 и MP3','Excludes MP1 and MP3','Виключає MP1 та MP3') : eMsg('Pomija MP2','Исключает MP2','Excludes MP2','Виключає MP2') }}</span>
+</div>
 <div class="segment-control shrink-0 flex-wrap">
 <button class="segment-btn" :class="{active:audytTab==='al_audyt'}" @click="audytTab='al_audyt'"><span>AL_AUDYT</span></button>
 <button class="segment-btn" :class="{active:audytTab==='formatka_59'}" @click="audytTab='formatka_59'"><span>FORMATKA_59</span></button>
@@ -1258,6 +1267,12 @@
 </div>
 </div></header>
 <main class="flex-1 px-6 pb-8 max-w-6xl w-full mx-auto space-y-6">
+<section class="glass-strong mp-location-filter float-up" aria-label="MP location types">
+  <div class="mp-location-filter-text"><strong>{{ tr('Typ lokalizacji MP') }}</strong><span>{{ tr('Wybierz typy lokalizacji uwzględniane w Scalanie i Konsolidacji.') }}</span></div>
+  <div class="mp-location-filter-options" role="group" :aria-label="tr('Typ lokalizacji MP')">
+    <button v-for="prefix in MP_LOCATION_PREFIXES" :key="prefix" type="button" class="mp-location-filter-chip" :class="{active:mpLocationPrefixes.includes(prefix)}" :aria-pressed="mpLocationPrefixes.includes(prefix)" @click="mpToggleLocationPrefix(prefix)"><span class="mp-location-filter-dot"></span>{{ prefix }}</button>
+  </div>
+</section>
 <div class="glass-strong p-5 space-y-4 float-up" id="scalanie-upload-block">
   <div class="flex items-center gap-2.5 flex-wrap">
     <span class="mp-database-head-icon w-7 h-7 rounded-full bg-gradient-to-br from-[#c084fc] to-[#9333ea] flex items-center justify-center shrink-0"><svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg></span>
@@ -1611,7 +1626,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.9.9">v3.9.9</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.10.1">v3.10.1</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1667,7 +1682,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.9.9</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.10.1</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
