@@ -1064,3 +1064,10 @@ html[data-theme="ivory"] .mp-location-filter-chip:not(.active){color:#8052b6;bac
 html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-label,html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-types button:not(.active){color:#dec3ff}
 html:is([data-theme="dark"],[data-theme="graphite"]) .mp-audit-mohito-types button:not(.active){background:rgba(147,51,234,.15);border-color:rgba(200,164,250,.36)}
 html[data-theme="ivory"] .mp-audit-mohito-label,html[data-theme="ivory"] .mp-audit-mohito-types button:not(.active){color:#70409b}
+
+/* v3.10.1: calendar period selector, scoped to the employee page. */
+.employee-page .employee-period-control{display:flex;align-items:center;flex-wrap:wrap;gap:9px 12px;padding:12px 15px;border:1px solid var(--border,rgba(140,155,180,.28));border-radius:16px;background:var(--glass-bg,rgba(130,145,170,.07));margin-bottom:12px}
+.employee-page .employee-period-control label{font-size:12px;font-weight:750;color:inherit}
+.employee-page .employee-period-control input{min-height:35px;padding:5px 10px;border:1px solid rgba(130,145,170,.38);border-radius:10px;background:var(--card-bg,transparent);color:inherit;color-scheme:normal}
+html[data-theme=dark] .employee-page .employee-period-control input,html[data-theme=graphite] .employee-page .employee-period-control input{color-scheme:dark}
+.employee-page .employee-period-control span{font-size:11px;opacity:.7;line-height:1.5}

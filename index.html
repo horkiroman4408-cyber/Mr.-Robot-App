@@ -209,6 +209,12 @@
   <button v-if="pracownicy.loaded && !pracownicy.loading" class="grafik-btn danger" :title="tr(128)" @click="pracownicyReset">✕</button>
 </div>
 <div v-show="kpiTab==='pracownicy'" class="employee-page space-y-5">
+<div class="employee-period-control">
+ <label for="grafik-period-select">{{ eMsg('Okres grafiku','Период графика','Roster month','Період графіка') }}</label>
+ <input id="grafik-period-select" type="month" :value="pracownicy.period" :disabled="pracownicy.loading" @change="pracownicySetPeriod($event.target.value)" />
+ <span>{{ eMsg('Miesiąc dotyczy całego pliku. Zmiana okresu nie wymaga ponownego wczytania.','Месяц относится ко всему файлу. Его можно изменить без повторной загрузки.','The selected month applies to the whole roster. No re-upload is needed.','Місяць стосується всього файлу. Змінити його можна без повторного завантаження.') }}</span>
+</div>
+
   <div class="glass grafik-bar employee-training-bar" :class="{loaded:!!employeeTraining.fileName}">
     <span class="grafik-ico" :class="{ok:!!employeeTraining.fileName}" aria-hidden="true">
       <svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8 12 3l9 5-9 5-9-5Z"/><path d="M7 11v6c3 3 7 3 10 0v-6"/></svg>
@@ -1803,6 +1809,7 @@
   <div class="employee-calendar-title"><div><b>{{ eMsg('Grafik pracownika','График сотрудника','Employee schedule','Графік працівника') }}</b><small>{{ employeeSchedule.label }} · {{ eMsg('Aktualny grafik','Актуальный график','Current roster','Поточний графік') }}</small></div><span class="employee-calendar-sub">{{ pracownicy.fileName }}</span></div>
   <div class="employee-calendar-stats"><div v-for="item in [{k:'shift',pl:'Zmiany',ru:'Смены',en:'Shifts',uk:'Зміни'},{k:'off',pl:'Wolne',ru:'Выходные',en:'Days off',uk:'Вихідні'},{k:'leave',pl:'Urlop',ru:'Отпуск',en:'Leave',uk:'Відпустка'},{k:'sick',pl:'L4',ru:'Больничный',en:'Sick leave',uk:'Лікарняний'},{k:'excused',pl:'NUN',ru:'NUN',en:'NUN',uk:'NUN'},{k:'unexcused',pl:'NN',ru:'NN',en:'NN',uk:'NN'}]" :key="item.k" class="employee-calendar-stat"><strong>{{ employeeSchedule.count[item.k] }}</strong><small>{{ item[uiLanguage]||item.pl }}</small></div></div>
   <div class="employee-calendar-grid"><div v-for="label in ['Pn','Wt','Śr','Cz','Pt','Sb','Nd']" :key="label" class="employee-calendar-weekday">{{ label }}</div><div v-for="n in employeeSchedule.offset" :key="'offset-'+n" class="employee-calendar-empty"></div><div v-for="day in employeeSchedule.days" :key="day.day" :class="['employee-calendar-day','employee-day-'+day.category]" :title="day.raw||'—'"><small>{{ day.day }}</small><b>{{ day.raw||'·' }}</b></div></div>
+  <p v-if="employeeSchedule.hasExtraDay" class="employee-calendar-unavailable">{{ eMsg('Uwaga: plik zawiera wpis w 31. kolumnie dnia, ale wybrany miesiąc ma mniej dni. Dodatkowy wpis nie jest wyświetlany.','Внимание: в файле заполнен 31-й день, но в выбранном месяце меньше дней. Лишняя запись не показана.','Note: the roster has a value for day 31, but the selected month is shorter. That entry is not displayed.','Увага: у файлі заповнений день 31, але вибраний місяць коротший. Зайвий запис не показано.') }}</p>
   <div class="employee-calendar-legend"><div v-for="item in employeeCalendarLegend" :key="item.kind" class="employee-legend-item"><span :class="'employee-legend-'+item.kind">{{ item.code }}</span><small>{{ item.label }}</small></div></div>
   <div v-if="employeeSchedule.totals.length" class="employee-calendar-totals"><b>{{ eMsg('Podsumowanie z Excela','Итоги из Excel','Excel totals','Підсумки з Excel') }}</b><div><span v-for="(t,i) in employeeSchedule.totals" :key="i"><small>{{ t.label }}</small><strong>{{ t.value===''?'—':t.value }}</strong></span></div></div>
  </template><p v-else class="employee-calendar-unavailable">{{ eMsg('Wczytaj ponownie aktualny Grafik pracowników, aby zobaczyć dni miesiąca.','Загрузите актуальный график сотрудников заново, чтобы увидеть дни месяца.','Reload the current employee roster to display the monthly schedule.','Завантажте актуальний графік працівників повторно, щоб побачити дні місяця.') }}</p>

@@ -329,6 +329,7 @@ const pracownicy = reactive({
   byLogin: new Map(),
   fileName: '',
   savedAt: '',
+  period: new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0'),
   saveFailed: false,
   drag: false,
   loading: false,
@@ -458,6 +459,7 @@ function pracownicyReset() {
   pracownicy.resignations = [];
   pracownicy.byLogin = new Map();
   pracownicy.fileName = '';
+  pracownicy.period = new Date().getFullYear() + '-' + String(new Date().getMonth()+1).padStart(2,'0');
   pracownicy.progress.percent = 0;
   pracownicy.progress.label = '';
   pracownicy.stats = { total: 0, rows: 0, byFirma: {}, byProces: {}, byShift: {}, bySheet: {} };
@@ -477,7 +479,7 @@ function pracownicySave() {
   const savedAt = new Date().toISOString();
   try {
     const rows = pracownicy.records.map(r => PRACOWNICY_FIELDS.map(f => r[f] ?? null));
-    localStorage.setItem(PRACOWNICY_STORE_KEY, JSON.stringify({ v: 1, fileName: pracownicy.fileName, savedAt, fields: PRACOWNICY_FIELDS, rows, resignations:pracownicy.resignations }));
+    localStorage.setItem(PRACOWNICY_STORE_KEY, JSON.stringify({ v: 1, fileName: pracownicy.fileName, period: pracownicy.period, savedAt, fields: PRACOWNICY_FIELDS, rows, resignations:pracownicy.resignations }));
     pracownicy.savedAt = savedAt;
     pracownicy.saveFailed = false;
   } catch (e) {
@@ -497,6 +499,7 @@ function pracownicyRestore() {
     pracownicy.records = markRaw(records);
     pracownicy.resignations = markRaw(data.resignations||[]);
     pracownicy.fileName = data.fileName || 'Grafik.xlsx';
+    if (/^\d{4}-(0[1-9]|1[0-2])$/.test(data.period||'')) pracownicy.period = data.period;
     pracownicy.savedAt = data.savedAt || '';
     pracownicyRebuild();
   } catch (e) {
@@ -548,7 +551,19 @@ const employeeProfileFields=computed(()=>{const s=employeeSelected.value;if(!s)r
 ];});
 function employeeOpen(id){employeeProfile.value=eKey(id);employeeProfileTab.value='overview';employeeFilter.value='';if(!employeeSelected.value)showToast(eMsg('Brak danych dla '+id,'Нет данных для '+id,'No data for '+id,'Немає даних для '+id));}
 // Grafik pracownika: kod źródłowy pozostaje widoczny; 1L4 i L4 są wspólnie liczone.
-const employeeCalendarMonth=computed(()=>{const d=new Date();return {year:d.getFullYear(),month:d.getMonth(),days:new Date(d.getFullYear(),d.getMonth()+1,0).getDate(),label:new Intl.DateTimeFormat(({pl:'pl-PL',ru:'ru-RU',en:'en-GB',uk:'uk-UA'}[uiLanguage.value]||'pl-PL'),{month:'long',year:'numeric'}).format(d)};});
+function pracownicySetPeriod(value){
+ if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(String(value||'')))return;
+ if(pracownicy.period===value)return;
+ pracownicy.period=value;
+ // Keep the original roster records: only calendar alignment changes.
+ if(pracownicy.loaded)pracownicySave();
+}
+const employeeCalendarMonth=computed(()=>{
+ const parts=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(pracownicy.period||'');
+ const now=new Date(),year=parts?Number(parts[1]):now.getFullYear(),month=parts?Number(parts[2])-1:now.getMonth();
+ const d=new Date(year,month,1);
+ return {year,month,days:new Date(year,month+1,0).getDate(),label:new Intl.DateTimeFormat(({pl:'pl-PL',ru:'ru-RU',en:'en-GB',uk:'uk-UA'}[uiLanguage.value]||'pl-PL'),{month:'long',year:'numeric'}).format(d)};
+});
 const employeeSchedule=computed(()=>{
  const p=employeeSelected.value?.active?employeeSelected.value.p:null;
  if(!p||!Array.isArray(p.calendar)||!p.calendar.length)return null;
@@ -558,7 +573,7 @@ const employeeSchedule=computed(()=>{
  return {day:i+1,raw,category};});
  const count={shift:0,off:0,leave:0,sick:0,unexcused:0,excused:0,other:0};for(const day of days)if(Object.prototype.hasOwnProperty.call(count,day.category))count[day.category]++;
  const offset=(new Date(m.year,m.month,1).getDay()+6)%7;
- return {...m,days,count,offset,totals:Array.isArray(p.calendarTotals)?p.calendarTotals:[]};
+ return {...m,days,count,offset,hasExtraDay:m.days<31&&String(p.calendar[30]??'').trim()!=='',totals:Array.isArray(p.calendarTotals)?p.calendarTotals:[]};
 });
 const employeeCalendarLegend=computed(()=>[
  {code:'I–XII',label:eMsg('Zmiany robocze','Рабочие смены','Work shifts','Робочі зміни'),kind:'shift'},
@@ -1524,6 +1539,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity};
 }}).mount('#app');
 
