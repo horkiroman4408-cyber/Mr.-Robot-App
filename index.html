@@ -1270,7 +1270,7 @@
 <section class="glass-strong mp-location-filter float-up" aria-label="MP location types">
   <div class="mp-location-filter-text"><strong>{{ tr('Typ lokalizacji MP') }}</strong><span>{{ tr('Wybierz typy lokalizacji uwzględniane w Scalanie i Konsolidacji.') }}</span></div>
   <div class="mp-location-filter-options" role="group" :aria-label="tr('Typ lokalizacji MP')">
-    <button v-for="prefix in MP_LOCATION_PREFIXES" :key="prefix" type="button" class="mp-location-filter-chip" :class="{active:mpLocationPrefixes.includes(prefix)}" :aria-pressed="mpLocationPrefixes.includes(prefix)" @click="mpToggleLocationPrefix(prefix)"><span class="mp-location-filter-dot"></span>{{ prefix }}</button>
+    <button v-for="prefix in MP_LOCATION_PREFIXES" :key="prefix" type="button" class="mp-location-filter-chip" :class="{active:mpLocationPrefixes.includes(prefix)}" :aria-pressed="mpLocationPrefixes.includes(prefix)" @click="mpToggleLocationPrefix(prefix)"><span class="mp-location-filter-marker" aria-hidden="true">{{ mpLocationPrefixes.includes(prefix) ? "✓" : "+" }}</span>{{ prefix }}</button>
   </div>
 </section>
 <div class="glass-strong p-5 space-y-4 float-up" id="scalanie-upload-block">
