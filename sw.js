@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.13.0-checkbox-localization-02';
+const CACHE_REVISION = 'v3.13.0-pre-filter-refill-03';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
