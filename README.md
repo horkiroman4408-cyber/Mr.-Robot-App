@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.10.1-blue)
+![version](https://img.shields.io/badge/version-3.11.0-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -129,6 +129,7 @@ Load `.xlsx` reports by drag and drop, combine them with a schedule file (`Grafi
 - **Rozkładanie** — KPI for distribution, with RSORT and Returns detection.
 - **NADWE / VAS** — KPI with two rows per login.
 - **Statistics** — one view across all processes: rankings, efficiency, median, average.
+- **Pracownicy (Employees)** — shared employee directory, training register, profiles, resignation history and monthly work schedules.
 
 **What it does well:**
 - Norm thresholds based on the median, adjustable per process.
@@ -138,13 +139,19 @@ Load `.xlsx` reports by drag and drop, combine them with a schedule file (`Grafi
 
 **NADWE / VAS, in detail:** The KPI screen includes **4. Normy pracowników** and **5. Raport NADWE / VAS**. The fifth section shows the same per-login summary used by **Pobierz NADWE/VAS** directly in the app. Columns cover **NUMBER OF ITEMS**, **TOTAL TIME IN THE MASK [H]**, and **ITEMS PER HOUR**, each split into NADWE and VAS. Existing filters and performance highlighting remain available; export is still supported. A user may have separate NADWE and VAS rows in the norms table, then one combined row in the report.
 
+**Employees and training:** The **Pracownicy** tab reuses the Grafik file already loaded in KPI; the training register (`.xlsx` / `.xlsm`) is loaded separately and remembered in the browser. Search employees by ID or name, inspect training history and trainers, and see current training entries from `Arkusz1`. Resignations from `REZYGNACJE` remain available even when an employee returns to the active schedule. Employee profiles can also open by clicking supported IDs in KPI tables, STOCK and downtime analysis.
+
+**Monthly schedule:** Each profile has a **Grafik** tab. Calendar entries come from the day columns of the shared Excel schedule, with neutral shift markers and distinct colors for `W` (day off), `U` (leave), `L4` / `1L4` (sick leave), `NN` (unexcused absence) and `NUN` (excused absence). Select the schedule's **month and year** explicitly because the file may cover the upcoming month without naming it in its headers. The selection is stored locally; changing it does not require re-importing the file.
+
+**Employee groups and identifiers:** KPI reports can be filtered by employee group, identified automatically from login prefixes. Related identifiers (`SPD → PD` and `S36 → 36`) are matched when opening employee profiles. Group labels remain visible independently of schedule availability; missing schedule records are indicated separately.
+
 ### 2. RS — Tote Finder
 Compares two large databases in memory.
 
 **Sub-modules:**
 - **MP → RS Tote Finder** — matches EANs from MP to TOTE locations in RS.
 - **Search totes by EAN** — paste a list, get TOTE and inventory quantity.
-- **AUDYT GEEK** — reads a Stocktake order file and reports on it without exporting anything.
+- **AUDYT GEEK** — reads a Stocktake order file and shows in-app audit summaries, including copying results and supported Excel export.
 
 **Details that matter:**
 - Median or minimum-quantity strategy when picking a TOTE.
@@ -170,8 +177,14 @@ Compares two large databases in memory.
 
 **Recent Scalanie improvements:** The results view supports selecting locations and applying that selection consistently to both **Kopiuj** and CSV export. This is useful when a report contains more candidate locations than you want to send onward.
 
+**Audit location modes:** **MP → Audyt** supports two processing modes: one excludes `MP1` and `MP3`, while the other excludes `MP2` and allows selecting `MP1`, `MP3`, or both. These settings apply to **AL_AUDYT**, **GODZINY_MDT** and **STOCK**. **FORMATKA_59** keeps its dedicated **MP2-only** logic.
+
+**Scalanie / Konsolidacja location selection:** Both tools support selecting one or more location prefixes (`MP1`, `MP2`, `MP3`) before generating results. Results and exports follow the selected types.
+
+**Workflow shortcuts:** In **STOCK**, a supported employee ID under **Kto zamknął** opens the employee profile. **STOCK** and **GODZINY_MDT** can open **Kreseczki** directly, with a return path to the originating tool.
+
 ### 4. Inne — everyday tools
-- **Analiza_Przestojów** — downtime analysis per USER ID, 8–300 minutes.
+- **Analiza_Przestojów** — downtime analysis per USER ID, 8–300 minutes; supported employee IDs can open their profiles.
 - **ARTLTT** — paste product names and generate LTT CSV files.
 - **Kreseczki** — generate **Code 128** barcodes from entered text or numbers, preview the result, then **Drukuj** (print) or **Wyczyść** (clear). Generation runs locally and works offline. The current interface deliberately does **not** include PNG/SVG download buttons.
 

@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.10.1-blue)
+![wersja](https://img.shields.io/badge/version-3.11.0-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -129,6 +129,7 @@ Raporty `.xlsx` wrzucasz przeciągnięciem, łączysz z grafikiem (`Grafik.xlsx`
 - **Rozkładanie** — KPI rozkładania, z detekcją RSORT i zwrotów.
 - **NADWE / VAS** — KPI z dwoma wierszami na login.
 - **Statistics** — jeden widok na wszystkie procesy: rankingi, efektywność, mediana, średnia.
+- **Pracownicy** — wspólna baza pracowników, rejestr szkoleń, profile, historia rezygnacji i miesięczny grafik.
 
 **Co robi dobrze:**
 - Progi norm na podstawie mediany, regulowane per proces.
@@ -138,13 +139,19 @@ Raporty `.xlsx` wrzucasz przeciągnięciem, łączysz z grafikiem (`Grafik.xlsx`
 
 **NADWE / VAS — szczegóły:** Po sekcji **4. Normy pracowników** znajduje się **5. Raport NADWE / VAS**. Raport pokazuje bezpośrednio w aplikacji zestawienie według loginu, oparte na tych samych danych co **Pobierz NADWE/VAS**. Kolumny to **NUMBER OF ITEMS**, **TOTAL TIME IN THE MASK [H]** oraz **ITEMS PER HOUR**, każda osobno dla NADWE i VAS. Pozostają filtry, oznaczenia wydajności i eksport. W normach jeden login może mieć dwa wiersze, natomiast w raporcie zbiorczym jeden.
 
+**Pracownicy i szkolenia:** Zakładka **Pracownicy** korzysta z grafiku już wczytanego w KPI. Osobno wczytywany jest rejestr szkoleń (`.xlsx` / `.xlsm`), zapisywany lokalnie w przeglądarce. Można szukać pracowników po identyfikatorze lub nazwisku, sprawdzać szkolenia i trenerów oraz aktualne wpisy z `Arkusz1`. Historia z `REZYGNACJE` pozostaje dostępna również po powrocie pracownika do grafiku. Profile otwierają się także po kliknięciu obsługiwanego identyfikatora w tabelach KPI, STOCK i analizie przestojów.
+
+**Grafik miesięczny:** Karta pracownika zawiera zakładkę **Grafik**. Dni pochodzą z kolumn kalendarza w tym samym Excelu. Zmiany mają neutralne tło, a `W` (wolne), `U` (urlop), `L4` / `1L4` (zwolnienie lekarskie), `NN` (nieobecność nieusprawiedliwiona) i `NUN` (nieobecność usprawiedliwiona) mają odrębne oznaczenia. **Miesiąc i rok grafiku** wybiera się ręcznie, ponieważ plik może dotyczyć kolejnego miesiąca bez daty w nagłówku. Okres zapisuje się lokalnie i można go zmienić bez ponownego wczytywania pliku.
+
+**Grupy pracowników i identyfikatory:** Wyniki KPI można filtrować według grup pracowników rozpoznawanych automatycznie na podstawie prefiksów loginów. Przy otwieraniu profilu uwzględniane są powiązania `SPD → PD` i `S36 → 36`. Oznaczenie grupy jest zawsze widoczne, a brak danych w grafiku sygnalizowany osobno.
+
 ### 2. RS — Tote Finder
 Porównuje dwie duże bazy w pamięci.
 
 **Podmoduły:**
 - **MP → RS Tote Finder** — dopasowuje EAN-y z MP do lokalizacji TOTE w RS.
 - **Szukaj tot po EAN** — wklej listę, dostaniesz TOTE i ilość zapasu.
-- **AUDYT GEEK** — czyta plik Stocktake order i raportuje po nim, bez eksportowania czegokolwiek.
+- **AUDYT GEEK** — odczytuje Stocktake order i pokazuje zestawienia w aplikacji, z kopiowaniem wyników i obsługiwanym eksportem Excel.
 
 **Detale, które mają znaczenie:**
 - Strategia mediany lub ilości minimalnej przy wyborze TOTE.
@@ -170,8 +177,14 @@ Porównuje dwie duże bazy w pamięci.
 
 **Usprawnienia Scalanie:** W widoku wyników można zaznaczać wybrane lokalizacje. Ten sam wybór obowiązuje przy **Kopiuj** i eksporcie CSV, dzięki czemu do dalszej pracy trafiają tylko wskazane pozycje.
 
+**Tryby lokalizacji w audycie:** **MP → Audyt** oferuje dwa tryby przetwarzania: jeden pomija `MP1` i `MP3`, drugi pomija `MP2` i pozwala wybrać `MP1`, `MP3` lub oba. Ustawienia dotyczą **AL_AUDYT**, **GODZINY_MDT** i **STOCK**. **FORMATKA_59** zachowuje osobną logikę **wyłącznie MP2**.
+
+**Wybór lokalizacji w Scalanie / Konsolidacja:** Oba narzędzia pozwalają zaznaczyć jeden lub kilka prefiksów (`MP1`, `MP2`, `MP3`) przed analizą. Wyniki i eksport respektują wybór.
+
+**Skróty pracy:** W **STOCK** kliknięcie obsługiwanego identyfikatora w kolumnie **Kto zamknął** otwiera profil pracownika. Ze **STOCK** i **GODZINY_MDT** można przejść bezpośrednio do **Kreseczki**, a potem wrócić do narzędzia, z którego nastąpiło przejście.
+
 ### 4. Inne — narzędzia codzienne
-- **Analiza_Przestojów** — analiza przestojów według USER ID, od 8 do 300 minut.
+- **Analiza_Przestojów** — analiza przestojów według USER ID, od 8 do 300 minut; obsługiwane identyfikatory otwierają profil pracownika.
 - **ARTLTT** — wklej nazwy produktów i wygeneruj pliki LTT w formacie CSV.
 - **Kreseczki** — generuj kody kreskowe **Code 128** z tekstu lub cyfr, zobacz podgląd i użyj **Drukuj** lub **Wyczyść**. Generator działa lokalnie i offline. W aktualnym interfejsie nie ma przycisków pobierania PNG/SVG.
 

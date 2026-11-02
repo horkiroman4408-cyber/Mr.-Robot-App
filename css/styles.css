@@ -1077,3 +1077,9 @@ html[data-theme="ivory"] .mp-audit-mohito-label,html[data-theme="ivory"] .mp-aud
 .employee-page .employee-period-pickers select:disabled{opacity:.55;cursor:wait}
 html:is([data-theme="dark"],[data-theme="graphite"]) .employee-page .employee-period-pickers select{color-scheme:dark}
 @media(max-width:480px){.employee-page .employee-period-control{align-items:flex-start;flex-direction:column}.employee-page .employee-period-pickers{width:100%}.employee-page .employee-period-month{flex:1}}
+
+/* v3.10.1: calendar month/year control legibility in all themes */
+html[data-theme="dark"] .employee-page .employee-period-pickers select,html[data-theme="graphite"] .employee-page .employee-period-pickers select{background-color:#202d42!important;color:#e7edf8!important;border-color:#41516b!important;color-scheme:dark}
+html[data-theme="ivory"] .employee-page .employee-period-pickers select{background-color:#fffaf2!important;color:#29362f!important;border-color:#dbcfc0!important;color-scheme:light}
+html[data-theme="light"] .employee-page .employee-period-pickers select,html:not([data-theme]) .employee-page .employee-period-pickers select{background-color:#fff!important;color:#243447!important;color-scheme:light}
+.employee-page .employee-period-pickers select option{background-color:inherit;color:inherit}
