@@ -1116,10 +1116,11 @@ let sumaStock=0;for(const r of deduped){sumaStock+=mdtNum(r[10]);}
 const oneToOne=[];for(const r of deduped){const eVal=mdtNum(r[4]);const kVal=mdtNum(r[10]);if(eVal===kVal){oneToOne.push(r);}}
 const polki11=oneToOne.length;let szt11=0;for(const r of oneToOne){szt11+=mdtNum(r[4]);}
 mdt.result={sumaPolek,sumaMDT,sumaStock,polki11,szt11,dedupedRows:deduped,oneToOneRows:oneToOne};
-// ETAP 2: remove SPD/PKecom from deduped, sort by K desc
-const etap2Rows=deduped.filter(r=>{const aVal=String(r[0]||'').trim();return aVal.substring(0,3)!=='SPD'&&aVal.substring(0,6)!=='PKecom';});
+// ETAP 2 (VBA parity): only E=K rows survive ETAP 1. Then remove SPD/PKecom and sort by K.
+// Keep the 1/1 KPI above unchanged: its count is measured BEFORE these removals.
+const etap2Rows=oneToOne.filter(r=>{const aVal=String(r[0]||'').trim();return aVal.substring(0,3)!=='SPD'&&aVal.substring(0,6)!=='PKecom';});
 const sorted=[...etap2Rows].sort((a,b)=>mdtNum(b[10])-mdtNum(a[10]));
-const polki11Rows=[...oneToOne].sort((a,b)=>mdtNum(b[10])-mdtNum(a[10]));
+const polki11Rows=sorted;
 mdt.etap2={rows:sorted,totalLocations:sorted.length,polki11Rows,totalPolki11:polki11Rows.length};
 showToast(`MDT: Półki: ${sumaPolek}, MDT: ${sumaMDT}, 1/1: ${polki11}`);
 }
@@ -1133,7 +1134,8 @@ if(mdt.randomMode){const shuffled=[...pool];for(let i=shuffled.length-1;i>0;i--)
 // Column B (index 1) values, sorted ascending
 const locations=selected.map(r=>String(r[1]||'').trim()).sort();
 const csv=locations.join('\n');
-const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='SPR MDT.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast(`Wyeksportowano SPR MDT.csv (${locations.length})`);
+// WMS location IDs are ASCII: do not prepend UTF-8 BOM (it can corrupt the first location).
+const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='SPR MDT.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);showToast(`Wyeksportowano SPR MDT.csv (${locations.length})`);
 }
 const mdtFilteredPolki11=computed(()=>{
 if(!mdt.etap2||!mdt.etap2.polki11Rows)return[];
