@@ -99,7 +99,10 @@ self.onmessage = function(e) {
         for(const row of rsRows.slice(h+1)){
           const id=String(field(row,'PD','PDXXXXX')||'').replace(/\\s+/g,'').toUpperCase();
           if(!/^(PD\\d+|\\d+)$/.test(id))continue;
-          resignations.push({id,name:field(row,'Imię Nazwisko','Nazwisko i Imię','Nazwisko Imię'),sex:field(row,'Płeć'),country:field(row,'K','Kraj'),firma:field(row,'Firma','Agencja'),grupa:field(row,'GRUPA'),start:field(row,'Pierwszy dzień w pracy','Pierwszy dzień'),end:field(row,'Ostatni dzień w pracy','Ostatni dzień'),location:field(row,'Lokalizacja'),reason:field(row,'Przyczyna'),type:field(row,'Powód'),workedDays:field(row,'Przepracowany okres (dni)','Przepracowany okres','Przepracowane dni')});
+          // Shared REZYGNACJE is stored in the SINSAY workbook, but column H identifies either FC.
+          const location=String(row[7]??field(row,'Lokalizacja','FC','Centrum')??'').trim();
+          const brand=/\\bMOHITO\\b/i.test(location)?'MOHITO':/\\bSINSAY\\b/i.test(location)?'SINSAY':null;
+          resignations.push({id,brand,name:field(row,'Imię Nazwisko','Nazwisko i Imię','Nazwisko Imię'),sex:field(row,'Płeć'),country:field(row,'K','Kraj'),firma:field(row,'Firma','Agencja'),grupa:field(row,'GRUPA'),start:field(row,'Pierwszy dzień w pracy','Pierwszy dzień'),end:field(row,'Ostatni dzień w pracy','Ostatni dzień'),location,reason:field(row,'Przyczyna'),type:field(row,'Powód'),workedDays:field(row,'Przepracowany okres (dni)','Przepracowany okres','Przepracowane dni')});
         }
       }
     }

@@ -593,6 +593,24 @@ const eDate=v=>{if(v==null||v==='')return '—';if(typeof v==='number'){const d=
 const eTime=v=>{if(v==null||v==='')return '—';if(typeof v!=='number')return String(v);const m=Math.round(((v%1)+1)%1*1440)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');};
 const eDuration=v=>{if(v==null||v==='')return '—';if(typeof v!=='number')return String(v);const m=Math.round(v*1440);return `${Math.floor(m/60)?Math.floor(m/60)+' godz. ':''}${m%60?m%60+' min':m===0?'0 min':''}`;};
 const eMsg=(pl,ru,en,uk)=>({pl,ru,en,uk})[uiLanguage.value]||pl;
+// SINSAY workbook contains the shared REZYGNACJE archive for *both* brands.
+// Older browser records may not yet have a brand field; recover it from FC in column H.
+function employeeArchiveBrand(r){
+ const location=String(r?.location??'');
+ if(/\bMOHITO\b/i.test(location))return 'MOHITO';
+ if(/\bSINSAY\b/i.test(location))return 'SINSAY';
+ return r?.brand==='MOHITO'||r?.brand==='SINSAY'?r.brand:null;
+}
+function employeeArchiveEntries(login,person){
+ const id=eKey(login),base=kpiIdentity(id).canonical;
+ const moNumber=id.match(/^(?:SPM|PM)(\d+)$/)?.[1];
+ const archiveKey=moNumber?'PD'+moNumber:base;
+ const hits=employeeResignationsByPd.value.get(archiveKey)||[];
+ // For 36 numbers, archive brand follows column H (both brands can contain the prefix).
+ // For PM/SPM, the archive PD entry MUST belong to MOHITO.
+ const expectedBrand=person?.brand||(moNumber?'MOHITO':null);
+ return hits.filter(r=>!expectedBrand||!employeeArchiveBrand(r)||employeeArchiveBrand(r)===expectedBrand);
+}
 const employeeResignations=computed(()=>pracownicy.resignations||[]);
 const employeeCurrent=computed(()=>employeeCurrentRows.value);
 // Build the PD index only when the register is loaded, not on every profile click.
@@ -606,7 +624,14 @@ const employeeRoster=computed(()=>{
    return {id,name:r.name||'',brand:r.brand||'SINSAY',source:'grafik',search:eNorm(id+' '+login+' '+(r.name||''))};
   });
   const ids=new Set(people.map(r=>r.id));
-  for(const r of employeeResignations.value){if(!ids.has(r.id)){ids.add(r.id);people.push({id:r.id,name:r.name||'',source:'rezygnacje',search:eNorm(r.id+' '+(r.name||''))});}}
+  for(const r of employeeResignations.value){
+   const brand=employeeArchiveBrand(r);
+   const original=eKey(r.id);
+   const id=brand==='MOHITO'&&/^PD\d+$/.test(original)?'PM'+original.slice(2):original;
+   if(!ids.has(id)){
+    ids.add(id);people.push({id,name:r.name||'',brand:brand||'SINSAY',source:'rezygnacje',search:eNorm(id+' '+original+' '+(r.name||''))});
+   }
+  }
   return people;
 });
 const employeeMatches=computed(()=>{const q=eNorm(employeeSearch.value);return employeeRoster.value.filter(p=>!q||p.search.includes(q)).slice(0,120);});
@@ -614,11 +639,12 @@ const employeeTrainerByPd=computed(()=>{const index=new Map();for(const row of e
 function employeeTrainerName(row){const id=eKey(row?.trainer);if(!id)return '';const person=pracownicyKpiLookup(id);const archived=employeeResignationsByPd.value.get(id)?.[0];const training=employeeTrainingByPd.value.get(id)?.[0];const found=person?.name||archived?.name||row?.trainerName||training?.name||employeeTrainerByPd.value.get(id)?.trainerName||'';return String(found).trim();}
 const employeeSelected=computed(()=>{
   const original=eKey(employeeProfile.value);const id=kpiIdentity(original).canonical;const p=pracownicyKpiLookup(original);
-  const resignations=kpiIdentity(original).brand==='MOHITO'?[]:(employeeResignationsByPd.value.get(original)||employeeResignationsByPd.value.get(id)||[]);
-  const training=kpiIdentity(original).brand==='MOHITO'?[]:(employeeTrainingByPd.value.get(original)||employeeTrainingByPd.value.get(id)||[]);
-  const trainer=kpiIdentity(original).brand==='MOHITO'?null:(employeeTrainerByPd.value.get(original)||employeeTrainerByPd.value.get(id));
+  const resignations=employeeArchiveEntries(original,p);
+  const brand=p?.brand||employeeArchiveBrand(resignations[0])||kpiIdentity(original).brand;
+  const training=brand==='MOHITO'?[]:(employeeTrainingByPd.value.get(original)||employeeTrainingByPd.value.get(id)||[]);
+  const trainer=brand==='MOHITO'?null:(employeeTrainerByPd.value.get(original)||employeeTrainerByPd.value.get(id));
   if(!p&&!resignations.length&&!training.length&&!trainer)return null;
-  return {id,p:p||resignations[0]||null,brand:p?.brand||kpiIdentity(original).brand,name:p?.name||resignations[0]?.name||training[0]?.name||trainer?.trainerName||id,active:!!p,resignations,training};
+  return {id,p:p||resignations[0]||null,brand,name:p?.name||resignations[0]?.name||training[0]?.name||trainer?.trainerName||id,active:!!p,resignations,training};
 });
 const employeeFilteredTraining=computed(()=>{const q=eNorm(employeeFilter.value);return (employeeSelected.value?.training||[]).filter(r=>!q||eNorm([r.process,r.trainer,r.trainerName,r.note,r.pke].join(' ')).includes(q));});
 const employeeTrainingMinutes=computed(()=>employeeSelected.value?.training.reduce((s,r)=>s+(typeof r.duration==='number'?Math.round(r.duration*1440):0),0)||0);
