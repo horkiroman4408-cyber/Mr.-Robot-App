@@ -45,7 +45,7 @@
     'firstSheet':['Pierwszy arkusz pliku','Первый лист файла','First sheet of the file','Перший аркуш файлу'],
     'allGroups':['AUDYT RET · wybrani operatorzy','AUDYT RET · выбранные операторы','AUDYT RET · selected operators','AUDYT RET · вибрані оператори'],
     'sourceNotTracked':['Numer źródłowego wiersza niedostępny w tym rekordzie','Номер исходной строки не сохранился в этой записи','Source row number unavailable for this record','Номер вихідного рядка недоступний'],
-    'showingLimit':['Podgląd ograniczony do pierwszych 2000 wierszy; wynik liczony ze wszystkich.','Показаны первые 2000 строк; итог рассчитан по всем строкам.','Showing the first 2000 rows; result uses all rows.','Показано перші 2000 рядків; результат враховує всі.'],
+    'showingLimit':['Podgląd pokazuje do 2000 uwzględnionych i 2000 pominiętych wierszy; wynik liczony ze wszystkich.','В просмотре до 2000 учтённых и 2000 исключённых строк; итог рассчитан по всем строкам.','Preview shows up to 2000 included and 2000 excluded rows; the result uses all rows.','У перегляді до 2000 врахованих і 2000 виключених рядків; підсумок враховує всі рядки.'],
     'noRows':['Brak pasujących wierszy','Нет подходящих строк','No matching rows','Немає відповідних рядків'],
     'explained':['Weryfikacja','Проверка','Verification','Перевірка'],
     'calculated':['Obliczenie na danych źródłowych','Расчёт по исходным данным','Calculated from source records','Розраховано за вихідними даними'],
@@ -74,7 +74,7 @@
   function t(language,key){const group=strings[key];return group?group[languageIdx[language]??0]:key;}
   const compact=(v)=>Number(v).toLocaleString('pl-PL',{maximumFractionDigits:12});
   function buildRet(records,selectedOperators,hasOp,metric,expected){
-    const bins=new Set();let computed=0,included=0,excluded=0,selected=0;const rows=[];
+    const bins=new Set();let computed=0,included=0,excluded=0,selected=0;const rows=[];let previewIncluded=0,previewExcluded=0;
     for(const r of records){
       if(String(r.key2||'').toUpperCase()!=='AUDYT RET')continue;
       if(hasOp&&!selectedOperators[r.op])continue;
@@ -90,7 +90,10 @@
         else {ok=true;reason='positive';computed+=qty;}
       }
       ok?included++:excluded++;
-      if(rows.length<2000)rows.push({excelRow:r.excelRow||null,shelf:r.shelf,qty,reasonText:r.reason||'',operator:r.op||'',ok,reason});
+      if(ok ? previewIncluded<2000 : previewExcluded<2000){
+        rows.push({excelRow:r.excelRow||null,shelf:r.shelf,qty,reasonText:r.reason||'',operator:r.op||'',ok,reason});
+        if(ok)previewIncluded++;else previewExcluded++;
+      }
     }
     return {type:'ret',module:'rs',metric,title:metric==='bins'?'PRZEGRÓDKI PRZELICZONE':'POMIESZANYCH SZT.',expected,computed,matched:computed===expected,included,excluded,selected,rows,truncated:selected>rows.length};
   }
@@ -111,7 +114,7 @@
     const byLocation=new Map();
     errors.forEach(r=>{const k=location(r);if(!byLocation.has(k))byLocation.set(k,[]);byLocation.get(k).push(r);});
     const mixedLocations=new Set([...byLocation].filter(([k,v])=>v.length>=2).map(([k])=>k));
-    const seen=new Set(),rows=[];
+    const seen=new Set(),rows=[];let previewIncluded=0,previewExcluded=0;
     let computed=0,included=0,excluded=0,denominator=0;
     const categoryPairs={
       'TOTY Z NADWE':['surplus','totes'],'NADWE SZT.':['surplus','pieces'],
@@ -163,7 +166,10 @@
       }
       if(ok)included++;else excluded++;
       computed+=contribution;
-      if(rows.length<2000&&!constant)rows.push({excelRow:r.excelRow||null,shelf:r.shelf,qty,reasonText:r.reason||'',operator:r.op||'',ok,reason});
+      if(!constant && (ok ? previewIncluded<2000 : previewExcluded<2000)){
+        rows.push({excelRow:r.excelRow||null,shelf:r.shelf,qty,reasonText:r.reason||'',operator:r.op||'',ok,reason});
+        if(ok)previewIncluded++;else previewExcluded++;
+      }
     }
     if(pct){
       if(ret)denominator=new Set(selected.map(tote)).size;
