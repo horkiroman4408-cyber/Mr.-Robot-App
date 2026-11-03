@@ -1111,3 +1111,83 @@ html[data-theme="ivory"] .module-context-badge.purple{--ctx-gradient:linear-grad
 html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradient(140deg,#ccad78,#957445);--ctx-shadow:rgba(150,115,64,.24)}
 @media(prefers-reduced-motion:reduce){.module-context-badge,.module-context-badge .module-context-icon{animation:none!important}}
 
+
+
+/* RS · Scalanie Geek: same module accents as all RS tools, scoped to this new screen. */
+#app[data-active-module="rs"] .rs-scalanie-geek-card .tag{
+  background:var(--module-soft,rgba(48,209,88,.12));
+  color:var(--module-accent,#059669);
+  border:1px solid var(--module-border,rgba(48,209,88,.22));
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-header .rs-scalanie-geek-title{
+  color:var(--module-accent,#059669);
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page{
+  --rs-geek-accent:var(--module-accent,#059669);
+  --rs-geek-soft:var(--module-soft,rgba(48,209,88,.10));
+  --rs-geek-border:var(--module-border,rgba(48,209,88,.23));
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-panel{
+  border:1px solid var(--mr-c8,rgba(255,255,255,.9));
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-panel h2{
+  color:var(--rs-geek-accent);font-weight:750;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .ios-btn-primary{
+  background:var(--module-button,linear-gradient(180deg,#4ade80,#22c55e));
+  box-shadow:0 1px 0 rgba(255,255,255,.20) inset,0 7px 19px var(--module-shadow,rgba(22,163,74,.23));
+  color:#fff;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .ios-btn:not(.ios-btn-primary){
+  border:1px solid var(--rs-geek-border);
+  background:var(--rs-geek-soft);
+  color:var(--rs-geek-accent);
+  padding:.72rem 1.1rem;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .ios-input{
+  min-height:42px;
+  border:1px solid var(--mr-control-border,rgba(148,163,184,.28));
+  background:var(--mr-control-bg,var(--mr-c21,#fff));
+  color:var(--mr-c11,#1c1c1e);
+  border-radius:12px;
+  padding:.65rem .85rem;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .ios-input:focus{
+  outline:0;border-color:var(--rs-geek-accent);
+  box-shadow:0 0 0 3px var(--rs-geek-soft);
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page input[type="checkbox"]{
+  accent-color:var(--rs-geek-accent);
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-stats>div{
+  background:var(--rs-geek-soft);border:1px solid var(--rs-geek-border);
+  border-radius:16px;box-shadow:none;min-width:0;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-stats strong{
+  display:block;font-size:1.28rem;font-weight:800;color:var(--rs-geek-accent);
+  font-variant-numeric:tabular-nums;margin-top:.2rem;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap{
+  border:1px solid var(--mr-control-border,rgba(148,163,184,.22));
+  border-radius:15px;overflow-x:auto;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap table{
+  border-collapse:separate;border-spacing:0;min-width:740px;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap th{
+  background:var(--rs-geek-soft);color:var(--rs-geek-accent);
+  font-size:.68rem;font-weight:750;letter-spacing:.015em;
+  border-bottom:1px solid var(--rs-geek-border);
+  white-space:normal;vertical-align:middle;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap td{
+  border-bottom:1px solid var(--mr-control-border,rgba(148,163,184,.13));
+  vertical-align:middle;font-variant-numeric:tabular-nums;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap tbody tr:hover{
+  background:var(--rs-geek-soft);
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap tbody tr:last-child td{border-bottom:0;}
+@media(max-width:640px){
+  #app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-panel{padding:1rem;}
+}

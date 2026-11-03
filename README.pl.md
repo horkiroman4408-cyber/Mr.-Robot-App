@@ -152,6 +152,7 @@ Porównuje dwie duże bazy w pamięci.
 - **MP → RS Tote Finder** — dopasowuje EAN-y z MP do lokalizacji TOTE w RS.
 - **Szukaj tot po EAN** — wklej listę, dostaniesz TOTE i ilość zapasu.
 - **AUDYT GEEK** — odczytuje Stocktake order i pokazuje zestawienia w aplikacji, z kopiowaniem wyników i obsługiwanym eksportem Excel.
+- **Scalanie Geek** — analizuje SKU z istniejącej Bazy RS, z konfigurowalnymi progami ilości w tote.
 
 **Detale, które mają znaczenie:**
 - Strategia mediany lub ilości minimalnej przy wyborze TOTE.
@@ -160,6 +161,10 @@ Porównuje dwie duże bazy w pamięci.
 - Kopiowanie do schowka i eksport do Excela.
 
 **AUDYT GEEK → Tryb AUDYT RET:** Pierwsza tabela pokazuje podsumowanie, a druga wyniki według grup. Raport RET obejmuje liczbę przeliczonych totów, przegródek i sztuk, poprawne toty, niepoprawne przegródki i toty, odsetek błędów oraz szczegółowe kategorie: pomieszane artykuły, nadwyżki, braki, extra SKU i uszkodzenia wraz z liczbą sztuk. Nowe kategorie błędów korzystają z wierszy z wypełnioną kolumną **Exception reason**; powtarzające się lokalizacje nadrzędne są ujmowane jako pomieszane, bez ponownego naliczania w pozostałych kategoriach. Przycisk **Kopiuj** przy grupie kopiuje wartości poziomo, rozdzielone tabulatorami, gotowe do Excela. Inne tryby audytu zachowują dotychczasowe działanie.
+
+### Scalanie Geek — analiza SKU i tote
+
+Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Grupuje dane według **SKU code** i oblicza liczbę tote (wierszy), łączną ilość, maksymalną ilość w tote, liczbę tote z ilością ≤ X oraz sumę sztuk w takich tote. Parametry **X** oraz opcjonalny próg **maksimum ≥ Y** można zmieniać niezależnie (domyślnie X=3, Y=10). Wyniki są sortowane malejąco według ilości sztuk w tote ≤ X; dostępne są wyszukiwanie, zaznaczanie i eksport `Scalanie_Geek_SKU_Analysis.xlsx` z arkuszem `SKU_Analysis`.
 
 ### 3. MP — audyt i scalanie
 **Podmoduły:**
@@ -338,7 +343,3 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-## RS · Scalanie Geek (v3.16.0)
-
-Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Grupuje dane według **SKU code** i oblicza liczbę tote (wierszy), łączną ilość, maksymalną ilość w tote, liczbę tote z ilością ≤ X oraz sumę sztuk w takich tote. Parametry **X** oraz opcjonalny próg **maksimum ≥ Y** można zmieniać niezależnie (domyślnie X=3, Y=10). Wyniki są sortowane malejąco według ilości sztuk w tote ≤ X; dostępne są wyszukiwanie, zaznaczanie i eksport `Scalanie_Geek_SKU_Analysis.xlsx` z arkuszem `SKU_Analysis`.

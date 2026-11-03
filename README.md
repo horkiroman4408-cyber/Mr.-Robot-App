@@ -152,6 +152,7 @@ Compares two large databases in memory.
 - **MP → RS Tote Finder** — matches EANs from MP to TOTE locations in RS.
 - **Search totes by EAN** — paste a list, get TOTE and inventory quantity.
 - **AUDYT GEEK** — reads a Stocktake order file and shows in-app audit summaries, including copying results and supported Excel export.
+- **Scalanie Geek** — groups SKU from the existing Baza RS and analyses quantities across tote with configurable thresholds.
 
 **Details that matter:**
 - Median or minimum-quantity strategy when picking a TOTE.
@@ -160,6 +161,10 @@ Compares two large databases in memory.
 - Copy to clipboard and Excel export.
 
 **AUDYT GEEK → Tryb AUDYT RET:** The in-app stocktake summary has a first table for overall totals and a second table grouped by category. The RET summary includes counted totes/compartments/items, correct totes, incorrect compartments, incorrect totes and error rate, plus mixed-item locations, surplus, shortages, extra SKUs, major damage and the corresponding item counts. New error categories use rows with a non-empty **Exception reason**; repeated parent shelf locations are classified as mixed instead of being counted again as individual error types. The per-group **Kopiuj** action copies values horizontally, tab-separated, for pasting into Excel. Other audit modes retain their existing behaviour.
+
+### Scalanie Geek — SKU and tote analysis
+
+A new RS tool that uses the already-loaded **Baza RS** (no second import). It groups records by **SKU code** and computes tote row count, total quantity, maximum tote quantity, count of tote rows with quantity ≤ X, and sum of quantities in those rows. The two independent controls set **X** and optionally restrict SKUs to those with a maximum quantity **≥ Y**. Default values match the original VBA macro: X=3 and Y=10, with the maximum filter enabled. Results are sorted by small-tote quantity sum descending, can be searched/selected, and exported as `Scalanie_Geek_SKU_Analysis.xlsx` with the `SKU_Analysis` sheet. This is an analysis, not a physical tote-transfer planner.
 
 ### 3. MP — Audit and merging
 **Sub-modules:**
@@ -338,7 +343,3 @@ If you'd rather just say hello and tell me what you built with it, that works to
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-## RS · Scalanie Geek (v3.16.0)
-
-A new RS tool that uses the already-loaded **Baza RS** (no second import). It groups records by **SKU code** and computes tote row count, total quantity, maximum tote quantity, count of tote rows with quantity ≤ X, and sum of quantities in those rows. The two independent controls set **X** and optionally restrict SKUs to those with a maximum quantity **≥ Y**. Default values match the original VBA macro: X=3 and Y=10, with the maximum filter enabled. Results are sorted by small-tote quantity sum descending, can be searched/selected, and exported as `Scalanie_Geek_SKU_Analysis.xlsx` with the `SKU_Analysis` sheet. This is an analysis, not a physical tote-transfer planner.
