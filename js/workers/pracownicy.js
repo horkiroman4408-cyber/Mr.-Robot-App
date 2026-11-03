@@ -42,7 +42,7 @@ function parsePracownicySheet(rows, sheetName) {
   for (const r of rows.slice(hIdx + 1)) {
     if (!r || !r.length) continue;
     const login = String(val(r,'PDXXXXX','PD','PD XXXXX','Numer PD','PD pracownika','Login','USER LOGIN','USER ID')).replace(/\\s+/g,'').toUpperCase();
-    if (!/^(PD\\d+|\\d+)$/.test(login)) continue;
+    if (!/^(?:PD|PM|SPM)\\d+$/.test(login) && !/^\\d+$/.test(login)) continue;
     const firma = String(val(r,'Firma','Agencja','Agencja pracy') || '').trim();
     const grupa = String(extra ? val(r,'FUNKCJA DODATKOWA','GRUPA','PROCES','DZIAŁ') : val(r,'GRUPA','FUNKCJA DODATKOWA','PROCES','DZIAŁ') || '').trim();
     const bus = String(val(r,'Autobus','Bus') || '').trim().toUpperCase();
@@ -59,7 +59,7 @@ function parsePracownicySheet(rows, sheetName) {
 
 self.onmessage = function(e) {
   try {
-    const { buffer } = e.data;
+    const { buffer, brand = 'SINSAY' } = e.data;
     self.postMessage({ type: 'progress', stage: 'read', percent: 5 });
     
     const data = new Uint8Array(buffer);
@@ -88,7 +88,7 @@ self.onmessage = function(e) {
     if (!all.length) throw Error('Nie znaleziono pracowników. Sprawdź kolumny PD oraz Nazwisko i Imię w grafiku.');
 
     const resignations=[];
-    const rsName=wb.SheetNames.find(name=>name.trim().toUpperCase()==='REZYGNACJE');
+    const rsName=brand === 'SINSAY' ? wb.SheetNames.find(name=>name.trim().toUpperCase()==='REZYGNACJE') : null;
     if(rsName){
       const rsRows=XLSX.utils.sheet_to_json(wb.Sheets[rsName],{header:1,defval:''});
       const normalize=v=>String(v??'').toLocaleLowerCase('pl').replace(/\\s+/g,'').trim();

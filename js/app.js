@@ -234,12 +234,20 @@ function makeAttrOpts(mod){return {firma:computed(()=>attrOptions(filterByGroup(
 const kpiAttrOpts=reactive({audit:makeAttrOpts(kpiAudit),scalanie:makeAttrOpts(kpiScalanie),rozk:makeAttrOpts(kpiRozk),nv:makeAttrOpts(kpiNv)});
 const KPI_SHIFT_AB_SET=new Set(SHIFT_AB),KPI_SHIFT_CD_SET=new Set(SHIFT_CD);
 // Employee identity rules for KPI reports. SPD123 maps to PD123 only if the exact SPD record does not exist.
-function kpiIdentity(login){const id=String(login??'').trim().toUpperCase().replace(/\s+/g,'');return {id,brand:id.startsWith('SPM')||id.startsWith('PM')?'MOHITO':'SINSAY',canonical:/^SPD\d+$/.test(id)?'PD'+id.slice(3):(/^S36\d+$/.test(id)?id.slice(1):id)};}
-function kpiRosterPerson(login){const i=kpiIdentity(login);return pracownicy.byLogin.get(i.id)||(i.canonical!==i.id?pracownicy.byLogin.get(i.canonical):null)||null;}
+function kpiIdentity(login){
+ const id=String(login??'').trim().toUpperCase().replace(/\s+/g,'');
+ const canonical=/^SPD\d+$/.test(id)?'PD'+id.slice(3):(/^S36\d+$/.test(id)?id.slice(1):id);
+ // 36 is a complete, globally unique employee number, NOT an alias for PM.
+ // Its brand comes from whichever roster actually contains that exact number.
+ const is36=/^36\d+$/.test(canonical);
+ const brand=/^(?:SPM|PM)\d+$/.test(id)||is36&&pracownicyMohito.byLogin.has(canonical)?'MOHITO':'SINSAY';
+ return {id,brand,canonical};
+}
+function kpiRosterPerson(login){return pracownicyKpiLookup(login);}
 function kpiFilterBrand(rows,chosen){if(!chosen.length)return rows;const allowed=new Set(chosen);return rows.filter(r=>allowed.has(kpiIdentity(r.login).brand));}
 function kpiToggleBrand(mod,brand){mod.selectedBrands=toggleInArray(mod.selectedBrands,brand);}
 function kpiBrandOptions(mod){const counts={MOHITO:0,SINSAY:0};for(const r of mod.records)counts[kpiIdentity(r.login).brand]++;return [{key:'MOHITO',count:counts.MOHITO},{key:'SINSAY',count:counts.SINSAY}];}
-function kpiEnrichRecords(records){const m=pracownicy.byLogin;return records.map(r=>{const identity=kpiIdentity(r.login);const p=m.get(identity.id)||(identity.canonical!==identity.id?m.get(identity.canonical):null);const fb=KPI_SHIFT_AB_SET.has(r.login)?'AB':(KPI_SHIFT_CD_SET.has(r.login)?'CD':null);return {...r,brand:identity.brand,firma:(p&&p.firma)||null,proces:(p&&p.proces)||null,shift:(p&&p.shift)||fb};});}
+function kpiEnrichRecords(records){return records.map(r=>{const identity=kpiIdentity(r.login);const p=pracownicyKpiLookup(r.login);const fb=KPI_SHIFT_AB_SET.has(r.login)?'AB':(KPI_SHIFT_CD_SET.has(r.login)?'CD':null);return {...r,brand:identity.brand,firma:(p&&p.firma)||null,proces:(p&&p.proces)||null,shift:(p&&p.shift)||fb};});}
 function kpiReapplyPracownicy(){for(const mod of [kpiAudit,kpiScalanie,kpiRozk,kpiNv]){if(!mod.records.length)continue;mod.records=markRaw(kpiEnrichRecords(mod.records));mod.selectedFirmy=[];mod.selectedProcesy=[];}}
 function filterByGroup(records,groups,shifts){if(shifts.length===allShiftKeys.length)return records;const selS=new Set(shifts);return records.filter(r=>r.shift&&selS.has(r.shift));}
 const kpiAuditFilteredByGroup=computed(()=>kpiFilterBrand(filterByAttr(filterByGroup(kpiAudit.records,kpiAudit.selectedGroups,kpiAudit.selectedShifts),kpiAudit.selectedFirmy,kpiAudit.selectedProcesy),kpiAudit.selectedBrands));
@@ -279,7 +287,17 @@ const kpiIsBelow=r=>r.perHour<kpiNormThreshold.value;
 const kpiIsScalanieBelow=r=>r.perHour<kpiScalanieNormThreshold.value;
 const kpiIsRozkBelow=r=>r.perHour<kpiRozkNormThreshold.value;
 const kpiIsNvBelow=r=>r.perHour<kpiNvNormThreshold.value;
-function kpiProcessFile(file,kind,mod,onDone){if(!file)return;mod.progress.percent=0;mod.progress.label=STAGE_LABELS.read;const reader=new FileReader();reader.onload=e=>{const buffer=e.target.result;const worker=createKpiWorker();worker.onmessage=msg=>{const d=msg.data;if(d.type==='progress'){let pct=d.percent;if(d.stage==='read')pct=5;else if(d.stage==='excel')pct=d.percent;else if(d.stage==='parse')pct=60+Math.floor(d.percent*0.35);mod.progress.percent=Math.min(pct,99);mod.progress.label=STAGE_LABELS[d.stage]||'Przetwarzanie…';}else if(d.type==='done'){mod.progress.percent=100;mod.progress.label='Gotowe';setTimeout(()=>{try{onDone(d.records);}catch(error){console.error('Mr. Robot: processing completed workbook failed',kind,error);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd przetwarzania danych: '+(error?.message||'nieznany'));}finally{mrRobotDisposeWorker(worker);}},200);}else if(d.type==='error'){mrRobotDisposeWorker(worker);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd: '+d.message);}};worker.onerror=err=>{console.error('Mr. Robot Worker error',err);mrRobotDisposeWorker(worker);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd modułu Excel. Spróbuj ponownie.');};const pracownicyMap={};for(const[login,p]of pracownicy.byLogin){pracownicyMap[login]={firma:p.firma,proces:p.proces,shift:p.shift};}for(const [login,person] of pracownicy.byLogin){if(/^PD\d+$/.test(login)&&!pracownicyMap['S'+login])pracownicyMap['S'+login]={firma:person.firma,proces:person.proces,shift:person.shift};}worker.postMessage({buffer,kind,pracownicyMap});};reader.onerror=()=>showToast('Błąd czytania pliku');reader.readAsArrayBuffer(file);}
+function kpiProcessFile(file,kind,mod,onDone){if(!file)return;mod.progress.percent=0;mod.progress.label=STAGE_LABELS.read;const reader=new FileReader();reader.onload=e=>{const buffer=e.target.result;const worker=createKpiWorker();worker.onmessage=msg=>{const d=msg.data;if(d.type==='progress'){let pct=d.percent;if(d.stage==='read')pct=5;else if(d.stage==='excel')pct=d.percent;else if(d.stage==='parse')pct=60+Math.floor(d.percent*0.35);mod.progress.percent=Math.min(pct,99);mod.progress.label=STAGE_LABELS[d.stage]||'Przetwarzanie…';}else if(d.type==='done'){mod.progress.percent=100;mod.progress.label='Gotowe';setTimeout(()=>{try{onDone(d.records);}catch(error){console.error('Mr. Robot: processing completed workbook failed',kind,error);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd przetwarzania danych: '+(error?.message||'nieznany'));}finally{mrRobotDisposeWorker(worker);}},200);}else if(d.type==='error'){mrRobotDisposeWorker(worker);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd: '+d.message);}};worker.onerror=err=>{console.error('Mr. Robot Worker error',err);mrRobotDisposeWorker(worker);mod.loading=false;mod.progress.percent=0;mod.progress.label='';showToast('Błąd modułu Excel. Spróbuj ponownie.');};const pracownicyMap={};for(const[login,p]of pracownicy.byLogin){pracownicyMap[login]={firma:p.firma,proces:p.proces,shift:p.shift};}for(const [login,person] of pracownicy.byLogin){if(/^PD\d+$/.test(login)&&!pracownicyMap['S'+login])pracownicyMap['S'+login]={firma:person.firma,proces:person.proces,shift:person.shift};}
+ // A MOHITO PM/SPM login may appear as PD in its roster. A 36 login
+ // is a separate identifier and is mapped ONLY by its full, exact value.
+ for(const [login,person] of pracownicyMohito.byLogin){
+  const data={firma:person.firma,proces:person.proces,shift:person.shift};
+  if(/^36\d+$/.test(login)){if(!pracownicyMap[login])pracownicyMap[login]=data;continue;}
+  const number=String(login).match(/^(?:PD|PM|SPM)(\d+)$/)?.[1];
+  if(!number)continue;
+  for(const key of ['PM'+number,'SPM'+number])if(!pracownicyMap[key])pracownicyMap[key]=data;
+ }
+ worker.postMessage({buffer,kind,pracownicyMap});};reader.onerror=()=>showToast('Błąd czytania pliku');reader.readAsArrayBuffer(file);}
 function kpiOnAuditFile(e){const f=e.target.files[0];if(!f)return;kpiAudit.loading=true;kpiProcessFile(f,'AUDYT',kpiAudit,records=>{kpiAudit.records=markRaw(records);kpiAudit.fileName=f.name;kpiAudit.loading=false;kpiNormThreshold.value=DEFAULT_NORM_AUDYT;kpiAudit.selectedGroups=[];kpiAudit.selectedShifts=[...allShiftKeys];kpiAudit.selectedFirmy=[];kpiAudit.selectedProcesy=[];kpiAudit.selectedBrands=[];showToast(`Audyt: ${records.length} pracowników`);});}
 function kpiOnAuditDrop(e){kpiAudit.drag=false;const f=e.dataTransfer.files[0];if(f)kpiOnAuditFile({target:{files:[f]}});}
 function kpiResetAudit(){kpiAudit.records=[];kpiAudit.fileName='';kpiAudit.savedAt='';kpiNormThreshold.value=DEFAULT_NORM_AUDYT;kpiAudit.statusFilter='all';kpiAudit.selectedGroups=[];kpiAudit.selectedShifts=[...allShiftKeys];kpiAudit.selectedFirmy=[];kpiAudit.selectedProcesy=[];kpiAudit.selectedBrands=[];}
@@ -344,8 +362,30 @@ const pracownicy = reactive({
   }
 });
 Object.defineProperty(pracownicy, 'loaded', { get() { return this.records.length > 0; } });
+// v3.15.0: independent MOHITO roster, isolated from the SINSAY browser storage.
+const pracownicyMohito = reactive({
+ records:[], resignations:[], byLogin:new Map(), fileName:'', savedAt:'',saveFailed:false,
+ drag:false,loading:false,progress:{percent:0,label:''},
+ stats:{total:0,rows:0,byFirma:{},byProces:{},byShift:{},bySheet:{}}
+});
+Object.defineProperty(pracownicyMohito,'loaded',{get(){return this.records.length>0;}});
+const anyPracownicyLoaded=computed(()=>pracownicy.loaded||pracownicyMohito.loaded);
+// PM/SPM numbers in KPI are written as PD in MOHITO rosters.
+// 36 is a complete independent identifier and must never be converted to PM or PD.
+function pracownicyKpiLookup(login){
+ const identity=kpiIdentity(login);
+ if(/^36\d+$/.test(identity.canonical)){
+  return pracownicyMohito.byLogin.get(identity.canonical)||pracownicy.byLogin.get(identity.canonical)||null;
+ }
+ if(identity.brand==='MOHITO'){
+  const number=identity.id.match(/^(?:SPM|PM)(\d+)$/)?.[1];
+  if(!number)return pracownicyMohito.byLogin.get(identity.id)||null;
+  return pracownicyMohito.byLogin.get('PD'+number)||pracownicyMohito.byLogin.get(identity.id)||null;
+ }
+ return pracownicy.byLogin.get(identity.id)||(identity.canonical!==identity.id?pracownicy.byLogin.get(identity.canonical):null)||null;
+}
 
-function pracownicyRebuild() {
+function pracownicyRebuild(db=pracownicy) {
   // 1. Indeks: login → pracownik (priorytet wg sourceSheet)
   const SHEET_PRIORITY = {
     'BRYGADZISTA': 1,
@@ -355,7 +395,7 @@ function pracownicyRebuild() {
     'UKR procesy': 5
   };
   const map = new Map();
-  for (const r of pracownicy.records) {
+  for (const r of db.records) {
     const existing = map.get(r.login);
     if (!existing) {
       map.set(r.login, r);
@@ -365,28 +405,29 @@ function pracownicyRebuild() {
       if (a < b) map.set(r.login, r);
     }
   }
-  pracownicy.byLogin = map;
+  db.byLogin = map;
   
   // 2. Statystyki
   const byFirma = {}, byProces = {}, byShift = {}, bySheet = {};
-  for (const r of pracownicy.records) {
+  for (const r of db.records) {
     if (r.firma)  byFirma[r.firma]   = (byFirma[r.firma]   || 0) + 1;
     if (r.proces) byProces[r.proces] = (byProces[r.proces] || 0) + 1;
     if (r.shift)  byShift[r.shift]   = (byShift[r.shift]   || 0) + 1;
     if (r.sourceSheet) bySheet[r.sourceSheet] = (bySheet[r.sourceSheet] || 0) + 1;
   }
-  pracownicy.stats = {
+  db.stats = {
     total: map.size,
-    rows: pracownicy.records.length,
+    rows: db.records.length,
     byFirma, byProces, byShift, bySheet
   };
 }
 
-function pracownicyProcessFile(file) {
+function pracownicyProcessFile(file, brand='SINSAY') {
+  const db = brand==='MOHITO'?pracownicyMohito:pracownicy;
   if (!file) return;
-  pracownicy.loading = true;
-  pracownicy.progress.percent = 0;
-  pracownicy.progress.label = 'Czytanie pliku…';
+  db.loading = true;
+  db.progress.percent = 0;
+  db.progress.label = 'Czytanie pliku…';
   
   const reader = new FileReader();
   reader.onload = e => {
@@ -400,29 +441,31 @@ function pracownicyProcessFile(file) {
         if (d.stage === 'read') pct = 5;
         else if (d.stage === 'excel') pct = d.percent;
         else if (d.stage === 'parse') pct = 50 + Math.floor(d.percent * 0.45);
-        pracownicy.progress.percent = Math.min(pct, 99);
-        pracownicy.progress.label = d.stage === 'read' ? 'Czytanie pliku…'
+        db.progress.percent = Math.min(pct, 99);
+        db.progress.label = d.stage === 'read' ? 'Czytanie pliku…'
           : d.stage === 'excel' ? 'Parsowanie Excel…'
           : 'Przetwarzanie arkuszy…';
       } else if (d.type === 'done') {
-        pracownicy.progress.percent = 100;
-        pracownicy.progress.label = 'Gotowe';
+        db.progress.percent = 100;
+        db.progress.label = 'Gotowe';
         setTimeout(() => {
-          pracownicy.records = markRaw(d.records);
-          pracownicy.resignations = markRaw(d.resignations||[]);
-          pracownicy.fileName = file.name;
-          pracownicyRebuild();
+         try{
+          db.records = markRaw(d.records.map(r=>({...r,brand})));
+          db.resignations = markRaw(brand==='SINSAY'?(d.resignations||[]):[]);
+          db.fileName = file.name;
+          pracownicyRebuild(db);
           kpiReapplyPracownicy();
-          pracownicySave();
-          pracownicy.loading = false;
+          (brand==='MOHITO'?pracownicyMohitoSave:pracownicySave)();
+          db.loading = false;
           mrRobotDisposeWorker(worker);
-          showToast(`Pracownicy: ${pracownicy.stats.total} osób (${d.records.length} wierszy)`);
+          showToast(`${brand}: ${db.stats.total} osób (${d.records.length} wierszy)`);
+         }catch(error){console.error('Roster completion error',brand,error);db.loading=false;db.progress.percent=0;db.progress.label='';mrRobotDisposeWorker(worker);showToast('Błąd: '+(error?.message||error));}
         }, 200);
       } else if (d.type === 'error') {
         mrRobotDisposeWorker(worker);
-        pracownicy.loading = false;
-        pracownicy.progress.percent = 0;
-        pracownicy.progress.label = '';
+        db.loading = false;
+        db.progress.percent = 0;
+        db.progress.label = '';
         showToast('Błąd: ' + d.message);
       }
     };
@@ -430,16 +473,16 @@ function pracownicyProcessFile(file) {
     worker.onerror = err => {
       console.error('Mr. Robot Pracownicy Worker error', err);
       mrRobotDisposeWorker(worker);
-      pracownicy.loading = false;
-      pracownicy.progress.percent = 0;
-      pracownicy.progress.label = '';
+      db.loading = false;
+      db.progress.percent = 0;
+      db.progress.label = '';
       showToast('Błąd modułu Excel.');
     };
     
-    worker.postMessage({ buffer });
+    worker.postMessage({ buffer, brand });
   };
   
-  reader.onerror = () => { pracownicy.loading = false; showToast('Błąd czytania pliku'); };
+  reader.onerror = () => { db.loading = false; showToast('Błąd czytania pliku'); };
   reader.readAsArrayBuffer(file);
 }
 
@@ -496,7 +539,7 @@ function pracownicyRestore() {
     if (!data || !Array.isArray(data.rows) || !Array.isArray(data.fields)) return;
     const records = data.rows.map(row => { const o = {}; data.fields.forEach((f, i) => { o[f] = row[i]; }); return o; });
     if (!records.length) return;
-    pracownicy.records = markRaw(records);
+    pracownicy.records = markRaw(records.map(r=>({...r,brand:'SINSAY'})));
     pracownicy.resignations = markRaw(data.resignations||[]);
     pracownicy.fileName = data.fileName || 'Grafik.xlsx';
     if (/^\d{4}-(0[1-9]|1[0-2])$/.test(data.period||'')) pracownicy.period = data.period;
@@ -507,6 +550,38 @@ function pracownicyRestore() {
   }
 }
 pracownicyRestore();
+
+
+const PRACOWNICY_MOHITO_STORE_KEY='mrrobot_pracownicy_mohito_v1';
+function pracownicyMohitoSave(){
+ const savedAt=new Date().toISOString();
+ try{
+  const rows=pracownicyMohito.records.map(r=>PRACOWNICY_FIELDS.map(f=>r[f]??null));
+  localStorage.setItem(PRACOWNICY_MOHITO_STORE_KEY,JSON.stringify({v:1,fileName:pracownicyMohito.fileName,savedAt,fields:PRACOWNICY_FIELDS,rows}));
+  pracownicyMohito.savedAt=savedAt;pracownicyMohito.saveFailed=false;
+ }catch(e){console.warn('Mr. Robot: MOHITO roster save failed',e);pracownicyMohito.saveFailed=true;}
+}
+function pracownicyMohitoRestore(){
+ try{
+  const data=JSON.parse(localStorage.getItem(PRACOWNICY_MOHITO_STORE_KEY)||'null');
+  if(!data||!Array.isArray(data.rows)||!Array.isArray(data.fields))return;
+  const rows=data.rows.map(row=>{const r={brand:'MOHITO'};data.fields.forEach((f,i)=>r[f]=row[i]);return r;});
+  if(!rows.length)return;
+  pracownicyMohito.records=markRaw(rows);pracownicyMohito.fileName=data.fileName||'Grafik MOHITO.xlsx';
+  pracownicyMohito.savedAt=data.savedAt||'';pracownicyRebuild(pracownicyMohito);
+ }catch(e){console.warn('Mr. Robot: MOHITO roster restore failed',e);}
+}
+function pracownicyMohitoOnFile(e){const f=e.target.files?.[0];if(f)pracownicyProcessFile(f,'MOHITO');e.target.value='';}
+function pracownicyMohitoOnDrop(e){pracownicyMohito.drag=false;const f=e.dataTransfer.files?.[0];if(f)pracownicyProcessFile(f,'MOHITO');}
+function pracownicyMohitoReset(){
+ pracownicyMohito.records=[];pracownicyMohito.resignations=[];pracownicyMohito.byLogin=new Map();
+ pracownicyMohito.fileName='';pracownicyMohito.savedAt='';pracownicyMohito.saveFailed=false;
+ pracownicyMohito.loading=false;pracownicyMohito.progress.percent=0;pracownicyMohito.progress.label='';
+ pracownicyMohito.stats={total:0,rows:0,byFirma:{},byProces:{},byShift:{},bySheet:{}};
+ try{localStorage.removeItem(PRACOWNICY_MOHITO_STORE_KEY);}catch(e){}
+ kpiReapplyPracownicy();
+}
+pracownicyMohitoRestore();
 
 // Baza szkoleń integrated with the existing Grafik loader. All records remain local.
 const employeeSearch=ref(''),employeeFilter=ref(''),employeeProfile=ref(''),employeeProfileTab=ref('overview');
@@ -524,26 +599,31 @@ const employeeCurrent=computed(()=>employeeCurrentRows.value);
 const employeeTrainingByPd=computed(()=>{const index=new Map();for(const row of employeeTraining.rows){const id=eKey(row.id);if(!index.has(id))index.set(id,[]);index.get(id).push(row);}return index;});
 const employeeResignationsByPd=computed(()=>{const index=new Map();for(const row of employeeResignations.value){const id=eKey(row.id);if(!index.has(id))index.set(id,[]);index.get(id).push(row);}return index;});
 const employeeRoster=computed(()=>{
-  const people=[...pracownicy.byLogin.values()].map(r=>({id:eKey(r.login),name:r.name||'',source:'grafik',search:eNorm(eKey(r.login)+' '+(r.name||''))}));
+  const people=[...pracownicy.byLogin.values(),...pracownicyMohito.byLogin.values()].map(r=>{
+   const login=eKey(r.login);
+   const number=r.brand==='MOHITO'?login.match(/^PD(\d+)$/)?.[1]:null;
+   const id=number?'PM'+number:login; // 36 retains its own number, never becomes PM.
+   return {id,name:r.name||'',brand:r.brand||'SINSAY',source:'grafik',search:eNorm(id+' '+login+' '+(r.name||''))};
+  });
   const ids=new Set(people.map(r=>r.id));
   for(const r of employeeResignations.value){if(!ids.has(r.id)){ids.add(r.id);people.push({id:r.id,name:r.name||'',source:'rezygnacje',search:eNorm(r.id+' '+(r.name||''))});}}
   return people;
 });
 const employeeMatches=computed(()=>{const q=eNorm(employeeSearch.value);return employeeRoster.value.filter(p=>!q||p.search.includes(q)).slice(0,120);});
 const employeeTrainerByPd=computed(()=>{const index=new Map();for(const row of employeeTraining.rows){const id=eKey(row.trainer);if(id&&!index.has(id))index.set(id,row);}return index;});
-function employeeTrainerName(row){const id=eKey(row?.trainer);if(!id)return '';const person=pracownicy.byLogin.get(id);const archived=employeeResignationsByPd.value.get(id)?.[0];const training=employeeTrainingByPd.value.get(id)?.[0];const found=person?.name||archived?.name||row?.trainerName||training?.name||employeeTrainerByPd.value.get(id)?.trainerName||'';return String(found).trim();}
+function employeeTrainerName(row){const id=eKey(row?.trainer);if(!id)return '';const person=pracownicyKpiLookup(id);const archived=employeeResignationsByPd.value.get(id)?.[0];const training=employeeTrainingByPd.value.get(id)?.[0];const found=person?.name||archived?.name||row?.trainerName||training?.name||employeeTrainerByPd.value.get(id)?.trainerName||'';return String(found).trim();}
 const employeeSelected=computed(()=>{
-  const original=eKey(employeeProfile.value);const id=kpiIdentity(original).canonical;const p=pracownicy.byLogin.get(original)||pracownicy.byLogin.get(id);
-  const resignations=employeeResignationsByPd.value.get(original)||employeeResignationsByPd.value.get(id)||[];
-  const training=employeeTrainingByPd.value.get(original)||employeeTrainingByPd.value.get(id)||[];
-  const trainer=employeeTrainerByPd.value.get(original)||employeeTrainerByPd.value.get(id);
+  const original=eKey(employeeProfile.value);const id=kpiIdentity(original).canonical;const p=pracownicyKpiLookup(original);
+  const resignations=kpiIdentity(original).brand==='MOHITO'?[]:(employeeResignationsByPd.value.get(original)||employeeResignationsByPd.value.get(id)||[]);
+  const training=kpiIdentity(original).brand==='MOHITO'?[]:(employeeTrainingByPd.value.get(original)||employeeTrainingByPd.value.get(id)||[]);
+  const trainer=kpiIdentity(original).brand==='MOHITO'?null:(employeeTrainerByPd.value.get(original)||employeeTrainerByPd.value.get(id));
   if(!p&&!resignations.length&&!training.length&&!trainer)return null;
-  return {id,p:p||resignations[0]||null,name:p?.name||resignations[0]?.name||training[0]?.name||trainer?.trainerName||id,active:!!p,resignations,training};
+  return {id,p:p||resignations[0]||null,brand:p?.brand||kpiIdentity(original).brand,name:p?.name||resignations[0]?.name||training[0]?.name||trainer?.trainerName||id,active:!!p,resignations,training};
 });
 const employeeFilteredTraining=computed(()=>{const q=eNorm(employeeFilter.value);return (employeeSelected.value?.training||[]).filter(r=>!q||eNorm([r.process,r.trainer,r.trainerName,r.note,r.pke].join(' ')).includes(q));});
 const employeeTrainingMinutes=computed(()=>employeeSelected.value?.training.reduce((s,r)=>s+(typeof r.duration==='number'?Math.round(r.duration*1440):0),0)||0);
 const employeeProfileFields=computed(()=>{const s=employeeSelected.value;if(!s)return [];const p=s.p||{};return [
-[eMsg('Płeć','Пол','Sex','Стать'),p.sex],[eMsg('Kraj','Страна','Country','Країна'),p.country],
+[eMsg('Marka','Бренд','Brand','Бренд'),s.brand],[eMsg('Płeć','Пол','Sex','Стать'),p.sex],[eMsg('Kraj','Страна','Country','Країна'),p.country],
 [eMsg('Agencja','Агентство','Agency','Агенція'),p.firma],[eMsg('Dział','Отдел','Department','Відділ'),p.proces||p.grupa],
 ...(s.active?[[eMsg('Zmiana','Смена','Shift','Зміна'),p.shift]]:[]),
 [eMsg('Pierwszy dzień','Первый день','First day','Перший день'),eDate(p.start)],
@@ -1381,7 +1461,8 @@ const mrRestoreStats=computed(()=>{
 });
 const mrMemoryItems=computed(()=>{
  const rows=mrRestore.items.filter(item=>item.status!=='removed');
- if(pracownicy.savedAt)rows.unshift({slot:'pracownicy',label:eMsg('Grafik pracowników','График сотрудников','Employee roster','Графік працівників'),name:pracownicy.fileName,savedAt:pracownicy.savedAt,size:null,status:'done',local:true});
+ if(pracownicyMohito.savedAt)rows.unshift({slot:'pracownicyMohito',label:'Grafik MOHITO',name:pracownicyMohito.fileName,savedAt:pracownicyMohito.savedAt,size:null,status:'done',local:true});
+ if(pracownicy.savedAt)rows.unshift({slot:'pracownicy',label:'Grafik SINSAY',name:pracownicy.fileName,savedAt:pracownicy.savedAt,size:null,status:'done',local:true});
  if(employeeTraining.savedAt)rows.push({slot:'employeeTraining',label:eMsg('Rejestr szkoleń','Реестр обучения','Training register','Реєстр навчання'),name:employeeTraining.fileName,savedAt:employeeTraining.savedAt,size:employeeTraining.fileSize||null,status:'done',local:true});
  return rows;
 });
@@ -1451,16 +1532,17 @@ przestojeReset=mrWrapReset('przestoje',przestojeReset);
 toteResetMp=mrWrapReset('toteMp',toteResetMp);
 toteResetRs=mrWrapReset('toteRs',toteResetRs);
 geekReset=mrWrapReset('geek',geekReset);
-const mrSavedList=computed(()=>{const out=[];if(employeeTraining.savedAt)out.push({slot:'employeeTraining',label:eMsg('Rejestr szkoleń','Реестр обучения','Training register','Реєстр навчання'),name:employeeTraining.fileName,savedAt:employeeTraining.savedAt});if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik pracowników',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
+const mrSavedList=computed(()=>{const out=[];if(employeeTraining.savedAt)out.push({slot:'employeeTraining',label:eMsg('Rejestr szkoleń','Реестр обучения','Training register','Реєстр навчання'),name:employeeTraining.fileName,savedAt:employeeTraining.savedAt});if(pracownicyMohito.savedAt)out.push({slot:'pracownicyMohito',label:'Grafik MOHITO',name:pracownicyMohito.fileName,savedAt:pracownicyMohito.savedAt});if(pracownicy.savedAt)out.push({slot:'pracownicy',label:'Grafik SINSAY',name:pracownicy.fileName,savedAt:pracownicy.savedAt});for(const slot of Object.keys(MR_SLOT_LABELS)){const st=MR_SLOT_STATE[slot];if(st&&st.savedAt)out.push({slot,label:MR_SLOT_LABELS[slot],name:st.fileName,savedAt:st.savedAt});}return out;});
 function mrSavedTitle(slot){const v=mrSaved[slot];return v?`Zapamiętany w przeglądarce · ${pracownicyFmtDate(v.savedAt)}`:'';}
-function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();geekReset();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();employeeClearTraining();showToast('Pamięć przeglądarki wyczyszczona');}
+function mrClearAllSaved(){if(!window.confirm(uiLanguage.value==='ru'?'Удалить все сохранённые файлы из браузера?\nЗагруженные данные будут очищены.':uiLanguage.value==='en'?'Delete all saved files from this browser?\nCurrently loaded data will be cleared.':uiLanguage.value==='uk'?'Видалити всі збережені файли з браузера?\nЗавантажені дані буде очищено.':'Usunąć wszystkie zapamiętane pliki z przeglądarki?\nAktualnie wczytane dane zostaną wyczyszczone.'))return;mrRestore.runId++;mrRestore.items=[];mrRestore.phase='complete';for(const slot of Object.keys(MR_SLOT_LABELS))delete mrPending[slot];mrDb().then(db=>new Promise((res,rej)=>{const tx=db.transaction([MR_FILES_STORE,MR_META_STORE],'readwrite');tx.objectStore(MR_FILES_STORE).clear();tx.objectStore(MR_META_STORE).clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error);})).catch(e=>console.warn('Mr. Robot: czyszczenie pamięci nieudane',e));for(const k of Object.keys(mrSaved))delete mrSaved[k];kpiResetAudit();kpiResetScalanie();kpiResetRozk();kpiResetNv();audytReset();mdtReset();stockReset();przestojeReset();toteResetMp();toteResetRs();geekReset();if(pracownicy.loaded||pracownicy.savedAt)pracownicyReset();if(pracownicyMohito.loaded||pracownicyMohito.savedAt)pracownicyMohitoReset();employeeClearTraining();showToast('Pamięć przeglądarki wyczyszczona');}
 // Remove one saved file, not the entire browser memory. Never interrupt a running worker.
 const MR_MEMORY_RESET={kpiAudit:()=>kpiResetAudit(),kpiScalanie:()=>kpiResetScalanie(),kpiRozk:()=>kpiResetRozk(),kpiNv:()=>kpiResetNv(),audyt:()=>audytReset(),mdt:()=>mdtReset(),stock:()=>stockReset(),przestoje:()=>przestojeReset(),toteMp:()=>toteResetMp(),toteRs:()=>toteResetRs(),geek:()=>geekReset()};
 async function mrMemoryRemove(slot){
  const item=mrRestore.items.find(x=>x.slot===slot);
- if(item?.status==='loading'||item?.status==='removing'||MR_SLOT_STATE[slot]?.loading||slot==='pracownicy'&&pracownicy.loading){showToast(mrRestoreText('cannotRemove'));return;}
- const label=slot==='pracownicy'?'Grafik pracowników':slot==='employeeTraining'?'Rejestr szkoleń':MR_SLOT_LABELS[slot]||slot;
+ if(item?.status==='loading'||item?.status==='removing'||MR_SLOT_STATE[slot]?.loading||(slot==='pracownicy'&&pracownicy.loading||slot==='pracownicyMohito'&&pracownicyMohito.loading)){showToast(mrRestoreText('cannotRemove'));return;}
+ const label=slot==='pracownicyMohito'?'Grafik MOHITO':slot==='pracownicy'?'Grafik SINSAY':slot==='employeeTraining'?'Rejestr szkoleń':MR_SLOT_LABELS[slot]||slot;
  if(!window.confirm(mrRestoreText('confirmRemove')+'\n'+label+' — '+(item?.name||(slot==='employeeTraining'?employeeTraining.fileName:pracownicy.fileName)||'')))return;
+ if(slot==='pracownicyMohito'){pracownicyMohitoReset();showToast(mrRestoreText('removed'));return;}
  if(slot==='pracownicy'){pracownicyReset();showToast(mrRestoreText('removed'));return;}
  if(slot==='employeeTraining'){await employeeClearTraining();showToast(mrRestoreText('removed'));return;}
  if(!item)return;
@@ -1668,6 +1750,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 
