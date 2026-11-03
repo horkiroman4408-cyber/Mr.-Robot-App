@@ -764,6 +764,76 @@ function toteRunSearch(){if(!toteCanSearch.value)return;const mpByEan=new Map();
 function toteRunManualSearch(){if(!toteCanManualSearch.value)return;const eans=parseEanList(toteManualText.value);const uniqueEans=[...new Set(eans)];const found=[],missing=[],filtered=[];const multiBins=toteRsMultiToteShelfBins.value;for(const ean of uniqueEans){let rsRows=toteRsPopToteByEan.value.get(ean);if(!rsRows||rsRows.length===0){missing.push(ean);continue;}if(toteManualToteType.value==='plain')rsRows=rsRows.filter(r=>!is2x2(r.shelfType));else if(toteManualToteType.value==='2x2')rsRows=rsRows.filter(r=>is2x2(r.shelfType));if(toteManualMultiTote.value==='yes')rsRows=rsRows.filter(r=>multiBins.has(r.shelfBin));else if(toteManualMultiTote.value==='no')rsRows=rsRows.filter(r=>!multiBins.has(r.shelfBin));if(!rsRows.length){filtered.push(ean);continue;}const best=pickToteByStrategy(rsRows,totePickStrategy.value);if(!best){missing.push(ean);continue;}found.push({ean,tote:best.shelfBin,rsQty:best.qty});}toteManualResults.value=found;toteManualMissing.value=missing;toteManualFiltered.value=filtered;toteManualStats.input=uniqueEans.length;toteManualStats.found=found.length;toteManualStats.missing=missing.length;toteManualStats.filtered=filtered.length;toteManualSearched.value=true;showToast(`Znaleziono ${found.length} / ${uniqueEans.length}`);}function toteExportManualExcel(){if(!toteManualResults.value.length)return;const wb=XLSX.utils.book_new();const data=[['EAN (SKU)','TOTE (RS)','Inventory Qty (RS)']];for(const r of toteManualResults.value)data.push([r.ean,r.tote+',',r.rsQty]);const ws=XLSX.utils.aoa_to_sheet(data);XLSX.utils.book_append_sheet(wb,ws,'Wyniki');XLSX.writeFile(wb,'Manual_SKU_Tote_Result.xlsx');showToast('Wygenerowano plik');}
 async function toteCopyManualToClipboard(){if(!toteManualResults.value.length)return;const lines=['EAN (SKU)\tTOTE (RS)\tInventory Qty (RS)'];for(const r of toteManualResults.value){const toteWithComma=r.tote?r.tote+',':'';lines.push([r.ean,toteWithComma,r.rsQty].join('\t'));}const text=lines.join('\n');try{await navigator.clipboard.writeText(text);showToast('Skopiowano do schowka');}catch(err){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('Skopiowano');}catch(e){showToast('Nie udało się skopiować');}document.body.removeChild(ta);}}
 
+// ==================== RS → Scalanie Geek (VBA SCALANIE_GEEK) ====================
+// Uses the existing RS inventory records; no extra Excel upload or duplicate database.
+const rsScalGeek=reactive({smallQty:3,minimumMax:10,filterMax:true,query:'',ran:false,selected:[]});
+const rsScalGeekSource=ref([]);
+const rsScalGeekSort=ref('smallSum');
+const rsScalGeekPage=ref(1);
+const rsScalGeekPageSize=100;
+const rsScalGeekHeaders=['SKU Code','Liczba tote','Laczna ilosc sztuk w totach','Maksymalna ilosc w tote','Liczba tote z iloscia <= 3','Ilosc sztuk w tote <= 3'];
+function rsScalGeekRun(){
+ if(!toteRsLoaded.value||toteRs.loading){showToast(eMsg('Najpierw wczytaj bazę RS','Сначала загрузите базу RS','Load the RS database first','Спочатку завантажте базу RS'));return;}
+ const grouped=new Map();
+ for(const row of toteRs.records){
+  const sku=String(row.ean??'').trim();
+  // Source RS worker already discards blank SKU; use the same parsed RS database as the other RS tools.
+  let item=grouped.get(sku);
+  if(!item){item={sku,qtys:[],total:0,max:-Infinity,count:0};grouped.set(sku,item);}
+  const qty=Number.isFinite(Number(row.qty))?Number(row.qty):0;
+  item.qtys.push(qty);item.total+=qty;item.max=Math.max(item.max,qty);item.count++;
+ }
+ rsScalGeekSource.value=markRaw([...grouped.values()]);rsScalGeek.selected=[];rsScalGeek.ran=true;rsScalGeekPage.value=1;
+ showToast(eMsg('Przeanalizowano SKU: ','Проанализировано SKU: ','Analyzed SKUs: ','Проаналізовано SKU: ')+grouped.size);
+}
+const rsScalGeekThreshold=computed(()=>{const n=Number(rsScalGeek.smallQty);return Number.isFinite(n)?Math.max(0,n):3;});
+const rsScalGeekMaxFilter=computed(()=>{const n=Number(rsScalGeek.minimumMax);return Number.isFinite(n)?Math.max(0,n):10;});
+const rsScalGeekRows=computed(()=>{
+ if(!rsScalGeek.ran)return [];
+ const low=rsScalGeekThreshold.value,minMax=rsScalGeekMaxFilter.value;
+ const query=String(rsScalGeek.query||'').trim().toLowerCase();
+ const list=[];
+ for(const base of rsScalGeekSource.value){
+  if(rsScalGeek.filterMax&&base.max<minMax)continue;
+  if(query&&!base.sku.toLowerCase().includes(query))continue;
+  let smallCount=0,smallSum=0;
+  for(const qty of base.qtys)if(qty<=low){smallCount++;smallSum+=qty;}
+  list.push({sku:base.sku,count:base.count,total:base.total,max:base.max,smallCount,smallSum});
+ }
+ const key=rsScalGeekSort.value;
+ list.sort((a,b)=>(b[key]??b.smallSum)-(a[key]??a.smallSum)||a.sku.localeCompare(b.sku));
+ return list;
+});
+const rsScalGeekStats=computed(()=>({all:rsScalGeekSource.value.length,visible:rsScalGeekRows.value.length,removed:rsScalGeekSource.value.length-rsScalGeekRows.value.length,smallTotes:rsScalGeekRows.value.reduce((sum,r)=>sum+r.smallCount,0),smallPieces:rsScalGeekRows.value.reduce((sum,r)=>sum+r.smallSum,0)}));
+const rsScalGeekPaged=computed(()=>rsScalGeekRows.value.slice((rsScalGeekPage.value-1)*rsScalGeekPageSize,rsScalGeekPage.value*rsScalGeekPageSize));
+const rsScalGeekPages=computed(()=>Math.max(1,Math.ceil(rsScalGeekRows.value.length/rsScalGeekPageSize)));
+watch(()=>[rsScalGeek.smallQty,rsScalGeek.minimumMax,rsScalGeek.filterMax,rsScalGeek.query,rsScalGeekSort.value],()=>{rsScalGeekPage.value=1;});
+watch(()=>toteRs.records,()=>{rsScalGeek.ran=false;rsScalGeekSource.value=[];rsScalGeek.selected=[];rsScalGeekPage.value=1;});
+function rsScalGeekToggle(sku){const index=rsScalGeek.selected.indexOf(sku);if(index<0)rsScalGeek.selected.push(sku);else rsScalGeek.selected.splice(index,1);}
+function rsScalGeekSelectVisible(){const current=new Set(rsScalGeek.selected);const visible=rsScalGeekRows.value.map(r=>r.sku);const all=visible.every(x=>current.has(x));for(const sku of visible){if(all)current.delete(sku);else current.add(sku);}rsScalGeek.selected=[...current];}
+function rsScalGeekExport(){
+ if(!rsScalGeekRows.value.length)return;
+ const active=new Set(rsScalGeek.selected);
+ const out=active.size?rsScalGeekRows.value.filter(r=>active.has(r.sku)):rsScalGeekRows.value;
+ const low=rsScalGeekThreshold.value;
+ const data=[['SKU Code','Liczba tote','Laczna ilosc sztuk w totach','Maksymalna ilosc w tote',`Liczba tote z iloscia <= ${low}`,`Ilosc sztuk w tote <= ${low}`]];
+ for(const r of out)data.push([String(r.sku),r.count,r.total,r.max,r.smallCount,r.smallSum]);
+ const wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet(data);
+ ws['!cols']=[{wch:22},{wch:17},{wch:30},{wch:27},{wch:29},{wch:27}];
+ for(let i=2;i<=out.length+1;i++){const cell=ws['A'+i];if(cell){cell.t='s';cell.v=String(cell.v);cell.z='@';}}
+ XLSX.utils.book_append_sheet(wb,ws,'SKU_Analysis');
+ XLSX.writeFile(wb,'Scalanie_Geek_SKU_Analysis.xlsx');
+}
+async function rsScalGeekCopy(){
+ const active=new Set(rsScalGeek.selected);
+ const rows=active.size?rsScalGeekRows.value.filter(r=>active.has(r.sku)):rsScalGeekRows.value;
+ if(!rows.length)return;
+ const low=rsScalGeekThreshold.value;
+ const header=['SKU Code','Liczba tote','Laczna ilosc sztuk w totach','Maksymalna ilosc w tote',`Liczba tote z iloscia <= ${low}`,`Ilosc sztuk w tote <= ${low}`].join('\t');
+ const content=[header,...rows.map(r=>[r.sku,r.count,r.total,r.max,r.smallCount,r.smallSum].join('\t'))].join('\n');
+ try{await navigator.clipboard.writeText(content);showToast(eMsg('Skopiowano','Скопировано','Copied','Скопійовано'));}catch(e){showToast(eMsg('Nie można skopiować','Не удалось скопировать','Copy failed','Не вдалося скопіювати'));}
+}
+
 // ==================== MP (Audyt) ====================
 // ==================== MP Scalanie ====================
 // Shared location-prefix filter for Scalanie and Konsolidacja.
@@ -1769,6 +1839,7 @@ toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
 toteRunSearch,toteExportExcel,toteToggleAll,toteAllChecked,
 toteManualText,toteManualResults,toteManualMissing,toteManualFiltered,toteManualSearched,toteManualStats,totePickStrategy,toteManualToteType,toteManualMultiTote,
 toteManualEanCount,toteCanManualSearch,toteRunManualSearch,toteExportManualExcel,toteCopyManualToClipboard,
+rsScalGeek,rsScalGeekSort,rsScalGeekRun,rsScalGeekRows,rsScalGeekStats,rsScalGeekPaged,rsScalGeekPages,rsScalGeekPage,rsScalGeekThreshold,rsScalGeekMaxFilter,rsScalGeekToggle,rsScalGeekSelectVisible,rsScalGeekExport,rsScalGeekCopy,
 audytTab,mpAuditBrand,mpAuditMohitoTypes,mpAuditToggleMohitoType,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
 formatka59,formatka59RunAnalysis,formatka59CopyToClipboard,
 mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,

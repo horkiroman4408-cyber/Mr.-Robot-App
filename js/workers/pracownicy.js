@@ -74,7 +74,16 @@ self.onmessage = function(e) {
     self.postMessage({ type: 'progress', stage: 'excel', percent: 50 });
     
     const all = [];
-    const graphSheets = wb.SheetNames.filter(n=>n.trim().toLocaleUpperCase('pl')!=='REZYGNACJE');
+    // Powrót do pracy is an auxiliary SINSAY sheet, not an employee roster.
+    // Do not extract workers, shifts or calendars from it.
+    const normalizeSheetName = name => String(name ?? '').trim()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/\s+/g, ' ');
+    const graphSheets = wb.SheetNames.filter(name => {
+      const sheet = normalizeSheetName(name);
+      if (sheet === 'REZYGNACJE') return false; // parsed separately as shared archive
+      if (brand === 'SINSAY' && sheet === 'POWROT DO PRACY') return false;
+      return true;
+    });
     const total = graphSheets.length || 1;
     let processed = 0;
     for (const sheetName of graphSheets) {

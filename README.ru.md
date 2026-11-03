@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.15.0-blue)
+![версия](https://img.shields.io/badge/version-3.16.0-blue)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -338,3 +338,7 @@ Mr.-Robot-App/
 Открыт к фидбеку и сотрудничеству. Есть мысли — открывайте issue в этом репозитории.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+## RS · Scalanie Geek (v3.16.0)
+
+Новый инструмент RS использует уже загруженную **Базу RS**, повторная загрузка не требуется. Группирует строки по **SKU code** и рассчитывает количество tote (строк), общую сумму товаров, максимальное количество в tote, число tote с количеством ≤ X и сумму товаров в них. Порог **X** и необязательное ограничение **максимум ≥ Y** задаются независимо (по умолчанию X=3, Y=10). Результаты сортируются по убыванию суммы товаров в малых tote; доступны поиск, выбор строк и экспорт `Scalanie_Geek_SKU_Analysis.xlsx` с листом `SKU_Analysis`.

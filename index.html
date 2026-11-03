@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.15.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.16.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -663,11 +663,48 @@
 </div>
 <button class="subcard-btn" style="background:linear-gradient(180deg,#4ade80 0%,#30d158 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 6px 16px rgba(48,209,88,.35);">{{ tr(236) }} <span class="arrow">→</span></button>
 </div>
+
+<div class="subcard float-up" style="--accent-soft:rgba(48,209,88,.12);animation-delay:.24s" @click="rsView='scalanieGeek'">
+ <div class="flex items-start gap-4"><div class="subcard-icon bg-gradient-to-br from-[#4ade80] via-[#30d158] to-[#059669]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="8" y="13" width="8" height="8" rx="1.5"/><path d="M7 11v2m10-2v2"/></svg></div><div class="flex-1 min-w-0"><div class="subcard-title" style="background:linear-gradient(135deg,#4ade80,#059669);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Scalanie Geek</div><div class="subcard-sub">{{ eMsg('Analiza i konsolidacja SKU','Анализ и консолидация SKU','SKU consolidation analysis','Аналіз і консолідація SKU') }}</div></div></div>
+ <p class="subcard-desc">{{ eMsg('Analiza liczby tote, ilości towaru i małych stanów według SKU. Korzysta z istniejącej bazy RS.', 'Анализ количества tote, товаров и малых остатков по SKU. Использует существующую базу RS.', 'Analyze totes, quantities and low stock per SKU using the existing RS database.', 'Аналіз tote, кількості товарів і малих залишків за SKU з наявної бази RS.') }}</p>
+ <div class="tag-row"><span class="tag">SKU</span><span class="tag">Tote</span><span class="tag">XLSX</span></div>
+ <button class="subcard-btn" style="background:linear-gradient(180deg,#4ade80 0%,#30d158 100%);">{{ tr(236) }} <span class="arrow">→</span></button>
+</div>
+
 </div>
 
 </main>
 <footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
 </template>
+
+
+<template v-else-if="rsView === 'scalanieGeek'">
+<header class="px-6 pt-8 pb-4 max-w-6xl w-full mx-auto"><div class="flex items-center gap-5 flex-wrap">
+<button class="back-to-hub shrink-0" @click="rsView='cards'">← {{ tr(249) }}</button>
+<div class="flex items-center gap-3"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#4ade80] via-[#30d158] to-[#059669] flex items-center justify-center module-context-badge robot-glow green"><svg class="module-context-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="8" y="13" width="8" height="8" rx="1.5"/><path d="M7 11v2m10-2v2"/></svg></div><div><h1 class="text-[22px] font-bold tracking-tight">Scalanie Geek</h1><div class="text-xs text-slate-500">RS · {{ eMsg('Analiza SKU i tote','Анализ SKU и tote','SKU & tote analysis','Аналіз SKU та tote') }}</div></div></div>
+</div></header>
+<main class="flex-1 px-6 pb-12 max-w-6xl w-full mx-auto space-y-5">
+<div class="glass-strong p-5 space-y-4">
+ <div class="flex flex-wrap gap-3 items-center"><h2 class="font-bold">{{ eMsg('Baza RS','База RS','RS database','База RS') }}</h2><span v-if="toteRsLoaded" class="chip bg-emerald-100/80 text-emerald-700">✓ {{ toteRs.records.length.toLocaleString('pl-PL') }} {{ tr(131) }}</span><span v-else class="chip bg-amber-100/80 text-amber-700">{{ eMsg('Brak bazy RS','База RS не загружена','RS database missing','База RS не завантажена') }}</span></div>
+ <p v-if="!toteRsLoaded" class="text-sm text-slate-500">{{ eMsg('Wróć do RS i wczytaj plik w sekcji Baza RS. Nie trzeba wczytywać go ponownie w Scalanie Geek.','Вернись в RS и загрузи файл в блоке «База RS». Здесь повторная загрузка не нужна.','Return to RS and load the RS database. No second upload is needed.','Повернись до RS і завантаж базу RS. Повторне завантаження тут не потрібне.') }}</p>
+ <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <label class="block"><span class="text-xs font-semibold text-slate-600">{{ eMsg('Liczba tote / ilość sztuk w tote ≤','Количество tote / товаров при количестве ≤','Totes / items with quantity ≤','Кількість tote / товарів за кількості ≤') }}</span><input v-model.number="rsScalGeek.smallQty" type="number" min="0" step="1" class="ios-input w-full mt-2" /></label>
+  <div><label class="flex items-center gap-2 mb-1 text-xs font-semibold text-slate-600"><input type="checkbox" v-model="rsScalGeek.filterMax"/>{{ eMsg('Filtr maksymalnej ilości w tote','Фильтр максимального количества в tote','Maximum tote quantity filter','Фільтр максимальної кількості в tote') }}</label><input v-model.number="rsScalGeek.minimumMax" type="number" min="0" step="1" class="ios-input w-full mt-2" :disabled="!rsScalGeek.filterMax"/><p class="text-xs text-slate-500 mt-1">{{ eMsg('Maksymalna ilość w tote ≥','Максимум в одном tote ≥','Maximum quantity in a tote ≥','Максимум в одному tote ≥') }} {{ rsScalGeekMaxFilter }}</p></div>
+ </div>
+ <div class="flex flex-wrap items-center gap-3"><button class="ios-btn ios-btn-primary" :disabled="!toteRsLoaded || toteRs.loading" @click="rsScalGeekRun">{{ eMsg('Analizuj','Анализировать','Analyze','Аналізувати') }}</button><span class="text-xs text-slate-500">{{ eMsg('Wyniki przeliczają się po zmianie progów bez ponownego wczytywania Excel.','После анализа пороги можно менять без повторной загрузки Excel.','After analysis, thresholds update results without reloading Excel.','Після аналізу пороги змінюють результати без повторного завантаження Excel.') }}</span></div>
+</div>
+<div v-if="rsScalGeek.ran" class="glass-strong p-5 space-y-4">
+ <div class="flex flex-wrap justify-between gap-3 items-center"><h2 class="text-lg font-bold">{{ eMsg('Wyniki','Результаты','Results','Результати') }}</h2><div class="flex flex-wrap gap-2"><button class="ios-btn" :disabled="!rsScalGeekRows.length" @click="rsScalGeekCopy">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</button><button class="ios-btn ios-btn-primary" :disabled="!rsScalGeekRows.length" @click="rsScalGeekExport">{{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button></div></div>
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-2"><div class="glass p-3 rounded-xl"><div class="text-xs text-slate-500">{{ eMsg('Wszystkie SKU','Всего SKU','All SKUs','Усього SKU') }}</div><strong>{{ rsScalGeekStats.all }}</strong></div><div class="glass p-3 rounded-xl"><div class="text-xs text-slate-500">{{ eMsg('Po filtrach','После фильтров','After filters','Після фільтрів') }}</div><strong>{{ rsScalGeekStats.visible }}</strong></div><div class="glass p-3 rounded-xl"><div class="text-xs text-slate-500">Tote ≤ {{ rsScalGeekThreshold }}</div><strong>{{ rsScalGeekStats.smallTotes }}</strong></div><div class="glass p-3 rounded-xl"><div class="text-xs text-slate-500">Szt. ≤ {{ rsScalGeekThreshold }}</div><strong>{{ rsScalGeekStats.smallPieces }}</strong></div></div>
+ <div class="flex flex-wrap gap-3 items-end"><label class="flex-1 min-w-40"><span class="text-xs text-slate-500">{{ eMsg('Szukaj SKU','Поиск SKU','Search SKU','Пошук SKU') }}</span><input class="ios-input w-full mt-1" v-model="rsScalGeek.query" placeholder="SKU / EAN"/></label><label><span class="text-xs text-slate-500">{{ eMsg('Sortowanie','Сортировка','Sort by','Сортування') }}</span><select class="ios-input mt-1" v-model="rsScalGeekSort"><option value="smallSum">{{ eMsg('Ilość sztuk ≤ próg','Товаров ≤ порога','Items ≤ threshold','Товарів ≤ порога') }}</option><option value="smallCount">{{ eMsg('Liczba tote ≤ próg','Количество tote ≤ порога','Totes ≤ threshold','Кількість tote ≤ порога') }}</option><option value="total">{{ eMsg('Łączna ilość','Общее количество','Total quantity','Загальна кількість') }}</option><option value="max">{{ eMsg('Maksymalna ilość','Максимальное количество','Maximum quantity','Максимальна кількість') }}</option></select></label></div>
+ <p class="text-xs text-slate-500">{{ eMsg('Zaznaczenie SKU jest opcjonalne. Bez zaznaczeń eksportowane są wszystkie widoczne wyniki.','Выбор SKU необязателен. Если ничего не отмечено, экспортируются все видимые результаты.','SKU selection is optional. With no selection, all visible results are exported.','Вибір SKU необов’язковий. Без вибору експортуються всі видимі результати.') }}</p>
+ <div class="overflow-x-auto"><table class="w-full text-xs text-left"><thead><tr class="border-b"><th class="p-2"><input type="checkbox" :checked="rsScalGeekRows.length>0 && rsScalGeekRows.every(r=>rsScalGeek.selected.includes(r.sku))" @change="rsScalGeekSelectVisible"/></th><th class="p-2">SKU Code</th><th class="p-2 text-right">Liczba tote</th><th class="p-2 text-right">Łączna ilość sztuk</th><th class="p-2 text-right">Maksymalna ilość w tote</th><th class="p-2 text-right">Liczba tote ≤ {{ rsScalGeekThreshold }}</th><th class="p-2 text-right">Ilość sztuk ≤ {{ rsScalGeekThreshold }}</th></tr></thead><tbody><tr v-for="r in rsScalGeekPaged" :key="r.sku" class="border-b border-slate-200/50"><td class="p-2"><input type="checkbox" :checked="rsScalGeek.selected.includes(r.sku)" @change="rsScalGeekToggle(r.sku)"/></td><td class="p-2 font-mono">{{ r.sku }}</td><td class="p-2 text-right">{{ r.count }}</td><td class="p-2 text-right">{{ r.total }}</td><td class="p-2 text-right">{{ r.max }}</td><td class="p-2 text-right">{{ r.smallCount }}</td><td class="p-2 text-right font-bold">{{ r.smallSum }}</td></tr></tbody></table></div>
+ <p v-if="!rsScalGeekRows.length" class="text-sm text-slate-500">{{ eMsg('Brak SKU spełniających filtry.','Нет SKU по условиям фильтра.','No SKUs match the filters.','Немає SKU за умовами фільтра.') }}</p>
+ <div v-if="rsScalGeekPages>1" class="flex items-center justify-between gap-3"><button class="ios-btn" :disabled="rsScalGeekPage<=1" @click="rsScalGeekPage--">←</button><span class="text-xs">{{ rsScalGeekPage }} / {{ rsScalGeekPages }}</span><button class="ios-btn" :disabled="rsScalGeekPage>=rsScalGeekPages" @click="rsScalGeekPage++">→</button></div>
+</div>
+</main><footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
+</template>
+
 
 <template v-else-if="rsView === 'tote'">
 <header class="px-6 pt-8 pb-4 max-w-6xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
@@ -1695,7 +1732,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.15.0">v3.15.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.16.0">v3.16.0</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1751,7 +1788,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.15.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.16.0</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

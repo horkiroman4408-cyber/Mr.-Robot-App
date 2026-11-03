@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.15.0-blue)
+![wersja](https://img.shields.io/badge/version-3.16.0-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -338,3 +338,7 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+## RS · Scalanie Geek (v3.16.0)
+
+Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Grupuje dane według **SKU code** i oblicza liczbę tote (wierszy), łączną ilość, maksymalną ilość w tote, liczbę tote z ilością ≤ X oraz sumę sztuk w takich tote. Parametry **X** oraz opcjonalny próg **maksimum ≥ Y** można zmieniać niezależnie (domyślnie X=3, Y=10). Wyniki są sortowane malejąco według ilości sztuk w tote ≤ X; dostępne są wyszukiwanie, zaznaczanie i eksport `Scalanie_Geek_SKU_Analysis.xlsx` z arkuszem `SKU_Analysis`.

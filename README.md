@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.15.0-blue)
+![version](https://img.shields.io/badge/version-3.16.0-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -338,3 +338,7 @@ If you'd rather just say hello and tell me what you built with it, that works to
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+## RS · Scalanie Geek (v3.16.0)
+
+A new RS tool that uses the already-loaded **Baza RS** (no second import). It groups records by **SKU code** and computes tote row count, total quantity, maximum tote quantity, count of tote rows with quantity ≤ X, and sum of quantities in those rows. The two independent controls set **X** and optionally restrict SKUs to those with a maximum quantity **≥ Y**. Default values match the original VBA macro: X=3 and Y=10, with the maximum filter enabled. Results are sorted by small-tote quantity sum descending, can be searched/selected, and exported as `Scalanie_Geek_SKU_Analysis.xlsx` with the `SKU_Analysis` sheet. This is an analysis, not a physical tote-transfer planner.
