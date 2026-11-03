@@ -1191,3 +1191,16 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 @media(max-width:640px){
   #app[data-active-module="rs"] .rs-scalanie-geek-page .rs-scalanie-geek-panel{padding:1rem;}
 }
+
+/* RS Scalanie Geek: sortable table headings use the existing RS theme variables. */
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort{
+  display:inline-flex;align-items:center;justify-content:flex-end;gap:.35rem;
+  width:100%;text-align:inherit;font:inherit;font-weight:inherit;line-height:1.45;
+  color:inherit;background:transparent;border:0;cursor:pointer;padding:.25rem 0;
+}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap th:nth-child(2) .rs-scalanie-geek-sort{justify-content:flex-start;}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort:hover,
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort.is-active{color:var(--rs-geek-accent);}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort:focus-visible{outline:2px solid var(--rs-geek-accent);outline-offset:2px;border-radius:3px;}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort-arrow{font-size:.9rem;line-height:1;opacity:.55;flex:none;}
+#app[data-active-module="rs"] .rs-scalanie-geek-table-wrap .rs-scalanie-geek-sort.is-active .rs-scalanie-geek-sort-arrow{opacity:1;}

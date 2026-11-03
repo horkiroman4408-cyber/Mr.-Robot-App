@@ -769,6 +769,12 @@ async function toteCopyManualToClipboard(){if(!toteManualResults.value.length)re
 const rsScalGeek=reactive({smallQty:3,minimumMax:10,filterMax:true,query:'',ran:false,selected:[]});
 const rsScalGeekSource=ref([]);
 const rsScalGeekSort=ref('smallSum');
+const rsScalGeekSortDirection=ref('desc');
+function rsScalGeekSetSort(key){
+ if(rsScalGeekSort.value===key){rsScalGeekSortDirection.value=rsScalGeekSortDirection.value==='desc'?'asc':'desc';}
+ else{rsScalGeekSort.value=key;rsScalGeekSortDirection.value='desc';}
+ rsScalGeekPage.value=1;
+}
 const rsScalGeekPage=ref(1);
 const rsScalGeekPageSize=100;
 const rsScalGeekHeaders=['SKU Code','Liczba tote','Laczna ilosc sztuk w totach','Maksymalna ilosc w tote','Liczba tote z iloscia <= 3','Ilosc sztuk w tote <= 3'];
@@ -801,13 +807,17 @@ const rsScalGeekRows=computed(()=>{
   list.push({sku:base.sku,count:base.count,total:base.total,max:base.max,smallCount,smallSum});
  }
  const key=rsScalGeekSort.value;
- list.sort((a,b)=>(b[key]??b.smallSum)-(a[key]??a.smallSum)||a.sku.localeCompare(b.sku));
+ const direction=rsScalGeekSortDirection.value==='desc'?-1:1;
+ list.sort((a,b)=>{
+  const difference=key==='sku' ? a.sku.localeCompare(b.sku,undefined,{numeric:true,sensitivity:'base'}) : (a[key]-b[key]);
+  return direction*difference || a.sku.localeCompare(b.sku,undefined,{numeric:true,sensitivity:'base'});
+ });
  return list;
 });
 const rsScalGeekStats=computed(()=>({all:rsScalGeekSource.value.length,visible:rsScalGeekRows.value.length,removed:rsScalGeekSource.value.length-rsScalGeekRows.value.length,smallTotes:rsScalGeekRows.value.reduce((sum,r)=>sum+r.smallCount,0),smallPieces:rsScalGeekRows.value.reduce((sum,r)=>sum+r.smallSum,0)}));
 const rsScalGeekPaged=computed(()=>rsScalGeekRows.value.slice((rsScalGeekPage.value-1)*rsScalGeekPageSize,rsScalGeekPage.value*rsScalGeekPageSize));
 const rsScalGeekPages=computed(()=>Math.max(1,Math.ceil(rsScalGeekRows.value.length/rsScalGeekPageSize)));
-watch(()=>[rsScalGeek.smallQty,rsScalGeek.minimumMax,rsScalGeek.filterMax,rsScalGeek.query,rsScalGeekSort.value],()=>{rsScalGeekPage.value=1;});
+watch(()=>[rsScalGeek.smallQty,rsScalGeek.minimumMax,rsScalGeek.filterMax,rsScalGeek.query,rsScalGeekSort.value,rsScalGeekSortDirection.value],()=>{rsScalGeekPage.value=1;});
 watch(()=>toteRs.records,()=>{rsScalGeek.ran=false;rsScalGeekSource.value=[];rsScalGeek.selected=[];rsScalGeekPage.value=1;});
 function rsScalGeekToggle(sku){const index=rsScalGeek.selected.indexOf(sku);if(index<0)rsScalGeek.selected.push(sku);else rsScalGeek.selected.splice(index,1);}
 function rsScalGeekSelectVisible(){const current=new Set(rsScalGeek.selected);const visible=rsScalGeekRows.value.map(r=>r.sku);const all=visible.every(x=>current.has(x));for(const sku of visible){if(all)current.delete(sku);else current.add(sku);}rsScalGeek.selected=[...current];}
@@ -1839,7 +1849,7 @@ toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
 toteRunSearch,toteExportExcel,toteToggleAll,toteAllChecked,
 toteManualText,toteManualResults,toteManualMissing,toteManualFiltered,toteManualSearched,toteManualStats,totePickStrategy,toteManualToteType,toteManualMultiTote,
 toteManualEanCount,toteCanManualSearch,toteRunManualSearch,toteExportManualExcel,toteCopyManualToClipboard,
-rsScalGeek,rsScalGeekSort,rsScalGeekRun,rsScalGeekRows,rsScalGeekStats,rsScalGeekPaged,rsScalGeekPages,rsScalGeekPage,rsScalGeekThreshold,rsScalGeekMaxFilter,rsScalGeekToggle,rsScalGeekSelectVisible,rsScalGeekExport,rsScalGeekCopy,
+rsScalGeek,rsScalGeekSort,rsScalGeekSortDirection,rsScalGeekSetSort,rsScalGeekRun,rsScalGeekRows,rsScalGeekStats,rsScalGeekPaged,rsScalGeekPages,rsScalGeekPage,rsScalGeekThreshold,rsScalGeekMaxFilter,rsScalGeekToggle,rsScalGeekSelectVisible,rsScalGeekExport,rsScalGeekCopy,
 audytTab,mpAuditBrand,mpAuditMohitoTypes,mpAuditToggleMohitoType,kreseczkiReturnTab,openKreseczkiFromMp,closeKreseczki,audyt,audytOnFile,audytOnDrop,audytReset,audytRunAnalysis,audytExportExcel,audytCopyToClipboard,audytCopyKpiValues,
 formatka59,formatka59RunAnalysis,formatka59CopyToClipboard,
 mdt,mdtOnFile,mdtOnDrop,mdtReset,mdtRunAnalysis,mdtExportCSV,
