@@ -1086,8 +1086,8 @@ html[data-theme="light"] .employee-page .employee-period-pickers select,html:not
 
 /* MP header icon: keep the small robot face crisp and level.
    The global sway + breathe transforms distort the 28px SVG when rasterized. */
-.robot-glow.purple{animation:glowPurple 3.2s ease-in-out infinite !important;will-change:box-shadow}
-.robot-glow.purple > svg{animation:none !important;transform:none !important;will-change:auto !important}
+.robot-glow.purple:not(.module-context-badge){animation:glowPurple 3.2s ease-in-out infinite !important;will-change:box-shadow}
+.robot-glow.purple:not(.module-context-badge) > svg{animation:none !important;transform:none !important;will-change:auto !important}
 
 /* Card-to-header icon parity: the header SVG is a direct copy of its clickable card.
    Reuse the hub robot's glow / breathe / sway timing, not a second animation system. */
