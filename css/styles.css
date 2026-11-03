@@ -1089,21 +1089,14 @@ html[data-theme="light"] .employee-page .employee-period-pickers select,html:not
 .robot-glow.purple{animation:glowPurple 3.2s ease-in-out infinite !important;will-change:box-shadow}
 .robot-glow.purple > svg{animation:none !important;transform:none !important;will-change:auto !important}
 
-/* Contextual tool icons: stable, crisp silhouettes across all themes. */
-.module-context-badge { color:#fff; flex-shrink:0; }
-.module-context-icon { display:block; width:28px; height:28px; flex:none; transform-origin:50% 50%; animation:mrContextFloat 3.4s ease-in-out infinite; }
-
-/* Contextual header badges: local theme palette, distinct icon silhouettes and gentle motion. */
-.module-context-badge{--ctx-shadow:rgba(10,132,255,.34);background:var(--ctx-gradient,linear-gradient(135deg,#5ac8fa,#0066cc))!important;color:#fff;position:relative;isolation:isolate;box-shadow:0 5px 17px var(--ctx-shadow);animation:mrContextGlow 3.5s ease-in-out infinite;transition:background .3s,color .3s;}
-.module-context-badge.green{--ctx-shadow:rgba(48,209,88,.32);--ctx-gradient:linear-gradient(135deg,#4ade80,#059669)}
-.module-context-badge.purple{--ctx-shadow:rgba(168,85,247,.34);--ctx-gradient:linear-gradient(135deg,#c084fc,#7e22ce)}
-.module-context-badge.amber{--ctx-shadow:rgba(245,158,11,.32);--ctx-gradient:linear-gradient(135deg,#fbbf24,#d97706)}
-.module-context-badge .module-context-icon{color:inherit;filter:drop-shadow(0 1px 2px rgba(0,0,0,.13))}
-.module-context-badge.green .module-context-icon{animation-delay:-.7s}
-.module-context-badge.purple .module-context-icon{animation-delay:-1.4s}
-.module-context-badge.amber .module-context-icon{animation-delay:-2.1s}
-@keyframes mrContextFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-@keyframes mrContextGlow{0%,100%{box-shadow:0 5px 14px var(--ctx-shadow)}50%{box-shadow:0 7px 24px var(--ctx-shadow),0 0 9px var(--ctx-shadow)}}
+/* Card-to-header icon parity: the header SVG is a direct copy of its clickable card.
+   Reuse the hub robot's glow / breathe / sway timing, not a second animation system. */
+.module-context-badge{--ctx-shadow:rgba(10,132,255,.36);--ctx-gradient:linear-gradient(135deg,#5ac8fa,#0066cc);background:var(--ctx-gradient)!important;color:#fff;position:relative;isolation:isolate;flex-shrink:0;animation:mrCardIconGlow 3.2s ease-in-out infinite,breathe 3.2s ease-in-out infinite!important;will-change:box-shadow,transform}
+.module-context-badge.green{--ctx-shadow:rgba(48,209,88,.38);--ctx-gradient:linear-gradient(135deg,#4ade80,#059669)}
+.module-context-badge.purple{--ctx-shadow:rgba(168,85,247,.38);--ctx-gradient:linear-gradient(135deg,#c084fc,#7e22ce)}
+.module-context-badge.amber{--ctx-shadow:rgba(245,158,11,.38);--ctx-gradient:linear-gradient(135deg,#fbbf24,#d97706)}
+.module-context-badge .module-context-icon{display:block;width:28px;height:28px;flex:none;animation:sway 4.2s ease-in-out infinite!important;transform-origin:center;will-change:transform;filter:none}
+@keyframes mrCardIconGlow{0%,100%{box-shadow:0 8px 28px var(--ctx-shadow),0 4px 12px var(--ctx-shadow)}50%{box-shadow:0 18px 50px var(--ctx-shadow),0 8px 22px var(--ctx-shadow)}}
 html[data-theme="dark"] .module-context-badge{--ctx-gradient:linear-gradient(140deg,#4599dc,#17639d);--ctx-shadow:rgba(92,169,239,.30);color:#f8fbff}
 html[data-theme="dark"] .module-context-badge.green{--ctx-gradient:linear-gradient(140deg,#38a37b,#177b54);--ctx-shadow:rgba(82,206,155,.29)}
 html[data-theme="dark"] .module-context-badge.purple{--ctx-gradient:linear-gradient(140deg,#b07dd9,#673ab0);--ctx-shadow:rgba(174,118,232,.29)}
@@ -1117,3 +1110,4 @@ html[data-theme="ivory"] .module-context-badge.green{--ctx-gradient:linear-gradi
 html[data-theme="ivory"] .module-context-badge.purple{--ctx-gradient:linear-gradient(140deg,#ae9580,#806954);--ctx-shadow:rgba(139,110,84,.24)}
 html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradient(140deg,#ccad78,#957445);--ctx-shadow:rgba(150,115,64,.24)}
 @media(prefers-reduced-motion:reduce){.module-context-badge,.module-context-badge .module-context-icon{animation:none!important}}
+
