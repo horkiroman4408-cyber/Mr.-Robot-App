@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.16.0-memory-mohito-icon-ready-count-01-sort-columns';
+const CACHE_REVISION = 'v3.16.0-contextual-tool-titles-01';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
