@@ -1083,3 +1083,12 @@ html[data-theme="dark"] .employee-page .employee-period-pickers select,html[data
 html[data-theme="ivory"] .employee-page .employee-period-pickers select{background-color:#fffaf2!important;color:#29362f!important;border-color:#dbcfc0!important;color-scheme:light}
 html[data-theme="light"] .employee-page .employee-period-pickers select,html:not([data-theme]) .employee-page .employee-period-pickers select{background-color:#fff!important;color:#243447!important;color-scheme:light}
 .employee-page .employee-period-pickers select option{background-color:inherit;color:inherit}
+
+/* MP header icon: keep the small robot face crisp and level.
+   The global sway + breathe transforms distort the 28px SVG when rasterized. */
+.robot-glow.purple{animation:glowPurple 3.2s ease-in-out infinite !important;will-change:box-shadow}
+.robot-glow.purple > svg{animation:none !important;transform:none !important;will-change:auto !important}
+
+/* Contextual tool icons: stable, crisp silhouettes across all themes. */
+.module-context-badge { color:#fff; flex-shrink:0; }
+.module-context-icon { display:block; width:28px; height:28px; flex:none; transform:none!important; animation:none!important; }
