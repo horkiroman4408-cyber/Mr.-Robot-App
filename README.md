@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.16.0-blue)
+![version](https://img.shields.io/badge/version-3.17.0-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -173,7 +173,7 @@ A new RS tool that uses the already-loaded **Baza RS** (no second import). It gr
 - **GODZINY_MDT** — MDT analysis, shelf 1/1, location lists.
 - **STOCK** — location reports grouped by receiving hours.
 - **Scalanie** — filter locations by shelf, ABC, SKU range.
-- **Konsolidacja** — find small locations worth consolidating.
+- **Konsolidacja** — find small locations worth consolidating; detailed EAN cards also display TECHNICAL DESCRIPTION from the loaded MP file.
 
 **Notes:**
 - Where a VBA macro already existed, the logic is matched to it, so the numbers line up with what people were used to.

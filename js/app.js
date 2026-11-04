@@ -1035,8 +1035,10 @@ const ean=String(r.ean||'').trim();if(!ean)continue;
 const loc=String(r.location||'').trim();
 const qty=Number(r.qty)||0;
 let d=dict.get(ean);
-if(!d){d={mainLoc:loc,mainType:String(r.locationType||'').trim(),maxItems:qty,rows:[]};dict.set(ean,d);}
+if(!d){d={mainLoc:loc,mainType:String(r.locationType||'').trim(),maxItems:qty,rows:[],descriptions:new Set()};dict.set(ean,d);}
 else if(qty>d.maxItems){d.mainLoc=loc;d.mainType=String(r.locationType||'').trim();d.maxItems=qty;}
+const description=String(r.technicalDescription||'').trim();
+if(description)d.descriptions.add(description);
 d.rows.push({loc,qty,type:String(r.locationType||'').trim()});
 }
 const arr=[];
@@ -1046,7 +1048,7 @@ let smallCount=0;const small=[];
 for(const e of d.rows){
 if(e.loc!==d.mainLoc&&e.qty>0&&e.qty<=smallLimit){smallCount++;small.push(e);}
 }
-arr.push({ean,mainLoc:d.mainLoc,mainType:d.mainType,maxItems:d.maxItems,allCount:d.rows.length,smallLimit,smallCount,small});
+arr.push({ean,descriptions:[...d.descriptions],mainLoc:d.mainLoc,mainType:d.mainType,maxItems:d.maxItems,allCount:d.rows.length,smallLimit,smallCount,small});
 }
 for(let i=0;i<arr.length-1;i++){for(let j=i+1;j<arr.length;j++){if(arr[j].smallCount>arr[i].smallCount){const t=arr[i];arr[i]=arr[j];arr[j]=t;}}}
 konsolidacja.top=arr.slice(0,10);

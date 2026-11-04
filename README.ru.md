@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.16.0-blue)
+![версия](https://img.shields.io/badge/version-3.17.0-blue)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -173,7 +173,7 @@ Mr. Robot — браузерное приложение для работы со
 - **GODZINY_MDT** — анализ MDT, полки 1/1, списки локаций.
 - **STOCK** — отчёты по локациям, сгруппированные по часам приёмки.
 - **Scalanie** — фильтрация локаций по типу полки, ABC, диапазону SKU.
-- **Konsolidacja** — поиск мелких локаций, которые стоит консолидировать.
+- **Konsolidacja** — поиск мелких локаций, которые стоит консолидировать; в подробных карточках EAN отображается TECHNICAL DESCRIPTION из загруженной базы MP.
 
 **Примечания:**
 - Там, где существовал VBA-макрос, логика с ним сверена — цифры совпадают с привычными.

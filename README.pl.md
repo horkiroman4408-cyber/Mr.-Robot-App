@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.16.0-blue)
+![wersja](https://img.shields.io/badge/version-3.17.0-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -173,7 +173,7 @@ Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Gru
 - **GODZINY_MDT** — analiza MDT, półki 1/1, listy lokalizacji.
 - **STOCK** — raporty lokalizacji pogrupowane po godzinach przyjęcia.
 - **Scalanie** — filtrowanie lokalizacji po typie półki, ABC, zakresie SKU.
-- **Konsolidacja** — znajdowanie małych lokalizacji wartych konsolidacji.
+- **Konsolidacja** — znajdowanie małych lokalizacji wartych konsolidacji; szczegółowe karty EAN pokazują również TECHNICAL DESCRIPTION z wczytanej bazy MP.
 
 **Uwagi:**
 - Tam, gdzie istniało już makro VBA, logika jest z nim dopasowana — liczby zgadzają się z tym, do czego ludzie byli przyzwyczajeni.
