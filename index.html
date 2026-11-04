@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.16.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.16.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -168,14 +168,15 @@
 </template>
 
 <template v-else-if="view === 'kpi'">
-<header class="px-6 pt-8 pb-4 max-w-6xl w-full mx-auto"><div class="flex items-center gap-6 flex-wrap">
+<header class="px-6 pt-8 pb-4 max-w-6xl w-full mx-auto"><div class="kpi-header-row">
 <button class="back-to-hub shrink-0" @click="view = 'hub'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>{{ tr(112) }}</button>
 <div class="flex items-center gap-4 shrink-0"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#5ac8fa] via-[#0a84ff] to-[#0066cc] flex items-center justify-center module-context-badge robot-glow shrink-0"><svg class="module-context-icon" width="28" height="28" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" rx="1" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" rx="1" fill="#fff" stroke="none"/></svg></div><div class="shrink-0"><h1 class="text-[22px] font-bold tracking-tight gradient-text leading-tight">{{ kpiTab==='audit' ? tr(38) : kpiTab==='scalanie' ? tr(39) : kpiTab==='rozkładanie' ? tr(40) : kpiTab==='nadwevas' ? 'NADWE / VAS' : kpiTab==='pracownicy' ? eMsg('Pracownicy','Сотрудники','Employees','Працівники') : tr(115) }}</h1><div class="text-[12px] font-semibold text-slate-600 tracking-tight leading-tight mt-0.5">KPI</div></div></div>
 <div class="segment-control shrink-0 flex-wrap"><button class="segment-btn" :class="{active:kpiTab==='audit'}" @click="kpiTab='audit'"><span>{{ tr(38) }}</span></button><button class="segment-btn" :class="{active:kpiTab==='scalanie'}" @click="kpiTab='scalanie'"><span>{{ tr(39) }}</span></button><button class="segment-btn" :class="{active:kpiTab==='rozkładanie'}" @click="kpiTab='rozkładanie'"><span>{{ tr(40) }}</span></button><button class="segment-btn" :class="{active:kpiTab==='nadwevas'}" @click="kpiTab='nadwevas'"><span>NADWE/VAS</span></button><button class="segment-btn" :class="{active:kpiTab==='pracownicy'}" @click="kpiTab='pracownicy'"><span>{{ eMsg('Pracownicy','Сотрудники','Employees','Працівники') }}</span></button><button class="segment-btn" :class="{active:kpiTab==='stats'}" @click="kpiTab='stats'"><span>{{ tr(115) }}</span></button></div>
-<div class="flex-1"></div>
+
 <button v-if="kpiAnyLoaded" class="save-all-btn shrink-0" :disabled="!kpiCanGlobalExport" @click="kpiExportGlobalXlsx"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v12m0 0l-4-4m4 4l4-4M4 20h16"/></svg><span>{{ tr(116) }}</span></button>
 </div></header>
 <main class="flex-1 px-6 pb-8 max-w-6xl w-full mx-auto space-y-6">
+<div class="kpi-roster-grid">
 <div class="glass grafik-bar float-up" :class="{dragover:pracownicy.drag,loaded:pracownicy.loaded&&!pracownicy.loading}"
      @dragover.prevent="pracownicy.drag = true" @dragleave.prevent="pracownicy.drag = false" @drop.prevent="pracownicyOnDrop($event)">
   <span class="grafik-ico" :class="{ok:pracownicy.loaded}">
@@ -240,7 +241,8 @@
   </label>
   <button v-if="pracownicyMohito.loaded && !pracownicyMohito.loading" class="grafik-btn danger" :title="tr(128)" @click="pracownicyMohitoReset">✕</button>
 </div>
-<div v-show="kpiTab==='pracownicy'" class="employee-page space-y-5">
+</div>
+<div v-show="kpiTab==='pracownicy'" class="employee-page space-y-5 float-up">
 <div class="employee-period-control" role="group" :aria-label="eMsg('Okres grafiku','Период графика','Roster period','Період графіка')">
  <span class="employee-period-title"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>{{ eMsg('Okres grafiku','Период графика','Roster period','Період графіка') }}</span>
  <div class="employee-period-pickers">
@@ -695,7 +697,7 @@
 <button class="back-to-hub shrink-0" @click="rsView='cards'">← {{ tr(249) }}</button>
 <div class="flex items-center gap-3"><div class="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#4ade80] via-[#30d158] to-[#059669] flex items-center justify-center module-context-badge robot-glow green"><svg class="module-context-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="8" y="13" width="8" height="8" rx="1.5"/><path d="M7 11v2m10-2v2"/></svg></div><div><h1 class="rs-scalanie-geek-title text-[22px] font-bold tracking-tight">Scalanie Geek</h1><div class="text-xs text-slate-500">RS · {{ eMsg('Analiza SKU i tote','Анализ SKU и tote','SKU & tote analysis','Аналіз SKU та tote') }}</div></div></div>
 </div></header>
-<main class="rs-scalanie-geek-page flex-1 px-6 pb-12 max-w-6xl w-full mx-auto space-y-5">
+<main class="rs-scalanie-geek-page float-up flex-1 px-6 pb-12 max-w-6xl w-full mx-auto space-y-5">
 <div class="glass-strong rs-scalanie-geek-panel p-5 space-y-4">
  <div class="flex flex-wrap gap-3 items-center"><h2 class="font-bold">{{ eMsg('Baza RS','База RS','RS database','База RS') }}</h2><span v-if="toteRsLoaded" class="chip bg-emerald-100/80 text-emerald-700">✓ {{ toteRs.records.length.toLocaleString('pl-PL') }} {{ tr(131) }}</span><span v-else class="chip bg-amber-100/80 text-amber-700">{{ eMsg('Brak bazy RS','База RS не загружена','RS database missing','База RS не завантажена') }}</span></div>
  <p v-if="!toteRsLoaded" class="text-sm text-slate-500">{{ eMsg('Wróć do RS i wczytaj plik w sekcji Baza RS. Nie trzeba wczytywać go ponownie w Scalanie Geek.','Вернись в RS и загрузи файл в блоке «База RS». Здесь повторная загрузка не нужна.','Return to RS and load the RS database. No second upload is needed.','Повернись до RS і завантаж базу RS. Повторне завантаження тут не потрібне.') }}</p>
@@ -1744,7 +1746,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.16.0">v3.16.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.16.1">v3.16.1</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1800,7 +1802,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.16.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.16.1</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
