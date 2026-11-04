@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.17.0-konsolidacja-compact-card-03';
+const CACHE_REVISION = 'v3.17.0-mr-neutral-icons-01';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -72,6 +72,8 @@ const PRECACHE_URLS = [
   'js/pwa-register.js',
   'manifest.webmanifest',
   'icons/favicon.svg',
+  'icons/favicon-32.png',
+  'icons/favicon.ico',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
