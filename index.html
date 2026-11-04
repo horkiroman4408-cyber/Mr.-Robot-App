@@ -1499,36 +1499,30 @@
 <div class="scalanie-section space-y-3">
 <div class="grp-label">{{ tr(571) }} {{ konsolidacja.result.minLocations }} {{ tr(572) }}</div>
 <div v-if="!konsolidacja.report.length" class="text-center py-12 text-slate-400 italic text-sm">{{ tr(573) }}</div>
-<div v-for="e in konsolidacja.report" :key="e.ean" class="glass p-5 space-y-4 float-up">
+<div v-for="e in konsolidacja.report" :key="e.ean" class="glass p-4 space-y-3 float-up">
 <div class="flex flex-wrap items-start justify-between gap-3">
-  <div class="min-w-0 flex-1 space-y-2">
+  <div class="min-w-0 flex-1 space-y-1">
     <div class="text-[10px] uppercase tracking-wider font-bold" style="color:var(--mr-c35,#8e8e93)">EAN</div>
-    <div class="text-2xl sm:text-[28px] font-extrabold tracking-tight font-mono break-all" style="color:var(--mr-c72,#9333ea)">{{ e.ean }}</div>
-    <div v-if="e.descriptions && e.descriptions.length" class="space-y-1">
-      <div class="text-[10px] font-bold uppercase tracking-wider" style="color:var(--mr-c35,#8e8e93)">TECHNICAL DESCRIPTION</div>
-      <div class="text-base sm:text-lg font-semibold leading-snug" style="color:var(--mr-c11,#1c1c1e)">{{ e.descriptions.join(' · ') }}</div>
-    </div>
+    <div class="text-xl sm:text-2xl font-extrabold tracking-tight font-mono break-all leading-tight" style="color:var(--mr-c72,#9333ea)">{{ e.ean }}</div>
+    <div v-if="e.descriptions && e.descriptions.length" class="text-sm font-semibold leading-snug pt-1" style="color:var(--mr-c11,#1c1c1e)">{{ e.descriptions.join(' · ') }}</div>
   </div>
-  <div class="text-right shrink-0 rounded-2xl px-4 py-3" style="background:var(--mr-c126,rgba(168,85,247,.08));border:1px solid var(--mr-c127,rgba(168,85,247,.35))">
-    <div class="text-[10px] uppercase tracking-wider font-bold" style="color:var(--mr-c35,#8e8e93)">{{ tr(574) }}</div>
-    <div class="text-2xl font-bold" style="color:var(--mr-c72,#9333ea)">{{ e.smallCount }}</div>
+  <div class="text-right shrink-0 px-3 py-2 rounded-xl" style="background:var(--mr-c126,rgba(168,85,247,.08));border:1px solid var(--mr-c127,rgba(168,85,247,.35))">
+    <div class="text-[10px] font-semibold" style="color:var(--mr-c35,#8e8e93)">{{ tr(574) }}</div>
+    <div class="text-xl font-bold leading-tight" style="color:var(--mr-c72,#9333ea)">{{ e.smallCount }}</div>
   </div>
 </div>
-<div class="rounded-2xl p-4 space-y-3" style="border:1px solid var(--mr-c127,rgba(168,85,247,.35));background:var(--mr-c126,rgba(168,85,247,.08))">
-  <div class="text-xs font-bold uppercase tracking-wider" style="color:var(--mr-c72,#9333ea)">{{ tr(576) }}</div>
-  <div class="flex flex-wrap items-center justify-between gap-4">
-    <div class="space-y-1 min-w-0">
-      <div class="text-xl font-bold" style="color:var(--mr-c11,#1c1c1e)">{{ e.mainType || '—' }}</div>
-      <div class="text-xs font-mono break-all" style="color:var(--mr-c23,#475569)">{{ e.mainLoc }}</div>
-    </div>
-    <div class="text-right shrink-0">
-      <div class="text-[10px] uppercase tracking-wider" style="color:var(--mr-c35,#8e8e93)">{{ tr(577) }}</div>
-      <div class="text-2xl font-bold" style="color:var(--mr-c72,#9333ea)">{{ e.maxItems.toLocaleString('pl-PL') }}</div>
+<div class="flex flex-wrap items-center justify-between gap-3 rounded-xl px-3 py-2" style="border:1px solid var(--mr-c127,rgba(168,85,247,.35));background:var(--mr-c126,rgba(168,85,247,.08))">
+  <div class="min-w-0 flex-1">
+    <div class="text-[10px] uppercase tracking-wider font-bold mb-1" style="color:var(--mr-c72,#9333ea)">{{ tr(576) }}</div>
+    <div class="flex flex-wrap gap-x-3 gap-y-1 items-center">
+      <span class="text-sm font-bold" style="color:var(--mr-c11,#1c1c1e)">{{ e.mainType || '—' }}</span>
+      <span class="text-xs font-mono break-all" style="color:var(--mr-c23,#475569)">{{ e.mainLoc }}</span>
     </div>
   </div>
+  <div class="text-xl font-extrabold shrink-0" style="color:var(--mr-c72,#9333ea)">{{ e.maxItems.toLocaleString('pl-PL') }}</div>
 </div>
-<div class="flex flex-wrap items-center justify-between gap-3">
-  <div class="text-xs" style="color:var(--mr-c23,#475569)">{{ tr(578) }}: <b>{{ e.allCount }}</b> <span class="mx-1">·</span> {{ tr(579) }}: <b style="color:var(--mr-c72,#9333ea)">{{ e.smallCount }}</b></div>
+<div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+  <div class="text-xs" style="color:var(--mr-c23,#475569)">{{ tr(578) }}: <b>{{ e.allCount }}</b><span class="mx-1">·</span>{{ tr(579) }}: <b style="color:var(--mr-c72,#9333ea)">{{ e.smallCount }}</b></div>
   <button class="ios-btn ios-btn-neutral" @click="konsolidacjaToggle(e.ean)"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" :style="{transform:konsolidacja.open[e.ean]?'rotate(180deg)':'none',transition:'transform .2s'}"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>{{ tr(konsolidacja.open[e.ean] ? 'Ukryj lokalizacje' : 'Pokaż lokalizacje (' + e.smallCount + ')') }}</button>
 </div>
 <div v-if="konsolidacja.open[e.ean]" class="space-y-3">
