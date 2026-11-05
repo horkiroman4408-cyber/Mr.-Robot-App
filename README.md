@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.18.2-blue)
+![version](https://img.shields.io/badge/version-3.18.3-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -19,11 +19,6 @@
 ---
 
 
-## 🔌 OpenReports Bridge · optional Microsoft Edge integration (v3.18.0)
-
-With the separately installed **OpenReports Bridge** extension (v0.2.7), Mr. Robot can launch authorized OpenReports-WMS XLSX exports from **MP → AUDYT → AL_AUDYT / FORMATKA_59** and **GODZINY_MDT**. Reports are saved in `Downloads/MrRobot/OpenReports`; with folder read permission they can be passed to the existing importers. You choose dates and times down to the second.
-
-The extension supports Polish, Russian, English and Ukrainian, follows the app language and **does not store WMS passwords**. It is optional, intended for authorized Edge access to OpenReports, and does not replace offline/manual Excel processing. Your company's rules for extensions and reports still apply.
 
 ## 📖 Table of Contents
 
@@ -32,6 +27,7 @@ The extension supports Polish, Russian, English and Ukrainian, follows the app l
 - [Always up to date](#-always-up-to-date)
 - [Why it exists](#-why-it-exists)
 - [Speed and performance](#-speed-and-performance)
+- [OpenReports Bridge](#-openreports-bridge)
 - [The Modules](#-the-modules-deep-dive)
 - [How it's built](#%EF%B8%8F-how-its-built-under-the-hood)
 - [Project structure](#-project-structure)
@@ -120,6 +116,20 @@ This is the part that matters most.
 | Repeat it tomorrow | Files and filters are remembered |
 
 The calculations follow fixed rules defined in code, so the same input produces the same output for anyone who runs it — no more "my numbers differ from yours".
+
+---
+
+## 🔌 OpenReports Bridge
+
+**One connection for Mr. Robot, not just for audits.** OpenReports Bridge is an optional Microsoft Edge extension that lets Mr. Robot request authorized XLSX reports directly from OpenReports-WMS. It is designed as a shared integration for current and future modules, while each module keeps its own existing Excel processor. Manual import and offline calculations remain available without the extension.
+
+**Currently connected:** `ECM_AI_Audit` → **AL_AUDYT / FORMATKA_59** and `ECM_STOCK_Items_after_receiving` → **GODZINY_MDT**. Future reports can be added to the same Bridge rather than building separate extensions. Date and time ranges support seconds; some reports have additional parameters.
+
+**Setup in Edge:** Open **Mr. Robot → Settings → OpenReports Bridge**, download the ZIP and extract it. In Edge, open `edge://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json` (`extension/openreports-bridge` in the repository, or `extension` in the standalone ZIP if present). Refresh Mr. Robot to check connection status and version. Keep the authorized OpenReports-WMS tab available when running a report.
+
+Reports download to `Downloads/MrRobot/OpenReports`. Grant read access to this folder within Mr. Robot when requested. Bridge matches downloads to their report type; credentials are not stored by Bridge, and report processing remains local. Corporate browser policies may restrict extensions. A PWA cannot silently install an Edge extension, and unpacked extensions do not update automatically from GitHub.
+
+**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.2.8.zip`](downloads/OpenReports-Bridge-v0.2.8.zip).
 
 ---
 
@@ -350,8 +360,3 @@ If you'd rather just say hello and tell me what you built with it, that works to
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-
-## OpenReports Bridge (v3.18.1)
-
-OpenReports Bridge can be downloaded in MP → Audyt. It must be installed separately in Edge; the app detects its presence and shows its version. The source is in `extension/openreports-bridge/`, with a ZIP in `downloads/`. The app still works without the extension.

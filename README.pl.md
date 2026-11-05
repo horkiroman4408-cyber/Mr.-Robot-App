@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.18.2-blue)
+![wersja](https://img.shields.io/badge/version-3.18.3-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -19,11 +19,6 @@
 ---
 
 
-## 🔌 OpenReports Bridge · opcjonalne rozszerzenie Edge (v3.18.0)
-
-Po osobnej instalacji **OpenReports Bridge** (v0.2.7) możesz uruchamiać eksport XLSX z autoryzowanego OpenReports-WMS bezpośrednio z **MP → AUDYT → AL_AUDYT / FORMATKA_59** i **GODZINY_MDT**. Pliki trafiają do `Downloads/MrRobot/OpenReports`; po nadaniu zgody na odczyt folderu mogą zostać przekazane do istniejących importerów. Wybór dat i godzin z sekundami.
-
-Okna rozszerzenia obsługują polski, rosyjski, angielski i ukraiński oraz podążają za językiem Mr. Robot. Rozszerzenie **nie przechowuje haseł WMS**. Jest opcjonalne, nie zmienia ręcznego importu Excel ani działania offline. Korzystaj wyłącznie zgodnie z zasadami dostępu do systemu firmowego.
 
 ## 📖 Spis treści
 
@@ -32,6 +27,7 @@ Okna rozszerzenia obsługują polski, rosyjski, angielski i ukraiński oraz pod�
 - [Zawsze aktualna wersja](#-zawsze-aktualna-wersja)
 - [Dlaczego to powstało](#-dlaczego-to-powstało)
 - [Szybkość i wydajność](#-szybkość-i-wydajność)
+- [OpenReports Bridge](#-openreports-bridge)
 - [Moduły](#-moduły-szczegóły)
 - [Jak to działa od środka](#%EF%B8%8F-jak-to-działa-od-środka)
 - [Struktura projektu](#-struktura-projektu)
@@ -120,6 +116,20 @@ To najważniejsza część.
 | Powtórzyć jutro | Pliki i filtry są zapamiętane |
 
 Obliczenia trzymają się stałych reguł zapisanych w kodzie: to samo wejście daje ten sam wynik u każdego, kto uruchamia aplikację — koniec z „u mnie liczby nie zgadzają się”.
+
+---
+
+## 🔌 OpenReports Bridge
+
+**Jedno połączenie dla całego Mr. Robot, nie tylko audytów.** OpenReports Bridge to opcjonalne rozszerzenie Microsoft Edge, które pozwala Mr. Robot uruchamiać raporty XLSX w OpenReports-WMS w ramach uprawnień zalogowanego użytkownika. Jest to wspólna integracja dla obecnych i przyszłych modułów, a każdy moduł nadal korzysta z własnego istniejącego mechanizmu przetwarzania plików Excel. Import ręczny i obliczenia offline działają także bez rozszerzenia.
+
+**Obecnie obsługiwane:** `ECM_AI_Audit` → **AL_AUDYT / FORMATKA_59** oraz `ECM_STOCK_Items_after_receiving` → **GODZINY_MDT**. Kolejne raporty można dopisywać do jednego Bridge, bez tworzenia osobnych rozszerzeń. Zakresy dat i godzin uwzględniają sekundy; niektóre raporty mają dodatkowe parametry.
+
+**Instalacja w Edge:** otwórz **Mr. Robot → Ustawienia → OpenReports Bridge**, pobierz ZIP i rozpakuj go. W Edge otwórz `edge://extensions`, włącz **Tryb dewelopera**, wybierz **Załaduj rozpakowane** i wskaż folder zawierający `manifest.json` (`extension/openreports-bridge` w repozytorium lub `extension` w osobnym ZIP, jeśli taka jest jego nazwa). Odśwież Mr. Robot, aby sprawdzić stan połączenia i wersję. Podczas pobierania raportu pozostaw otwartą zalogowaną kartę OpenReports-WMS.
+
+Raporty trafiają do `Downloads/MrRobot/OpenReports`. Gdy aplikacja o to poprosi, zezwól na odczyt tego folderu. Bridge dopasowuje XLSX do rodzaju raportu, nie przechowuje hasła WMS, a przetwarzanie plików odbywa się lokalnie. Zasady firmowe mogą ograniczać używanie rozszerzeń. PWA nie może samodzielnie zainstalować rozszerzenia Edge, a rozszerzenia rozpakowane nie aktualizują się automatycznie z GitHub.
+
+**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.2.8.zip`](downloads/OpenReports-Bridge-v0.2.8.zip).
 
 ---
 
@@ -350,8 +360,3 @@ A jeśli wolisz po prostu powiedzieć „cześć” i pokazać, co z tego zbudow
 Otwarty na feedback i współpracę. Masz przemyślenia — otwórz issue w tym repozytorium.
 
 © 2026 Mr. Robot · Made by Raman Horki
-
-
-## OpenReports Bridge (v3.18.1)
-
-OpenReports Bridge można pobrać w MP → Audyt. Rozszerzenie trzeba zainstalować osobno w Edge. Mr. Robot wykrywa jego obecność i wersję. Kod jest w `extension/openreports-bridge/`, ZIP w `downloads/`. Ręczny import Excel nadal działa bez rozszerzenia.
