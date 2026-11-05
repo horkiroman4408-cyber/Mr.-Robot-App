@@ -1,6 +1,6 @@
 /* UI-only detection and installer. Never touches report files or auth. */
 (function(){'use strict';
- const panel=document.getElementById('mr-bridge-setup');if(!panel)return;
+ const panel=document.getElementById('settings-openreports');if(!panel)return;
  const get=id=>document.getElementById(id);
  const supported=['pl','ru','en','uk'];
  const T={
@@ -14,13 +14,14 @@
  function draw(){const t=T[lang()],present=!!state.version;
  get('mr-bridge-status').textContent=present?t.connected.replace('{v}',state.version):t.missing;
  get('mr-bridge-dot').dataset.connected=String(present);
- get('mr-bridge-toggle').textContent=get('mr-bridge-info').hidden?t.action:t.close;
+ const indicator=get('mr-bridge-indicator-dot');if(indicator)indicator.dataset.connected=String(present);
+ const trigger=get('mr-bridge-indicator');if(trigger)trigger.title='OpenReports Bridge · '+(present?t.connected.replace('{v}',state.version):t.missing);
+ get('mr-bridge-category').textContent=({pl:'Integracje',ru:'Интеграции',en:'Integrations',uk:'Інтеграції'})[lang()];
  get('mr-bridge-description').textContent=t.description;get('mr-bridge-download').textContent=t.download;
  get('mr-bridge-instructions').textContent=t.how;get('mr-bridge-warning').textContent=t.warning;
  }
  function detect(){const v=document.documentElement.dataset.mrOpenreportsBridge;
  state.version=/^\d+\.\d+\.\d+$/.test(v||'')?v:null;draw();}
- get('mr-bridge-toggle').addEventListener('click',()=>{const a=get('mr-bridge-info');a.hidden=!a.hidden;get('mr-bridge-toggle').setAttribute('aria-expanded',String(!a.hidden));draw();});
  document.addEventListener('mr-openreports-bridge-ready',detect);
  if(window.MRI18N?.subscribe)window.MRI18N.subscribe(draw);
  // No attempt to install extensions or read any corporate report data.

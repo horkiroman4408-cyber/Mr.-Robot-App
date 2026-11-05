@@ -24,6 +24,7 @@ function setTheme(value){window.MRTheme.set(value);}
 let settingsReturn={view:'hub',scroll:0};
 function openSettings(){if(view.value==='settings')return;settingsReturn={view:view.value,scroll:window.scrollY};view.value='settings';window.scrollTo(0,0);}
 function closeSettings(){view.value=settingsReturn.view;requestAnimationFrame(()=>window.scrollTo(0,settingsReturn.scroll));}
+function openBridgeSettings(){openSettings();Vue.nextTick(()=>document.getElementById('settings-openreports')?.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'}));}
 function goFromSettings(target){view.value=target;window.scrollTo(0,0);}
 
 async function openSettingsMemory(){
@@ -1818,7 +1819,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

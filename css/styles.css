@@ -1248,3 +1248,13 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 #mr-bridge-info p{margin:0 0 8px}
 #mr-bridge-info small{display:block;opacity:.72;padding-top:10px}
 .mr-bridge-download{display:inline-flex;border-radius:10px;background:#374151;color:white!important;font-weight:700;text-decoration:none;padding:9px 15px;margin:4px 0 10px}
+
+/* v3.18.2: Bridge settings in Settings, tiny status shortcut in MP Audyt */
+.mr-bridge-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.23);background:rgba(127,127,150,.075);font-size:11px;font-weight:700;color:inherit;white-space:nowrap;cursor:pointer;transition:background .16s,border-color .16s}
+.mr-bridge-indicator:hover,.mr-bridge-indicator:focus-visible{background:rgba(148,163,184,.17);border-color:rgba(148,163,184,.45)}
+.mr-bridge-indicator .mr-bridge-dot{height:7px;width:7px}
+.mr-bridge-settings{scroll-margin-top:30px}
+.mr-bridge-connection{display:flex;align-items:center;gap:10px;font-size:13px;margin:12px 0 8px}
+.mr-bridge-connection .mr-bridge-dot{width:9px;height:9px}
+.mr-bridge-info p{margin:7px 0;line-height:1.6;font-size:13px}
+.mr-bridge-info small{display:block;opacity:.7;font-size:12px;line-height:1.6;margin-top:10px}
