@@ -1253,7 +1253,16 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-indicator{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(148,163,184,.23);background:rgba(127,127,150,.075);font-size:11px;font-weight:700;color:inherit;white-space:nowrap;cursor:pointer;transition:background .16s,border-color .16s}
 .mr-bridge-indicator:hover,.mr-bridge-indicator:focus-visible{background:rgba(148,163,184,.17);border-color:rgba(148,163,184,.45)}
 .mr-bridge-indicator .mr-bridge-dot{height:7px;width:7px}
-.mr-bridge-settings{scroll-margin-top:30px}
+/* OpenReports Bridge is a global integration, so give its settings card the full row. */
+.mr-bridge-settings{grid-column:1 / -1;scroll-margin-top:30px}
+.mr-bridge-settings .settings-card-heading p{max-width:850px}
+.mr-bridge-settings .mr-bridge-info{max-width:100%}
+@media(min-width:900px){
+ .mr-bridge-settings .mr-bridge-install-steps{columns:2;column-gap:50px;column-rule:1px solid rgba(148,163,184,.16);max-width:100%}
+ .mr-bridge-settings .mr-bridge-install-steps li{break-inside:avoid;padding-right:16px}
+}
+@media(max-width:720px){.mr-bridge-settings{grid-column:1}}
+
 .mr-bridge-connection{display:flex;align-items:center;gap:10px;font-size:13px;margin:12px 0 8px}
 .mr-bridge-connection .mr-bridge-dot{width:9px;height:9px}
 .mr-bridge-info p{margin:7px 0;line-height:1.6;font-size:13px}

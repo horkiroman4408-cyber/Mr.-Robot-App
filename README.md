@@ -6,6 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![version](https://img.shields.io/badge/version-3.18.3-blue)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.2.8-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
