@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.17.0-blue)
+![wersja](https://img.shields.io/badge/version-3.18.0-blue)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -17,6 +17,13 @@
 > **Wypróbuj teraz:** [otwórz wersję na żywo](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — wszystko działa w Twojej przeglądarce. Bez instalacji, bez rejestracji, bez serwera. Podoba się? Zainstaluj jako aplikację — będzie działać offline.
 
 ---
+
+
+## 🔌 OpenReports Bridge · opcjonalne rozszerzenie Edge (v3.18.0)
+
+Po osobnej instalacji **OpenReports Bridge** (v0.2.7) możesz uruchamiać eksport XLSX z autoryzowanego OpenReports-WMS bezpośrednio z **MP → AUDYT → AL_AUDYT / FORMATKA_59** i **GODZINY_MDT**. Pliki trafiają do `Downloads/MrRobot/OpenReports`; po nadaniu zgody na odczyt folderu mogą zostać przekazane do istniejących importerów. Wybór dat i godzin z sekundami.
+
+Okna rozszerzenia obsługują polski, rosyjski, angielski i ukraiński oraz podążają za językiem Mr. Robot. Rozszerzenie **nie przechowuje haseł WMS**. Jest opcjonalne, nie zmienia ręcznego importu Excel ani działania offline. Korzystaj wyłącznie zgodnie z zasadami dostępu do systemu firmowego.
 
 ## 📖 Spis treści
 

@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.17.0-blue)
+![version](https://img.shields.io/badge/version-3.18.0-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -17,6 +17,13 @@
 > **Try it now:** [open the live version](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — it runs entirely in your browser. No install, no sign-up, no server. Like it? Install it as an app — it then works offline.
 
 ---
+
+
+## 🔌 OpenReports Bridge · optional Microsoft Edge integration (v3.18.0)
+
+With the separately installed **OpenReports Bridge** extension (v0.2.7), Mr. Robot can launch authorized OpenReports-WMS XLSX exports from **MP → AUDYT → AL_AUDYT / FORMATKA_59** and **GODZINY_MDT**. Reports are saved in `Downloads/MrRobot/OpenReports`; with folder read permission they can be passed to the existing importers. You choose dates and times down to the second.
+
+The extension supports Polish, Russian, English and Ukrainian, follows the app language and **does not store WMS passwords**. It is optional, intended for authorized Edge access to OpenReports, and does not replace offline/manual Excel processing. Your company's rules for extensions and reports still apply.
 
 ## 📖 Table of Contents
 
