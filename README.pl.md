@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.18.3-blue)
+![wersja](https://img.shields.io/badge/version-3.18.5-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.2.8-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -77,7 +77,7 @@ Niczego nie trzeba pobierać ani reinstalować ręcznie. Aktualizacje przychodz�
 2. Aplikacja zauważa ją w tle i pokazuje baner: **„Dostępna aktualizacja / Zaktualizuj teraz”**.
 3. Klikasz — nowa wersja się aktywuje. **Wczytane pliki, filtry i dane zostają nietknięte.**
 
-Aktualizacja włącza się tylko po Twoim kliknięciu — raport w pracy nigdy nie zostanie przerwany. (Znaczek ✨ **„Co nowego”** to osobna sprawa: oznacza nieprzeczytane wpisy historii zmian.)
+Aktualizacja włącza się tylko po Twoim kliknięciu — raport w pracy nigdy nie zostanie przerwany. Nowy użytkownik widzi krótkie powitanie przy pierwszym uruchomieniu. Po następnych aktualizacjach pojawia się jednorazowe podsumowanie z przejściem do pełnej historii **„Co nowego”**. Znaczek ✨ nadal oznacza nieprzeczytane wpisy.
 
 ---
 

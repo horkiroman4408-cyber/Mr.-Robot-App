@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.18.3-blue)
+![version](https://img.shields.io/badge/version-3.18.5-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.2.8-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -77,7 +77,7 @@ You never re-download or re-install anything manually. Updates arrive like this:
 2. The app notices it in the background and shows a banner: **"Update available / Zaktualizuj teraz"**.
 3. You click it — the new version activates. **Your loaded files, filters and data stay untouched.**
 
-The update is applied only when you click — an in-progress report is never interrupted. (The ✨ **"What's new"** badge in the app is a separate thing: it marks unread changelog entries.)
+The update is applied only when you click — an in-progress report is never interrupted. On the first launch, new users get a short welcome. After subsequent version updates, a one-time summary appears with a button to the full **What’s new** history. The ✨ badge still marks unread changelog entries.
 
 ---
 

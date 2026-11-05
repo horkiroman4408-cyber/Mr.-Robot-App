@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.18.3</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.18.5</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -23,66 +23,35 @@
 <button v-if="view === 'hub'" class="changelog-pill" @click="view = 'changelog'" :title="tr(hasUnreadChangelog ? 'Dostępne są nowe wpisy!' : 'Co nowego')"><span class="ico-wrap">✨</span><span>{{ tr(3) }}</span><span v-if="hasUnreadChangelog" class="badge" style="padding: 0 8px; font-size: 0.65rem; letter-spacing: 0.5px;">{{ tr(4) }}</span></button>
 <template v-if="view === 'hub'">
 <transition name="toast">
-  <div v-if="showWelcome" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md">
-    <div class="glass-strong w-full max-w-2xl p-6 sm:p-8 space-y-6 float-up shadow-2xl relative overflow-hidden">
-      
-      <div class="welcome-settings"><button type="button" class="settings-entry" @click="closeWelcome();openSettings()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="m9 3-.7 2.2-2 .9L4 5.5 1.7 9.7 3.4 11v2l-1.7 1.3L4 18.5l2.3-.6 2 .9L9 21h6l.7-2.2 2-.9 2.3.6 2.3-4.2-1.7-1.3v-2l1.7-1.3L20 5.5l-2.3.6-2-.9L15 3z"/><circle cx="12" cy="12" r="3.1"/></svg>{{ tr('Ustawienia') }}</button></div><!-- Декоративный фон -->
-      <div class="absolute -top-20 -right-20 w-48 h-48 bg-blue-400/20 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-20 -left-20 w-48 h-48 bg-purple-400/20 rounded-full blur-3xl pointer-events-none"></div>
-
-      <!-- Заголовок -->
-      <div class="text-center space-y-2 relative">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-[20px] bg-gradient-to-br from-[#64748b] to-[#1e293b] text-white mb-2 shadow-lg">
-          <svg viewBox="0 0 48 48" class="w-8 h-8" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="24" y1="6" x2="24" y2="11" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="5" r="2" fill="#fff"/><rect x="11" y="11" width="26" height="22" rx="7" fill="#fff"/><circle cx="19" cy="21" r="2.3" fill="#475569"/><circle cx="29" cy="21" r="2.3" fill="#475569"/><path d="M18 26.5 Q24 30.5 30 26.5" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/><rect x="6" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="38" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="16" y="35" width="16" height="8" rx="3" fill="#fff" opacity="0.9"/></svg>
-        </div>
-        <h2 class="text-2xl font-extrabold tracking-tight gradient-text-neutral">{{ tr(5) }}</h2>
-        <p class="text-[13px] text-slate-500 font-medium">{{ tr(6) }} </p>
-      </div>
-
-      <!-- Основной текст (Инструкция) -->
-      <div class="relative space-y-4">
-        <div class="bg-blue-50/80 border border-blue-200 rounded-2xl p-4 text-[13px] text-slate-700 leading-relaxed shadow-sm">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">🛡️</span>
-            <b class="text-blue-800">{{ tr(7) }}</b>
-          </div>
-          {{ tr(8) }} <b>{{ tr(9) }}</b>{{ tr(10) }}
-        </div>
-
-        <div class="bg-slate-50/80 border border-slate-200 rounded-2xl p-4 text-[13px] text-slate-700 leading-relaxed shadow-sm">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">💾</span>
-            <b class="text-slate-800">{{ tr(11) }}</b>
-          </div>
-          {{ tr(12) }} <b>Grafik.xlsx</b> {{ tr(14) }} <b>{{ tr(15) }}</b>{{ tr(16) }} <b>✕</b> {{ tr(17) }}
-        </div>
-
-        <div class="bg-purple-50/80 border border-purple-200 rounded-2xl p-4 text-[13px] text-slate-700 leading-relaxed shadow-sm">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">🚀</span>
-            <b class="text-purple-800">{{ tr(18) }}</b>
-          </div>
-          <ul class="list-disc pl-5 space-y-1 mt-1">
-            <li><b>KPI Norms</b> {{ tr(20) }}</li>
-            <li><b>RS & MP</b> {{ tr(22) }}</li>
-            <li><b>{{ tr(23) }}</b> {{ tr(24) }}</li>
-          </ul>
-        </div>
-
-        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 text-[13px] text-slate-700 leading-relaxed shadow-sm">
-          <div class="flex items-center gap-2 mb-2">
-            <span class="text-lg">✨</span>
-            <b class="text-amber-800">{{ tr(25) }}</b>
-          </div>
-          {{ tr(26) }} <b>{{ tr(27) }}</b> {{ tr(28) }} <b>{{ tr(4) }}</b>{{ tr(29) }}
+  <div v-if="startupPanel" class="mr-startup-overlay" role="presentation" @click.self="dismissStartup">
+    <section class="mr-startup-panel" role="dialog" aria-modal="true" :aria-label="introT(startupPanel==='welcome'?'welcomeTitle':'updateTitle')">
+      <button type="button" class="mr-startup-close" :aria-label="introT('close')" @click="dismissStartup">×</button>
+      <div class="mr-startup-header">
+        <span class="mr-startup-symbol" aria-hidden="true">{{ startupPanel==='welcome'?'🤖':'✨' }}</span>
+        <div class="mr-startup-header-text">
+          <div class="mr-startup-eyebrow">{{ startupPanel==='welcome'?introT('welcomeEyebrow'):introT('updateEyebrow') }}</div>
+          <h2>{{ introT(startupPanel==='welcome'?'welcomeTitle':'updateTitle') }}</h2>
+          <p>{{ startupPanel==='welcome'?introT('welcomeSubtitle'):introT('updateSubtitle')+' '+(latestChangelog?'v'+latestChangelog.version:'') }}</p>
         </div>
       </div>
-
-      <!-- Кнопка -->
-      <button class="ios-btn ios-btn-primary w-full py-3.5 text-base shadow-xl relative font-bold" @click="closeWelcome">
-        {{ tr(30) }}
-      </button>
-    </div>
+      <div v-if="startupPanel==='welcome'" class="mr-startup-list">
+        <div v-for="item in introWelcomeFeatures" :key="item.key" class="mr-startup-feature">
+          <span class="mr-startup-feature-icon" aria-hidden="true">{{ item.icon }}</span>
+          <div><strong>{{ introT(item.key+'Title') }}</strong><p>{{ introT(item.key+'Desc') }}</p></div>
+        </div>
+      </div>
+      <div v-else class="mr-startup-list">
+        <div v-for="(change,i) in startupChanges" :key="i" class="mr-startup-feature">
+          <span class="mr-startup-feature-icon" aria-hidden="true">{{ change.type==='new'?'✨':change.type==='fix'?'🛠️':'↗' }}</span>
+          <div><strong>{{ introChangeLabel(change) }}</strong><p>{{ introChangeSummary(change) }}</p></div>
+        </div>
+      </div>
+      <div class="mr-startup-actions">
+        <button v-if="startupPanel==='update'" type="button" class="mr-startup-action mr-startup-action-secondary" @click="openStartupChangelog">{{ introT('details') }}</button>
+        <button type="button" class="mr-startup-action mr-startup-action-primary" @click="dismissStartup">{{ introT(startupPanel==='welcome'?'start':'continue') }}</button>
+      </div>
+      <p class="mr-startup-footnote">{{ introT(startupPanel==='welcome'?'welcomeFootnote':'updateFootnote') }}</p>
+    </section>
   </div>
 </transition>
 <header class="px-6 pt-14 pb-6 max-w-6xl w-full mx-auto text-center">
@@ -1765,7 +1734,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.18.3">v3.18.3</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.18.5">v3.18.5</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1813,14 +1782,37 @@
    <section id="settings-openreports" class="settings-card glass-strong mr-bridge-settings" aria-label="OpenReports Bridge">
     <div class="settings-card-heading"><span class="settings-eyebrow" id="mr-bridge-category">{{ eMsg('Integracje','Интеграции','Integrations','Інтеграції') }}</span><h2>OpenReports Bridge</h2><p id="mr-bridge-description">{{ eMsg('Łącz OpenReports-WMS z modułami Mr. Robot. Obecnie: AL_AUDYT / FORMATKA_59 i GODZINY_MDT.','Подключай OpenReports-WMS к модулям Mr. Robot. Сейчас: AL_AUDYT / FORMATKA_59 и GODZINY_MDT.','Connect OpenReports-WMS to Mr. Robot modules. Currently: AL_AUDYT / FORMATKA_59 and GODZINY_MDT.','Підключай OpenReports-WMS до модулів Mr. Robot. Зараз: AL_AUDYT / FORMATKA_59 і GODZINY_MDT.') }}</p></div>
     <div class="mr-bridge-connection"><span class="mr-bridge-dot" id="mr-bridge-dot" aria-hidden="true"></span><strong id="mr-bridge-status" role="status" aria-live="polite">{{ eMsg('Sprawdzanie połączenia…','Проверка подключения…','Checking connection…','Перевірка підключення…') }}</strong></div>
-    <div class="mr-bridge-info" id="mr-bridge-info"><a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.2.8.zip" download="OpenReports-Bridge-v0.2.8.zip" id="mr-bridge-download">{{ eMsg('Pobierz Bridge v0.2.8','Скачать Bridge v0.2.8','Download Bridge v0.2.8','Завантажити Bridge v0.2.8') }}</a><div class="mr-bridge-install-title">{{ eMsg('Instrukcja instalacji','Инструкция по установке','Installation steps','Інструкція зі встановлення') }}</div><ol class="mr-bridge-install-steps">
-<li>{{ eMsg('Pobierz Bridge v0.2.8 i rozpakuj plik ZIP.','Скачай Bridge v0.2.8 и распакуй ZIP.','Download Bridge v0.2.8 and extract the ZIP.','Завантаж Bridge v0.2.8 і розпакуй ZIP.') }}</li>
-<li>{{ eMsg('W Microsoft Edge otwórz edge://extensions.','В Microsoft Edge открой edge://extensions.','Open edge://extensions in Microsoft Edge.','У Microsoft Edge відкрий edge://extensions.') }}</li>
-<li>{{ eMsg('Włącz Tryb dewelopera.','Включи режим разработчика.','Turn on Developer mode.','Увімкни режим розробника.') }}</li>
-<li>{{ eMsg('Kliknij Załaduj rozpakowane i wybierz folder z plikiem manifest.json (nie sam ZIP).','Нажми «Загрузить распакованное» и выбери папку с файлом manifest.json (не сам ZIP).','Choose Load unpacked and select the folder containing manifest.json (not the ZIP).','Натисни «Завантажити розпаковане» та вибери папку з файлом manifest.json (не ZIP).') }}</li>
-<li>{{ eMsg('Odśwież stronę Mr. Robot (F5), aby wykryć rozszerzenie.','Обнови страницу Mr. Robot (F5), чтобы он обнаружил расширение.','Refresh Mr. Robot (F5) to detect the extension.','Онови сторінку Mr. Robot (F5), щоб виявити розширення.') }}</li>
-<li>{{ eMsg('Otwórz zalogowany OpenReports-WMS. Przy pierwszym imporcie wybierz Downloads/MrRobot/OpenReports i zezwól na odczyt.','Открой авторизованный OpenReports-WMS. При первом импорте выбери Downloads/MrRobot/OpenReports и разреши чтение папки.','Keep OpenReports-WMS signed in. On first import select Downloads/MrRobot/OpenReports and allow folder read access.','Відкрий авторизований OpenReports-WMS. Під час першого імпорту вибери Downloads/MrRobot/OpenReports та дозволь читання папки.') }}</li>
-</ol><small id="mr-bridge-warning">{{ eMsg('Rozszerzenie Edge wymaga osobnej instalacji.','Расширение Edge устанавливается отдельно.','The Edge extension must be installed separately.','Розширення Edge встановлюється окремо.') }}</small></div>
+    <div class="mr-bridge-info" id="mr-bridge-info">
+     <div class="mr-bridge-browser-row">
+      <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Twoja przeglądarka','Твой браузер','Your browser','Твій браузер') }}</div>
+      <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
+       <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
+       <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+      </div>
+     </div>
+     <div class="mr-bridge-action-row">
+      <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.2.8.zip" download="OpenReports-Bridge-v0.2.8.zip" id="mr-bridge-download">{{ eMsg('Pobierz Bridge v0.2.8','Скачать Bridge v0.2.8','Download Bridge v0.2.8','Завантажити Bridge v0.2.8') }}</a>
+      <span class="mr-bridge-version-note">Bridge v0.2.8 · Edge / Chrome</span>
+     </div>
+     <div class="mr-bridge-prereq" role="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>{{ eMsg('Aby uruchamiać raporty, otwórz OpenReports-WMS w osobnej karcie przeglądarki i zaloguj się na swoje konto.','Для запуска отчётов открой OpenReports-WMS в отдельной вкладке браузера и войди в свою учётную запись.','To run reports, open OpenReports-WMS in a separate browser tab and sign in to your account.','Щоб запускати звіти, відкрий OpenReports-WMS в окремій вкладці браузера та увійди у свій обліковий запис.') }}</span></div>
+     <div class="mr-bridge-install-panel">
+      <button type="button" id="mr-bridge-install-toggle" class="mr-bridge-install-toggle" aria-expanded="false" aria-controls="mr-bridge-install-body">
+       <span class="mr-bridge-install-toggle-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6v14c-2.5-1.5-5.5-1.5-8-.5V5.5Zm8 .5c2.5-1.5 5.5-1.5 8-.5v14c-2.5-1-5.5-1-8 .5"/></svg><span id="mr-bridge-install-label">{{ eMsg('Jak zainstalować rozszerzenie','Как установить расширение','How to install the extension','Як встановити розширення') }}</span></span>
+       <svg class="mr-bridge-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div id="mr-bridge-install-body" class="mr-bridge-install-body" hidden>
+       <ol class="mr-bridge-install-steps">
+        <li>{{ eMsg('Pobierz Bridge v0.2.8 i rozpakuj ZIP.','Скачай Bridge v0.2.8 и распакуй ZIP.','Download Bridge v0.2.8 and extract the ZIP.','Завантаж Bridge v0.2.8 і розпакуй ZIP.') }}</li>
+        <li><span id="mr-bridge-open-browser-label">{{ eMsg('Otwórz stronę rozszerzeń:','Открой страницу расширений:','Open the extensions page:','Відкрий сторінку розширень:') }}</span><div class="mr-bridge-url-row"><code id="mr-bridge-extension-url">edge://extensions</code><button type="button" id="mr-bridge-copy-url" class="mr-bridge-copy-url" :aria-label="eMsg('Kopiuj adres','Копировать адрес','Copy address','Копіювати адресу')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="mr-bridge-copy-label">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button></div></li>
+        <li>{{ eMsg('Włącz tryb dewelopera.','Включи режим разработчика.','Enable Developer mode.','Увімкни режим розробника.') }}</li>
+        <li>{{ eMsg('Kliknij „Załaduj rozpakowane” i wybierz folder „extension” zawierający manifest.json, a nie plik ZIP.','Нажми «Загрузить распакованное» и выбери папку «extension» с файлом manifest.json, не сам ZIP.','Click “Load unpacked” and choose the “extension” folder containing manifest.json, not the ZIP.','Натисни «Завантажити розпаковане» й вибери папку «extension» із manifest.json, а не ZIP.') }}</li>
+        <li>{{ eMsg('Odśwież Mr. Robot (F5), aby wykryć Bridge.','Обнови Mr. Robot (F5), чтобы обнаружить Bridge.','Refresh Mr. Robot (F5) to detect Bridge.','Онови Mr. Robot (F5), щоб виявити Bridge.') }}</li>
+        <li>{{ eMsg('Zaloguj się do OpenReports-WMS. Przy pierwszym imporcie wybierz folder Downloads/MrRobot/OpenReports i zezwól na odczyt.','Авторизуйся в OpenReports-WMS. При первом импорте выбери папку Downloads/MrRobot/OpenReports и разреши чтение.','Sign in to OpenReports-WMS. On first import select Downloads/MrRobot/OpenReports and allow read access.','Увійди до OpenReports-WMS. Під час першого імпорту вибери Downloads/MrRobot/OpenReports і дозволь читання.') }}</li>
+       </ol>
+      </div>
+     </div>
+     <small id="mr-bridge-warning">{{ eMsg('Rozszerzenie instaluje się osobno; PWA nie może go zainstalować automatycznie.','Расширение устанавливается отдельно: PWA не может установить его автоматически.','Install the extension separately: a PWA cannot install it automatically.','Розширення встановлюється окремо: PWA не може встановити його автоматично.') }}</small>
+    </div>
    </section>
   </div>
   <p class="settings-storage-note"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 3h12l3 3v15H4V3zM8 3v6h8V3M8 21v-8h8v8"/></svg>{{ tr('Ustawienia są zapamiętywane w tej przeglądarce, jeśli dostępna jest pamięć lokalna.') }}</p>
@@ -1834,7 +1826,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.18.3</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.18.5</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

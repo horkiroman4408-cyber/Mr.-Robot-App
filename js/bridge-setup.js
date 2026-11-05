@@ -1,46 +1,96 @@
-/* UI-only detection and installer. Never touches report files or auth. */
-(function(){'use strict';
- const get=id=>document.getElementById(id);
- const supported=['pl','ru','en','uk'];
- const T={
- pl:{connected:'Połączono · v{v}',missing:'Nie wykryto rozszerzenia',action:'Szczegóły',close:'Zwiń',description:'OpenReports Bridge łączy OpenReports-WMS z modułami Mr. Robot. Obecnie obsługuje AL_AUDYT / FORMATKA_59 i GODZINY_MDT.',download:'Pobierz Bridge v0.2.8',how:'Rozpakuj ZIP → edge://extensions → Tryb dewelopera → Załaduj rozpakowane → wybierz folder extension. Następnie odśwież Mr. Robot.',warning:'Nie można instalować rozszerzeń automatycznie z aplikacji PWA. Jeśli Twoja firma blokuje rozszerzenia, skontaktuj się z IT.'},
- ru:{connected:'Подключено · v{v}',missing:'Расширение не обнаружено',action:'Подробнее',close:'Свернуть',description:'OpenReports Bridge подключает OpenReports-WMS к модулям Mr. Robot. Сейчас поддерживает AL_AUDYT / FORMATKA_59 и GODZINY_MDT.',download:'Скачать Bridge v0.2.8',how:'Распакуй ZIP → edge://extensions → Режим разработчика → Загрузить распакованное расширение → выбери папку extension. Затем обнови Mr. Robot.',warning:'PWA не может самостоятельно устанавливать расширения. Если корпоративные правила блокируют установку, обратись в IT.'},
- en:{connected:'Connected · v{v}',missing:'Extension not detected',action:'Details',close:'Collapse',description:'OpenReports Bridge connects OpenReports-WMS to Mr. Robot modules. Currently supports AL_AUDYT / FORMATKA_59 and GODZINY_MDT.',download:'Download Bridge v0.2.8',how:'Unzip → edge://extensions → Developer mode → Load unpacked → select the extension folder. Then refresh Mr. Robot.',warning:'A PWA cannot install a browser extension automatically. If company policy blocks extensions, contact IT.'},
- uk:{connected:'Підключено · v{v}',missing:'Розширення не виявлено',action:'Докладніше',close:'Згорнути',description:'OpenReports Bridge підключає OpenReports-WMS до модулів Mr. Robot. Зараз підтримує AL_AUDYT / FORMATKA_59 і GODZINY_MDT.',download:'Завантажити Bridge v0.2.8',how:'Розпакуй ZIP → edge://extensions → Режим розробника → Завантажити розпаковане → вибери папку extension. Потім онови Mr. Robot.',warning:'PWA не може автоматично встановлювати розширення. Якщо корпоративні правила блокують встановлення, звернися до IT.'}
- };
- const lang=()=>{const x=window.MRI18N?.language||document.documentElement.lang||'pl';return supported.includes(x)?x:'pl'};
- const state={version:null};
- function draw(){
-  const panel=document.getElementById('settings-openreports');
-  const indicator=get('mr-bridge-indicator-dot');
-  const trigger=get('mr-bridge-indicator');
-  const t=T[lang()],present=!!state.version;
-  if(indicator)indicator.dataset.connected=String(present);
-  if(trigger)trigger.title='OpenReports Bridge · '+(present?t.connected.replace('{v}',state.version):t.missing);
-  if(!panel)return;
- get('mr-bridge-status').textContent=present?t.connected.replace('{v}',state.version):t.missing;
- get('mr-bridge-dot').dataset.connected=String(present);
- get('mr-bridge-category').textContent=({pl:'Integracje',ru:'Интеграции',en:'Integrations',uk:'Інтеграції'})[lang()];
- get('mr-bridge-description').textContent=t.description;get('mr-bridge-download').textContent=t.download;
- get('mr-bridge-warning').textContent=t.warning;
- }
- function detect(){const v=document.documentElement.dataset.mrOpenreportsBridge;
- state.version=/^\d+\.\d+\.\d+$/.test(v||'')?v:null;draw();}
- document.addEventListener('mr-openreports-bridge-ready',detect);
- if(window.MRI18N?.subscribe)window.MRI18N.subscribe(draw);
- // Settings is rendered on demand by Vue (v-if). It does not exist at initial script load.
- // Only redraw when the relevant DOM node identity changes; avoid a MutationObserver loop.
- const root=document.getElementById('app')||document.body;
- let lastPanel=null,lastIndicator=null;
- function onDOMChange(){
-  const panel=get('settings-openreports'),indicator=get('mr-bridge-indicator-dot');
-  if(panel!==lastPanel||indicator!==lastIndicator){
-   lastPanel=panel;lastIndicator=indicator;draw();
+/* OpenReports Bridge: UI-only installation guide and connection indicator. */
+(function () { 'use strict';
+  const get = id => document.getElementById(id);
+  const translations = {
+    pl: { connected: 'Połączono · v{v}', missing: 'Nie wykryto rozszerzenia', warning: 'PWA nie może samodzielnie zainstalować rozszerzenia. Jeśli zasady firmowe blokują instalację, skontaktuj się z IT.', copied: 'Skopiowano', copy: 'Kopiuj' },
+    ru: { connected: 'Подключено · v{v}', missing: 'Расширение не обнаружено', warning: 'PWA не может самостоятельно устанавливать расширения. Если корпоративные правила запрещают установку, обратись в IT.', copied: 'Скопировано', copy: 'Копировать' },
+    en: { connected: 'Connected · v{v}', missing: 'Extension not detected', warning: 'A PWA cannot install extensions automatically. If corporate policy blocks installation, contact IT.', copied: 'Copied', copy: 'Copy' },
+    uk: { connected: 'Підключено · v{v}', missing: 'Розширення не виявлено', warning: 'PWA не може автоматично встановлювати розширення. Якщо корпоративні правила забороняють встановлення, звернися до IT.', copied: 'Скопійовано', copy: 'Копіювати' }
+  };
+  function lang() {
+    const raw = String(window.MRI18N?.language || document.documentElement.lang || 'pl').toLowerCase().slice(0, 2);
+    return translations[raw] ? raw : 'pl';
   }
- }
- new MutationObserver(onDOMChange).observe(root,{childList:true,subtree:true});
- document.addEventListener('mrbot-view-change',()=>queueMicrotask(onDOMChange));
- // No attempt to install extensions or read any corporate report data.
- detect();document.dispatchEvent(new Event('mr-openreports-bridge-query'));
- setTimeout(detect,600);setTimeout(detect,2500);
+  function detectedBrowser() {
+    const ua = navigator.userAgent || '';
+    if (/Edg\//i.test(ua)) return 'edge';
+    if (/Chrome\//i.test(ua) && !/(OPR|Opera|YaBrowser|Brave)\//i.test(ua)) return 'chrome';
+    return 'edge'; // Fallback is explicitly switchable by the user.
+  }
+  const state = { version: null, browser: detectedBrowser(), expanded: false, copyNotice: false };
+  function browserUrl() { return state.browser === 'chrome' ? 'chrome://extensions' : 'edge://extensions'; }
+  function draw() {
+    const t = translations[lang()];
+    const present = !!state.version;
+    const label = present ? t.connected.replace('{v}', state.version) : t.missing;
+    const indicator = get('mr-bridge-indicator-dot');
+    if (indicator) indicator.dataset.connected = String(present);
+    const trigger = get('mr-bridge-indicator');
+    if (trigger) trigger.title = 'OpenReports Bridge · ' + label;
+    const panel = get('settings-openreports');
+    if (!panel) return;
+    const status = get('mr-bridge-status');
+    const dot = get('mr-bridge-dot');
+    const warning = get('mr-bridge-warning');
+    if (status) status.textContent = label;
+    if (dot) dot.dataset.connected = String(present);
+    if (warning) warning.textContent = t.warning;
+    panel.querySelectorAll('[data-bridge-browser]').forEach(b => {
+      const active = b.dataset.bridgeBrowser === state.browser;
+      b.setAttribute('aria-pressed', String(active));
+      b.classList.toggle('is-selected', active);
+    });
+    const url = get('mr-bridge-extension-url');
+    if (url) url.textContent = browserUrl();
+    const toggle = get('mr-bridge-install-toggle');
+    const body = get('mr-bridge-install-body');
+    if (toggle) toggle.setAttribute('aria-expanded', String(state.expanded));
+    if (body) body.hidden = !state.expanded;
+    const copyLabel = get('mr-bridge-copy-label');
+    if (copyLabel) copyLabel.textContent = state.copyNotice ? t.copied : t.copy;
+  }
+  function detect() {
+    const v = document.documentElement.dataset.mrOpenreportsBridge;
+    state.version = /^\d+\.\d+\.\d+$/.test(v || '') ? v : null;
+    draw();
+  }
+  function copyUrl() {
+    const text = browserUrl();
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(text).then(() => { state.copyNotice = true; draw(); }, () => fallbackCopy(text));
+    } else fallbackCopy(text);
+  }
+  function fallbackCopy(text) {
+    const el = document.createElement('textarea');
+    el.value = text; el.style.position = 'fixed'; el.style.opacity = '0';
+    document.body.append(el); el.select();
+    try { state.copyNotice = document.execCommand('copy'); } catch (_) { state.copyNotice = false; }
+    el.remove(); draw();
+  }
+  // Delegate events: Vue creates the settings panel on demand.
+  document.addEventListener('click', event => {
+    const browser = event.target.closest('[data-bridge-browser]');
+    if (browser && get('settings-openreports')?.contains(browser)) {
+      state.browser = browser.dataset.bridgeBrowser;
+      state.copyNotice = false;
+      draw(); return;
+    }
+    if (event.target.closest('#mr-bridge-install-toggle')) { state.expanded = !state.expanded; draw(); return; }
+    if (event.target.closest('#mr-bridge-copy-url')) { copyUrl(); }
+  });
+  document.addEventListener('mr-openreports-bridge-ready', detect);
+  window.MRI18N?.subscribe?.(draw);
+  const root = get('app') || document.body;
+  let lastPanel = null, lastIndicator = null;
+  new MutationObserver(() => {
+    const panel = get('settings-openreports'), indicator = get('mr-bridge-indicator-dot');
+    if (panel !== lastPanel || indicator !== lastIndicator) {
+      lastPanel = panel; lastIndicator = indicator; draw();
+    }
+  }).observe(root, { childList: true, subtree: true });
+  document.addEventListener('mrbot-view-change', () => queueMicrotask(draw));
+  detect();
+  document.dispatchEvent(new Event('mr-openreports-bridge-query'));
+  setTimeout(detect, 600);
+  setTimeout(detect, 2500);
 })();

@@ -42,9 +42,18 @@ const view=ref('hub');const toast=ref('');const mobileLite=!!window.MR_MOBILE_LI
 // Visual-only marker for theme-specific module accents; it does not affect application logic.
 watch(view,active=>{const host=document.getElementById('app');if(host)host.dataset.activeModule=active;},{immediate:true});
 window.__MRBOT_VIEW__=view;watch(view,()=>window.dispatchEvent(new Event('mrbot-view-change')));
-const showWelcome=ref(false);
-try { if(!localStorage.getItem('mrrobot_welcomed')) showWelcome.value = true; } catch(e){}
-function closeWelcome(){ showWelcome.value = false; try{ localStorage.setItem('mrrobot_welcomed', '1'); }catch(e){} }
+// Startup panel is independent from the unread-changelog indicator.
+const startupPanel=ref('');
+const STARTUP_SEEN_KEY='mrrobot_startup_last_seen_version';
+const introWelcomeFeatures=[{key:'reports',icon:'📄'},{key:'analytics',icon:'📊'},{key:'integrations',icon:'🔌'}];
+const INTRO_TRANSLATIONS={
+ pl:{welcomeEyebrow:'WITAJ W MR. ROBOT',welcomeTitle:'Witaj!',welcomeSubtitle:'Narzędzia do analizy i obsługi raportów magazynowych w jednym miejscu.',reportsTitle:'Przetwarzaj raporty',reportsDesc:'Importuj pliki Excel i przygotowuj wyniki do dalszej pracy.',analyticsTitle:'Analizuj dane',analyticsDesc:'Korzystaj z KPI, audytów i analiz procesów magazynowych.',integrationsTitle:'Łącz narzędzia',integrationsDesc:'OpenReports Bridge pomaga pobierać raporty WMS, gdy go zainstalujesz.',start:'Rozpocznij',welcomeFootnote:'To okno pojawia się tylko przy pierwszym uruchomieniu.',updateEyebrow:'MR. ROBOT · AKTUALIZACJA',updateTitle:'Mr. Robot został zaktualizowany!',updateSubtitle:'Wersja',details:'Zobacz więcej',continue:'Kontynuuj',updateFootnote:'Wiadomość wyświetla się raz po każdej aktualizacji.',close:'Zamknij',new:'Nowość',fix:'Poprawka',improve:'Ulepszenie'},
+ ru:{welcomeEyebrow:'ДОБРО ПОЖАЛОВАТЬ В MR. ROBOT',welcomeTitle:'Добро пожаловать!',welcomeSubtitle:'Инструменты для складской аналитики и отчётов в одном приложении.',reportsTitle:'Обрабатывай отчёты',reportsDesc:'Импортируй Excel-файлы и получай готовые результаты.',analyticsTitle:'Анализируй данные',analyticsDesc:'Работай с KPI, аудитами и анализом складских процессов.',integrationsTitle:'Подключай инструменты',integrationsDesc:'OpenReports Bridge помогает получать отчёты WMS после установки.',start:'Начать работу',welcomeFootnote:'Это окно появляется только при первом запуске.',updateEyebrow:'MR. ROBOT · ОБНОВЛЕНИЕ',updateTitle:'Mr. Robot обновлён!',updateSubtitle:'Версия',details:'Подробнее',continue:'Продолжить',updateFootnote:'Показывается один раз после каждого обновления.',close:'Закрыть',new:'Новое',fix:'Исправление',improve:'Улучшение'},
+ en:{welcomeEyebrow:'WELCOME TO MR. ROBOT',welcomeTitle:'Welcome!',welcomeSubtitle:'Warehouse analytics and reporting tools in one app.',reportsTitle:'Process reports',reportsDesc:'Import Excel files and prepare results for your workflow.',analyticsTitle:'Analyze data',analyticsDesc:'Explore KPIs, audits and warehouse processes.',integrationsTitle:'Connect tools',integrationsDesc:'OpenReports Bridge can retrieve WMS reports after installation.',start:'Get started',welcomeFootnote:'This screen appears only on your first launch.',updateEyebrow:'MR. ROBOT · UPDATE',updateTitle:'Mr. Robot has been updated!',updateSubtitle:'Version',details:'What’s new',continue:'Continue',updateFootnote:'Shown once after each update.',close:'Close',new:'New',fix:'Fix',improve:'Improvement'},
+ uk:{welcomeEyebrow:'ВІТАЄМО В MR. ROBOT',welcomeTitle:'Вітаємо!',welcomeSubtitle:'Інструменти для складської аналітики та звітів в одному застосунку.',reportsTitle:'Обробляй звіти',reportsDesc:'Імпортуй файли Excel та отримуй готові результати.',analyticsTitle:'Аналізуй дані',analyticsDesc:'Працюй з KPI, аудитами та аналізом складських процесів.',integrationsTitle:'Підключай інструменти',integrationsDesc:'OpenReports Bridge допомагає отримувати звіти WMS після встановлення.',start:'Почати роботу',welcomeFootnote:'Це вікно з’являється лише під час першого запуску.',updateEyebrow:'MR. ROBOT · ОНОВЛЕННЯ',updateTitle:'Mr. Robot оновлено!',updateSubtitle:'Версія',details:'Що нового',continue:'Продовжити',updateFootnote:'Показується один раз після кожного оновлення.',close:'Закрити',new:'Нове',fix:'Виправлення',improve:'Покращення'}
+};
+function introT(key){return (INTRO_TRANSLATIONS[uiLanguage.value]||INTRO_TRANSLATIONS.pl)[key]||key;}
+
 const rsView=ref('cards');const mpView=ref('cards');
 function showToast(msg,ms=2500){toast.value=msg;setTimeout(()=>{toast.value='';},ms);}
 watch(view,(v)=>{if(v==='hub'){rsView.value='cards';mpView.value='cards';}});
@@ -71,6 +80,25 @@ function clCompare(a,b){
  return 0;
 }
 const latestChangelog=changelogAll.reduce((a,b)=>!a||clCompare(b.version,a.version)>0?b:a,null);
+const startupChanges=computed(()=>latestChangelog?(latestChangelog.changes||[]).slice(0,3):[]);
+function introChangeLabel(change){return introT(change.type==='new'?'new':change.type==='fix'?'fix':'improve')+' · '+tr((moduleLabels[change.module]||moduleLabels.hub).label);}
+function introChangeSummary(change){
+ const original=(change.textI18n&&change.textI18n[uiLanguage.value])||tr(change.text||'');
+ const plain=String(original).replace(/<[^>]*>/g,' ').replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();
+ return plain.length>185?plain.slice(0,182).trimEnd()+'…':plain;
+}
+function startupStorageGet(key){try{return localStorage.getItem(key);}catch(e){return null;}}
+function startupStorageSet(key,value){try{localStorage.setItem(key,value);}catch(e){}}
+// Keep the existing welcome flag: established users must not see onboarding again.
+if(!startupStorageGet('mrrobot_welcomed'))startupPanel.value='welcome';
+else if(latestChangelog && startupStorageGet(STARTUP_SEEN_KEY)!==latestChangelog.version)startupPanel.value='update';
+function dismissStartup(){
+ const type=startupPanel.value;startupPanel.value='';
+ if(type==='welcome')startupStorageSet('mrrobot_welcomed','1');
+ if(latestChangelog)startupStorageSet(STARTUP_SEEN_KEY,latestChangelog.version);
+}
+function openStartupChangelog(){dismissStartup();view.value='changelog';window.scrollTo(0,0);}
+
 let changelogDb=null,changelogDbRead=false,changelogViewed=false,storedChangelogRead='';
 function clStored(storage){
  try{const value=storage().getItem(CHANGELOG_READ_KEY);return clVersion(value)?value:'';}catch(e){return '';}
@@ -1819,7 +1847,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,showWelcome,closeWelcome,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
