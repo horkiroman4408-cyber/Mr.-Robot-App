@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "Mr. Robot | OpenReports Bridge",
+  "description": "OpenReports Bridge: automatyczne pobieranie XLSX dla AL_AUDYT i GODZINY_MDT oraz interfejs PL/RU/EN/UK.",
+  "version": "0.2.8",
+  "permissions": [
+    "storage",
+    "tabs",
+    "downloads",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://openreports-wms.lpp.com/*",
+    "https://horkiroman4408-cyber.github.io/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Mr. Robot | OpenReports",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://openreports-wms.lpp.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://horkiroman4408-cyber.github.io/Mr.-Robot-App/*"
+      ],
+      "js": [
+        "i18n.js",
+        "mrrobot-content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

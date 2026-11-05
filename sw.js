@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.18.0-openreports-bridge-i18n-01';
+const CACHE_REVISION = 'v3.18.1-openreports-bridge-setup';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -46,6 +46,7 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/app.js',
+  'js/bridge-setup.js',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',
   'js/mrbot-knowledge.js',

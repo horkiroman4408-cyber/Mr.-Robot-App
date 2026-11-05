@@ -1236,3 +1236,15 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
  .employee-page.float-up>.employee-training-bar,.rs-scalanie-geek-page.float-up,
  .rs-scalanie-geek-page>.rs-scalanie-geek-panel{animation:none!important}
 }
+
+/* Optional OpenReports Bridge installer and connection indicator */
+.mr-bridge-setup{border:1px solid var(--mr-border,rgba(148,163,184,.22));border-radius:16px;background:var(--mr-card-bg,rgba(125,125,150,.06));padding:12px 16px;color:inherit;font-size:13px}
+.mr-bridge-line{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mr-bridge-title{font-weight:700}.mr-bridge-dot{height:9px;width:9px;border-radius:50%;background:#9ca3af;flex-shrink:0}
+.mr-bridge-dot[data-connected="true"]{background:#22c55e}
+#mr-bridge-status{flex:1;min-width:120px;opacity:.8}
+#mr-bridge-toggle{border:1px solid rgba(148,163,184,.28);border-radius:9px;padding:5px 12px;font-weight:600;background:transparent;color:inherit;cursor:pointer}
+#mr-bridge-info{padding-top:12px;line-height:1.6}
+#mr-bridge-info p{margin:0 0 8px}
+#mr-bridge-info small{display:block;opacity:.72;padding-top:10px}
+.mr-bridge-download{display:inline-flex;border-radius:10px;background:#374151;color:white!important;font-weight:700;text-decoration:none;padding:9px 15px;margin:4px 0 10px}

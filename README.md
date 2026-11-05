@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.18.0-blue)
+![version](https://img.shields.io/badge/version-3.18.1-blue)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -350,3 +350,8 @@ If you'd rather just say hello and tell me what you built with it, that works to
 Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
 
 © 2026 Mr. Robot · Made by Raman Horki
+
+
+## OpenReports Bridge (v3.18.1)
+
+OpenReports Bridge can be downloaded in MP → Audyt. It must be installed separately in Edge; the app detects its presence and shows its version. The source is in `extension/openreports-bridge/`, with a ZIP in `downloads/`. The app still works without the extension.
