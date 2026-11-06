@@ -34,10 +34,28 @@ const isApp = url => { try { const u=new URL(url);return u.origin===APP_ORIGIN&&
 const KEY = 'mrOpenReportsJob';
 const getJob = async () => (await chrome.storage.local.get(KEY))[KEY] || null;
 const save = async job => chrome.storage.local.set({[KEY]: job});
-const currentJob = job => job && job.state==='running'; // explicit Cancel is required; never overlap active downloads
+const currentJob = job => job && job.state==='running'; // never overlap active downloads
 
 const fail = async (job, message) => save({...job, state:'error', message, updatedAt:Date.now()});
 // A login page is not a report failure. Keep the job until the user signs in.
+// Restore only demonstrably abandoned jobs. Never clear an active server download early.
+async function refreshedJob(){
+  let job=await getJob();
+  if(!currentJob(job))return job;
+  const now=Date.now();
+  const tab=await chrome.tabs.get(job.tabId).catch(()=>null);
+  if(!tab){await fail(job,'Karta OpenReports została zamknięta.');return getJob();}
+  if(job.awaitingLogin && now-(job.loginStartedAt||job.startedAt)>MAX_LOGIN_MS){
+    await fail(job,'Upłynął czas oczekiwania na logowanie do OpenReports (15 minut).');return getJob();
+  }
+  if(job.step==='download' && now-(job.downloadStartedAt||job.startedAt)>MAX_PENDING_MS){
+    await fail(job,'OpenReports nie rozpoczął pobierania XLSX w wyznaczonym czasie.');return getJob();
+  }
+  if(job.step!=='download' && !job.awaitingLogin && now-(job.updatedAt||job.startedAt)>3*60*1000){
+    await fail(job,'Poprzednie zadanie nie odpowiada od 3 minut. Uruchom raport ponownie.');return getJob();
+  }
+  return job;
+}
 const loginMessage='Oczekuję na zalogowanie w OpenReports. Dokończ logowanie w otwartej karcie…';
 async function chooseTab(){
   const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
@@ -107,9 +125,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       let tab=Number.isInteger(requestedTabId)?await chrome.tabs.get(requestedTabId):await chooseTab();
       if(!isTrusted(tab.url))throw Error('Otwórz autoryzowaną stronę OpenReports.');
       const tabId=tab.id;
-      const existing=await getJob();
-      if(currentJob(existing)) throw Error('Inny raport jest już uruchomiony.');
-      await save({jobId:crypto.randomUUID(),report,tabId,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()});
+      await withJobLock(async()=>{
+        const existing=await refreshedJob();
+        if(currentJob(existing)) throw Error('Inny raport jest już uruchomiony.');
+        await save({jobId:crypto.randomUUID(),report,tabId,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()});
+      });
       await runOnTab(tabId);
       sendResponse({ok:true});return;
     }
@@ -120,11 +140,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const report=message.report||'ai_audyt';
       if(!REPORTS[report])throw Error('Nieznany raport OpenReports.');
       if(!validDate(from)||!validDate(to)||from>to)throw Error('Nieprawidłowy okres.');
-      const previous=await getJob();
-      if(currentJob(previous))throw Error('Inny raport jest już uruchomiony.');
+      if(currentJob(await refreshedJob()))throw Error('Inny raport jest już uruchomiony.');
       const tab=await chooseTab();
       const job={jobId:crypto.randomUUID(),report,tabId:tab.id,appTabId:sender.tab.id,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()};
-      await save(job);
+      await withJobLock(async()=>{
+        const previous=await refreshedJob();
+        if(currentJob(previous))throw Error('Inny raport jest już uruchomiony.');
+        await save(job);
+      });
       await runOnTab(tab.id);
       sendResponse({ok:true,jobId:job.jobId});return;
     }
@@ -138,11 +161,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ok:true});return;
     }
     if(message?.type==='MR_CANCEL'){
-      const job=await getJob();if(job?.state==='running')await save({...job,state:'cancelled',message:'Anulowano.',updatedAt:Date.now()});
+      const job=await getJob();if(job?.state==='running'&&(!message.jobId||message.jobId===job.jobId))await save({...job,state:'cancelled',message:'Anulowano.',updatedAt:Date.now()});
       sendResponse({ok:true});return;
     }
     if(message?.type==='MR_STATUS'){
-      let job=await getJob();
+      let job=await refreshedJob();
       if(job?.state==='running' && job.awaitingLogin && job.step==='open-reports' && Date.now()-(job.loginStartedAt||job.startedAt)>MAX_LOGIN_MS){
         await fail(job,'Upłynął czas oczekiwania na logowanie do OpenReports (15 minut). Spróbuj ponownie.');
         job=await getJob();

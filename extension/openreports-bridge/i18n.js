@@ -9,6 +9,8 @@
       mdtHint:' Pola EAN i Location pozostaną puste.',
       dateFrom:'Data od',timeFrom:'Godzina od',dateTo:'Data do',timeTo:'Godzina do',
       timeFromFull:'Godzina od (HH:MM:SS)',timeToFull:'Godzina do (HH:MM:SS)',
+      dayPart:'Dzień',monthPart:'Miesiąc',yearPart:'Rok',hourPart:'Godzina (00–23)',minutePart:'Minuty (00–59)',secondPart:'Sekundy (00–59)',
+      activeJob:'Inny raport jest aktywny ({module}). Możesz poczekać lub anulować poprzedni raport.',
       start:'↓ Pobierz z OpenReports',startPopup:'Pobierz z OpenReports',cancel:'Anuluj',
       autoImport:'Automatyczny import lokalnego XLSX',noFolder:'Nie wybrano folderu raportów.',
       folderUnset:'Folder nie został wybrany. Wybierz {folder}',folderWrong:'Wybrano nieprawidłowy folder. Wskaż {folder}',
@@ -48,6 +50,8 @@
       mdtHint:' Поля EAN и Location останутся пустыми.',
       dateFrom:'Дата с',timeFrom:'Время с',dateTo:'Дата по',timeTo:'Время по',
       timeFromFull:'Время с (ЧЧ:ММ:СС)',timeToFull:'Время по (ЧЧ:ММ:СС)',
+      dayPart:'День',monthPart:'Месяц',yearPart:'Год',hourPart:'Часы (00–23)',minutePart:'Минуты (00–59)',secondPart:'Секунды (00–59)',
+      activeJob:'Уже выполняется отчёт ({module}). Можно дождаться завершения или отменить предыдущий запрос.',
       start:'↓ Скачать из OpenReports',startPopup:'Скачать из OpenReports',cancel:'Отмена',
       autoImport:'Автоматический импорт локального XLSX',noFolder:'Папка с отчётами не выбрана.',
       folderUnset:'Папка не выбрана. Укажи {folder}',folderWrong:'Выбрана неправильная папка. Укажи {folder}',
@@ -84,6 +88,8 @@
       mdtHint:' EAN and Location will remain blank.',
       dateFrom:'Start date',timeFrom:'Start time',dateTo:'End date',timeTo:'End time',
       timeFromFull:'Start time (HH:MM:SS)',timeToFull:'End time (HH:MM:SS)',
+      dayPart:'Day',monthPart:'Month',yearPart:'Year',hourPart:'Hours (00–23)',minutePart:'Minutes (00–59)',secondPart:'Seconds (00–59)',
+      activeJob:'A report is already running ({module}). Wait for it to finish or cancel the previous request.',
       start:'↓ Download from OpenReports',startPopup:'Download from OpenReports',cancel:'Cancel',
       autoImport:'Automatic local XLSX import',noFolder:'No report folder selected.',
       folderUnset:'Folder not selected. Choose {folder}',folderWrong:'Wrong folder selected. Choose {folder}',
@@ -120,6 +126,8 @@
       mdtHint:' Поля EAN і Location залишаться порожніми.',
       dateFrom:'Дата з',timeFrom:'Час з',dateTo:'Дата по',timeTo:'Час по',
       timeFromFull:'Час з (ГГ:ХХ:СС)',timeToFull:'Час по (ГГ:ХХ:СС)',
+      dayPart:'День',monthPart:'Місяць',yearPart:'Рік',hourPart:'Години (00–23)',minutePart:'Хвилини (00–59)',secondPart:'Секунди (00–59)',
+      activeJob:'Звіт уже виконується ({module}). Дочекайся завершення або скасуй попередній запит.',
       start:'↓ Завантажити з OpenReports',startPopup:'Завантажити з OpenReports',cancel:'Скасувати',
       autoImport:'Автоматичний імпорт локального XLSX',noFolder:'Папку зі звітами не вибрано.',
       folderUnset:'Папку не вибрано. Вкажи {folder}',folderWrong:'Вибрано неправильну папку. Вкажи {folder}',
@@ -181,6 +189,7 @@
     [/Pobieranie przerwane/, 'Скачивание файла прервано.', 'File download was interrupted.', 'Завантаження файлу перервано.'],
     [/OpenReports nie rozpoczął pobierania/, 'OpenReports не начал скачивание за 45 минут. Проверь отчёт.', 'OpenReports did not start the download within 45 minutes.', 'OpenReports не розпочав завантаження за 45 хвилин. Перевір звіт.'],
     [/Upłynął czas oczekiwania na logowanie/, 'Время ожидания входа (15 минут) истекло.', 'Sign-in timed out after 15 minutes.', 'Час очікування входу (15 хвилин) минув.'],
+    [/Poprzednie zadanie nie odpowiada/, 'Предыдущий запрос не отвечает. Можно запустить отчёт повторно.', 'Previous request stopped responding. You can retry.', 'Попередній запит не відповідає. Можна повторити спробу.'],
     [/Karta OpenReports została zamknięta/, 'Вкладка OpenReports закрыта или адрес изменился.', 'OpenReports tab was closed or its address changed.', 'Вкладку OpenReports закрито або адресу змінено.']
   ];
   // The background worker intentionally contains no UI or locale-specific code.

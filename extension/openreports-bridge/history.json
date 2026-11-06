@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.1",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Kontrola zadań i wygodniejsza data",
+        "ru": "Управление задачами и удобный выбор даты",
+        "en": "Job recovery and easier date input",
+        "uk": "Керування завданнями та вибір дати"
+      },
+      "changes": {
+        "pl": [
+          "Anulowanie aktywnego raportu i wykrywanie porzuconych zadań.",
+          "Data w kolejności dzień/miesiąc/rok oraz godzina 00–23 bez AM/PM."
+        ],
+        "ru": [
+          "Отмена активного отчёта и распознавание зависших задач.",
+          "Дата в порядке день/месяц/год и 24-часовой формат времени без AM/PM."
+        ],
+        "en": [
+          "Cancel active report requests and recover abandoned jobs.",
+          "Day/month/year date controls and 24-hour time without AM/PM."
+        ],
+        "uk": [
+          "Скасування активних звітів та виявлення завислих завдань.",
+          "Дата день/місяць/рік і час у 24-годинному форматі без AM/PM."
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "date": "2026-11-06",
       "title": {
