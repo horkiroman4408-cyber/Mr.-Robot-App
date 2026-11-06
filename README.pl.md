@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![wersja](https://img.shields.io/badge/version-3.18.6-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.4-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.6-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -130,7 +130,7 @@ Obliczenia trzymają się stałych reguł zapisanych w kodzie: to samo wejście 
 
 Raporty trafiają do `Downloads/MrRobot/OpenReports`. Gdy aplikacja o to poprosi, zezwól na odczyt tego folderu. Bridge dopasowuje XLSX do rodzaju raportu, nie przechowuje hasła WMS, a przetwarzanie plików odbywa się lokalnie. Zasady firmowe mogą ograniczać używanie rozszerzeń. PWA nie może samodzielnie zainstalować rozszerzenia Edge, a rozszerzenia rozpakowane nie aktualizują się automatycznie z GitHub.
 
-**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.4.zip`](downloads/OpenReports-Bridge-v0.3.4.zip).
+**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.6.zip`](downloads/OpenReports-Bridge-v0.3.6.zip).
 
 ---
 

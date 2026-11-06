@@ -2,6 +2,62 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.6",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Zapamiętywanie okresów i właściwy start",
+        "ru": "Запоминание периода и правильная стартовая страница",
+        "en": "Remember periods and direct report-group launch",
+        "uk": "Збереження періодів і правильна стартова сторінка"
+      },
+      "changes": {
+        "pl": [
+          "Zapamiętywanie ostatnio wybranej daty i godziny osobno dla AL_AUDYT i GODZINY_MDT w obu oknach Bridge.",
+          "Gdy nie ma karty OpenReports, Bridge otwiera w tle /openreports/reportGroup.action, bez pokazywania jej, chyba że trzeba się zalogować."
+        ],
+        "ru": [
+          "Запоминание выбранных дат и времени отдельно для AL_AUDYT и GODZINY_MDT в обоих окнах Bridge.",
+          "Если вкладка OpenReports закрыта, Bridge открывает в фоне /openreports/reportGroup.action и показывает вкладку только при необходимости входа."
+        ],
+        "en": [
+          "Remember last selected dates and times separately for AL_AUDYT and GODZINY_MDT across both Bridge interfaces.",
+          "When no OpenReports tab exists, launch /openreports/reportGroup.action in the background; foreground only for sign-in."
+        ],
+        "uk": [
+          "Збереження останніх дат і часу окремо для AL_AUDYT і GODZINY_MDT в обох вікнах Bridge.",
+          "Якщо вкладку OpenReports закрито, відкрити у фоні /openreports/reportGroup.action і показати лише для входу."
+        ]
+      }
+    },
+    {
+      "version": "0.3.5",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Cicha praca w tle",
+        "ru": "Тихая работа в фоне",
+        "en": "Quiet background processing",
+        "uk": "Тиха робота у фоні"
+      },
+      "changes": {
+        "pl": [
+          "OpenReports działa w istniejącej karcie bez przełączania na nią.",
+          "Karta pojawia się tylko wtedy, gdy konieczne jest logowanie lub firmowe SSO."
+        ],
+        "ru": [
+          "Bridge работает в существующей вкладке OpenReports, не переключаясь на неё.",
+          "Вкладка показывается только при необходимости входа или корпоративной SSO-авторизации."
+        ],
+        "en": [
+          "Bridge uses an existing OpenReports tab without switching focus.",
+          "The tab is shown only when sign-in or company SSO is required."
+        ],
+        "uk": [
+          "Bridge працює в наявній вкладці OpenReports без перемикання на неї.",
+          "Вкладка показується тільки якщо потрібен вхід або корпоративна SSO-авторизація."
+        ]
+      }
+    },
+    {
       "version": "0.3.4",
       "date": "2026-11-06",
       "title": {

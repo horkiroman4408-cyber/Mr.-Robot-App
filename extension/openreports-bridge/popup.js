@@ -60,12 +60,40 @@ for(const prefix of ['from','to']){
 }
 setupPeriod(document,'from',localDate(prev),'00:00:00');
 setupPeriod(document,'to',localDate(today),'23:59:59');
+const periodStore=globalThis.MRBridgePeriodStore;
+let loadingPeriod=false,periodSelectionToken=0,periodDirty=false;
+const currentPeriod=()=>({from:readPeriod(document,'from'),to:readPeriod(document,'to')});
+async function loadPeriod(report){
+  const token=++periodSelectionToken;
+  const loaded=await periodStore.load(report);
+  if(token!==periodSelectionToken||$('report').value!==report||periodDirty)return;
+  if(loaded){loadingPeriod=true;try{periodStore.apply(document,'from','to',loaded);}finally{loadingPeriod=false;}}
+}
+async function savePeriod(){
+  if(loadingPeriod)return;
+  const period=currentPeriod();
+  if(period.from&&period.to&&period.from<=period.to)
+    await periodStore.save($('report').value,period.from,period.to);
+}
+$('report').addEventListener('change',()=>{
+  periodDirty=false;
+  const now=new Date(),prev=new Date(now);prev.setDate(prev.getDate()-1);
+  loadingPeriod=true;try{periodStore.apply(document,'from','to',{from:localDate(prev)+' 00:00:00',to:localDate(now)+' 23:59:59'});}finally{loadingPeriod=false;}
+  loadPeriod($('report').value).catch(()=>{});
+});
+for(const id of ['period-from-date','period-from-time','period-to-date','period-to-time']){
+  const target=$(id);
+  for(const event of ['input','change','keydown','paste'])
+    target.addEventListener(event,()=>{periodDirty=true;queueMicrotask(()=>savePeriod().catch(()=>{}));});
+}
+loadPeriod($('report').value).catch(()=>{});
 async function message(type,payload={}){const r=await chrome.runtime.sendMessage({type,...payload});if(!r?.ok)throw Error(r?.error||t('connectionError'));return r;}
 async function update(){const {job}=await message('MR_STATUS');const running=job?.state==='running';$('start').disabled=running;$('cancel').hidden=!running;$('status').textContent=job?.message?I.status(job.message,locale):t('readyPopup');$('status').className='status '+(job?.state==='error'?'error':job?.state==='done'?'success':'');}
 $('start').onclick=async()=>{try{
   const from=readPeriod(document,'from'),to=readPeriod(document,'to');
   if(!from||!to)throw Error(t('badTime'));
   if(from>to)throw Error(t('badPeriod'));
+  await periodStore.save($('report').value,from,to);
   await message('MR_START',{from,to,report:$('report').value});await update();
 }catch(e){$('status').textContent=I.status(e.message,locale);$('status').className='status error';}};
 $('cancel').onclick=async()=>{await message('MR_CANCEL');await update();};

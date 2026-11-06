@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.4';
+  const bridgeVersion = '0.3.6';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -35,6 +35,8 @@
   let importBusy = false;
   let opening = false;
   let lastNotice = null;
+  const periodStore=globalThis.MRBridgePeriodStore;
+  let periodLoadToken=0,periodDirty=false,periodApplying=false;
 
   const $ = id => document.getElementById(id);
   const validName = (name, report) => {
@@ -229,6 +231,20 @@
     setupPeriod(modal,'mr-or-from',localDate(prev),'00:00:00');
     setupPeriod(modal,'mr-or-to',localDate(now),'23:59:59');
     I.apply(modal,lang());
+    // Save valid choices locally, including when the user closes without launching.
+    for(const grid of modal.querySelectorAll('.mr-or-grid')){
+      for(const name of ['input','change','keydown','paste'])
+        grid.addEventListener(name,()=>{
+          if(periodApplying||modal.getAttribute('aria-hidden')==='true')return;
+          periodDirty=true;
+          const report=selectedReport;
+          queueMicrotask(()=>{
+            if(periodApplying||report!==selectedReport)return;
+            const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
+            if(from&&to&&from<=to)periodStore.save(report,from,to).catch(()=>{});
+          });
+        });
+    }
     noticeKey('ready');
     dirName.textContent=tt('noFolder');
     closeButton.addEventListener('click', closeModal);
@@ -239,7 +255,20 @@
     startButton.addEventListener('click', startReport);
     cancelButton.addEventListener('click', cancelReport);
   }
-  function closeModal() {if(modal)modal.setAttribute('aria-hidden','true');}
+  function closeModal() {
+    if(!modal)return;
+    const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
+    if(from&&to&&from<=to)periodStore.save(selectedReport,from,to).catch(()=>{});
+    modal.setAttribute('aria-hidden','true');
+    periodLoadToken++;
+  }
+  async function restorePeriod(report){
+    const token=++periodLoadToken;
+    const values=await periodStore.load(report);
+    if(token!==periodLoadToken||selectedReport!==report||periodDirty||!values)return;
+    periodApplying=true;
+    try{periodStore.apply(modal,'mr-or-from','mr-or-to',values);}finally{periodApplying=false;}
+  }
   async function openModal(report='ai_audyt') {
     selectedReport=REPORTS[report]?report:'ai_audyt';
     injectStyle(); createModal();
@@ -247,7 +276,16 @@
     $('mr-or-heading').textContent='OpenReports · '+config.name;
     $('mr-or-description').textContent=tt('choosePeriod',{module:config.module})+
       (selectedReport==='godziny_mdt'?tt('mdtHint'):'');
+    periodDirty=false;
+    periodApplying=true;
+    try{
+      const now=new Date(),prev=new Date(now);prev.setDate(prev.getDate()-1);
+      periodStore.apply(modal,'mr-or-from','mr-or-to',{
+        from:localDate(prev)+' 00:00:00',to:localDate(now)+' 23:59:59'
+      });
+    }finally{periodApplying=false;}
     modal.setAttribute('aria-hidden','false');
+    restorePeriod(selectedReport).catch(()=>{});
     refreshActiveJob().catch(()=>{});
     if(opening)return;
     opening = true;
@@ -310,6 +348,7 @@
       const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
       if(!from||!to)throw Error(tt('badTime'));
       if(from>to)throw Error(tt('badPeriod'));
+      await periodStore.save(selectedReport,from,to);
       const existing=(await tryMessage('MR_STATUS')).job;
       if(existing?.state==='running'){currentJobId=existing.jobId;showActiveJob(existing);return;}
       buttonBusy(true);

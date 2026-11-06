@@ -1,5 +1,6 @@
 'use strict';
 const ORIGIN = 'https://openreports-wms.lpp.com/';
+const REPORT_GROUP_URL = 'https://openreports-wms.lpp.com/openreports/reportGroup.action';
 const APP_ORIGIN = 'https://horkiroman4408-cyber.github.io';
 const APP_PREFIX = '/Mr.-Robot-App/';
 const DOWNLOAD_SUBFOLDER = 'MrRobot/OpenReports/';
@@ -57,17 +58,29 @@ async function refreshedJob(){
   return job;
 }
 const loginMessage='Oczekuję na zalogowanie w OpenReports. Dokończ logowanie w otwartej karcie…';
-async function focusTab(tab){
-  if(!tab||!Number.isInteger(tab.id))return tab;
-  try{ if(Number.isInteger(tab.windowId)) await chrome.windows.update(tab.windowId,{focused:true}); }catch{}
-  try{ await chrome.tabs.update(tab.id,{active:true}); return await chrome.tabs.get(tab.id); }catch{return tab;}
+// Keep the report tab in the background for authorized sessions.
+// Bring it to the front only when the user must complete login/SSO.
+async function focusForLogin(tabId){
+  const tab=await chrome.tabs.get(tabId).catch(()=>null);
+  if(!tab)return;
+  try{if(Number.isInteger(tab.windowId))await chrome.windows.update(tab.windowId,{focused:true});}catch{}
+  try{await chrome.tabs.update(tab.id,{active:true});}catch{}
 }
 async function chooseTab(){
   const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
   const existing=tabs.filter(t=>isTrusted(t.url)).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
-  if(existing) return focusTab(existing);
-  const created = await chrome.tabs.create({url:ORIGIN,active:true});
-  return focusTab(created);
+  return existing||chrome.tabs.create({url:REPORT_GROUP_URL,active:false});
+}
+async function requestLogin(jobId,tabId){
+  const shouldFocus=await withJobLock(async()=>{
+    const job=await getJob();
+    if(!job||job.state!=='running'||job.step!=='open-reports'||job.tabId!==tabId||job.jobId!==jobId)return false;
+    const firstPrompt=!job.loginFocused;
+    await save({...job,awaitingLogin:true,loginFocused:true,
+      loginStartedAt:job.loginStartedAt||Date.now(),message:loginMessage,updatedAt:Date.now()});
+    return firstPrompt;
+  });
+  if(shouldFocus)await focusForLogin(tabId);
 }
 const validDate = s => {
   const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(s);
@@ -89,7 +102,13 @@ async function runOnTab(tabId){
   if(!tab)return fail(job,'Karta OpenReports została zamknięta.');
   // Corporate SSO can temporarily navigate outside the permitted origin.
   // Never inject into authentication providers or read their forms.
-  if(!isTrusted(tab.url))return;
+  if(!isTrusted(tab.url)){
+    // If the assigned OpenReports tab already moved to corporate SSO before
+    // our navigation callback, surface it for manual sign-in now.
+    if(job.step==='open-reports' && /^https?:/i.test(tab.url||''))
+      await requestLogin(job.jobId,tabId);
+    return;
+  }
   const command={type:'MR_PROCESS',jobId:job.jobId,step:job.step,from:job.from,to:job.to,report:job.report||'ai_audyt'};
   try {
     await chrome.tabs.sendMessage(tabId,command);
@@ -159,12 +178,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ok:true,jobId:job.jobId});return;
     }
     if(message?.type==='MR_WAIT_LOGIN'){
-      await withJobLock(async()=>{
-        const job=await getJob();
-        if(job?.state==='running'&&job.step==='open-reports'&&job.tabId===sender.tab?.id&&job.jobId===message.jobId){
-          await save({...job,awaitingLogin:true,loginStartedAt:job.loginStartedAt||Date.now(),message:loginMessage,updatedAt:Date.now()});
-        }
-      });
+      // Content script has confirmed login is needed. Activation is deliberately
+      // postponed until now, so authorized background reports stay invisible.
+      await requestLogin(message.jobId,sender.tab?.id);
       sendResponse({ok:true});return;
     }
     if(message?.type==='MR_CANCEL'){
@@ -266,6 +282,15 @@ chrome.tabs.onRemoved.addListener(tabId=>{withJobLock(async()=>{
 }).catch(()=>{});});
 chrome.tabs.onUpdated.addListener((tabId,change,tab)=>{
   if(change.status==='complete'||change.url){
+    // SSO may redirect to an external identity provider before content.js can
+    // report a login form. Never inject or read the identity provider page.
+    // Only focus the exact tab assigned to the pending login-stage job.
+    if(change.url && !isTrusted(change.url)){
+      getJob().then(job=>{
+        if(job?.state==='running'&&job.step==='open-reports'&&job.tabId===tabId)
+          return requestLogin(job.jobId,tabId);
+      }).catch(()=>{});
+    }
     adoptOpenedTab(tabId,tab).then(()=>runOnTab(tabId)).catch(()=>{});
   }
 });

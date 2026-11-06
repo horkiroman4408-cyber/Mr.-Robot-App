@@ -21,12 +21,14 @@
     const n=match.slice(1).map(Number);
     return n.every((value,i)=>value<=limits[i])?n:null;
   }
+  const liveEditors=new WeakMap();
   function attach(root,prefix,time){
     const inputs=parts.map(p=>root.querySelector('#'+prefix+'-'+p));
     if(inputs.some(x=>!x))throw new Error('Time inputs missing: '+prefix);
     let last=(parse(time)||[0,0,0]).map(pad);
     const setPart=(i,value)=>{inputs[i].value=pad(value);inputs[i].dataset.last=pad(value);inputs[i].setAttribute('aria-invalid','false');last[i]=pad(value);};
     last.forEach((value,i)=>setPart(i,value));
+    liveEditors.set(inputs[0],values=>values.forEach((value,i)=>setPart(i,value)));
     inputs.forEach((input,i)=>{
       input.setAttribute('aria-label',tr(i));
       input.addEventListener('focus',()=>input.select());
@@ -80,5 +82,12 @@
     });
     return values.includes(null)?null:values.join(':');
   }
-  globalThis.MRBridgeTime={markup,attach,read};
+  function set(root,prefix,time){
+    const values=parse(time);
+    const first=root.querySelector('#'+prefix+'-hour');
+    const editor=first&&liveEditors.get(first);
+    if(!values||!editor)return false;
+    editor(values);return true;
+  }
+  globalThis.MRBridgeTime={markup,attach,read,set};
 })();

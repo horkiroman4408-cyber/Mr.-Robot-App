@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mr. Robot | OpenReports Bridge",
   "description": "OpenReports Bridge: automatyczne pobieranie XLSX dla AL_AUDYT i GODZINY_MDT oraz interfejs PL/RU/EN/UK.",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "permissions": [
     "storage",
     "tabs",
@@ -38,6 +38,7 @@
         "i18n.js",
         "calendar.js",
         "time.js",
+        "period-store.js",
         "mrrobot-content.js"
       ],
       "run_at": "document_idle"

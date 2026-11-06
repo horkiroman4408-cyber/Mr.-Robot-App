@@ -6,7 +6,7 @@
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
 ![версия](https://img.shields.io/badge/version-3.18.6-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.4-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.6-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -130,7 +130,7 @@ Mr. Robot — браузерное приложение для работы со
 
 Отчёты сохраняются в `Downloads/MrRobot/OpenReports`. Когда Mr. Robot запросит доступ, разреши чтение этой папки. Bridge выбирает XLSX по типу отчёта, не хранит пароль WMS, а обработка Excel остаётся локальной. Корпоративные правила могут запрещать расширения. PWA не может незаметно установить расширение Edge, а распакованные расширения не обновляются автоматически из GitHub.
 
-**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.4.zip`](downloads/OpenReports-Bridge-v0.3.4.zip).
+**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.6.zip`](downloads/OpenReports-Bridge-v0.3.6.zip).
 
 ---
 

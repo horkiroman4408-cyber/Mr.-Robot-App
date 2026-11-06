@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![version](https://img.shields.io/badge/version-3.18.6-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.4-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.6-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -130,7 +130,7 @@ The calculations follow fixed rules defined in code, so the same input produces 
 
 Reports download to `Downloads/MrRobot/OpenReports`. Grant read access to this folder within Mr. Robot when requested. Bridge matches downloads to their report type; credentials are not stored by Bridge, and report processing remains local. Corporate browser policies may restrict extensions. A PWA cannot silently install an Edge extension, and unpacked extensions do not update automatically from GitHub.
 
-**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.4.zip`](downloads/OpenReports-Bridge-v0.3.4.zip).
+**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.6.zip`](downloads/OpenReports-Bridge-v0.3.6.zip).
 
 ---
 
