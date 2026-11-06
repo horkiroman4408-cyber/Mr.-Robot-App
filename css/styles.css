@@ -1337,3 +1337,15 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-release-body[hidden]{display:none!important}
 .mr-bridge-release{font-size:12px;line-height:1.6;padding:9px 0;border-bottom:1px solid var(--mr-control-border,rgba(148,163,184,.15))}
 .mr-bridge-release:last-child{border:0}.mr-bridge-release strong{display:block;font-size:13px;margin-bottom:3px}.mr-bridge-release ul{padding-left:18px;margin:4px 0}
+
+/* Compact global Bridge card: one installed version, no duplicate success panel. */
+.mr-bridge-connection{margin-bottom:3px}
+.mr-bridge-installed-version{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:0 0 17px 19px;font-size:12px;line-height:1.5;color:inherit}
+.mr-bridge-installed-version[hidden],.mr-bridge-version-health[hidden]{display:none!important}
+#mr-bridge-installed-label{opacity:.72}
+#mr-bridge-installed-value{font-weight:750;font-variant-numeric:tabular-nums}
+.mr-bridge-version-health{font-size:12px;color:var(--mr-success,#16a34a);font-weight:650}
+.mr-bridge-action-row{margin-top:0}
+.mr-bridge-action-row .mr-bridge-download{margin:0 0 5px}
+.mr-bridge-update.is-warning{border-color:var(--mr-focus,rgba(217,119,6,.65))}
+@media(max-width:720px){.mr-bridge-installed-version{margin-left:18px}}

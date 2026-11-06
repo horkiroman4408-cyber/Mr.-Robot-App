@@ -2,10 +2,10 @@
 (function () { 'use strict';
   const get = id => document.getElementById(id);
   const translations = {
-    pl: { connected: 'Połączono · v{v}', missing: 'Nie wykryto rozszerzenia', warning: 'PWA nie może samodzielnie zainstalować rozszerzenia. Jeśli zasady firmowe blokują instalację, skontaktuj się z IT.', copied: 'Skopiowano', copy: 'Kopiuj', latest: "Aktualna wersja", update: "Dostępna aktualizacja", installed: "Zainstalowano", available: "Dostępna", download: "Pobierz Bridge v{v}", history: "Historia wersji Bridge", checking: "Sprawdzam aktualizacje…", unknown: "Nie udało się sprawdzić aktualizacji. Zainstalowana wersja nadal działa.", first: "Pobierz Bridge v{v} i rozpakuj ZIP.", upToDate: "Wersja jest aktualna", compat: "Do użycia tej wersji Mr. Robot wymagana jest aktualizacja Bridge.", updateHow: "Aktualizując rozpakowane rozszerzenie, zastąp pliki w dotychczasowym folderze i kliknij „Przeładuj” w menedżerze rozszerzeń. Nie instaluj drugiej kopii.", noHistory: "Historia będzie dostępna po połączeniu z GitHub." },
-    ru: { connected: 'Подключено · v{v}', missing: 'Расширение не обнаружено', warning: 'PWA не может самостоятельно устанавливать расширения. Если корпоративные правила запрещают установку, обратись в IT.', copied: 'Скопировано', copy: 'Копировать', latest: "Актуальная версия", update: "Доступно обновление", installed: "Установлено", available: "Доступна", download: "Скачать Bridge v{v}", history: "История обновлений Bridge", checking: "Проверяю обновления…", unknown: "Не удалось проверить обновления. Установленный Bridge продолжает работать.", first: "Скачай Bridge v{v} и распакуй ZIP.", upToDate: "Установлена последняя версия", compat: "Для совместимости с Mr. Robot необходимо обновить Bridge.", updateHow: "Для обновления замени файлы в прежней папке расширения и нажми «Обновить» на странице расширений. Не устанавливай вторую копию.", noHistory: "История появится после подключения к GitHub." },
-    en: { connected: 'Connected · v{v}', missing: 'Extension not detected', warning: 'A PWA cannot install extensions automatically. If corporate policy blocks installation, contact IT.', copied: 'Copied', copy: 'Copy', latest: "Up to date", update: "Update available", installed: "Installed", available: "Available", download: "Download Bridge v{v}", history: "Bridge release history", checking: "Checking for updates…", unknown: "Cannot check for updates. Your installed Bridge can still work.", first: "Download Bridge v{v} and extract the ZIP.", upToDate: "Latest version installed", compat: "A Bridge update is required for this Mr. Robot version.", updateHow: "To update, replace files in the existing extension folder and click Reload on the extensions page. Do not install a second copy.", noHistory: "Release history will appear when connected to GitHub." },
-    uk: { connected: 'Підключено · v{v}', missing: 'Розширення не виявлено', warning: 'PWA не може автоматично встановлювати розширення. Якщо корпоративні правила забороняють встановлення, звернися до IT.', copied: 'Скопійовано', copy: 'Копіювати', latest: "Актуальна версія", update: "Доступне оновлення", installed: "Встановлено", available: "Доступна", download: "Завантажити Bridge v{v}", history: "Історія оновлень Bridge", checking: "Перевірка оновлень…", unknown: "Не вдалося перевірити оновлення. Встановлений Bridge може працювати далі.", first: "Завантаж Bridge v{v} і розпакуй ZIP.", upToDate: "Встановлено найновішу версію", compat: "Для сумісності з Mr. Robot потрібно оновити Bridge.", updateHow: "Щоб оновити, заміни файли в поточній папці розширення й натисни «Оновити» на сторінці розширень. Не встановлюй другу копію.", noHistory: "Історія з’явиться після підключення до GitHub." }
+    pl: { connected: 'Połączono', missing: 'Nie wykryto rozszerzenia', warning: 'PWA nie może samodzielnie zainstalować rozszerzenia. Jeśli zasady firmowe blokują instalację, skontaktuj się z IT.', copied: 'Skopiowano', copy: 'Kopiuj', latest: "Aktualna wersja", update: "Dostępna aktualizacja", installed: "Zainstalowano", available: "Dostępna", download: "Pobierz Bridge v{v}", history: "Historia wersji Bridge", checking: "Sprawdzam aktualizacje…", unknown: "Nie udało się sprawdzić aktualizacji. Zainstalowana wersja nadal działa.", first: "Pobierz Bridge v{v} i rozpakuj ZIP.", upToDate: "Wersja jest aktualna", compat: "Do użycia tej wersji Mr. Robot wymagana jest aktualizacja Bridge.", updateHow: "Aktualizując rozpakowane rozszerzenie, zastąp pliki w dotychczasowym folderze i kliknij „Przeładuj” w menedżerze rozszerzeń. Nie instaluj drugiej kopii.", noHistory: "Historia będzie dostępna po połączeniu z GitHub.", installedLabel: "Wersja zainstalowana", plainDownload: "Pobierz rozszerzenie", plainInstall: "Zainstaluj Bridge", plainUpdate: "Zaktualizuj Bridge", unverified: "Nie można sprawdzić aktualności" },
+    ru: { connected: 'Подключено', missing: 'Расширение не обнаружено', warning: 'PWA не может самостоятельно устанавливать расширения. Если корпоративные правила запрещают установку, обратись в IT.', copied: 'Скопировано', copy: 'Копировать', latest: "Актуальная версия", update: "Доступно обновление", installed: "Установлено", available: "Доступна", download: "Скачать Bridge v{v}", history: "История обновлений Bridge", checking: "Проверяю обновления…", unknown: "Не удалось проверить обновления. Установленный Bridge продолжает работать.", first: "Скачай Bridge v{v} и распакуй ZIP.", upToDate: "Установлена последняя версия", compat: "Для совместимости с Mr. Robot необходимо обновить Bridge.", updateHow: "Для обновления замени файлы в прежней папке расширения и нажми «Обновить» на странице расширений. Не устанавливай вторую копию.", noHistory: "История появится после подключения к GitHub.", installedLabel: "Установленная версия", plainDownload: "Скачать расширение", plainInstall: "Установить Bridge", plainUpdate: "Обновить Bridge", unverified: "Не удалось проверить актуальность" },
+    en: { connected: 'Connected', missing: 'Extension not detected', warning: 'A PWA cannot install extensions automatically. If corporate policy blocks installation, contact IT.', copied: 'Copied', copy: 'Copy', latest: "Up to date", update: "Update available", installed: "Installed", available: "Available", download: "Download Bridge v{v}", history: "Bridge release history", checking: "Checking for updates…", unknown: "Cannot check for updates. Your installed Bridge can still work.", first: "Download Bridge v{v} and extract the ZIP.", upToDate: "Latest version installed", compat: "A Bridge update is required for this Mr. Robot version.", updateHow: "To update, replace files in the existing extension folder and click Reload on the extensions page. Do not install a second copy.", noHistory: "Release history will appear when connected to GitHub.", installedLabel: "Installed version", plainDownload: "Download extension", plainInstall: "Install Bridge", plainUpdate: "Update Bridge", unverified: "Update status unavailable" },
+    uk: { connected: 'Підключено', missing: 'Розширення не виявлено', warning: 'PWA не може автоматично встановлювати розширення. Якщо корпоративні правила забороняють встановлення, звернися до IT.', copied: 'Скопійовано', copy: 'Копіювати', latest: "Актуальна версія", update: "Доступне оновлення", installed: "Встановлено", available: "Доступна", download: "Завантажити Bridge v{v}", history: "Історія оновлень Bridge", checking: "Перевірка оновлень…", unknown: "Не вдалося перевірити оновлення. Встановлений Bridge може працювати далі.", first: "Завантаж Bridge v{v} і розпакуй ZIP.", upToDate: "Встановлено найновішу версію", compat: "Для сумісності з Mr. Robot потрібно оновити Bridge.", updateHow: "Щоб оновити, заміни файли в поточній папці розширення й натисни «Оновити» на сторінці розширень. Не встановлюй другу копію.", noHistory: "Історія з’явиться після підключення до GitHub.", installedLabel: "Встановлена версія", plainDownload: "Завантажити розширення", plainInstall: "Встановити Bridge", plainUpdate: "Оновити Bridge", unverified: "Не вдалося перевірити актуальність" }
   };
   function lang() {
     const raw = String(window.MRI18N?.language || document.documentElement.lang || 'pl').toLowerCase().slice(0, 2);
@@ -49,6 +49,18 @@
     const panel=get('settings-openreports');if(!panel)return;
     const put=(id,text)=>{const el=get(id);if(el)el.textContent=text;};
     put('mr-bridge-status',status);const mainDot=get('mr-bridge-dot');if(mainDot)mainDot.dataset.connected=String(present);
+    const installedRow=get('mr-bridge-installed-version');
+    if(installedRow)installedRow.hidden=!present;
+    put('mr-bridge-installed-label',tr('installedLabel'));
+    put('mr-bridge-installed-value',present?'v'+state.version:'');
+    const newer=present&&state.latest&&compare(state.latest.version,state.version)>0;
+    const obsolete=present&&state.latest&&compare(state.version,state.latest.minCompatibleVersion)<0;
+    const health=get('mr-bridge-version-health');
+    if(health){
+      const verified=present&&state.check==='ok'&&!newer;
+      health.hidden=!verified;
+      if(verified)health.textContent='✓ '+tr('upToDate');
+    }
     put('mr-bridge-warning',tr('warning'));
     panel.querySelectorAll('[data-bridge-browser]').forEach(b=>{const active=b.dataset.bridgeBrowser===state.browser;b.setAttribute('aria-pressed',String(active));b.classList.toggle('is-selected',active);});
     put('mr-bridge-extension-url',browserUrl());
@@ -57,17 +69,16 @@
     put('mr-bridge-copy-label',state.copyNotice?tr('copied'):tr('copy'));
     const version=state.latest?.version||FALLBACK_VERSION;
     const download=get('mr-bridge-download');
-    if(download){download.textContent=tr('download',{v:version});download.href=state.latest?.download||`downloads/OpenReports-Bridge-v${FALLBACK_VERSION}.zip`;download.download=`OpenReports-Bridge-v${version}.zip`;}
-    put('mr-bridge-version-note',`Bridge v${version} · Edge / Chrome`);
+    if(download){download.textContent=tr(!present?'plainInstall':newer?'plainUpdate':'plainDownload');download.href=state.latest?.download||`downloads/OpenReports-Bridge-v${FALLBACK_VERSION}.zip`;download.download=`OpenReports-Bridge-v${version}.zip`;}
     put('mr-bridge-first-step',tr('first',{v:version}));
     const update=get('mr-bridge-update');
-    const newer=present&&state.latest&&compare(state.latest.version,state.version)>0;
-    const obsolete=present&&state.latest&&compare(state.version,state.latest.minCompatibleVersion)<0;
-    if(update){update.hidden=!(state.check==='loading'||state.check==='error'||newer||present&&state.latest);
+    if(update){
+      // Show a comparison only when the installed version is outdated.
+      // Do not repeat the same version twice when everything is current.
+      update.hidden=!(newer||state.check==='error');
       update.classList.toggle('is-warning',!!newer);
-      const title=state.check==='loading'?tr('checking'):state.check==='error'?tr('unknown'):newer?tr('update'):tr('upToDate');
-      put('mr-bridge-update-title',title);
-      put('mr-bridge-update-detail',state.check==='ok'&&present?`${tr('installed')}: v${state.version}  ·  ${tr('available')}: v${state.latest.version}${obsolete?' · '+tr('compat'):''}${newer?'\n'+tr('updateHow'):''}`:'');
+      put('mr-bridge-update-title',newer?tr('update'):tr('unknown'));
+      put('mr-bridge-update-detail',newer?`${tr('installed')}: v${state.version}  →  ${tr('available')}: v${state.latest.version}${obsolete?' · '+tr('compat'):''}\n${tr('updateHow')}`:'');
     }
     const historyToggle=get('mr-bridge-history-toggle'),historyBody=get('mr-bridge-history-body');
     if(historyToggle)historyToggle.setAttribute('aria-expanded',String(state.historyExpanded));
