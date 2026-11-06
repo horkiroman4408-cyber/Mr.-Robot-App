@@ -1368,3 +1368,14 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
  .mr-bridge-settings .mr-bridge-browser-label{text-align:left}
  .mr-bridge-settings .mr-bridge-browser-choice{padding:8px 11px}
 }
+
+/* Bridge v3.18.6: browser selection belongs to the expanded installation guide only. */
+.mr-bridge-settings #mr-bridge-install-body > .mr-bridge-browser-row {
+  justify-content:flex-start; margin:0 0 15px;
+}
+.mr-bridge-settings #mr-bridge-install-body .mr-bridge-browser-control {
+  align-items:flex-start;
+}
+.mr-bridge-settings #mr-bridge-install-body .mr-bridge-browser-label {
+  text-align:left;
+}

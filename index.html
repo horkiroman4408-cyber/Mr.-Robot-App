@@ -1790,15 +1790,6 @@
      <span class="mr-bridge-version-health" id="mr-bridge-version-health" hidden></span>
     </div>
      </div>
-     <div class="mr-bridge-browser-row">
-      <div class="mr-bridge-browser-control">
-       <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Twoja przeglądarka','Твой браузер','Your browser','Твій браузер') }}</div>
-       <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
-        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
-        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
-       </div>
-      </div>
-     </div>
     </div>
     <div class="mr-bridge-info" id="mr-bridge-info">
      <div class="mr-bridge-action-row">
@@ -1820,6 +1811,16 @@
        <svg class="mr-bridge-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       <div id="mr-bridge-install-body" class="mr-bridge-install-body" hidden>
+       <div class="mr-bridge-browser-row">
+      <div class="mr-bridge-browser-control">
+       <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Instalacja w przeglądarce','Установка в браузере','Install in browser','Встановлення у браузері') }}</div>
+       <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
+        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
+        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+       </div>
+      </div>
+     </div>
+
        <ol class="mr-bridge-install-steps">
         <li><span id="mr-bridge-first-step"></span></li>
         <li><span id="mr-bridge-open-browser-label">{{ eMsg('Otwórz stronę rozszerzeń:','Открой страницу расширений:','Open the extensions page:','Відкрий сторінку розширень:') }}</span><div class="mr-bridge-url-row"><code id="mr-bridge-extension-url">edge://extensions</code><button type="button" id="mr-bridge-copy-url" class="mr-bridge-copy-url" :aria-label="eMsg('Kopiuj adres','Копировать адрес','Copy address','Копіювати адресу')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="mr-bridge-copy-label">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button></div></li>
