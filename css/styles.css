@@ -1274,8 +1274,9 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-install-steps li{padding:0 0 8px 3px;overflow-wrap:anywhere}
 
 /* OpenReports Bridge: compact Edge / Chrome installer. Theme-aware through existing tokens. */
-.mr-bridge-browser-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin:12px 0 14px}
-.mr-bridge-browser-label{font-size:13px;font-weight:700;color:inherit;opacity:.78}
+.mr-bridge-browser-row{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin:12px 0 14px}
+.mr-bridge-browser-control{display:flex;flex-direction:column;align-items:flex-end;gap:7px;max-width:100%}
+.mr-bridge-browser-label{font-size:13px;font-weight:700;color:inherit;opacity:.78;text-align:right}
 .mr-bridge-browser-group{display:inline-flex;gap:3px;padding:4px;border-radius:13px;border:1px solid var(--mr-control-border,rgba(148,163,184,.3));background:var(--mr-control-bg,rgba(148,163,184,.07));max-width:100%}
 .mr-bridge-browser-choice{border:0;border-radius:9px;padding:9px 14px;font:inherit;font-size:13px;font-weight:700;white-space:nowrap;color:var(--mr-control-text,currentColor);background:transparent;cursor:pointer;transition:background .16s,box-shadow .16s}
 .mr-bridge-browser-choice.is-selected{background:var(--mr-card-bg,var(--mr-c21,#fff));color:inherit;outline:1px solid var(--mr-border,rgba(148,163,184,.25));box-shadow:0 2px 9px rgba(0,0,0,.11)}
@@ -1297,7 +1298,7 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-url-row code{font-size:12px;border:1px solid var(--mr-control-border,rgba(148,163,184,.3));border-radius:9px;padding:6px 9px;color:inherit;background:var(--mr-control-bg,rgba(255,255,255,.5));overflow-wrap:anywhere}
 .mr-bridge-copy-url{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--mr-control-border,rgba(148,163,184,.3));padding:7px 10px;border-radius:9px;background:var(--mr-control-bg,rgba(255,255,255,.5));font:inherit;font-size:12px;font-weight:700;color:var(--mr-control-text,inherit);cursor:pointer}
 .mr-bridge-browser-choice:focus-visible,.mr-bridge-install-toggle:focus-visible,.mr-bridge-copy-url:focus-visible{outline:3px solid var(--mr-focus,#0a84ff);outline-offset:2px}
-@media(max-width:720px){.mr-bridge-browser-row{align-items:flex-start;flex-direction:column}.mr-bridge-install-body .mr-bridge-install-steps{columns:1}.mr-bridge-browser-group{width:100%}.mr-bridge-browser-choice{flex:1;padding:10px 8px;font-size:12px}}
+@media(max-width:720px){.mr-bridge-browser-row{justify-content:flex-end}.mr-bridge-browser-control{width:100%}.mr-bridge-install-body .mr-bridge-install-steps{columns:1}.mr-bridge-browser-group{width:100%}.mr-bridge-browser-choice{flex:1;padding:10px 8px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){.mr-bridge-chevron,.mr-bridge-browser-choice{transition:none}}
 
 /* Startup welcome / update notice: uses the active Mr. Robot theme tokens. */

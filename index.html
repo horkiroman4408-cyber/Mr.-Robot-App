@@ -1789,10 +1789,12 @@
     </div>
     <div class="mr-bridge-info" id="mr-bridge-info">
      <div class="mr-bridge-browser-row">
-      <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Twoja przeglądarka','Твой браузер','Your browser','Твій браузер') }}</div>
-      <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
-       <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
-       <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+      <div class="mr-bridge-browser-control">
+       <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Twoja przeglądarka','Твой браузер','Your browser','Твій браузер') }}</div>
+       <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
+        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
+        <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+       </div>
       </div>
      </div>
      <div class="mr-bridge-action-row">
