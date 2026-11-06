@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.18.5</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.18.6</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -1734,7 +1734,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.18.5">v3.18.5</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.18.6">v3.18.6</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1791,10 +1791,18 @@
       </div>
      </div>
      <div class="mr-bridge-action-row">
-      <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.2.8.zip" download="OpenReports-Bridge-v0.2.8.zip" id="mr-bridge-download">{{ eMsg('Pobierz Bridge v0.2.8','Скачать Bridge v0.2.8','Download Bridge v0.2.8','Завантажити Bridge v0.2.8') }}</a>
-      <span class="mr-bridge-version-note">Bridge v0.2.8 · Edge / Chrome</span>
+      <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.3.0.zip" download="OpenReports-Bridge-v0.3.0.zip" id="mr-bridge-download">Bridge v0.3.0</a>
+      <span class="mr-bridge-version-note" id="mr-bridge-version-note">Bridge v0.3.0 · Edge / Chrome</span>
      </div>
-     <div class="mr-bridge-prereq" role="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>{{ eMsg('Aby uruchamiać raporty, otwórz OpenReports-WMS w osobnej karcie przeglądarki i zaloguj się na swoje konto.','Для запуска отчётов открой OpenReports-WMS в отдельной вкладке браузера и войди в свою учётную запись.','To run reports, open OpenReports-WMS in a separate browser tab and sign in to your account.','Щоб запускати звіти, відкрий OpenReports-WMS в окремій вкладці браузера та увійди у свій обліковий запис.') }}</span></div>
+     <div class="mr-bridge-update" id="mr-bridge-update" hidden aria-live="polite">
+      <div class="mr-bridge-update-title" id="mr-bridge-update-title"></div>
+      <div class="mr-bridge-update-detail" id="mr-bridge-update-detail"></div>
+     </div>
+     <div class="mr-bridge-release-panel">
+      <button type="button" class="mr-bridge-install-toggle" id="mr-bridge-history-toggle" aria-expanded="false" aria-controls="mr-bridge-history-body"><span id="mr-bridge-history-label"></span><span aria-hidden="true">⌄</span></button>
+      <div id="mr-bridge-history-body" class="mr-bridge-release-body" hidden><div id="mr-bridge-history-list"></div></div>
+     </div>
+     <div class="mr-bridge-prereq" role="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>{{ eMsg('Bridge automatycznie otworzy OpenReports, jeśli karta jest zamknięta. Gdy pojawi się logowanie, zaloguj się samodzielnie: raport wznowi się po zalogowaniu.','Если вкладка OpenReports закрыта, Bridge откроет её сам. Если потребуется вход, авторизуйся на сайте: после входа отчёт продолжится.','Bridge opens OpenReports if needed. If sign-in is required, log in on the site: the report resumes automatically.','Bridge відкриє OpenReports, якщо потрібно. Якщо потрібен вхід, авторизуйся на сайті: звіт продовжиться автоматично.') }}</span></div>
      <div class="mr-bridge-install-panel">
       <button type="button" id="mr-bridge-install-toggle" class="mr-bridge-install-toggle" aria-expanded="false" aria-controls="mr-bridge-install-body">
        <span class="mr-bridge-install-toggle-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6v14c-2.5-1.5-5.5-1.5-8-.5V5.5Zm8 .5c2.5-1.5 5.5-1.5 8-.5v14c-2.5-1-5.5-1-8 .5"/></svg><span id="mr-bridge-install-label">{{ eMsg('Jak zainstalować rozszerzenie','Как установить расширение','How to install the extension','Як встановити розширення') }}</span></span>
@@ -1802,12 +1810,12 @@
       </button>
       <div id="mr-bridge-install-body" class="mr-bridge-install-body" hidden>
        <ol class="mr-bridge-install-steps">
-        <li>{{ eMsg('Pobierz Bridge v0.2.8 i rozpakuj ZIP.','Скачай Bridge v0.2.8 и распакуй ZIP.','Download Bridge v0.2.8 and extract the ZIP.','Завантаж Bridge v0.2.8 і розпакуй ZIP.') }}</li>
+        <li><span id="mr-bridge-first-step"></span></li>
         <li><span id="mr-bridge-open-browser-label">{{ eMsg('Otwórz stronę rozszerzeń:','Открой страницу расширений:','Open the extensions page:','Відкрий сторінку розширень:') }}</span><div class="mr-bridge-url-row"><code id="mr-bridge-extension-url">edge://extensions</code><button type="button" id="mr-bridge-copy-url" class="mr-bridge-copy-url" :aria-label="eMsg('Kopiuj adres','Копировать адрес','Copy address','Копіювати адресу')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg><span id="mr-bridge-copy-label">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button></div></li>
         <li>{{ eMsg('Włącz tryb dewelopera.','Включи режим разработчика.','Enable Developer mode.','Увімкни режим розробника.') }}</li>
         <li>{{ eMsg('Kliknij „Załaduj rozpakowane” i wybierz folder „extension” zawierający manifest.json, a nie plik ZIP.','Нажми «Загрузить распакованное» и выбери папку «extension» с файлом manifest.json, не сам ZIP.','Click “Load unpacked” and choose the “extension” folder containing manifest.json, not the ZIP.','Натисни «Завантажити розпаковане» й вибери папку «extension» із manifest.json, а не ZIP.') }}</li>
         <li>{{ eMsg('Odśwież Mr. Robot (F5), aby wykryć Bridge.','Обнови Mr. Robot (F5), чтобы обнаружить Bridge.','Refresh Mr. Robot (F5) to detect Bridge.','Онови Mr. Robot (F5), щоб виявити Bridge.') }}</li>
-        <li>{{ eMsg('Zaloguj się do OpenReports-WMS. Przy pierwszym imporcie wybierz folder Downloads/MrRobot/OpenReports i zezwól na odczyt.','Авторизуйся в OpenReports-WMS. При первом импорте выбери папку Downloads/MrRobot/OpenReports и разреши чтение.','Sign in to OpenReports-WMS. On first import select Downloads/MrRobot/OpenReports and allow read access.','Увійди до OpenReports-WMS. Під час першого імпорту вибери Downloads/MrRobot/OpenReports і дозволь читання.') }}</li>
+        <li>{{ eMsg('Jeśli Bridge poprosi o logowanie, zaloguj się w otwartej karcie. Przy pierwszym imporcie wybierz Downloads/MrRobot/OpenReports i zezwól na odczyt.','Если Bridge запросит вход, авторизуйся в открытой вкладке. При первом импорте выбери Downloads/MrRobot/OpenReports и разреши чтение.','If prompted, sign in to OpenReports in the opened tab. On first import select Downloads/MrRobot/OpenReports and allow read access.','За потреби увійди до OpenReports у відкритій вкладці. Під час першого імпорту вибери Downloads/MrRobot/OpenReports і дозволь читання.') }}</li>
        </ol>
       </div>
      </div>
@@ -1826,7 +1834,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.18.5</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.18.6</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

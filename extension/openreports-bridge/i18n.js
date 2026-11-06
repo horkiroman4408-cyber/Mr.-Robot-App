@@ -15,7 +15,7 @@
       folderGranted:'odczyt dozwolony',folderExpired:'wymaga ponownej zgody',
       pickFolder:'📁 Wybierz folder',importLast:'Wczytaj ostatni pasujący XLSX',
       help:'Pliki zapisujemy w <b>Downloads/MrRobot/OpenReports</b>. Jednorazowo wybierz folder <b>OpenReports</b> w katalogu Downloads/MrRobot. Automatyczny import używa dokładnej nazwy zakończonego pobierania; ręczny wybór wybiera tylko najnowszy plik odpowiedniego raportu. Hasła i pliki nie są wysyłane na zewnętrzny serwer.',
-      reportModule:'Raport / moduł',popupNote:'Otwórz i zaloguj się w OpenReports. Bridge przechodzi: Reports → ECM_Warehouse → wybrany raport. Wybierz daty i godziny z sekundami. Dla GODZINY_MDT: Data Source WMS ECM REPL PODKARPACIE, EAN i Location pozostają puste. Pliki zapisujemy w Downloads/MrRobot/OpenReports.',
+      reportModule:'Raport / moduł',popupNote:'Bridge otworzy OpenReports, jeśli nie ma karty. Jeśli pojawi się logowanie, zaloguj się samodzielnie. Bridge przechodzi: Reports → ECM_Warehouse → wybrany raport. Wybierz daty i godziny z sekundami. Dla GODZINY_MDT: Data Source WMS ECM REPL PODKARPACIE, EAN i Location pozostają puste. Pliki zapisujemy w Downloads/MrRobot/OpenReports.',
       ready:'Gotowy.',readyPopup:'Gotowy do pobrania.',badTime:'Podaj daty i godziny wraz z sekundami.',badPeriod:'Data od musi być wcześniejsza niż data do.',
       launching:'Uruchamiam OpenReports…',started:'Raport uruchomiony w OpenReports. Czekam na XLSX…',
       syncError:'Błąd synchronizacji: {reason}',folderProblem:'Problem dostępu do folderu: {reason}',
@@ -34,7 +34,7 @@
       imported:'Plik {name} przekazany do {module}. Sprawdź wynik importu w Mr. Robot.',
       folderForImport:'Raport pobrany do {folder}. Kliknij „Wybierz folder” i wskaż folder OpenReports, aby automatycznie wczytać plik.',
       outsideFolder:'Raport został zapisany poza {folder}. Sprawdź opcję „Pytaj, gdzie zapisać pliki” w Edge. Możesz wskazać folder z plikiem i wczytać go ręcznie.',
-      connectionError:'Błąd połączenia z rozszerzeniem',browserOpen:'Najpierw otwórz OpenReports w Edge.',
+      connectionError:'Błąd połączenia z rozszerzeniem',browserOpen:'Most otworzy OpenReports, jeśli karta jest zamknięta. W razie potrzeby zaloguj się samodzielnie; pobieranie wznowi się po zalogowaniu.',
       serverPreparing:'OpenReports przygotowuje raport. Czekam na rozpoczęcie pobierania XLSX…',
       downloading:'Pobieranie XLSX… {progress}',openReports:'Łączę się z kartą OpenReports…',
       looking:'Szukam raportu…',processing:'Przetwarzanie…',
@@ -54,7 +54,7 @@
       folderGranted:'чтение разрешено',folderExpired:'нужно повторное разрешение',
       pickFolder:'📁 Выбрать папку',importLast:'Загрузить последний подходящий XLSX',
       help:'Файлы сохраняются в <b>Downloads/MrRobot/OpenReports</b>. Один раз выбери папку <b>OpenReports</b> внутри Downloads/MrRobot. Автоматический импорт использует точное имя завершённой загрузки; ручной выбирает только самый новый файл нужного отчёта. Пароли и содержимое файлов не отправляются на сторонний сервер.',
-      reportModule:'Отчёт / модуль',popupNote:'Открой OpenReports и войди в систему. Bridge выполнит переходы Reports → ECM_Warehouse → нужный отчёт. Выбери период до секунд. Для GODZINY_MDT: источник WMS ECM REPL PODKARPACIE, EAN и Location пустые. Файлы сохраняются в Downloads/MrRobot/OpenReports.',
+      reportModule:'Отчёт / модуль',popupNote:'Bridge откроет OpenReports, если вкладка отсутствует. При необходимости войди в систему на сайте. Затем Bridge выполнит переходы Reports → ECM_Warehouse → нужный отчёт. Выбери период до секунд. Для GODZINY_MDT: источник WMS ECM REPL PODKARPACIE, EAN и Location пустые. Файлы сохраняются в Downloads/MrRobot/OpenReports.',
       ready:'Готово к работе.',readyPopup:'Готово к скачиванию.',badTime:'Укажи даты и время до секунд.',badPeriod:'Начало периода должно быть раньше его окончания.',
       launching:'Запускаю OpenReports…',started:'Отчёт запущен в OpenReports. Ожидаю XLSX…',
       syncError:'Ошибка синхронизации: {reason}',folderProblem:'Ошибка доступа к папке: {reason}',
@@ -72,7 +72,7 @@
       imported:'Файл {name} передан в {module}. Проверь результат импорта в Mr. Robot.',
       folderForImport:'Отчёт скачан в {folder}. Нажми «Выбрать папку» и укажи OpenReports для автоматического импорта.',
       outsideFolder:'Отчёт сохранён вне {folder}. Проверь настройку Edge «Спрашивать, где сохранить» и при необходимости загрузи файл вручную.',
-      connectionError:'Ошибка связи с расширением',browserOpen:'Сначала открой OpenReports в Edge.',
+      connectionError:'Ошибка связи с расширением',browserOpen:'Bridge откроет OpenReports, если вкладка закрыта. При необходимости войди в систему самостоятельно, после входа запрос продолжится.',
       serverPreparing:'OpenReports формирует отчёт. Ожидаю начала скачивания XLSX…',
       downloading:'Скачивание XLSX… {progress}',openReports:'Подключаюсь к вкладке OpenReports…',
       looking:'Ищу отчёт…',processing:'Обработка…',downloaded:'Excel скачан в Downloads/MrRobot/OpenReports. Импорт в Mr. Robot…',
@@ -90,7 +90,7 @@
       folderGranted:'read access granted',folderExpired:'permission needs renewal',
       pickFolder:'📁 Choose folder',importLast:'Load latest matching XLSX',
       help:'Files are saved to <b>Downloads/MrRobot/OpenReports</b>. Select the <b>OpenReports</b> folder under Downloads/MrRobot once. Automatic import uses the exact completed download name; manual import selects only the newest file for the requested report. Passwords and file contents are not sent to an external server.',
-      reportModule:'Report / module',popupNote:'Open and sign in to OpenReports. Bridge follows Reports → ECM_Warehouse → chosen report. Select dates and times to the second. For GODZINY_MDT: WMS ECM REPL PODKARPACIE, with EAN and Location blank. Files are saved to Downloads/MrRobot/OpenReports.',
+      reportModule:'Report / module',popupNote:'Bridge opens OpenReports if necessary. Sign in on the site if asked. Bridge follows Reports → ECM_Warehouse → chosen report. Select dates and times to the second. For GODZINY_MDT: WMS ECM REPL PODKARPACIE, with EAN and Location blank. Files are saved to Downloads/MrRobot/OpenReports.',
       ready:'Ready.',readyPopup:'Ready to download.',badTime:'Enter dates and times including seconds.',badPeriod:'Start must be earlier than end.',
       launching:'Starting OpenReports…',started:'Report started in OpenReports. Waiting for XLSX…',
       syncError:'Synchronization error: {reason}',folderProblem:'Folder access error: {reason}',
@@ -108,7 +108,7 @@
       imported:'{name} was passed to {module}. Check the import results in Mr. Robot.',
       folderForImport:'Report downloaded to {folder}. Click “Choose folder” and select OpenReports to enable automatic import.',
       outsideFolder:'Report was saved outside {folder}. Check Edge’s “Ask where to save” setting and import the file manually if needed.',
-      connectionError:'Extension connection error',browserOpen:'Open OpenReports in Edge first.',
+      connectionError:'Extension connection error',browserOpen:'Bridge opens OpenReports if the tab is closed. If prompted, sign in yourself; the report request resumes after sign-in.',
       serverPreparing:'OpenReports is preparing the report. Waiting for the XLSX download to begin…',
       downloading:'Downloading XLSX… {progress}',openReports:'Connecting to the OpenReports tab…',
       looking:'Finding report…',processing:'Processing…',downloaded:'Excel saved to Downloads/MrRobot/OpenReports. Importing into Mr. Robot…',
@@ -126,7 +126,7 @@
       folderGranted:'читання дозволено',folderExpired:'потрібен повторний дозвіл',
       pickFolder:'📁 Вибрати папку',importLast:'Імпортувати останній відповідний XLSX',
       help:'Файли зберігаються в <b>Downloads/MrRobot/OpenReports</b>. Один раз вибери папку <b>OpenReports</b> усередині Downloads/MrRobot. Автоматичний імпорт використовує точну назву завершеного завантаження; ручний обирає лише найновіший файл потрібного звіту. Паролі та вміст файлів не надсилаються на сторонній сервер.',
-      reportModule:'Звіт / модуль',popupNote:'Відкрий OpenReports і увійди. Bridge переходить Reports → ECM_Warehouse → потрібний звіт. Вибери період до секунд. Для GODZINY_MDT: WMS ECM REPL PODKARPACIE, EAN і Location порожні. Файли зберігаються в Downloads/MrRobot/OpenReports.',
+      reportModule:'Звіт / модуль',popupNote:'Bridge відкриє OpenReports за потреби. Якщо потрібно, увійди на сайті. Далі Bridge переходить Reports → ECM_Warehouse → потрібний звіт. Вибери період до секунд. Для GODZINY_MDT: WMS ECM REPL PODKARPACIE, EAN і Location порожні. Файли зберігаються в Downloads/MrRobot/OpenReports.',
       ready:'Готово до роботи.',readyPopup:'Готово до завантаження.',badTime:'Вкажи дати та час із секундами.',badPeriod:'Початок періоду має бути раніше завершення.',
       launching:'Запускаю OpenReports…',started:'Звіт запущено в OpenReports. Очікую XLSX…',
       syncError:'Помилка синхронізації: {reason}',folderProblem:'Помилка доступу до папки: {reason}',
@@ -144,7 +144,7 @@
       imported:'Файл {name} передано до {module}. Перевір результат імпорту в Mr. Robot.',
       folderForImport:'Звіт завантажено до {folder}. Натисни «Вибрати папку» й укажи OpenReports для автоматичного імпорту.',
       outsideFolder:'Звіт збережено поза {folder}. Перевір налаштування Edge «Запитувати місце збереження» і за потреби імпортуй вручну.',
-      connectionError:'Помилка зв’язку з розширенням',browserOpen:'Спочатку відкрий OpenReports в Edge.',
+      connectionError:'Помилка зв’язку з розширенням',browserOpen:'Bridge відкриє OpenReports, якщо вкладку закрито. За потреби увійди самостійно; після входу запит продовжиться.',
       serverPreparing:'OpenReports готує звіт. Очікую початку завантаження XLSX…',
       downloading:'Завантаження XLSX… {progress}',openReports:'Підключаюся до вкладки OpenReports…',
       looking:'Шукаю звіт…',processing:'Обробка…',downloaded:'Excel завантажено до Downloads/MrRobot/OpenReports. Імпорт до Mr. Robot…',
@@ -180,6 +180,7 @@
     [/Otwórz OpenReports-WMS|Otwórz autoryzowaną stronę OpenReports/, 'Открой OpenReports в отдельной вкладке Edge и войди в систему.', 'Open OpenReports in another Edge tab and sign in.', 'Відкрий OpenReports в окремій вкладці Edge та увійди.'],
     [/Pobieranie przerwane/, 'Скачивание файла прервано.', 'File download was interrupted.', 'Завантаження файлу перервано.'],
     [/OpenReports nie rozpoczął pobierania/, 'OpenReports не начал скачивание за 45 минут. Проверь отчёт.', 'OpenReports did not start the download within 45 minutes.', 'OpenReports не розпочав завантаження за 45 хвилин. Перевір звіт.'],
+    [/Upłynął czas oczekiwania na logowanie/, 'Время ожидания входа (15 минут) истекло.', 'Sign-in timed out after 15 minutes.', 'Час очікування входу (15 хвилин) минув.'],
     [/Karta OpenReports została zamknięta/, 'Вкладка OpenReports закрыта или адрес изменился.', 'OpenReports tab was closed or its address changed.', 'Вкладку OpenReports закрито або адресу змінено.']
   ];
   // The background worker intentionally contains no UI or locale-specific code.
@@ -192,6 +193,7 @@
       return t('downloading',lang,{progress:match?.[0]||''}).trim();
     }
     if(/OpenReports przygotowuje raport|Czekam na rozpoczęcie pobierania/.test(s))return t('serverPreparing',lang);
+    if(/Oczekuję na zalogowanie/.test(s))return ({pl:'Oczekuję na zalogowanie w OpenReports…',ru:'Ожидаю входа в OpenReports…',en:'Waiting for OpenReports sign-in…',uk:'Очікую входу до OpenReports…'})[normalize(lang)];
     if(/Łączę się z kartą|Łączenie ze stroną/.test(s))return t('openReports',lang);
     if(/Przetwarzanie|Sprawdzam formularz|Wybieram raport|Szukam raportu|Otwieram|Ustawiam|Parametry/.test(s))return t('looking',lang);
     if(/Excel pobrany do Downloads\/MrRobot\/OpenReports/.test(s))return t('downloaded',lang);

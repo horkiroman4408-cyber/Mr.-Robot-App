@@ -8,6 +8,7 @@ const DOWNLOAD_SUBFOLDER = 'MrRobot/OpenReports/';
 const inReportFolder = path => /(?:^|\/)MrRobot\/OpenReports\/[^/]+$/i.test(String(path||'').replace(/\\/g,'/'));
 // Large OpenReports reports may take many minutes to generate before the download starts.
 const MAX_PENDING_MS = 45 * 60 * 1000;
+const MAX_LOGIN_MS = 15 * 60 * 1000;
 // Serialize event-driven job updates to avoid an old navigation callback overwriting a newer stage.
 let jobMutations = Promise.resolve();
 function withJobLock(fn){
@@ -36,6 +37,13 @@ const save = async job => chrome.storage.local.set({[KEY]: job});
 const currentJob = job => job && job.state==='running'; // explicit Cancel is required; never overlap active downloads
 
 const fail = async (job, message) => save({...job, state:'error', message, updatedAt:Date.now()});
+// A login page is not a report failure. Keep the job until the user signs in.
+const loginMessage='Oczekuję na zalogowanie w OpenReports. Dokończ logowanie w otwartej karcie…';
+async function chooseTab(){
+  const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
+  const existing=tabs.filter(t=>isTrusted(t.url)).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
+  return existing||chrome.tabs.create({url:ORIGIN,active:true});
+}
 const validDate = s => {
   const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(s);
   if(!m)return false;
@@ -53,7 +61,10 @@ async function runOnTab(tabId){
   const job=await getJob();
   if(!job||job.tabId!==tabId||job.state!=='running')return;
   const tab=await chrome.tabs.get(tabId).catch(()=>null);
-  if(!tab||!isTrusted(tab.url))return fail(job,'Karta OpenReports została zamknięta lub zmieniła adres.');
+  if(!tab)return fail(job,'Karta OpenReports została zamknięta.');
+  // Corporate SSO can temporarily navigate outside the permitted origin.
+  // Never inject into authentication providers or read their forms.
+  if(!isTrusted(tab.url))return;
   const command={type:'MR_PROCESS',jobId:job.jobId,step:job.step,from:job.from,to:job.to,report:job.report||'ai_audyt'};
   try {
     await chrome.tabs.sendMessage(tabId,command);
@@ -88,12 +99,14 @@ async function runOnTab(tabId){
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async()=>{
     if(message?.type==='MR_START'){
-      const {tabId,from,to}=message;
+      const {from,to}=message;
+      const requestedTabId=message.tabId;
       const report=message.report||'ai_audyt';
       if(!REPORTS[report])throw Error('Nieznany raport OpenReports.');
-      if(!Number.isInteger(tabId)||!validDate(from)||!validDate(to)||from>to) throw Error('Nieprawidłowy okres.');
-      const tab=await chrome.tabs.get(tabId);
-      if(!isTrusted(tab.url)) throw Error('Otwórz autoryzowaną stronę OpenReports.');
+      if(!validDate(from)||!validDate(to)||from>to) throw Error('Nieprawidłowy okres.');
+      let tab=Number.isInteger(requestedTabId)?await chrome.tabs.get(requestedTabId):await chooseTab();
+      if(!isTrusted(tab.url))throw Error('Otwórz autoryzowaną stronę OpenReports.');
+      const tabId=tab.id;
       const existing=await getJob();
       if(currentJob(existing)) throw Error('Inny raport jest już uruchomiony.');
       await save({jobId:crypto.randomUUID(),report,tabId,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()});
@@ -109,13 +122,20 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if(!validDate(from)||!validDate(to)||from>to)throw Error('Nieprawidłowy okres.');
       const previous=await getJob();
       if(currentJob(previous))throw Error('Inny raport jest już uruchomiony.');
-      const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
-      const tab=tabs.filter(t=>isTrusted(t.url)).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
-      if(!tab)throw Error('Otwórz OpenReports-WMS w osobnej karcie Edge i zaloguj się.');
+      const tab=await chooseTab();
       const job={jobId:crypto.randomUUID(),report,tabId:tab.id,appTabId:sender.tab.id,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()};
       await save(job);
       await runOnTab(tab.id);
       sendResponse({ok:true,jobId:job.jobId});return;
+    }
+    if(message?.type==='MR_WAIT_LOGIN'){
+      await withJobLock(async()=>{
+        const job=await getJob();
+        if(job?.state==='running'&&job.step==='open-reports'&&job.tabId===sender.tab?.id&&job.jobId===message.jobId){
+          await save({...job,awaitingLogin:true,loginStartedAt:job.loginStartedAt||Date.now(),message:loginMessage,updatedAt:Date.now()});
+        }
+      });
+      sendResponse({ok:true});return;
     }
     if(message?.type==='MR_CANCEL'){
       const job=await getJob();if(job?.state==='running')await save({...job,state:'cancelled',message:'Anulowano.',updatedAt:Date.now()});
@@ -123,6 +143,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     if(message?.type==='MR_STATUS'){
       let job=await getJob();
+      if(job?.state==='running' && job.awaitingLogin && job.step==='open-reports' && Date.now()-(job.loginStartedAt||job.startedAt)>MAX_LOGIN_MS){
+        await fail(job,'Upłynął czas oczekiwania na logowanie do OpenReports (15 minut). Spróbuj ponownie.');
+        job=await getJob();
+      }
       if(job?.state==='running' && job.step==='download'){
         if(job.downloadId==null && Date.now()-(job.downloadStartedAt||job.startedAt)>MAX_PENDING_MS){
           await fail(job,'OpenReports nie rozpoczął pobierania XLSX przez 45 minut. Sprawdź raport i spróbuj ponownie.');
@@ -167,7 +191,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const transitions={'open-reports':'open-group','open-group':'find-report','find-report':'fill-parameters','fill-parameters':'export','export':'download'};
         const next=transitions[job.step];
         if(!next) return {ok:true,stale:true};
-        await save({...job,step:next,message:message.message||'Przetwarzanie…',
+        await save({...job,step:next,awaitingLogin:false,loginStartedAt:null,message:message.message||'Przetwarzanie…',
           updatedAt:Date.now(),downloadStartedAt:next==='download'?Date.now():job.downloadStartedAt});
         return {ok:true,stale:false};
       });
@@ -206,6 +230,10 @@ async function adoptOpenedTab(tabId,tabData){
   }finally{adoptingTabs.delete(tabId);}
 }
 chrome.tabs.onCreated.addListener(tab=>{adoptOpenedTab(tab.id,tab).catch(()=>{});});
+chrome.tabs.onRemoved.addListener(tabId=>{withJobLock(async()=>{
+  const job=await getJob();
+  if(job?.state==='running'&&job.tabId===tabId)await fail(job,'Karta OpenReports została zamknięta.');
+}).catch(()=>{});});
 chrome.tabs.onUpdated.addListener((tabId,change,tab)=>{
   if(change.status==='complete'||change.url){
     adoptOpenedTab(tabId,tab).then(()=>runOnTab(tabId)).catch(()=>{});

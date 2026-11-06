@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "releases": [
+    {
+      "version": "0.3.0",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Automatyczne otwieranie i aktualizacje",
+        "ru": "Автооткрытие и обновления",
+        "en": "Auto-open and updates",
+        "uk": "Автовідкриття та оновлення"
+      },
+      "changes": {
+        "pl": [
+          "Otwieranie OpenReports, jeśli karta jest zamknięta.",
+          "Oczekiwanie na ręczne logowanie i automatyczne wznowienie raportu.",
+          "Osobna historia wersji i sprawdzanie aktualizacji."
+        ],
+        "ru": [
+          "Автоматическое открытие OpenReports при отсутствии вкладки.",
+          "Ожидание ручной авторизации и продолжение отчёта после входа.",
+          "Отдельная история версий и проверка обновлений."
+        ],
+        "en": [
+          "Open OpenReports if no tab is present.",
+          "Wait for manual sign-in and resume the report afterwards.",
+          "Independent release history and update checks."
+        ],
+        "uk": [
+          "Автоматичне відкриття OpenReports, якщо вкладку закрито.",
+          "Очікування ручного входу та продовження звіту після авторизації.",
+          "Окрема історія версій і перевірка оновлень."
+        ]
+      }
+    },
+    {
+      "version": "0.2.8",
+      "date": "2026-11-05",
+      "title": {
+        "pl": "Połączenie z Mr. Robot",
+        "ru": "Подключение к Mr. Robot",
+        "en": "Mr. Robot integration",
+        "uk": "Підключення до Mr. Robot"
+      },
+      "changes": {
+        "pl": [
+          "Status rozszerzenia, instalacja z repozytorium i obsługa Edge/Chrome."
+        ],
+        "ru": [
+          "Статус расширения, установка из репозитория и поддержка Edge/Chrome."
+        ],
+        "en": [
+          "Extension status, installation from the repository and Edge/Chrome support."
+        ],
+        "uk": [
+          "Стан розширення, встановлення з репозиторію та підтримка Edge/Chrome."
+        ]
+      }
+    }
+  ]
+}

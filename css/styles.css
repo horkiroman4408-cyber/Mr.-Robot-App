@@ -1325,3 +1325,15 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-startup-footnote{text-align:center;font-size:11px;margin:12px 0 0}
 @media(max-width:480px){.mr-startup-panel{padding:22px 18px;border-radius:21px}.mr-startup-symbol{width:49px;height:49px;font-size:23px}.mr-startup-header{gap:11px}.mr-startup-header h2{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.mr-startup-action{transition:none}}
+
+/* OpenReports Bridge: separate release state and localized version history. */
+.mr-bridge-update{border:1px solid var(--mr-control-border,rgba(148,163,184,.28));border-radius:12px;background:var(--mr-control-bg,rgba(148,163,184,.07));padding:12px 15px;margin:8px 0 14px;color:inherit}
+.mr-bridge-update[hidden]{display:none!important}
+.mr-bridge-update.is-warning{border-color:var(--mr-focus,rgba(217,119,6,.65))}
+.mr-bridge-update-title{font-weight:750;font-size:13px}
+.mr-bridge-update-detail{white-space:pre-line;opacity:.8;font-size:12px;margin-top:4px;line-height:1.55}
+.mr-bridge-release-panel{border:1px solid var(--mr-control-border,rgba(148,163,184,.28));border-radius:13px;margin:10px 0 14px;overflow:hidden;background:var(--mr-c15,rgba(148,163,184,.035));color:inherit}
+.mr-bridge-release-body{padding:12px 17px;border-top:1px solid var(--mr-control-border,rgba(148,163,184,.2));max-height:380px;overflow:auto}
+.mr-bridge-release-body[hidden]{display:none!important}
+.mr-bridge-release{font-size:12px;line-height:1.6;padding:9px 0;border-bottom:1px solid var(--mr-control-border,rgba(148,163,184,.15))}
+.mr-bridge-release:last-child{border:0}.mr-bridge-release strong{display:block;font-size:13px;margin-bottom:3px}.mr-bridge-release ul{padding-left:18px;margin:4px 0}

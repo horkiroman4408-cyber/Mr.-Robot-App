@@ -22,8 +22,7 @@ $('start').onclick=async()=>{try{
   if(!startDate||!endDate||from>to)throw Error(t('badPeriod'));
   const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
   const tab=tabs.find(t=>t.active)||tabs[0];
-  if(!tab)throw Error(t('browserOpen'));
-  await message('MR_START',{tabId:tab.id,from,to,report:$('report').value});await update();
+  await message('MR_START',{...(tab?{tabId:tab.id}:{}),from,to,report:$('report').value});await update();
 }catch(e){$('status').textContent=I.status(e.message,locale);$('status').className='status error';}};
 $('cancel').onclick=async()=>{await message('MR_CANCEL');await update();};
 initLocale().then(()=>update()).catch(e=>{$('status').textContent=I.status(e.message,locale);});

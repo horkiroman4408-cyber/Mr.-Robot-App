@@ -5,8 +5,8 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.18.5-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.2.8-0d9488)](#-openreports-bridge)
+![версия](https://img.shields.io/badge/version-3.18.6-blue)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.0-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -122,15 +122,15 @@ Mr. Robot — браузерное приложение для работы со
 
 ## 🔌 OpenReports Bridge
 
-**Единое подключение для всего Mr. Robot, а не только для аудитов.** OpenReports Bridge — необязательное расширение Microsoft Edge, с помощью которого Mr. Robot запускает разрешённые пользователю XLSX-отчёты в OpenReports-WMS. Это общая интеграция для существующих и будущих модулей: каждый модуль продолжает использовать собственный обработчик Excel. Ручной импорт и офлайн-расчёты работают и без расширения.
+**Единое подключение для всего Mr. Robot, а не только для аудитов.** OpenReports Bridge — необязательное расширение Edge/Chrome, с помощью которого Mr. Robot запускает разрешённые пользователю XLSX-отчёты в OpenReports-WMS. Это общая интеграция для существующих и будущих модулей: каждый модуль продолжает использовать собственный обработчик Excel. Ручной импорт и офлайн-расчёты работают и без расширения.
 
 **Сейчас подключены:** `ECM_AI_Audit` → **AL_AUDYT / FORMATKA_59** и `ECM_STOCK_Items_after_receiving` → **GODZINY_MDT**. Следующие отчёты можно добавлять в тот же Bridge, без новых расширений. Диапазоны даты и времени поддерживают секунды; у отдельных отчётов есть дополнительные параметры.
 
-**Установка в Edge:** открой **Mr. Robot → Настройки → OpenReports Bridge**, скачай ZIP и распакуй его. В Edge открой `edge://extensions`, включи **Режим разработчика**, выбери **Загрузить распакованное расширение** и укажи папку с файлом `manifest.json` (`extension/openreports-bridge` в репозитории или `extension` в отдельном ZIP, если так она называется). Обнови Mr. Robot для проверки статуса и версии расширения. Для получения отчётов нужна открытая авторизованная вкладка OpenReports-WMS.
+**Установка в Edge / Chrome:** открой **Mr. Robot → Настройки → OpenReports Bridge**, скачай ZIP и распакуй его. В Edge открой `edge://extensions`, а в Chrome `chrome://extensions`, включи **Режим разработчика**, выбери **Загрузить распакованное расширение** и укажи папку с файлом `manifest.json` (`extension/openreports-bridge` в репозитории или `extension` в отдельном ZIP, если так она называется). Обнови Mr. Robot для проверки статуса и версии расширения. Если вкладки OpenReports нет, Bridge откроет её сам и при необходимости дождётся твоего входа на сайте, после чего продолжит отчёт. История расширения и `latest.json` позволяют проверять его обновления без смены версии Mr. Robot. Распакованное расширение обновляется вручную.
 
 Отчёты сохраняются в `Downloads/MrRobot/OpenReports`. Когда Mr. Robot запросит доступ, разреши чтение этой папки. Bridge выбирает XLSX по типу отчёта, не хранит пароль WMS, а обработка Excel остаётся локальной. Корпоративные правила могут запрещать расширения. PWA не может незаметно установить расширение Edge, а распакованные расширения не обновляются автоматически из GitHub.
 
-**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.2.8.zip`](downloads/OpenReports-Bridge-v0.2.8.zip).
+**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.0.zip`](downloads/OpenReports-Bridge-v0.3.0.zip).
 
 ---
 

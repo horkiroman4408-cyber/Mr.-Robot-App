@@ -53,7 +53,14 @@
       const title=clean(document.body?.innerText||document.body?.textContent||'').slice(0,30000);
       const report=REPORTS[job.report||'ai_audyt'];
       if(!report)throw Error('Nieznany raport OpenReports.');
-      if(title.includes('not currently logged into the system'))throw Error('Zaloguj się do OpenReports i uruchom ponownie.');
+      // Login/SSO may take several minutes. Wait without touching credentials.
+      const loginVisible = /not currently logged into the system/i.test(title) ||
+        !!document.querySelector('input[type="password"]') ||
+        (/log\s?in|sign\s?in|zaloguj/i.test(title.slice(0,1200))&&!button('Reports')&&!groupLink());
+      if(job.step==='open-reports' && loginVisible){
+        await chrome.runtime.sendMessage({type:'MR_WAIT_LOGIN',jobId:job.jobId});
+        retry(2500);return;
+      }
       if(job.step==='open-reports'){
         // When the browser is already on Groups, avoid an unnecessary round trip.
         // Otherwise always go via the top-level Reports navigation, regardless
@@ -64,7 +71,12 @@
           return;
         }
         const reports=button('Reports');
-        if(!reports)throw Error('Nie znaleziono przycisku Reports w OpenReports.');
+        if(!reports){
+          // No Reports UI: treat as awaiting login/SSO rather than failing early.
+          // The background enforces a bounded 15-minute wait and allows cancel.
+          await chrome.runtime.sendMessage({type:'MR_WAIT_LOGIN',jobId:job.jobId});
+          retry(2500);return;
+        }
         if(!await update(job,'Otwieram Reports → Groups…'))return;
         advanced(job.step);clickAndRetry(reports);
         return;
