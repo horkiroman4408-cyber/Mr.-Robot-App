@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.1';
+  const bridgeVersion = '0.3.3';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -44,45 +44,73 @@
     return n===reportName+'.xlsx'||(n.startsWith(reportName+'_')&&n.endsWith('.xlsx'));
   };
 
-  // Deterministic DD/MM/YYYY and 24-hour HH:MM:SS controls. Native date/time
-  // input presentation varies with the OS locale (sometimes showing AM/PM).
+
+
+  // Controlled text inputs avoid browser-specific popup calendars and AM/PM pickers.
+  // Users type DD.MM.YYYY and HH:MM:SS directly; values are normalized on blur.
   const pad2 = n => String(n).padStart(2,'0');
   function periodMarkup(prefix){
     return `<span class="mr-period-date" data-date="${prefix}" role="group">
-      <select id="${prefix}-day" data-mr-aria="dayPart" data-mr-aria="dayPart" aria-label="Day"></select><span class="mr-period-separator">/</span>
-      <select id="${prefix}-month" data-mr-aria="monthPart" data-mr-aria="monthPart" aria-label="Month"></select><span class="mr-period-separator">/</span>
-      <select id="${prefix}-year" data-mr-aria="yearPart" data-mr-aria="yearPart" aria-label="Year"></select></span>`;
+      <input id="${prefix}-date" type="text" inputmode="numeric" maxlength="10" placeholder="DD.MM.YYYY" data-mr-aria="datePart" aria-label="Date DD.MM.YYYY" autocomplete="off"></span>`;
   }
   function clockMarkup(prefix){
     return `<span class="mr-period-clock" data-clock="${prefix}" role="group">
-      <input id="${prefix}-hour" type="text" inputmode="numeric" maxlength="2" placeholder="HH" data-mr-aria="hourPart" data-mr-aria="hourPart" aria-label="Hour 00–23" autocomplete="off"><b>:</b>
-      <input id="${prefix}-minute" type="text" inputmode="numeric" maxlength="2" placeholder="MM" data-mr-aria="minutePart" data-mr-aria="minutePart" aria-label="Minute 00–59" autocomplete="off"><b>:</b>
-      <input id="${prefix}-second" type="text" inputmode="numeric" maxlength="2" placeholder="SS" data-mr-aria="secondPart" data-mr-aria="secondPart" aria-label="Second 00–59" autocomplete="off"></span>`;
+      <input id="${prefix}-time" type="text" inputmode="numeric" maxlength="8" placeholder="HH:MM:SS" data-mr-aria="timePart" aria-label="Time HH:MM:SS" autocomplete="off"></span>`;
+  }
+  const onlyDigits = value => String(value||'').replace(/\D/g,'');
+  function formatDateInput(value){
+    const d = onlyDigits(value).slice(0,8);
+    if(d.length<=2) return d;
+    if(d.length<=4) return d.slice(0,2)+'.'+d.slice(2);
+    return d.slice(0,2)+'.'+d.slice(2,4)+'.'+d.slice(4);
+  }
+  function formatTimeInput(value){
+    const d = onlyDigits(value).slice(0,6);
+    if(d.length<=2) return d;
+    if(d.length<=4) return d.slice(0,2)+':'+d.slice(2);
+    return d.slice(0,2)+':'+d.slice(2,4)+':'+d.slice(4);
+  }
+  function parseDateValue(value){
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(value||'').trim());
+    if(!m) return null;
+    const day=Number(m[1]), month=Number(m[2]), year=Number(m[3]);
+    if(month<1||month>12||day<1) return null;
+    const max = new Date(year,month,0).getDate();
+    if(day>max) return null;
+    return {year,month,day};
+  }
+  function parseTimeValue(value){
+    const m = /^(\d{2}):(\d{2}):(\d{2})$/.exec(String(value||'').trim());
+    if(!m) return null;
+    const hour=Number(m[1]), minute=Number(m[2]), second=Number(m[3]);
+    if(hour>23||minute>59||second>59) return null;
+    return {hour,minute,second};
   }
   function setupPeriod(root,prefix,date,time){
-    const parts=date.split('-').map(Number), [h,m,s]=time.split(':').map(Number);
-    const el=id=>root.querySelector('#'+prefix+'-'+id);
-    const y=el('year'),mo=el('month'),d=el('day');
-    const add=(select,n,label)=>{const opt=document.createElement('option');opt.value=String(n);opt.textContent=label;select.append(opt);};
-    for(let i=1;i<=31;i++)add(d,i,pad2(i));
-    for(let i=1;i<=12;i++)add(mo,i,pad2(i));
-    for(let i=Math.max(2010,new Date().getFullYear()-15);i<=new Date().getFullYear()+5;i++)add(y,i,String(i));
-    y.value=String(parts[0]);mo.value=String(parts[1]);d.value=String(parts[2]);
-    const adjust=()=>{const max=new Date(Number(y.value),Number(mo.value),0).getDate();for(const opt of d.options)opt.disabled=Number(opt.value)>max;if(Number(d.value)>max)d.value=String(max);};
-    y.addEventListener('change',adjust);mo.addEventListener('change',adjust);adjust();
-    [['hour',h],['minute',m],['second',s]].forEach(([part,v])=>{
-      const input=el(part);input.value=pad2(v);
-      input.addEventListener('blur',()=>{const n=Number(input.value);if(/^\d{1,2}$/.test(input.value)&&n<=(part==='hour'?23:59))input.value=pad2(n);});
-      input.addEventListener('input',()=>{input.value=input.value.replace(/\D/g,'').slice(0,2);});
+    const dateInput=root.querySelector('#'+prefix+'-date');
+    const timeInput=root.querySelector('#'+prefix+'-time');
+    const [year,month,day]=date.split('-').map(Number);
+    const [hour,minute,second]=time.split(':').map(Number);
+    dateInput.value=`${pad2(day)}.${pad2(month)}.${year}`;
+    timeInput.value=`${pad2(hour)}:${pad2(minute)}:${pad2(second)}`;
+    dateInput.addEventListener('input',()=>{ dateInput.value = formatDateInput(dateInput.value); });
+    timeInput.addEventListener('input',()=>{ timeInput.value = formatTimeInput(timeInput.value); });
+    dateInput.addEventListener('blur',()=>{
+      const parsed=parseDateValue(dateInput.value);
+      if(parsed) dateInput.value=`${pad2(parsed.day)}.${pad2(parsed.month)}.${parsed.year}`;
     });
+    timeInput.addEventListener('blur',()=>{
+      const parsed=parseTimeValue(timeInput.value);
+      if(parsed) timeInput.value=`${pad2(parsed.hour)}:${pad2(parsed.minute)}:${pad2(parsed.second)}`;
+    });
+    globalThis.MRBridgeCalendar?.attach(root,prefix);
   }
   function readPeriod(root,prefix){
-    const el=id=>root.querySelector('#'+prefix+'-'+id);
-    const year=Number(el('year').value),month=Number(el('month').value),day=Number(el('day').value);
-    const nums=['hour','minute','second'].map(part=>el(part).value.trim());
-    if(!nums.every((s,i)=>/^\d{1,2}$/.test(s)&&Number(s)<=(i?59:23)))return null;
-    if(day<1||day>new Date(year,month,0).getDate())return null;
-    return `${year}-${pad2(month)}-${pad2(day)} ${nums.map(s=>pad2(Number(s))).join(':')}`;
+    const dateValue=root.querySelector('#'+prefix+'-date')?.value;
+    const timeValue=root.querySelector('#'+prefix+'-time')?.value;
+    const d=parseDateValue(dateValue), t=parseTimeValue(timeValue);
+    if(!d||!t) return null;
+    return `${d.year}-${pad2(d.month)}-${pad2(d.day)} ${pad2(t.hour)}:${pad2(t.minute)}:${pad2(t.second)}`;
   }
 
   const localDate = d => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
@@ -170,10 +198,9 @@
       #mr-or-panel .mr-or-help{font-size:11px;line-height:1.55;color:#7a8494;margin-top:9px}
       #mr-or-panel .mr-or-folder{font-size:11px;color:#506176;margin:6px 0 9px;overflow-wrap:anywhere}
       #mr-or-panel .mr-period-date,#mr-or-panel .mr-period-clock{display:flex;align-items:center;gap:4px;min-width:0}
-      #mr-or-panel .mr-period-date select{min-width:0;flex:1;border-radius:8px;padding:9px 4px;background:#fff;color:#20252e;border:1px solid #d7dbe3;font-size:13px}
-      #mr-or-panel .mr-period-date select:last-child{flex:1.5}
-      #mr-or-panel .mr-period-clock input{min-width:0;width:100%;flex:1;text-align:center;padding:9px 2px;font-variant-numeric:tabular-nums}
-      #mr-or-panel .mr-period-clock b,#mr-or-panel .mr-period-separator{font-size:12px;font-weight:500;color:#64748b}
+      #mr-or-panel .mr-period-date input,#mr-or-panel .mr-period-clock input{min-width:0;width:100%;flex:1;border-radius:8px;padding:10px 12px;background:#fff;color:#20252e;border:1px solid #d7dbe3;font-size:13px;font-variant-numeric:tabular-nums}
+      #mr-or-panel .mr-period-date input{text-align:left}
+      #mr-or-panel .mr-period-clock input{text-align:center}
       #mr-or-panel .mr-or-cancel{margin-top:8px;width:100%;background:#fff;color:#a94437;border:1px solid #e6b4ad}
       #mr-or-panel .mr-or-cancel[hidden]{display:none}
       @media(max-width:430px){#mr-or-panel .mr-or-grid{grid-template-columns:1fr}}

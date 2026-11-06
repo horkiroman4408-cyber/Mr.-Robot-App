@@ -57,10 +57,17 @@ async function refreshedJob(){
   return job;
 }
 const loginMessage='Oczekuję na zalogowanie w OpenReports. Dokończ logowanie w otwartej karcie…';
+async function focusTab(tab){
+  if(!tab||!Number.isInteger(tab.id))return tab;
+  try{ if(Number.isInteger(tab.windowId)) await chrome.windows.update(tab.windowId,{focused:true}); }catch{}
+  try{ await chrome.tabs.update(tab.id,{active:true}); return await chrome.tabs.get(tab.id); }catch{return tab;}
+}
 async function chooseTab(){
   const tabs=await chrome.tabs.query({url:'https://openreports-wms.lpp.com/*'});
   const existing=tabs.filter(t=>isTrusted(t.url)).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
-  return existing||chrome.tabs.create({url:ORIGIN,active:true});
+  if(existing) return focusTab(existing);
+  const created = await chrome.tabs.create({url:ORIGIN,active:true});
+  return focusTab(created);
 }
 const validDate = s => {
   const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(s);

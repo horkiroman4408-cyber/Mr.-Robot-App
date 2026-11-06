@@ -2,6 +2,62 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.3",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Kalendarz wyboru daty",
+        "ru": "Удобный календарь дат",
+        "en": "Date calendar",
+        "uk": "Зручний календар дат"
+      },
+      "changes": {
+        "pl": [
+          "Kalendarz dzień/miesiąc/rok wewnątrz okna: nie nachodzi na inne pola.",
+          "Pozostawiono ręczne wpisywanie DD.MM.YYYY i godzinę w formacie 24-godzinnym."
+        ],
+        "ru": [
+          "Календарь с выбором дня, месяца и года открывается внутри окна и не перекрывает поля.",
+          "Сохранён ручной ввод ДД.ММ.ГГГГ и времени в 24-часовом формате."
+        ],
+        "en": [
+          "Inline calendar with day, month and year selection that does not cover other fields.",
+          "Manual DD.MM.YYYY and 24-hour time entry remain available."
+        ],
+        "uk": [
+          "Календар із вибором дня, місяця й року всередині вікна без перекриття полів.",
+          "Залишено ручне введення ДД.ММ.РРРР і часу у 24-годинному форматі."
+        ]
+      }
+    },
+    {
+      "version": "0.3.2",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Czytelniejsze pola i aktywacja karty",
+        "ru": "Более аккуратные поля и активация вкладки",
+        "en": "Cleaner inputs and tab activation",
+        "uk": "Охайніші поля та активація вкладки"
+      },
+      "changes": {
+        "pl": [
+          "Ręczne wpisywanie daty DD.MM.YYYY i godziny HH:MM:SS bez rozwijanych natywnych pickerów.",
+          "Aktywacja istniejącej karty OpenReports, aby raport ruszał bez ręcznego klikania zakładki."
+        ],
+        "ru": [
+          "Ручной ввод даты DD.MM.YYYY и времени HH:MM:SS без странных системных выпадающих пикеров.",
+          "Автоактивация существующей вкладки OpenReports, чтобы отчёт запускался без ручного клика по вкладке."
+        ],
+        "en": [
+          "Manual DD.MM.YYYY date and HH:MM:SS time input without awkward native pickers.",
+          "Activate the existing OpenReports tab so reports continue without a manual tab click."
+        ],
+        "uk": [
+          "Ручне введення дати DD.MM.YYYY і часу HH:MM:SS без системних випадних пікерів.",
+          "Автоактивація наявної вкладки OpenReports, щоб звіт продовжувався без ручного кліку по вкладці."
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "date": "2026-11-06",
       "title": {
