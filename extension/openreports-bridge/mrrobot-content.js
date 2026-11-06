@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.3';
+  const bridgeVersion = '0.3.4';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -53,22 +53,13 @@
     return `<span class="mr-period-date" data-date="${prefix}" role="group">
       <input id="${prefix}-date" type="text" inputmode="numeric" maxlength="10" placeholder="DD.MM.YYYY" data-mr-aria="datePart" aria-label="Date DD.MM.YYYY" autocomplete="off"></span>`;
   }
-  function clockMarkup(prefix){
-    return `<span class="mr-period-clock" data-clock="${prefix}" role="group">
-      <input id="${prefix}-time" type="text" inputmode="numeric" maxlength="8" placeholder="HH:MM:SS" data-mr-aria="timePart" aria-label="Time HH:MM:SS" autocomplete="off"></span>`;
-  }
+  const clockMarkup = prefix => globalThis.MRBridgeTime.markup(prefix);
   const onlyDigits = value => String(value||'').replace(/\D/g,'');
   function formatDateInput(value){
     const d = onlyDigits(value).slice(0,8);
     if(d.length<=2) return d;
     if(d.length<=4) return d.slice(0,2)+'.'+d.slice(2);
     return d.slice(0,2)+'.'+d.slice(2,4)+'.'+d.slice(4);
-  }
-  function formatTimeInput(value){
-    const d = onlyDigits(value).slice(0,6);
-    if(d.length<=2) return d;
-    if(d.length<=4) return d.slice(0,2)+':'+d.slice(2);
-    return d.slice(0,2)+':'+d.slice(2,4)+':'+d.slice(4);
   }
   function parseDateValue(value){
     const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(String(value||'').trim());
@@ -79,38 +70,23 @@
     if(day>max) return null;
     return {year,month,day};
   }
-  function parseTimeValue(value){
-    const m = /^(\d{2}):(\d{2}):(\d{2})$/.exec(String(value||'').trim());
-    if(!m) return null;
-    const hour=Number(m[1]), minute=Number(m[2]), second=Number(m[3]);
-    if(hour>23||minute>59||second>59) return null;
-    return {hour,minute,second};
-  }
   function setupPeriod(root,prefix,date,time){
     const dateInput=root.querySelector('#'+prefix+'-date');
-    const timeInput=root.querySelector('#'+prefix+'-time');
     const [year,month,day]=date.split('-').map(Number);
-    const [hour,minute,second]=time.split(':').map(Number);
     dateInput.value=`${pad2(day)}.${pad2(month)}.${year}`;
-    timeInput.value=`${pad2(hour)}:${pad2(minute)}:${pad2(second)}`;
+    globalThis.MRBridgeTime.attach(root,prefix,time);
     dateInput.addEventListener('input',()=>{ dateInput.value = formatDateInput(dateInput.value); });
-    timeInput.addEventListener('input',()=>{ timeInput.value = formatTimeInput(timeInput.value); });
     dateInput.addEventListener('blur',()=>{
       const parsed=parseDateValue(dateInput.value);
       if(parsed) dateInput.value=`${pad2(parsed.day)}.${pad2(parsed.month)}.${parsed.year}`;
-    });
-    timeInput.addEventListener('blur',()=>{
-      const parsed=parseTimeValue(timeInput.value);
-      if(parsed) timeInput.value=`${pad2(parsed.hour)}:${pad2(parsed.minute)}:${pad2(parsed.second)}`;
     });
     globalThis.MRBridgeCalendar?.attach(root,prefix);
   }
   function readPeriod(root,prefix){
     const dateValue=root.querySelector('#'+prefix+'-date')?.value;
-    const timeValue=root.querySelector('#'+prefix+'-time')?.value;
-    const d=parseDateValue(dateValue), t=parseTimeValue(timeValue);
+    const d=parseDateValue(dateValue), t=globalThis.MRBridgeTime.read(root,prefix);
     if(!d||!t) return null;
-    return `${d.year}-${pad2(d.month)}-${pad2(d.day)} ${pad2(t.hour)}:${pad2(t.minute)}:${pad2(t.second)}`;
+    return `${d.year}-${pad2(d.month)}-${pad2(d.day)} ${t}`;
   }
 
   const localDate = d => [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
@@ -200,7 +176,11 @@
       #mr-or-panel .mr-period-date,#mr-or-panel .mr-period-clock{display:flex;align-items:center;gap:4px;min-width:0}
       #mr-or-panel .mr-period-date input,#mr-or-panel .mr-period-clock input{min-width:0;width:100%;flex:1;border-radius:8px;padding:10px 12px;background:#fff;color:#20252e;border:1px solid #d7dbe3;font-size:13px;font-variant-numeric:tabular-nums}
       #mr-or-panel .mr-period-date input{text-align:left}
-      #mr-or-panel .mr-period-clock input{text-align:center}
+      #mr-or-panel .mr-period-clock{border:1px solid #d7dbe3;border-radius:9px;background:#fff;gap:0;padding:0 5px;min-height:40px}
+      #mr-or-panel .mr-period-clock .mr-time-segment{width:0;min-width:0;flex:1;border:0;background:transparent;padding:9px 2px;min-height:38px;text-align:center;font-weight:700;font-variant-numeric:tabular-nums;outline:0}
+      #mr-or-panel .mr-period-clock .mr-time-colon{color:#94a3b8;font-weight:650}
+      #mr-or-panel .mr-period-clock:focus-within{outline:2px solid #64748b;outline-offset:1px}
+      #mr-or-panel .mr-period-clock .mr-time-segment[aria-invalid="true"]{color:#b91c1c;background:#fff1f2;border-radius:5px}
       #mr-or-panel .mr-or-cancel{margin-top:8px;width:100%;background:#fff;color:#a94437;border:1px solid #e6b4ad}
       #mr-or-panel .mr-or-cancel[hidden]{display:none}
       @media(max-width:430px){#mr-or-panel .mr-or-grid{grid-template-columns:1fr}}

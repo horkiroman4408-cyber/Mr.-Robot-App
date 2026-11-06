@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.4",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "Wygodna edycja godziny",
+        "ru": "Удобное редактирование времени",
+        "en": "Easier time editing",
+        "uk": "Зручне редагування часу"
+      },
+      "changes": {
+        "pl": [
+          "Oddzielna edycja godzin, minut i sekund bez przesuwania kursora na koniec.",
+          "Obsługa klawiszy strzałek, wklejania HH:MM:SS i walidacja czasu 24-godzinnego."
+        ],
+        "ru": [
+          "Отдельное редактирование часов, минут и секунд без сброса курсора.",
+          "Стрелки клавиатуры, вставка HH:MM:SS и проверка значений в 24-часовом формате."
+        ],
+        "en": [
+          "Edit hours, minutes and seconds independently without losing the cursor.",
+          "Keyboard arrows, HH:MM:SS paste and valid 24-hour time ranges."
+        ],
+        "uk": [
+          "Окреме редагування годин, хвилин і секунд без скидання курсора.",
+          "Клавіші зі стрілками, вставлення HH:MM:SS та перевірка 24-годинного часу."
+        ]
+      }
+    },
+    {
       "version": "0.3.3",
       "date": "2026-11-06",
       "title": {
