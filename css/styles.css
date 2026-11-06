@@ -1350,3 +1350,21 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-action-row .mr-bridge-download{margin:0 0 5px}
 .mr-bridge-update.is-warning{border-color:var(--mr-focus,rgba(217,119,6,.65))}
 @media(max-width:720px){.mr-bridge-installed-version{margin-left:18px}}
+
+/* OpenReports Bridge: status and browser share one compact header row.
+   Only the Bridge settings card is affected; values use existing theme tokens. */
+.mr-bridge-settings .mr-bridge-topline{display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;margin:10px 0 16px}
+.mr-bridge-settings .mr-bridge-status-stack{flex:1 1 270px;min-width:0}
+.mr-bridge-settings .mr-bridge-status-stack .mr-bridge-connection{margin:0 0 5px}
+.mr-bridge-settings .mr-bridge-status-stack .mr-bridge-installed-version{margin-bottom:0}
+.mr-bridge-settings .mr-bridge-browser-row{flex:0 1 auto;margin:0}
+.mr-bridge-settings .mr-bridge-browser-control{width:auto}
+.mr-bridge-settings #mr-bridge-info{padding-top:0}
+@media(max-width:560px){
+ .mr-bridge-settings .mr-bridge-topline{align-items:stretch;gap:14px;margin:10px 0 14px}
+ .mr-bridge-settings .mr-bridge-status-stack{flex:1 1 100%}
+ .mr-bridge-settings .mr-bridge-browser-row{flex:1 1 100%;justify-content:flex-start}
+ .mr-bridge-settings .mr-bridge-browser-control{align-items:flex-start}
+ .mr-bridge-settings .mr-bridge-browser-label{text-align:left}
+ .mr-bridge-settings .mr-bridge-browser-choice{padding:8px 11px}
+}

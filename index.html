@@ -1781,13 +1781,15 @@
    </section>
    <section id="settings-openreports" class="settings-card glass-strong mr-bridge-settings" aria-label="OpenReports Bridge">
     <div class="settings-card-heading"><span class="settings-eyebrow" id="mr-bridge-category">{{ eMsg('Integracje','Интеграции','Integrations','Інтеграції') }}</span><h2>OpenReports Bridge</h2><p id="mr-bridge-description">{{ eMsg('Łącz OpenReports-WMS z modułami Mr. Robot. Obecnie: AL_AUDYT / FORMATKA_59 i GODZINY_MDT.','Подключай OpenReports-WMS к модулям Mr. Robot. Сейчас: AL_AUDYT / FORMATKA_59 и GODZINY_MDT.','Connect OpenReports-WMS to Mr. Robot modules. Currently: AL_AUDYT / FORMATKA_59 and GODZINY_MDT.','Підключай OpenReports-WMS до модулів Mr. Robot. Зараз: AL_AUDYT / FORMATKA_59 і GODZINY_MDT.') }}</p></div>
+    <div class="mr-bridge-topline">
+     <div class="mr-bridge-status-stack">
     <div class="mr-bridge-connection"><span class="mr-bridge-dot" id="mr-bridge-dot" aria-hidden="true"></span><strong id="mr-bridge-status" role="status" aria-live="polite">{{ eMsg('Sprawdzanie połączenia…','Проверка подключения…','Checking connection…','Перевірка підключення…') }}</strong></div>
     <div class="mr-bridge-installed-version" id="mr-bridge-installed-version" hidden aria-live="polite">
      <span id="mr-bridge-installed-label"></span>
      <strong id="mr-bridge-installed-value"></strong>
      <span class="mr-bridge-version-health" id="mr-bridge-version-health" hidden></span>
     </div>
-    <div class="mr-bridge-info" id="mr-bridge-info">
+     </div>
      <div class="mr-bridge-browser-row">
       <div class="mr-bridge-browser-control">
        <div class="mr-bridge-browser-label" id="mr-bridge-browser-label">{{ eMsg('Twoja przeglądarka','Твой браузер','Your browser','Твій браузер') }}</div>
@@ -1797,6 +1799,8 @@
        </div>
       </div>
      </div>
+    </div>
+    <div class="mr-bridge-info" id="mr-bridge-info">
      <div class="mr-bridge-action-row">
       <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.3.0.zip" download="OpenReports-Bridge-v0.3.0.zip" id="mr-bridge-download">Bridge v0.3.0</a>
       
