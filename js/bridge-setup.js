@@ -43,7 +43,7 @@
   }
   function draw(){
     const present=!!state.version;
-    const status=present?tr('connected').replace('{v}',state.version):tr('missing');
+    const status=present?tr('connected',{v:state.version}):tr('missing');
     const dot=get('mr-bridge-indicator-dot');if(dot)dot.dataset.connected=String(present);
     const trigger=get('mr-bridge-indicator');if(trigger)trigger.title='OpenReports Bridge · '+status;
     const panel=get('settings-openreports');if(!panel)return;
