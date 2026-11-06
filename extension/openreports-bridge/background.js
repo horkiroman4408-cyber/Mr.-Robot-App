@@ -20,7 +20,8 @@ function withJobLock(fn){
 const basename = name => String(name||'').replace(/\\/g,'/').split('/').pop();
 const REPORTS = Object.freeze({
   ai_audyt: 'ECM_AI_Audit',
-  godziny_mdt: 'ECM_STOCK_Items_after_receiving'
+  godziny_mdt: 'ECM_STOCK_Items_after_receiving',
+  stock: 'ECM_PICK_Lacks_during_picking'
 });
 // Check the name against the selected job's report, not against any XLSX.
 const isReportName = (name, key) => {

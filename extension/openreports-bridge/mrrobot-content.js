@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.6';
+  const bridgeVersion = '0.3.7';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -23,7 +23,8 @@
   const EXPECTED_FOLDER = 'Downloads/MrRobot/OpenReports';
   const REPORTS = Object.freeze({
     ai_audyt: {name:'ECM_AI_Audit',label:'ECM_AI_Audit.xlsx',module:'AL_AUDYT / FORMATKA_59'},
-    godziny_mdt: {name:'ECM_STOCK_Items_after_receiving',label:'ECM_STOCK_Items_after_receiving.xlsx',module:'GODZINY_MDT'}
+    godziny_mdt: {name:'ECM_STOCK_Items_after_receiving',label:'ECM_STOCK_Items_after_receiving.xlsx',module:'GODZINY_MDT'},
+    stock: {name:'ECM_PICK_Lacks_during_picking',label:'',module:'STOCK'}
   });
   let selectedReport = 'ai_audyt';
   const MAX_FILE_BYTES = 160 * 1024 * 1024;
@@ -118,6 +119,16 @@
   // Vue's @change="audytOnFile" handler remains the only import path.
   function findInput(report) {
     for (const bar of document.querySelectorAll('.grafik-bar')) {
+      if(report==='stock'){
+        // STOCK has its own Vue upload handler, not an ECM_*.xlsx label.
+        const titles=[...bar.querySelectorAll('span')].map(el=>(el.textContent||'').trim());
+        const stockTitle=['Raport odbiorów STOCK','Отчёт приёмки STOCK','STOCK receiving report','Звіт приймання STOCK'];
+        if(titles.some(title=>stockTitle.includes(title))){
+          const input=bar.querySelector('input[type="file"][accept*=".xlsx"]');
+          if(input)return {bar,input};
+        }
+        continue;
+      }
       const exactLabel = [...bar.querySelectorAll('span')]
         .some(span => span.textContent?.trim() === REPORTS[report]?.label);
       if (!exactLabel) continue;
@@ -161,6 +172,8 @@
       #mr-or-panel h2{margin:0;font-size:18px;font-weight:750}
       #mr-or-panel .mr-or-sub{font-size:12px;line-height:1.6;color:#64748b;margin:6px 0 18px}
       #mr-or-panel .mr-or-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;margin:12px 0}
+      #mr-or-panel.mr-stock-mode #mr-or-last-row,#mr-or-panel.mr-stock-mode #mr-or-first-row>label:nth-child(2){display:none}
+      #mr-or-panel.mr-stock-mode #mr-or-first-row{grid-template-columns:1fr}
       #mr-or-panel label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:700;color:#475569}
       #mr-or-panel input{width:100%;border:1px solid #d7dbe3;border-radius:9px;padding:10px;
       color:#1e293b;background:#fff;font-size:13px;min-height:40px}
@@ -202,9 +215,9 @@
           <button class="mr-or-close" id="mr-or-close" type="button" data-mr-aria="close" aria-label="Zamknij">×</button>
         </div>
         <p class="mr-or-sub" id="mr-or-description"></p>
-        <div class="mr-or-grid"><label><span data-mr-tr="dateFrom">Data od</span>${periodMarkup("mr-or-from")}</label>
+        <div class="mr-or-grid" id="mr-or-first-row"><label><span id="mr-or-first-date-label" data-mr-tr="dateFrom">Data od</span>${periodMarkup("mr-or-from")}</label>
           <label><span data-mr-tr="timeFrom">Godzina od</span>${clockMarkup("mr-or-from")}</label></div>
-        <div class="mr-or-grid"><label><span data-mr-tr="dateTo">Data do</span>${periodMarkup("mr-or-to")}</label>
+        <div class="mr-or-grid" id="mr-or-last-row"><label><span data-mr-tr="dateTo">Data do</span>${periodMarkup("mr-or-to")}</label>
           <label><span data-mr-tr="timeTo">Godzina do</span>${clockMarkup("mr-or-to")}</label></div>
         <button id="mr-or-start" class="mr-or-primary" type="button" data-mr-tr="start">↓ Pobierz z OpenReports</button>
         <button id="mr-or-cancel" class="mr-or-cancel" type="button" data-mr-tr="cancel" hidden>Anuluj</button>
@@ -240,8 +253,8 @@
           const report=selectedReport;
           queueMicrotask(()=>{
             if(periodApplying||report!==selectedReport)return;
-            const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
-            if(from&&to&&from<=to)periodStore.save(report,from,to).catch(()=>{});
+            const from=readPeriod(modal,'mr-or-from'),to=report==='stock'?(from?from.slice(0,10)+' 23:59:59':null):readPeriod(modal,'mr-or-to');
+            if(from&&to&&from<=to)periodStore.save(report,report==='stock'?from.slice(0,10)+' 00:00:00':from,to).catch(()=>{});
           });
         });
     }
@@ -257,8 +270,8 @@
   }
   function closeModal() {
     if(!modal)return;
-    const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
-    if(from&&to&&from<=to)periodStore.save(selectedReport,from,to).catch(()=>{});
+    const from=readPeriod(modal,'mr-or-from'),to=selectedReport==='stock'?(from?from.slice(0,10)+' 23:59:59':null):readPeriod(modal,'mr-or-to');
+    if(from&&to&&from<=to)periodStore.save(selectedReport,selectedReport==='stock'?from.slice(0,10)+' 00:00:00':from,to).catch(()=>{});
     modal.setAttribute('aria-hidden','true');
     periodLoadToken++;
   }
@@ -274,14 +287,16 @@
     injectStyle(); createModal();
     const config=REPORTS[selectedReport];
     $('mr-or-heading').textContent='OpenReports · '+config.name;
-    $('mr-or-description').textContent=tt('choosePeriod',{module:config.module})+
+    $('mr-or-description').textContent=selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+
       (selectedReport==='godziny_mdt'?tt('mdtHint'):'');
+    $('mr-or-panel').classList.toggle('mr-stock-mode',selectedReport==='stock');
+    $('mr-or-first-date-label').textContent=selectedReport==='stock'?tt('stockDate'):tt('dateFrom');
     periodDirty=false;
     periodApplying=true;
     try{
       const now=new Date(),prev=new Date(now);prev.setDate(prev.getDate()-1);
       periodStore.apply(modal,'mr-or-from','mr-or-to',{
-        from:localDate(prev)+' 00:00:00',to:localDate(now)+' 23:59:59'
+        from:localDate(selectedReport==='stock'?now:prev)+' 00:00:00',to:localDate(now)+' 23:59:59'
       });
     }finally{periodApplying=false;}
     modal.setAttribute('aria-hidden','false');
@@ -345,7 +360,9 @@
   }
   async function startReport() {
     try {
-      const from=readPeriod(modal,'mr-or-from'),to=readPeriod(modal,'mr-or-to');
+      const rawFrom=readPeriod(modal,'mr-or-from');
+      const from=selectedReport==='stock'&&rawFrom?rawFrom.slice(0,10)+' 00:00:00':rawFrom;
+      const to=selectedReport==='stock'&&rawFrom?rawFrom.slice(0,10)+' 23:59:59':readPeriod(modal,'mr-or-to');
       if(!from||!to)throw Error(tt('badTime'));
       if(from>to)throw Error(tt('badPeriod'));
       await periodStore.save(selectedReport,from,to);
@@ -483,7 +500,8 @@
       if(modal){
         I.apply(modal,l);
         const config=REPORTS[selectedReport];
-        $('mr-or-description').textContent=tt('choosePeriod',{module:config.module})+(selectedReport==='godziny_mdt'?tt('mdtHint'):'');
+        $('mr-or-description').textContent=selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+(selectedReport==='godziny_mdt'?tt('mdtHint'):'');
+        $('mr-or-first-date-label').textContent=selectedReport==='stock'?tt('stockDate'):tt('dateFrom');
         if(lastNotice){
           if(lastNotice.key)noticeKey(lastNotice.key,lastNotice.vars,lastNotice.type);
           else notice(lastNotice.text,lastNotice.type);

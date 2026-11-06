@@ -1,4 +1,4 @@
-# OpenReports Bridge v0.3.6
+# OpenReports Bridge v0.3.7
 
 Optional Microsoft Edge extension for Mr. Robot. Runs on OpenReports and Mr. Robot GitHub Pages.
 
@@ -9,11 +9,15 @@ A PWA cannot install extensions automatically. Edge does not auto-update unpacke
 Reports are saved locally in Downloads/MrRobot/OpenReports. Never put company credentials in this repository.
 
 
-## Bridge 0.3.6 (Edge / Chrome)
+## Bridge 0.3.7 (Edge / Chrome)
 
 When a report is requested with no OpenReports tab open, Bridge opens it automatically. If the session has expired, sign in directly on the OpenReports site; the queued report continues after the Reports interface becomes available. Bridge never handles credentials. Waiting for sign-in times out after 15 minutes; Cancel stops the queued request.
 
 New versions are published in `extension/openreports-bridge/latest.json` alongside standalone download archives. The installed unpacked extension is **not** automatically updated; reload the unpacked extension from its updated folder in Edge/Chrome.
+
+## Changes in v0.3.7
+
+Added STOCK → ECM_PICK_Lacks_during_picking. Select one date (no times), Data Source WMS ECM PODKARPACIE Prod, export XLSX with Open in Browser, and import via the existing STOCK file handler. The selected date is remembered separately from the other reports.
 
 ## Changes in v0.3.6
 

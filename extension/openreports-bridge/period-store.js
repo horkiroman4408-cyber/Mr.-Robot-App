@@ -10,7 +10,7 @@
        day>new Date(year,month,0).getDate()||hour>23||minute>59||second>59)return false;
     return true;
   };
-  const validReport=key=>key==='ai_audyt'||key==='godziny_mdt';
+  const validReport=key=>key==='ai_audyt'||key==='godziny_mdt'||key==='stock';
   async function load(report){
     if(!validReport(report))return null;
     try{

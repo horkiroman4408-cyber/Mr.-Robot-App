@@ -16,7 +16,7 @@
   const findLink = name => [...document.querySelectorAll('a')]
     .find(a=>visible(a) && label(a).toLowerCase()===name.toLowerCase());
   const groupLink = () => findLink('ECM_Warehouse');
-  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving'};
+  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking'};
   const reportLink = name => findLink(name);
   const button = name => [...document.querySelectorAll('button,input[type="submit"],input[type="button"],a')].find(e=>visible(e)&&label(e).toLowerCase()===name.toLowerCase());
   function setValue(element,value){
@@ -113,7 +113,7 @@
         // by two arbitrary text inputs alone (prevents submitting a wrong form).
         const dates=inputs.filter(i=>i.type==='text'||i.type==='datetime-local');
         const namedForm=new RegExp('Parameters\\s+for\\s*:\\s*'+report,'i').test(title);
-        const dateLabels=/Date\s+from\s*:/i.test(title)&&/Date\s+to\s*:/i.test(title);
+        const dateLabels=/\bDate\s+from\b\s*:?/i.test(title) && (job.report==='stock'||/\bDate\s+to\b\s*:?/i.test(title));
         const isParameterForm=(namedForm||(dateLabels&&!/Parameters\s+for\s*:/i.test(title)))&&!!button('Ok');
         if(!isParameterForm){
           // Some OpenReports navigation updates the report list asynchronously.
@@ -131,7 +131,17 @@
           waitForPage(job,`Nie znaleziono formularza parametrów ${report}. ${hint} Strona: ${page||'(bez tytułu)'} ${path}.`);
           return;
         }
-        if(job.report==='godziny_mdt'){
+        if(job.report==='stock'){
+          // STOCK: one day only, no time and no Date to. Verify the exact source.
+          if(!/\bDate\s+from\b\s*:?/i.test(title)||/\bDate\s+to\b\s*:?/i.test(title))
+            throw Error('Nieprawidłowy formularz STOCK: wymagane tylko Date from.');
+          const source=[...document.querySelectorAll('select')].find(s=>visible(s)&&[...s.options].some(o=>clean(o.textContent||o.text)==='WMS ECM PODKARPACIE Prod'));
+          if(!source)throw Error('Brak Data Source: WMS ECM PODKARPACIE Prod.');
+          const option=[...source.options].find(o=>clean(o.textContent||o.text)==='WMS ECM PODKARPACIE Prod');
+          source.value=option.value;source.dispatchEvent(new Event('change',{bubbles:true}));
+          if(dates.length!==1)throw Error('Nieznany układ pól raportu STOCK ('+dates.length+').');
+          setValue(dates[0],job.from.slice(0,10));
+        }else if(job.report==='godziny_mdt'){
           // MDT form: Data Source (required), Date from, Date to, EAN, Location.
           // The last two filters are optional and must remain empty.
           if(!/\bEAN\b/i.test(title)||!/\bLocation\b/i.test(title))

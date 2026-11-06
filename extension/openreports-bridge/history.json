@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.7",
+      "date": "2026-11-06",
+      "title": {
+        "pl": "STOCK w OpenReports",
+        "ru": "STOCK в OpenReports",
+        "en": "STOCK report support",
+        "uk": "STOCK у OpenReports"
+      },
+      "changes": {
+        "pl": [
+          "Raport ECM_PICK_Lacks_during_picking: jeden dzień, Data Source WMS ECM PODKARPACIE Prod.",
+          "Import XLSX do istniejącego modułu STOCK i zapamiętywanie dnia."
+        ],
+        "ru": [
+          "Отчёт ECM_PICK_Lacks_during_picking: один день, источник WMS ECM PODKARPACIE Prod.",
+          "Загрузка XLSX в существующий модуль STOCK и запоминание дня."
+        ],
+        "en": [
+          "ECM_PICK_Lacks_during_picking: single-day selector and WMS ECM PODKARPACIE Prod data source.",
+          "Import XLSX using the existing STOCK module and remember the selected date."
+        ],
+        "uk": [
+          "ECM_PICK_Lacks_during_picking: вибір одного дня та джерело WMS ECM PODKARPACIE Prod.",
+          "Імпорт XLSX до наявного модуля STOCK та збереження дати."
+        ]
+      }
+    },
+    {
       "version": "0.3.6",
       "date": "2026-11-06",
       "title": {
