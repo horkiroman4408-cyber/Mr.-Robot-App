@@ -1410,3 +1410,13 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-settings .mr-bridge-guide-note{display:flex;align-items:flex-start;gap:11px;border-top:1px solid var(--mr-control-border,rgba(125,135,155,.18));padding-top:15px;margin-top:1px}
 .mr-bridge-settings .mr-bridge-guide-note strong{display:block;font-size:12px;margin:0 0 4px}
 @media(max-width:480px){.mr-bridge-settings .mr-bridge-guide-tabs{display:flex;width:100%}.mr-bridge-settings .mr-bridge-guide-tab{flex:1;padding:9px 6px}.mr-bridge-settings .mr-bridge-guide-step{gap:10px}.mr-bridge-settings .mr-bridge-guide-step-icon{flex-basis:34px;width:34px;height:34px}.mr-bridge-settings .mr-bridge-guide-address{padding:9px}}
+
+/* OpenReports installer: browser selection belongs inside step 2 / update step 3. */
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-row{margin:10px 0 7px;justify-content:flex-start}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-control{width:100%;max-width:560px;align-items:flex-start}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-choice{white-space:normal;min-width:0;text-align:center;padding:9px 7px;font-size:12px}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-guide-address{margin:5px 0 7px;max-width:560px}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-unverified{margin:5px 0 2px;font-size:11px;line-height:1.5;max-width:560px;color:var(--mr-secondary-text,currentColor);opacity:.8}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-unverified[hidden]{display:none}
+@media(max-width:480px){.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{grid-template-columns:repeat(2,minmax(0,1fr))}}

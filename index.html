@@ -1815,19 +1815,6 @@
         <button type="button" class="mr-bridge-guide-tab is-selected" id="mr-bridge-guide-tab-install" data-bridge-guide="install" role="tab" aria-selected="true" aria-controls="mr-bridge-guide-install">{{ eMsg('Pierwsza instalacja','Первая установка','First install','Перше встановлення') }}</button>
         <button type="button" class="mr-bridge-guide-tab" id="mr-bridge-guide-tab-update" data-bridge-guide="update" role="tab" aria-selected="false" aria-controls="mr-bridge-guide-update">{{ eMsg('Aktualizacja','Обновление','Updating','Оновлення') }}</button>
        </div>
-       <div class="mr-bridge-browser-row">
-        <div class="mr-bridge-browser-control">
-         <div class="mr-bridge-browser-label">{{ eMsg('Przeglądarka','Браузер','Browser','Браузер') }}</div>
-         <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Select browser','Вибери браузер')">
-          <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="true">Microsoft Edge</button>
-          <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
-         </div>
-        </div>
-       </div>
-       <div class="mr-bridge-guide-address">
-        <div class="mr-bridge-guide-address-value"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg> <code id="mr-bridge-extension-url">edge://extensions</code></div>
-        <button type="button" class="mr-bridge-guide-copy" id="mr-bridge-copy-url"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> <span id="mr-bridge-copy-label">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button>
-       </div>
        <div id="mr-bridge-guide-install" class="mr-bridge-guide-content" role="tabpanel" aria-labelledby="mr-bridge-guide-tab-install">
        <div class="mr-bridge-guide-step">
         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 17v4h14v-4"/></svg></span>
@@ -1835,7 +1822,24 @@
        </div>
        <div class="mr-bridge-guide-step">
         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3a2 2 0 1 1 0 4v7a2 2 0 0 0 2 2h5a2 2 0 1 1 4 0h5a2 2 0 0 0 2-2v-5a2 2 0 1 1 0-4V5a2 2 0 0 0-2-2h-5a2 2 0 1 1-4 0Z"/></svg></span>
-        <div class="mr-bridge-guide-step-content"><strong>2. {{ eMsg('Otwórz rozszerzenia','Открой расширения','Open extensions','Відкрий розширення') }}</strong><p>{{ eMsg('Skopiuj adres powyżej, wklej go w pasek adresu przeglądarki i naciśnij Enter.','Скопируй адрес выше, вставь его в адресную строку браузера и нажми Enter.','Copy the address above, paste it into the browser address bar and press Enter.','Скопіюй адресу вище, встав її в адресний рядок браузера та натисни Enter.') }}</p></div>
+        <div class="mr-bridge-guide-step-content"><strong>2. {{ eMsg('Otwórz rozszerzenia','Открой расширения','Open extensions','Відкрий розширення') }}</strong><p>{{ eMsg('Wybierz przeglądarkę, skopiuj adres i wklej go w pasek adresu. Naciśnij Enter.','Выбери браузер, скопируй адрес, вставь в адресную строку и нажми Enter.','Choose your browser, copy the address and paste it into the address bar. Press Enter.','Вибери браузер, скопіюй адресу, встав її в адресний рядок і натисни Enter.') }}</p>
+         <div class="mr-bridge-browser-row">
+          <div class="mr-bridge-browser-control">
+           <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Choose your browser','Вибери браузер')">
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="false">Microsoft Edge</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="brave" aria-pressed="false">Brave</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="vivaldi" aria-pressed="false">Vivaldi</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="opera" aria-pressed="false">Opera</button>
+           </div>
+          </div>
+         </div>
+         <div class="mr-bridge-guide-address">
+          <div class="mr-bridge-guide-address-value"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg> <code data-bridge-url>edge://extensions</code></div>
+          <button type="button" class="mr-bridge-guide-copy" data-bridge-copy><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> <span data-bridge-copy-label>{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button>
+         </div>
+         <p class="mr-bridge-browser-unverified" data-bridge-compat-note hidden>{{ eMsg('Instalacja rozszerzenia jest możliwa w tej przeglądarce, ale pobieranie i automatyczny import Bridge nie zostały jeszcze przetestowane.','В этом браузере можно установить расширение, но скачивание и автоматический импорт через Bridge ещё не проверены.','This browser can install extensions, but Bridge downloads and automatic import have not yet been tested.','У цьому браузері можна встановити розширення, але завантаження та автоматичний імпорт через Bridge ще не перевірені.') }}</p>
+</div>
        </div>
        <div class="mr-bridge-guide-step">
         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v10H3V7z"/><path d="M12 12v6m-3-3h6"/></svg></span>
@@ -1858,7 +1862,24 @@
        </div>
        <div class="mr-bridge-guide-step">
         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.6 9a7 7 0 0 1 12-2l2.4 5M4 12l2.4 5a7 7 0 0 0 12-2"/></svg></span>
-        <div class="mr-bridge-guide-step-content"><strong>3. {{ eMsg('Przeładuj rozszerzenie','Обнови расширение','Reload the extension','Перезавантаж розширення') }}</strong><p>{{ eMsg('Na stronie rozszerzeń kliknij „Przeładuj” (Reload) przy Bridge. Wróć do Mr. Robot i odśwież stronę (F5).','На странице расширений нажми «Обновить» (Reload) у Bridge. Вернись в Mr. Robot и обнови страницу (F5).','On the extensions page, choose “Reload” for Bridge. Return to Mr. Robot and refresh (F5).','На сторінці розширень натисни «Перезавантажити» (Reload) біля Bridge. Повернись у Mr. Robot та онови сторінку (F5).') }}</p></div>
+        <div class="mr-bridge-guide-step-content"><strong>3. {{ eMsg('Przeładuj rozszerzenie','Обнови расширение','Reload the extension','Перезавантаж розширення') }}</strong><p>{{ eMsg('Otwórz stronę rozszerzeń swojego przeglądarki, kliknij „Przeładuj” (Reload) przy Bridge, następnie odśwież Mr. Robot (F5).','Открой страницу расширений своего браузера, нажми «Обновить» (Reload) у Bridge, затем обнови Mr. Robot (F5).','Open the extensions page in your browser, choose “Reload” for Bridge, then refresh Mr. Robot (F5).','Відкрий сторінку розширень браузера, натисни «Перезавантажити» (Reload) біля Bridge, потім онови Mr. Robot (F5).') }}</p>
+         <div class="mr-bridge-browser-row">
+          <div class="mr-bridge-browser-control">
+           <div class="mr-bridge-browser-group" role="group" :aria-label="eMsg('Wybierz przeglądarkę','Выбери браузер','Choose your browser','Вибери браузер')">
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="edge" aria-pressed="false">Microsoft Edge</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="chrome" aria-pressed="false">Google Chrome</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="brave" aria-pressed="false">Brave</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="vivaldi" aria-pressed="false">Vivaldi</button>
+           <button type="button" class="mr-bridge-browser-choice" data-bridge-browser="opera" aria-pressed="false">Opera</button>
+           </div>
+          </div>
+         </div>
+         <div class="mr-bridge-guide-address">
+          <div class="mr-bridge-guide-address-value"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2m3 6a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"/></svg> <code data-bridge-url>edge://extensions</code></div>
+          <button type="button" class="mr-bridge-guide-copy" data-bridge-copy><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg> <span data-bridge-copy-label>{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</span></button>
+         </div>
+         <p class="mr-bridge-browser-unverified" data-bridge-compat-note hidden>{{ eMsg('Instalacja rozszerzenia jest możliwa w tej przeglądarce, ale pobieranie i automatyczny import Bridge nie zostały jeszcze przetestowane.','В этом браузере можно установить расширение, но скачивание и автоматический импорт через Bridge ещё не проверены.','This browser can install extensions, but Bridge downloads and automatic import have not yet been tested.','У цьому браузері можна встановити розширення, але завантаження та автоматичний імпорт через Bridge ще не перевірені.') }}</p>
+</div>
        </div>
         <div class="mr-bridge-guide-note"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> <p>{{ eMsg('Nie instaluj drugiej kopii Bridge. Użyj poprzedniego folderu.','Не устанавливай вторую копию Bridge. Используй прежнюю папку.','Do not install another copy of Bridge. Use the existing folder.','Не встановлюй другу копію Bridge. Використовуй попередню папку.') }}</p></div>
        </div>
