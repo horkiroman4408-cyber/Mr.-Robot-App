@@ -1379,3 +1379,12 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-settings #mr-bridge-install-body .mr-bridge-browser-label {
   text-align:left;
 }
+
+/* Bridge installer clarity: sequential steps, not newspaper columns. */
+.mr-bridge-settings #mr-bridge-install-body .mr-bridge-install-steps{columns:1;column-count:1;column-rule:none;margin:0 0 0 1.4rem;padding:0}
+.mr-bridge-settings #mr-bridge-install-body .mr-bridge-install-steps li{break-inside:avoid;margin:0 0 8px;padding:0 0 0 3px}
+.mr-bridge-install-section{padding:2px 0 13px}
+.mr-bridge-install-section--update{border-top:1px solid var(--mr-control-border,rgba(148,163,184,.25));padding-top:15px}
+.mr-bridge-install-section-title{font-size:13px;font-weight:750;margin:0 0 9px;color:inherit}
+.mr-bridge-install-lead,.mr-bridge-install-footnote{font-size:12px;line-height:1.55;opacity:.8;margin:0 0 11px;overflow-wrap:anywhere}
+.mr-bridge-install-footnote{padding:10px 12px;border-radius:10px;background:var(--mr-control-bg,rgba(148,163,184,.08));margin:0}

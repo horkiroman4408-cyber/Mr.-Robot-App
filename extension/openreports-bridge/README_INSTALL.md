@@ -9,6 +9,24 @@ A PWA cannot install extensions automatically. Edge does not auto-update unpacke
 Reports are saved locally in Downloads/MrRobot/OpenReports. Never put company credentials in this repository.
 
 
+## Install in Edge or Chrome
+
+1. Download `OpenReports-Bridge-v0.3.9.zip` (the **browser installation ZIP**, not the `GitHub-READY.zip` distribution).
+2. Extract it to a **permanent folder** such as `Documents/OpenReports-Bridge`. You should see `manifest.json` and `background.js` directly inside it. There is **no `extension/` directory inside this ZIP**.
+3. Open `edge://extensions` (Edge) or `chrome://extensions` (Chrome).
+4. Enable **Developer mode**, select **Load unpacked**, and choose the folder that **directly contains `manifest.json`**. Do not select the ZIP file.
+5. Refresh Mr. Robot. **Settings → OpenReports Bridge** should show the extension is connected.
+6. Run a report. If OpenReports needs sign-in, sign in yourself; Bridge does not collect credentials.
+7. For the first automatic import, select the `Downloads/MrRobot/OpenReports` folder from the report dialog and allow read access.
+
+### Updating an existing installation
+
+Download the newer browser ZIP, extract it, **replace files in the existing extension folder**, then select **Reload** for Bridge at the browser extensions page and refresh Mr. Robot. Do not install a duplicate copy.
+
+### GitHub publishing versus browser installation
+
+`OpenReports-Bridge-v0.3.9-GitHub-READY.zip` is for uploading to the **repository root**. It contains `extension/openreports-bridge/`, `downloads/` and related README and app files. The browser-installation ZIP is nested at `downloads/OpenReports-Bridge-v0.3.9.zip`, and its `manifest.json` is at its own root.
+
 ## Bridge 0.3.9 (Edge / Chrome)
 
 When a report is requested with no OpenReports tab open, Bridge opens it automatically. If the session has expired, sign in directly on the OpenReports site; the queued report continues after the Reports interface becomes available. Bridge never handles credentials. Waiting for sign-in times out after 15 minutes; Cancel stops the queued request.
