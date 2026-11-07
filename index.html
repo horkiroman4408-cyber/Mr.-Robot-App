@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.18.6</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.19.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -572,6 +572,7 @@
             <template v-else>{{ tr(133) }}</template>
           </div>
         </div>
+          <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
         <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
           <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
           <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1038,7 +1039,6 @@
 <button class="segment-btn" :class="{active:audytTab==='godziny_mdt'}" @click="audytTab='godziny_mdt'"><span>GODZINY_MDT</span></button>
 <button class="segment-btn" :class="{active:audytTab==='stock'}" @click="audytTab='stock'"><span>STOCK</span></button>
 </div>
-<button v-if="audytTab==='al_audyt'||audytTab==='formatka_59'||audytTab==='godziny_mdt'||audytTab==='stock'" type="button" class="mr-bridge-indicator" @click="openBridgeSettings" aria-label="OpenReports Bridge" id="mr-bridge-indicator" title="OpenReports Bridge"><span id="mr-bridge-indicator-dot" class="mr-bridge-dot" aria-hidden="true"></span><span>Bridge</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
 <button v-if="audytTab==='godziny_mdt' || audytTab==='stock'" type="button" class="mp-kreseczki-shortcut" @click="openKreseczkiFromMp" :title="eMsg('Otwórz Kreseczki','Открыть Kreseczki','Open Kreseczki','Відкрити Kreseczki')" :aria-label="eMsg('Otwórz Kreseczki','Открыть Kreseczki','Open Kreseczki','Відкрити Kreseczki')"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg> Kreseczki <span aria-hidden="true">↗</span></button>
 </div></header>
 <main class="flex-1 px-6 pb-8 max-w-6xl w-full mx-auto space-y-6">
@@ -1059,6 +1059,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
+    <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!audyt.loaded,disabled:audyt.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="audytOnFile" :disabled="audyt.loading"/>
     <span>{{ tr(audyt.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1183,6 +1184,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
+    <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!mdt.loaded,disabled:mdt.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="mdtOnFile" :disabled="mdt.loading"/>
     <span>{{ tr(mdt.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1263,6 +1265,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
+    <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!stock.loaded,disabled:stock.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="stockOnFile" :disabled="stock.loading"/>
     <span>{{ tr(stock.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1367,6 +1370,7 @@
         <template v-else>{{ tr(133) }}</template>
       </div>
     </div>
+      <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
     <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
       <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
       <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1734,7 +1738,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.18.6">v3.18.6</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.18.6">v3.19.0</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1900,7 +1904,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.18.6</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.19.0</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>

@@ -45,9 +45,24 @@
       list.append(entry);
     }
   }
+  function newerState(){return !!(state.version&&state.latest&&state.check==='ok'&&compare(state.latest.version,state.version)>0);}
   function draw(){
     const present=!!state.version;
     const status=present?tr('connected',{v:state.version}):tr('missing');
+    const displayState=!present?'disconnected':newerState()?'update':state.check==='ok'?'connected':'unverified';
+    const displayLabels={
+      pl:{connected:'Bridge połączony',update:'Aktualizacja Bridge',disconnected:'Bridge niepołączony',unverified:'Bridge połączony · bez weryfikacji'},
+      ru:{connected:'Bridge подключён',update:'Обновление Bridge',disconnected:'Bridge не подключён',unverified:'Bridge подключён · нет проверки'},
+      en:{connected:'Bridge connected',update:'Bridge update available',disconnected:'Bridge disconnected',unverified:'Bridge connected · unchecked'},
+      uk:{connected:'Bridge підключено',update:'Оновлення Bridge',disconnected:'Bridge не підключено',unverified:'Bridge підключено · без перевірки'}
+    };
+    document.querySelectorAll('[data-mr-bridge-status]').forEach(el=>{
+      const label=displayLabels[lang()][displayState];
+      el.dataset.state=displayState;
+      const text=el.querySelector('.mr-bridge-status-label');if(text)text.textContent=label;
+      el.title=label+' · '+tr('history');
+      el.setAttribute('aria-label',label+' · OpenReports Bridge');
+    });
     const dot=get('mr-bridge-indicator-dot');if(dot)dot.dataset.connected=String(present);
     const trigger=get('mr-bridge-indicator');if(trigger)trigger.title='OpenReports Bridge · '+status;
     const panel=get('settings-openreports');if(!panel)return;
@@ -126,11 +141,19 @@
   document.addEventListener('mr-openreports-bridge-ready',detect);
   window.MRI18N?.subscribe?.(draw);
   let lastPanel=null,lastIndicator=null;
-  new MutationObserver(()=>{
+  let pendingStatusRefresh=false;
+  new MutationObserver(changes=>{
     const panel=get('settings-openreports'),dot=get('mr-bridge-indicator-dot');
-    if(panel!==lastPanel||dot!==lastIndicator){lastPanel=panel;lastIndicator=dot;draw();if(panel)checkUpdates();}
+    if(panel!==lastPanel||dot!==lastIndicator){lastPanel=panel;lastIndicator=dot;draw();if(panel)checkUpdates();return;}
+    // Vue may create a new uploader after a view transition. Only refresh
+    // when an actual Bridge status target was added, never on our own text update.
+    if(!pendingStatusRefresh&&changes.some(c=>Array.from(c.addedNodes).some(n=>n.nodeType===1&&
+      (n.matches?.('[data-mr-bridge-status]')||n.querySelector?.('[data-mr-bridge-status]'))))){
+      pendingStatusRefresh=true;
+      requestAnimationFrame(()=>{pendingStatusRefresh=false;draw();});
+    }
   }).observe(get('app')||document.body,{childList:true,subtree:true});
   document.addEventListener('mrbot-view-change',()=>queueMicrotask(draw));
   if(navigator.brave?.isBrave && state.browser==='chrome'){Promise.resolve().then(()=>navigator.brave.isBrave()).then(yes=>{if(yes && state.browser==='chrome'){state.browser='brave';draw();}}).catch(()=>{});}
-  detect();document.dispatchEvent(new Event('mr-openreports-bridge-query'));setTimeout(detect,600);setTimeout(detect,2500);
+  detect();checkUpdates();document.dispatchEvent(new Event('mr-openreports-bridge-query'));setTimeout(detect,600);setTimeout(detect,2500);
 })();
