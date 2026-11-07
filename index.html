@@ -573,9 +573,10 @@
             <template v-else>{{ tr(133) }}</template>
           </div>
         </div>
+                  <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
         </div>
         <div class="rs-mp-drop-actions">
-          <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
+
         <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
           <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
           <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>

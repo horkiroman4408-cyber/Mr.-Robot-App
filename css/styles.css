@@ -1471,32 +1471,38 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 @media(max-width:640px){.grafik-bar .mr-bridge-upload-status{padding:6px 8px;font-size:10px}.grafik-bar .mr-or-trigger{padding:7px 9px!important;font-size:11px!important}}
 
 
-/* Mr. Robot 3.19.0 · RS Baza MP: dedicated, wrapping upload control row.
-   The extension inserts its OpenReports button immediately after the file label,
-   keeping every control inside the same row without affecting other modules. */
+/* RS Baza MP: two deliberately sized rows.
+   Heading and Bridge state stay together; all file actions, including the
+   extension-injected OpenReports button, remain in the compact action row. */
 #rs-drop-mp{min-width:0;max-width:100%}
 #rs-drop-mp .rs-mp-drop-card{
  display:flex;flex-direction:column;align-items:stretch;gap:9px;
  min-width:0;max-width:100%;width:100%;overflow:visible;
 }
 #rs-drop-mp .rs-mp-drop-main{
- display:flex;align-items:center;gap:10px;min-width:0;width:100%;
+ display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+ align-items:center;gap:9px;min-width:0;width:100%;
 }
-#rs-drop-mp .rs-mp-drop-main>.min-w-0{min-width:0;flex:1 1 auto}
+#rs-drop-mp .rs-mp-drop-main>.min-w-0{min-width:0;width:100%;overflow:hidden}
 #rs-drop-mp .rs-mp-drop-main .grafik-ico{flex:0 0 auto}
+#rs-drop-mp .rs-mp-drop-main .mr-bridge-upload-status{
+ justify-self:end;max-width:100%;font-size:10px;padding:6px 8px;
+}
+#rs-drop-mp .rs-mp-drop-main .mr-bridge-status-label{white-space:nowrap}
 #rs-drop-mp .rs-mp-drop-actions{
  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
- gap:7px;min-width:0;width:100%;
+ gap:6px;min-width:0;width:100%;
 }
-#rs-drop-mp .rs-mp-drop-actions>*{max-width:100%;position:relative;flex:0 0 auto}
-#rs-drop-mp .rs-mp-drop-actions .mr-bridge-upload-status{
- margin-right:auto;flex:0 1 auto;min-width:0;
+#rs-drop-mp .rs-mp-drop-actions>*{position:relative;flex:0 0 auto;max-width:100%}
+#rs-drop-mp .rs-mp-drop-actions .mr-or-trigger-mp{white-space:nowrap;max-width:100%}
+#rs-drop-mp .rs-mp-drop-actions .grafik-btn.danger{
+ width:32px;min-width:32px;height:32px;display:inline-flex;
+ align-items:center;justify-content:center;padding:0;
 }
-#rs-drop-mp .rs-mp-drop-actions .mr-bridge-status-label{white-space:normal;overflow-wrap:anywhere;text-align:left}
-#rs-drop-mp .rs-mp-drop-actions .mr-or-trigger-mp{
- white-space:nowrap;max-width:100%;
-}
-@media(max-width:440px){
+@media(max-width:490px){
+ #rs-drop-mp .rs-mp-drop-main{grid-template-columns:auto minmax(0,1fr);}
+ #rs-drop-mp .rs-mp-drop-main .mr-bridge-upload-status{
+  grid-column:2;justify-self:start;margin:2px 0 0;
+ }
  #rs-drop-mp .rs-mp-drop-actions{justify-content:flex-start}
- #rs-drop-mp .rs-mp-drop-actions .mr-bridge-upload-status{margin-right:0}
 }
