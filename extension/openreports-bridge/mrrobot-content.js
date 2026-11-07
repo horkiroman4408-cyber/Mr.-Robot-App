@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.12';
+  const bridgeVersion = '0.3.13';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
