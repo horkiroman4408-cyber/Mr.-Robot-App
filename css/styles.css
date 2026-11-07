@@ -1412,11 +1412,32 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 @media(max-width:480px){.mr-bridge-settings .mr-bridge-guide-tabs{display:flex;width:100%}.mr-bridge-settings .mr-bridge-guide-tab{flex:1;padding:9px 6px}.mr-bridge-settings .mr-bridge-guide-step{gap:10px}.mr-bridge-settings .mr-bridge-guide-step-icon{flex-basis:34px;width:34px;height:34px}.mr-bridge-settings .mr-bridge-guide-address{padding:9px}}
 
 /* OpenReports installer: browser selection belongs inside step 2 / update step 3. */
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-row{margin:10px 0 7px;justify-content:flex-start}
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-control{width:100%;max-width:560px;align-items:flex-start}
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-choice{white-space:normal;min-width:0;text-align:center;padding:9px 7px;font-size:12px}
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-guide-address{margin:5px 0 7px;max-width:560px}
-.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-unverified{margin:5px 0 2px;font-size:11px;line-height:1.5;max-width:560px;color:var(--mr-secondary-text,currentColor);opacity:.8}
+/* Bridge browser choices: compact, left-aligned chips instead of a large center grid. */
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-row{margin:8px 0 5px;justify-content:flex-start}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-control{width:auto;max-width:100%;align-items:flex-start}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;
+  width:auto;max-width:100%;gap:4px;padding:3px;border-radius:10px
+}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-choice{
+  flex:0 0 auto;min-width:0;white-space:nowrap;text-align:center;
+  padding:6px 10px;font-size:11px;line-height:1.35;border-radius:7px
+}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-guide-address{
+  width:fit-content;max-width:100%;min-width:min(340px,100%);
+  margin:5px 0 5px;padding:7px 9px;gap:10px;border-radius:10px
+}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-guide-copy{
+  padding:6px 8px;font-size:11px
+}
+.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-unverified{
+  margin:5px 0 2px;font-size:11px;line-height:1.5;max-width:440px;
+  color:var(--mr-secondary-text,currentColor);opacity:.8
+}
 .mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-unverified[hidden]{display:none}
-@media(max-width:480px){.mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){
+ .mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-control{width:auto;max-width:100%}
+ .mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-group{display:flex;flex-wrap:wrap;width:auto}
+ .mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-browser-choice{flex:0 0 auto;padding:7px 9px;font-size:11px}
+ .mr-bridge-settings .mr-bridge-guide-step-content .mr-bridge-guide-address{width:100%;min-width:0}
+}
