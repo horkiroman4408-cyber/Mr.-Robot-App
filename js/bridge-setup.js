@@ -17,7 +17,7 @@
     if (/Chrome\//i.test(ua) && !/(OPR|Opera|YaBrowser|Brave)\//i.test(ua)) return 'chrome';
     return 'edge'; // Fallback is explicitly switchable by the user.
   }
-  const FALLBACK_VERSION='0.3.9';
+  const FALLBACK_VERSION='0.3.10';
   const state = {version:null,browser:detectedBrowser(),expanded:false,historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
   function tr(key,vars={}){const v=translations[lang()][key]||translations.pl[key]||key;return v.replace(/\{(\w+)\}/g,(_,k)=>String(vars[k]||''));}
   function compare(a,b){const x=a.split('.').map(Number),y=b.split('.').map(Number);for(let i=0;i<3;i++){if(x[i]!==y[i])return x[i]>y[i]?1:-1;}return 0;}

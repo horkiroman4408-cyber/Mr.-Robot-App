@@ -6,7 +6,7 @@
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
 ![версия](https://img.shields.io/badge/version-3.18.6-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.9-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.10-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -132,9 +132,9 @@ Mr. Robot — браузерное приложение для работы со
 
 STOCK: ECM_PICK_Lacks_during_picking, один день, источник WMS ECM PODKARPACIE Prod.
 
-**Baza MP (Bridge v0.3.9):** отчёт `ECM_STOCK_MP_and_on_the_floor` с выбором MP*/MP1*/MP2*/MP3* и бренда. XLSX загружается в общую базу MP для Scalanie/Konsolidacja и RS.
+**Baza MP (Bridge v0.3.10):** отчёт `ECM_STOCK_MP_and_on_the_floor` с выбором MP*/MP1*/MP2*/MP3* и бренда. XLSX загружается в общую базу MP для Scalanie/Konsolidacja и RS.
 
-**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.9.zip`](downloads/OpenReports-Bridge-v0.3.9.zip).
+**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.10.zip`](downloads/OpenReports-Bridge-v0.3.10.zip).
 
 ---
 

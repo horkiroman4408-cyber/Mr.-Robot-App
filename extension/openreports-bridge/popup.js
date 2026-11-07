@@ -64,6 +64,7 @@ const periodStore=globalThis.MRBridgePeriodStore;
 const mpOptions=globalThis.MRBridgeMpOptions;
 $('popup-mp-fields').innerHTML=mpOptions.markup('popup-mp');
 mpOptions.apply(document,'popup-mp',mpOptions.DEFAULT);
+mpOptions.attach(document,'popup-mp');
 let mpDirty=false,mpToken=0;
 for(const id of ['popup-mp-area','popup-mp-brand'])$(id).addEventListener('change',()=>{mpDirty=true;mpOptions.save(mpOptions.read(document,'popup-mp')).catch(()=>{});});
 function loadMpOptions(){const token=++mpToken;mpDirty=false;mpOptions.load().then(o=>{if(token===mpToken&&!mpDirty&&$('report').value==='mp_baza')mpOptions.apply(document,'popup-mp',o);}).catch(()=>{});}

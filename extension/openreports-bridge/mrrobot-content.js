@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.9';
+  const bridgeVersion = '0.3.10';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -183,7 +183,17 @@
       .mr-or-trigger:hover{filter:brightness(.94)}
       #rs-drop-mp .mr-or-trigger-mp{border-color:#34d399;color:#047857}
       #mr-or-panel .mr-mp-fields{display:grid;gap:12px;margin:15px 0}
-      #mr-or-panel .mr-mp-fields select{width:100%;border:1px solid #d7dbe3;border-radius:9px;padding:10px 11px;background:#fff;color:#20252e;min-height:40px;font-size:13px}
+      
+      .mr-mp-fields .mr-mp-field{display:grid;gap:7px;min-width:0}
+      .mr-mp-fields .mr-mp-label{font-size:11px;font-weight:700;color:#475569}
+      .mr-mp-fields .mr-mp-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;min-width:0}
+      .mr-mp-fields .mr-mp-brand-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .mr-mp-fields .mr-mp-choice{min-width:0;min-height:38px;padding:8px 5px;border:1px solid #dce1e9;border-radius:10px;background:#f7f8fb;color:#4b5565;font:650 11px/1.25 system-ui,-apple-system,Segoe UI,sans-serif;cursor:pointer;transition:background .16s,border-color .16s,box-shadow .16s;box-shadow:none;white-space:normal;overflow-wrap:anywhere}
+      .mr-mp-fields .mr-mp-choice[aria-pressed="true"]{border-color:#a78bfa;background:#f0eaff;color:#6d28d9;box-shadow:inset 0 0 0 1px #d8b4fe}
+      .mr-mp-fields .mr-mp-choice:hover{border-color:#b9a0ef}
+      .mr-mp-fields .mr-mp-choice:focus-visible{outline:2px solid #8b5cf6;outline-offset:2px}
+      .mr-mp-fields .mr-mp-source{padding-top:4px}
+
       #mr-or-panel .mr-mp-source{font-size:11px;color:#667085;line-height:1.5}
       #mr-or-panel.mr-mp-mode #mr-or-first-row,#mr-or-panel.mr-mp-mode #mr-or-last-row{display:none}
       #mr-or-panel:not(.mr-mp-mode) #mr-or-mp-fields{display:none}
@@ -293,6 +303,7 @@
     importButton.addEventListener('click', () => importLatest(true));
     startButton.addEventListener('click', startReport);
     cancelButton.addEventListener('click', cancelReport);
+    mpOptions.attach(modal,'mr-or-mp');
     for(const id of ['mr-or-mp-area','mr-or-mp-brand']){
       $(id).addEventListener('change',()=>{
         mpOptionsDirty=true;
