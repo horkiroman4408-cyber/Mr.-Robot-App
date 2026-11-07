@@ -4,6 +4,12 @@
 (function (root) {
   const DICT = {
     pl: {
+      mpArea:"Typ lokalizacji MP",
+      mpBrand:"Marka",
+      mpAllBrands:"Wszystkie marki",
+      mpHint:"Baza MP: wybierz typ lokalizacji MP i markę. Data Source: WMS ECM REPL PODKARPACIE.",
+      mpInvalid:"Nieprawidłowy typ lokalizacji MP lub marka.",
+      mpOpenModule:"Otwórz MP → Scalanie/Konsolidacja lub RS → Baza MP, aby wczytać raport.",
       trigger:'↓ OpenReports',triggerTitle:'Pobierz {report} i wczytaj do {module}',close:'Zamknij',
       choosePeriod:'Raport do {module}. Wybierz daty i godziny z sekundami.',
       mdtHint:' Pola EAN i Location pozostaną puste.',stockDate:'Data raportu',stockHint:'Raport STOCK. Wybierz jeden dzień. Data Source: WMS ECM PODKARPACIE Prod.',
@@ -45,6 +51,12 @@
       otherError:'Błąd OpenReports: {reason}'
     },
     ru: {
+      mpArea:"Тип локализации MP",
+      mpBrand:"Бренд",
+      mpAllBrands:"Все бренды",
+      mpHint:"Baza MP: выбери тип локализации MP и бренд. Источник данных: WMS ECM REPL PODKARPACIE.",
+      mpInvalid:"Недопустимая локализация MP или бренд.",
+      mpOpenModule:"Открой MP → Scalanie/Konsolidacja или RS → Baza MP, чтобы загрузить отчёт.",
       trigger:'↓ OpenReports',triggerTitle:'Скачать {report} и загрузить в {module}',close:'Закрыть',
       choosePeriod:'Отчёт для {module}. Выбери дату и время с точностью до секунд.',
       mdtHint:' Поля EAN и Location останутся пустыми.',stockDate:'Дата отчёта',stockHint:'Отчёт STOCK. Выбери один день. Источник: WMS ECM PODKARPACIE Prod.',
@@ -83,6 +95,12 @@
       cancelled:'Отменено.',failed:'Не удалось скачать отчёт.',otherError:'Ошибка OpenReports: {reason}'
     },
     en: {
+      mpArea:"MP location type",
+      mpBrand:"Brand",
+      mpAllBrands:"All brands",
+      mpHint:"Baza MP: select an MP location type and brand. Data source: WMS ECM REPL PODKARPACIE.",
+      mpInvalid:"Invalid MP location or brand.",
+      mpOpenModule:"Open MP → Scalanie/Konsolidacja or RS → Baza MP to import this report.",
       trigger:'↓ OpenReports',triggerTitle:'Download {report} and load it into {module}',close:'Close',
       choosePeriod:'Report for {module}. Select exact dates and times, including seconds.',
       mdtHint:' EAN and Location will remain blank.',stockDate:'Report date',stockHint:'STOCK report. Choose one day. Data Source: WMS ECM PODKARPACIE Prod.',
@@ -121,6 +139,12 @@
       cancelled:'Cancelled.',failed:'Could not download the report.',otherError:'OpenReports error: {reason}'
     },
     uk: {
+      mpArea:"Тип локації MP",
+      mpBrand:"Бренд",
+      mpAllBrands:"Усі бренди",
+      mpHint:"Baza MP: вибери тип локації MP та бренд. Джерело даних: WMS ECM REPL PODKARPACIE.",
+      mpInvalid:"Некоректна локація MP або бренд.",
+      mpOpenModule:"Відкрий MP → Scalanie/Konsolidacja або RS → Baza MP, щоб імпортувати звіт.",
       trigger:'↓ OpenReports',triggerTitle:'Завантажити {report} та імпортувати в {module}',close:'Закрити',
       choosePeriod:'Звіт для {module}. Вибери дату й час із точністю до секунд.',
       mdtHint:' Поля EAN і Location залишаться порожніми.',stockDate:'Дата звіту',stockHint:'Звіт STOCK. Вибери один день. Джерело: WMS ECM PODKARPACIE Prod.',

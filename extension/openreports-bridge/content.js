@@ -16,7 +16,7 @@
   const findLink = name => [...document.querySelectorAll('a')]
     .find(a=>visible(a) && label(a).toLowerCase()===name.toLowerCase());
   const groupLink = () => findLink('ECM_Warehouse');
-  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking'};
+  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking',mp_baza:'ECM_STOCK_MP_and_on_the_floor'};
   const reportLink = name => findLink(name);
   const button = name => [...document.querySelectorAll('button,input[type="submit"],input[type="button"],a')].find(e=>visible(e)&&label(e).toLowerCase()===name.toLowerCase());
   function setValue(element,value){
@@ -131,7 +131,26 @@
           waitForPage(job,`Nie znaleziono formularza parametrów ${report}. ${hint} Strona: ${page||'(bez tytułu)'} ${path}.`);
           return;
         }
-        if(job.report==='stock'){
+        if(job.report==='mp_baza'){
+          // Only the explicitly identified Baza MP parameter form is permitted.
+          if(!namedForm||!button('Ok'))throw Error('Nie rozpoznano formularza Baza MP.');
+          const selects=[...document.querySelectorAll('select')].filter(visible);
+          if(selects.length!==2 || dates.length!==1)
+            throw Error('Nieznany układ parametrów Baza MP. Nie uruchomiono raportu.');
+          const source=selects.find(sel=>[...sel.options].some(o=>clean(o.textContent||o.text)==='WMS ECM REPL PODKARPACIE'));
+          const brands=['(None)','HOUSE','SINSAY','CROPP','MOHITO','RESERVED'];
+          const brandSelect=selects.find(sel=>sel!==source&&brands.every(b=>[...sel.options].some(o=>clean(o.textContent||o.text)===b)));
+          const areaInput=dates[0];
+          if(!source||!brandSelect||!areaInput||!/^MP(?:[123])?\*$/.test(job.area||'')||!['','HOUSE','SINSAY','CROPP','MOHITO','RESERVED'].includes(job.brand))
+            throw Error('Nieprawidłowe pola lub parametry Baza MP.');
+          const srcOpt=[...source.options].find(o=>clean(o.textContent||o.text)==='WMS ECM REPL PODKARPACIE');
+          const brandLabel=job.brand||'(None)';
+          const brandOption=[...brandSelect.options].find(o=>clean(o.textContent||o.text)===brandLabel);
+          if(!srcOpt||!brandOption)throw Error('Brak żądanego Data Source lub marki.');
+          source.value=srcOpt.value;source.dispatchEvent(new Event('change',{bubbles:true}));
+          setValue(areaInput,job.area);
+          brandSelect.value=brandOption.value;brandSelect.dispatchEvent(new Event('change',{bubbles:true}));
+        }else if(job.report==='stock'){
           // STOCK: one day only, no time and no Date to. Verify the exact source.
           if(!/\bDate\s+from\b\s*:?/i.test(title)||/\bDate\s+to\b\s*:?/i.test(title))
             throw Error('Nieprawidłowy formularz STOCK: wymagane tylko Date from.');

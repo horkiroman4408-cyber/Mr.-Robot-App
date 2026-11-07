@@ -21,7 +21,8 @@ const basename = name => String(name||'').replace(/\\/g,'/').split('/').pop();
 const REPORTS = Object.freeze({
   ai_audyt: 'ECM_AI_Audit',
   godziny_mdt: 'ECM_STOCK_Items_after_receiving',
-  stock: 'ECM_PICK_Lacks_during_picking'
+  stock: 'ECM_PICK_Lacks_during_picking',
+  mp_baza: 'ECM_STOCK_MP_and_on_the_floor'
 });
 // Check the name against the selected job's report, not against any XLSX.
 const isReportName = (name, key) => {
@@ -33,6 +34,9 @@ const isReportName = (name, key) => {
 };
 const isApp = url => { try { const u=new URL(url);return u.origin===APP_ORIGIN&&(u.pathname===APP_PREFIX.slice(0,-1)||u.pathname.startsWith(APP_PREFIX)); } catch { return false; } };
 
+const MP_AREAS=['MP*','MP1*','MP2*','MP3*'];
+const MP_BRANDS=['','HOUSE','SINSAY','CROPP','MOHITO','RESERVED'];
+const validMpParams=(area,brand)=>MP_AREAS.includes(area)&&MP_BRANDS.includes(brand);
 const KEY = 'mrOpenReportsJob';
 const getJob = async () => (await chrome.storage.local.get(KEY))[KEY] || null;
 const save = async job => chrome.storage.local.set({[KEY]: job});
@@ -110,7 +114,7 @@ async function runOnTab(tabId){
       await requestLogin(job.jobId,tabId);
     return;
   }
-  const command={type:'MR_PROCESS',jobId:job.jobId,step:job.step,from:job.from,to:job.to,report:job.report||'ai_audyt'};
+  const command={type:'MR_PROCESS',jobId:job.jobId,step:job.step,from:job.from,to:job.to,report:job.report||'ai_audyt',area:job.area,brand:job.brand};
   try {
     await chrome.tabs.sendMessage(tabId,command);
     return;
@@ -136,7 +140,7 @@ async function runOnTab(tabId){
     // the case where a browser delays that notification.
     const fresh=await getJob();
     if(fresh?.state==='running'&&fresh.tabId===tabId){
-      try{await chrome.tabs.sendMessage(tabId,{type:'MR_PROCESS',jobId:fresh.jobId,step:fresh.step,from:fresh.from,to:fresh.to,report:fresh.report||'ai_audyt'});}
+      try{await chrome.tabs.sendMessage(tabId,{type:'MR_PROCESS',jobId:fresh.jobId,step:fresh.step,from:fresh.from,to:fresh.to,report:fresh.report||'ai_audyt',area:fresh.area,brand:fresh.brand});}
       catch(e){/* content.js will signal when ready / tab navigation */}
     }
   }
@@ -148,14 +152,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const requestedTabId=message.tabId;
       const report=message.report||'ai_audyt';
       if(!REPORTS[report])throw Error('Nieznany raport OpenReports.');
-      if(!validDate(from)||!validDate(to)||from>to) throw Error('Nieprawidłowy okres.');
+      if(report==='mp_baza'?!validMpParams(message.area,message.brand):(!validDate(from)||!validDate(to)||from>to)) throw Error('Nieprawidłowy okres.');
       let tab=Number.isInteger(requestedTabId)?await chrome.tabs.get(requestedTabId):await chooseTab();
       if(!isTrusted(tab.url))throw Error('Otwórz autoryzowaną stronę OpenReports.');
       const tabId=tab.id;
       await withJobLock(async()=>{
         const existing=await refreshedJob();
         if(currentJob(existing)) throw Error('Inny raport jest już uruchomiony.');
-        await save({jobId:crypto.randomUUID(),report,tabId,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()});
+        await save({jobId:crypto.randomUUID(),report,tabId,from,to,area:report==='mp_baza'?message.area:undefined,brand:report==='mp_baza'?message.brand:undefined,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()});
       });
       await runOnTab(tabId);
       sendResponse({ok:true});return;
@@ -166,10 +170,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const {from,to}=message;
       const report=message.report||'ai_audyt';
       if(!REPORTS[report])throw Error('Nieznany raport OpenReports.');
-      if(!validDate(from)||!validDate(to)||from>to)throw Error('Nieprawidłowy okres.');
+      if(report==='mp_baza'?!validMpParams(message.area,message.brand):(!validDate(from)||!validDate(to)||from>to))throw Error('Nieprawidłowy okres.');
       if(currentJob(await refreshedJob()))throw Error('Inny raport jest już uruchomiony.');
       const tab=await chooseTab();
-      const job={jobId:crypto.randomUUID(),report,tabId:tab.id,appTabId:sender.tab.id,from,to,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()};
+      const job={jobId:crypto.randomUUID(),report,tabId:tab.id,appTabId:sender.tab.id,from,to,area:report==='mp_baza'?message.area:undefined,brand:report==='mp_baza'?message.brand:undefined,step:'open-reports',state:'running',message:'Łączę się z kartą OpenReports…',startedAt:Date.now(),updatedAt:Date.now()};
       await withJobLock(async()=>{
         const previous=await refreshedJob();
         if(currentJob(previous))throw Error('Inny raport jest już uruchomiony.');

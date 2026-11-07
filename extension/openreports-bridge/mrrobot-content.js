@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.7';
+  const bridgeVersion = '0.3.9';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -24,7 +24,8 @@
   const REPORTS = Object.freeze({
     ai_audyt: {name:'ECM_AI_Audit',label:'ECM_AI_Audit.xlsx',module:'AL_AUDYT / FORMATKA_59'},
     godziny_mdt: {name:'ECM_STOCK_Items_after_receiving',label:'ECM_STOCK_Items_after_receiving.xlsx',module:'GODZINY_MDT'},
-    stock: {name:'ECM_PICK_Lacks_during_picking',label:'',module:'STOCK'}
+    stock: {name:'ECM_PICK_Lacks_during_picking',label:'',module:'STOCK'},
+    mp_baza: {name:'ECM_STOCK_MP_and_on_the_floor',label:'',module:'Baza MP (MP / RS)'}
   });
   let selectedReport = 'ai_audyt';
   const MAX_FILE_BYTES = 160 * 1024 * 1024;
@@ -37,6 +38,8 @@
   let opening = false;
   let lastNotice = null;
   const periodStore=globalThis.MRBridgePeriodStore;
+  const mpOptions=globalThis.MRBridgeMpOptions;
+  let mpOptionsDirty=false,mpOptionsToken=0;
   let periodLoadToken=0,periodDirty=false,periodApplying=false;
 
   const $ = id => document.getElementById(id);
@@ -119,14 +122,17 @@
   // Vue's @change="audytOnFile" handler remains the only import path.
   function findInput(report) {
     for (const bar of document.querySelectorAll('.grafik-bar')) {
+      if(report==='mp_baza'){
+        const input=bar.querySelector('input[data-mr-mp-base-input="true"]');
+        if(input&&bar.getClientRects().length)return {bar,input};
+        continue;
+      }
       if(report==='stock'){
-        // STOCK has its own Vue upload handler, not an ECM_*.xlsx label.
-        const titles=[...bar.querySelectorAll('span')].map(el=>(el.textContent||'').trim());
-        const stockTitle=['Raport odbiorów STOCK','Отчёт приёмки STOCK','STOCK receiving report','Звіт приймання STOCK'];
-        if(titles.some(title=>stockTitle.includes(title))){
-          const input=bar.querySelector('input[type="file"][accept*=".xlsx"]');
-          if(input)return {bar,input};
-        }
+        // Find the dedicated STOCK uploader by its stable app marker,
+        // not localized text generated dynamically by Vue translations.
+        if(bar.dataset.mrStockUpload!=='true')continue;
+        const input=bar.querySelector('input[type="file"][accept*=".xlsx"]');
+        if(input)return {bar,input};
         continue;
       }
       const exactLabel = [...bar.querySelectorAll('span')]
@@ -138,7 +144,20 @@
     return null;
   }
   function mountButton() {
+    // Baza MP is shared by Scalanie/Konsolidacja and RS. Mount in both uploaders.
+    const mpConfig=REPORTS.mp_baza;
+    document.querySelectorAll('input[data-mr-mp-base-input="true"]').forEach(input=>{
+      const bar=input.closest('.grafik-bar');if(!bar||!bar.getClientRects().length)return;
+      const existing=bar.querySelector('.mr-or-trigger[data-report="mp_baza"]');
+      if(existing){existing.textContent=tt('trigger');existing.title=tt('triggerTitle',{report:mpConfig.name,module:mpConfig.module});return;}
+      const trigger=document.createElement('button');trigger.type='button';
+      trigger.className='mr-or-trigger mr-or-trigger-mp';trigger.dataset.report='mp_baza';
+      trigger.textContent=tt('trigger');trigger.title=tt('triggerTitle',{report:mpConfig.name,module:mpConfig.module});
+      trigger.addEventListener('click',()=>openModal('mp_baza'));
+      const label=input.closest('label');if(label)label.insertAdjacentElement('afterend',trigger);else bar.append(trigger);
+    });
     for(const [key,config] of Object.entries(REPORTS)){
+      if(key==='mp_baza')continue;
       const target=findInput(key);
       if(!target)continue;
       const existing=target.bar.querySelector('.mr-or-trigger[data-report="'+key+'"]');
@@ -162,6 +181,12 @@
       font:600 12px/1.3 system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text-primary,#23272f);
       background:var(--card-bg,#fff);white-space:nowrap;cursor:pointer;transition:filter .15s}
       .mr-or-trigger:hover{filter:brightness(.94)}
+      #rs-drop-mp .mr-or-trigger-mp{border-color:#34d399;color:#047857}
+      #mr-or-panel .mr-mp-fields{display:grid;gap:12px;margin:15px 0}
+      #mr-or-panel .mr-mp-fields select{width:100%;border:1px solid #d7dbe3;border-radius:9px;padding:10px 11px;background:#fff;color:#20252e;min-height:40px;font-size:13px}
+      #mr-or-panel .mr-mp-source{font-size:11px;color:#667085;line-height:1.5}
+      #mr-or-panel.mr-mp-mode #mr-or-first-row,#mr-or-panel.mr-mp-mode #mr-or-last-row{display:none}
+      #mr-or-panel:not(.mr-mp-mode) #mr-or-mp-fields{display:none}
       #mr-or-overlay{position:fixed;inset:0;z-index:2147483644;display:none;align-items:center;
       justify-content:center;padding:16px;background:rgba(12,18,27,.54);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
       #mr-or-overlay[aria-hidden="false"]{display:flex}
@@ -219,6 +244,7 @@
           <label><span data-mr-tr="timeFrom">Godzina od</span>${clockMarkup("mr-or-from")}</label></div>
         <div class="mr-or-grid" id="mr-or-last-row"><label><span data-mr-tr="dateTo">Data do</span>${periodMarkup("mr-or-to")}</label>
           <label><span data-mr-tr="timeTo">Godzina do</span>${clockMarkup("mr-or-to")}</label></div>
+        <div id="mr-or-mp-fields">${mpOptions.markup('mr-or-mp')}</div>
         <button id="mr-or-start" class="mr-or-primary" type="button" data-mr-tr="start">↓ Pobierz z OpenReports</button>
         <button id="mr-or-cancel" class="mr-or-cancel" type="button" data-mr-tr="cancel" hidden>Anuluj</button>
         <div class="mr-or-status" id="mr-or-status" role="status" aria-live="polite"></div>
@@ -267,6 +293,12 @@
     importButton.addEventListener('click', () => importLatest(true));
     startButton.addEventListener('click', startReport);
     cancelButton.addEventListener('click', cancelReport);
+    for(const id of ['mr-or-mp-area','mr-or-mp-brand']){
+      $(id).addEventListener('change',()=>{
+        mpOptionsDirty=true;
+        mpOptions.save(mpOptions.read(modal,'mr-or-mp')).catch(()=>{});
+      });
+    }
   }
   function closeModal() {
     if(!modal)return;
@@ -287,9 +319,14 @@
     injectStyle(); createModal();
     const config=REPORTS[selectedReport];
     $('mr-or-heading').textContent='OpenReports · '+config.name;
-    $('mr-or-description').textContent=selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+
+    $('mr-or-description').textContent=selectedReport==='mp_baza'?tt('mpHint'):selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+
       (selectedReport==='godziny_mdt'?tt('mdtHint'):'');
     $('mr-or-panel').classList.toggle('mr-stock-mode',selectedReport==='stock');
+    $('mr-or-panel').classList.toggle('mr-mp-mode',selectedReport==='mp_baza');
+    mpOptionsDirty=false;
+    const mpToken=++mpOptionsToken;
+    mpOptions.apply(modal,'mr-or-mp',mpOptions.DEFAULT);
+    if(selectedReport==='mp_baza')mpOptions.load().then(o=>{if(mpToken===mpOptionsToken&&selectedReport==='mp_baza'&&!mpOptionsDirty)mpOptions.apply(modal,'mr-or-mp',o);}).catch(()=>{});
     $('mr-or-first-date-label').textContent=selectedReport==='stock'?tt('stockDate'):tt('dateFrom');
     periodDirty=false;
     periodApplying=true;
@@ -300,7 +337,7 @@
       });
     }finally{periodApplying=false;}
     modal.setAttribute('aria-hidden','false');
-    restorePeriod(selectedReport).catch(()=>{});
+    if(selectedReport!=='mp_baza')restorePeriod(selectedReport).catch(()=>{});
     refreshActiveJob().catch(()=>{});
     if(opening)return;
     opening = true;
@@ -360,6 +397,18 @@
   }
   async function startReport() {
     try {
+      if(selectedReport==='mp_baza'){
+        const opts=mpOptions.read(modal,'mr-or-mp');
+        if(!mpOptions.valid(opts))throw Error(tt('mpInvalid'));
+        await mpOptions.save(opts);
+        const existing=(await tryMessage('MR_STATUS')).job;
+        if(existing?.state==='running'){showActiveJob(existing);return;}
+        buttonBusy(true);noticeKey('launching');
+        const result=await tryMessage('MR_START_FROM_APP',{report:'mp_baza',...opts});
+        currentJobId=result.jobId;seenDownload=false;noticeKey('started');
+        if(cancelButton)cancelButton.hidden=false;
+        return;
+      }
       const rawFrom=readPeriod(modal,'mr-or-from');
       const from=selectedReport==='stock'&&rawFrom?rawFrom.slice(0,10)+' 00:00:00':rawFrom;
       const to=selectedReport==='stock'&&rawFrom?rawFrom.slice(0,10)+' 23:59:59':readPeriod(modal,'mr-or-to');
@@ -410,7 +459,7 @@
         if(result!=='granted')throw Error(tt('noPermission'));
       }
       const found=findInput(targetReport);
-      if(!found)throw Error(tt('openModule',{module:REPORTS[targetReport].module}));
+      if(!found)throw Error(tt(targetReport==='mp_baza'?'mpOpenModule':'openModule',{module:REPORTS[targetReport].module}));
       if(found.input.disabled)throw Error(tt('waitImport'));
 
       let file;
@@ -500,7 +549,7 @@
       if(modal){
         I.apply(modal,l);
         const config=REPORTS[selectedReport];
-        $('mr-or-description').textContent=selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+(selectedReport==='godziny_mdt'?tt('mdtHint'):'');
+        $('mr-or-description').textContent=selectedReport==='mp_baza'?tt('mpHint'):selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+(selectedReport==='godziny_mdt'?tt('mdtHint'):'');
         $('mr-or-first-date-label').textContent=selectedReport==='stock'?tt('stockDate'):tt('dateFrom');
         if(lastNotice){
           if(lastNotice.key)noticeKey(lastNotice.key,lastNotice.vars,lastNotice.type);

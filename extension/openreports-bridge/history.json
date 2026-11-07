@@ -2,6 +2,62 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.9",
+      "date": "2026-11-07",
+      "title": {
+        "pl": "Baza MP dla Scalanie i RS",
+        "ru": "Baza MP для Scalanie и RS",
+        "en": "Baza MP for Scalanie and RS",
+        "uk": "Baza MP для Scalanie і RS"
+      },
+      "changes": {
+        "pl": [
+          "Nowy raport ECM_STOCK_MP_and_on_the_floor: wybór MP*, MP1*, MP2*, MP3* i marki.",
+          "Ten sam plik Baza MP trafia do wspólnego importu w Scalanie/Konsolidacja i RS."
+        ],
+        "ru": [
+          "Новый отчёт ECM_STOCK_MP_and_on_the_floor: выбор MP*, MP1*, MP2*, MP3* и бренда.",
+          "Одна общая база MP для Scalanie/Konsolidacja и RS с сохранением выбранных параметров."
+        ],
+        "en": [
+          "ECM_STOCK_MP_and_on_the_floor report: choose MP*, MP1*, MP2*, MP3* and brand.",
+          "One shared Baza MP upload for Scalanie/Konsolidacja and RS; saved parameters."
+        ],
+        "uk": [
+          "Новий звіт ECM_STOCK_MP_and_on_the_floor: вибір MP*, MP1*, MP2*, MP3* і бренду.",
+          "Одна спільна база MP для Scalanie/Konsolidacja та RS зі збереженням параметрів."
+        ]
+      }
+    },
+    {
+      "version": "0.3.8",
+      "date": "2026-11-07",
+      "title": {
+        "pl": "Przycisk Bridge w STOCK",
+        "ru": "Кнопка Bridge в STOCK",
+        "en": "Bridge button in STOCK",
+        "uk": "Кнопка Bridge у STOCK"
+      },
+      "changes": {
+        "pl": [
+          "Przycisk Bridge jest teraz widoczny także w nagłówku STOCK.",
+          "Naprawiono rozpoznawanie pola przesyłania STOCK niezależnie od języka."
+        ],
+        "ru": [
+          "Кнопка Bridge теперь отображается в шапке STOCK.",
+          "Исправлен поиск поля загрузки STOCK независимо от языка интерфейса."
+        ],
+        "en": [
+          "Bridge shortcut is now visible in the STOCK header.",
+          "Fixed STOCK upload detection independently of the interface language."
+        ],
+        "uk": [
+          "Кнопка Bridge тепер відображається в заголовку STOCK.",
+          "Виправлено пошук поля завантаження STOCK незалежно від мови інтерфейсу."
+        ]
+      }
+    },
+    {
       "version": "0.3.7",
       "date": "2026-11-06",
       "title": {

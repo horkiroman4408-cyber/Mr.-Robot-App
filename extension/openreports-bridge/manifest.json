@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Mr. Robot | OpenReports Bridge",
-  "description": "OpenReports Bridge: XLSX for AL_AUDYT, GODZINY_MDT and STOCK, PL/RU/EN/UK.",
-  "version": "0.3.7",
+  "description": "OpenReports Bridge: XLSX for AL_AUDYT, GODZINY_MDT, STOCK, Baza MP; PL/RU/EN/UK.",
+  "version": "0.3.9",
   "permissions": [
     "storage",
     "tabs",
@@ -39,6 +39,7 @@
         "calendar.js",
         "time.js",
         "period-store.js",
+        "mp-options.js",
         "mrrobot-content.js"
       ],
       "run_at": "document_idle"

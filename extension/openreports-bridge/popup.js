@@ -61,9 +61,16 @@ for(const prefix of ['from','to']){
 setupPeriod(document,'from',localDate(prev),'00:00:00');
 setupPeriod(document,'to',localDate(today),'23:59:59');
 const periodStore=globalThis.MRBridgePeriodStore;
+const mpOptions=globalThis.MRBridgeMpOptions;
+$('popup-mp-fields').innerHTML=mpOptions.markup('popup-mp');
+mpOptions.apply(document,'popup-mp',mpOptions.DEFAULT);
+let mpDirty=false,mpToken=0;
+for(const id of ['popup-mp-area','popup-mp-brand'])$(id).addEventListener('change',()=>{mpDirty=true;mpOptions.save(mpOptions.read(document,'popup-mp')).catch(()=>{});});
+function loadMpOptions(){const token=++mpToken;mpDirty=false;mpOptions.load().then(o=>{if(token===mpToken&&!mpDirty&&$('report').value==='mp_baza')mpOptions.apply(document,'popup-mp',o);}).catch(()=>{});}
+
 let loadingPeriod=false,periodSelectionToken=0,periodDirty=false;
 const currentPeriod=()=>{const raw=readPeriod(document,'from');return $('report').value==='stock'?{from:raw?raw.slice(0,10)+' 00:00:00':null,to:raw?raw.slice(0,10)+' 23:59:59':null}:{from:raw,to:readPeriod(document,'to')};};
-function reflectReport(){document.body.classList.toggle('stock-mode',$('report').value==='stock');$('popup-date-label').textContent=$('report').value==='stock'?t('stockDate'):t('dateFrom');}
+function reflectReport(){document.body.classList.toggle('mp-mode',$('report').value==='mp_baza');document.body.classList.toggle('stock-mode',$('report').value==='stock');$('popup-date-label').textContent=$('report').value==='stock'?t('stockDate'):t('dateFrom');}
 async function loadPeriod(report){
   const token=++periodSelectionToken;
   const loaded=await periodStore.load(report);
@@ -77,7 +84,7 @@ async function savePeriod(){
     await periodStore.save($('report').value,period.from,period.to);
 }
 $('report').addEventListener('change',()=>{
-  reflectReport();periodDirty=false;
+  reflectReport();periodDirty=false;if($('report').value==='mp_baza'){loadMpOptions();return;}
   const now=new Date(),prev=new Date(now);prev.setDate(prev.getDate()-1);
   loadingPeriod=true;try{periodStore.apply(document,'from','to',{from:localDate($('report').value==='stock'?now:prev)+' 00:00:00',to:localDate(now)+' 23:59:59'});}finally{loadingPeriod=false;}
   loadPeriod($('report').value).catch(()=>{});
@@ -87,10 +94,14 @@ for(const id of ['period-from-date','period-from-time','period-to-date','period-
   for(const event of ['input','change','keydown','paste'])
     target.addEventListener(event,()=>{periodDirty=true;queueMicrotask(()=>savePeriod().catch(()=>{}));});
 }
-reflectReport();loadPeriod($('report').value).catch(()=>{});
+reflectReport();if($('report').value==='mp_baza')loadMpOptions();else loadPeriod($('report').value).catch(()=>{});
 async function message(type,payload={}){const r=await chrome.runtime.sendMessage({type,...payload});if(!r?.ok)throw Error(r?.error||t('connectionError'));return r;}
 async function update(){const {job}=await message('MR_STATUS');const running=job?.state==='running';$('start').disabled=running;$('cancel').hidden=!running;$('status').textContent=job?.message?I.status(job.message,locale):t('readyPopup');$('status').className='status '+(job?.state==='error'?'error':job?.state==='done'?'success':'');}
 $('start').onclick=async()=>{try{
+  if($('report').value==='mp_baza'){
+    const opts=mpOptions.read(document,'popup-mp');if(!mpOptions.valid(opts))throw Error(t('mpInvalid'));
+    await mpOptions.save(opts);await message('MR_START',{report:'mp_baza',...opts});await update();return;
+  }
   const {from,to}=currentPeriod();
   if(!from||!to)throw Error(t('badTime'));
   if(from>to)throw Error(t('badPeriod'));
