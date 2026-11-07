@@ -18,7 +18,7 @@
     return 'edge'; // Fallback is explicitly switchable by the user.
   }
   const FALLBACK_VERSION='0.3.10';
-  const state = {version:null,browser:detectedBrowser(),expanded:false,historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
+  const state = {version:null,browser:detectedBrowser(),expanded:false,guideMode:'install',historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
   function tr(key,vars={}){const v=translations[lang()][key]||translations.pl[key]||key;return v.replace(/\{(\w+)\}/g,(_,k)=>String(vars[k]||''));}
   function compare(a,b){const x=a.split('.').map(Number),y=b.split('.').map(Number);for(let i=0;i<3;i++){if(x[i]!==y[i])return x[i]>y[i]?1:-1;}return 0;}
   function validVersion(v){return typeof v==='string'&&/^\d+\.\d+\.\d+$/.test(v);}
@@ -64,13 +64,14 @@
     put('mr-bridge-warning',tr('warning'));
     panel.querySelectorAll('[data-bridge-browser]').forEach(b=>{const active=b.dataset.bridgeBrowser===state.browser;b.setAttribute('aria-pressed',String(active));b.classList.toggle('is-selected',active);});
     put('mr-bridge-extension-url',browserUrl());
+    panel.querySelectorAll('[data-bridge-guide]').forEach(b=>{const active=b.dataset.bridgeGuide===state.guideMode;b.classList.toggle('is-selected',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
+    const installSteps=get('mr-bridge-guide-install'),updateSteps=get('mr-bridge-guide-update');if(installSteps)installSteps.hidden=state.guideMode!=='install';if(updateSteps)updateSteps.hidden=state.guideMode!=='update';
     const install=get('mr-bridge-install-toggle'),installBody=get('mr-bridge-install-body');
     if(install)install.setAttribute('aria-expanded',String(state.expanded));if(installBody)installBody.hidden=!state.expanded;
     put('mr-bridge-copy-label',state.copyNotice?tr('copied'):tr('copy'));
     const version=state.latest?.version||FALLBACK_VERSION;
     const download=get('mr-bridge-download');
     if(download){download.textContent=tr(!present?'plainInstall':newer?'plainUpdate':'plainDownload');download.href=state.latest?.download||`downloads/OpenReports-Bridge-v${FALLBACK_VERSION}.zip`;download.download=`OpenReports-Bridge-v${version}.zip`;}
-    put('mr-bridge-first-step',tr('first',{v:version}));
     const update=get('mr-bridge-update');
     if(update){
       // Show a comparison only when the installed version is outdated.
@@ -103,10 +104,19 @@
   function copyUrl(){const value=browserUrl();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(()=>{state.copyNotice=true;draw();},()=>fallbackCopy(value));else fallbackCopy(value);}
   function fallbackCopy(value){const input=document.createElement('textarea');input.value=value;input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();try{state.copyNotice=document.execCommand('copy');}catch(_){state.copyNotice=false;}input.remove();draw();}
   document.addEventListener('click',ev=>{
+    const guide=ev.target.closest('[data-bridge-guide]');if(guide&&get('settings-openreports')?.contains(guide)){state.guideMode=guide.dataset.bridgeGuide;draw();return;}
     const b=ev.target.closest('[data-bridge-browser]');if(b&&get('settings-openreports')?.contains(b)){state.browser=b.dataset.bridgeBrowser;state.copyNotice=false;draw();return;}
     if(ev.target.closest('#mr-bridge-install-toggle')){state.expanded=!state.expanded;draw();return;}
     if(ev.target.closest('#mr-bridge-history-toggle')){state.historyExpanded=!state.historyExpanded;draw();return;}
     if(ev.target.closest('#mr-bridge-copy-url'))copyUrl();
+  });
+  document.addEventListener('keydown',ev=>{
+    const tab=ev.target.closest?.('[data-bridge-guide]');
+    if(!tab||!get('settings-openreports')?.contains(tab))return;
+    if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;
+    ev.preventDefault();
+    const next=ev.key==='Home'?'install':ev.key==='End'?'update':state.guideMode==='install'?'update':'install';
+    state.guideMode=next;draw();get('mr-bridge-guide-tab-'+next)?.focus();
   });
   document.addEventListener('mr-openreports-bridge-ready',detect);
   window.MRI18N?.subscribe?.(draw);

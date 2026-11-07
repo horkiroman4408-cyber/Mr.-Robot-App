@@ -1388,3 +1388,25 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .mr-bridge-install-section-title{font-size:13px;font-weight:750;margin:0 0 9px;color:inherit}
 .mr-bridge-install-lead,.mr-bridge-install-footnote{font-size:12px;line-height:1.55;opacity:.8;margin:0 0 11px;overflow-wrap:anywhere}
 .mr-bridge-install-footnote{padding:10px 12px;border-radius:10px;background:var(--mr-control-bg,rgba(148,163,184,.08));margin:0}
+
+/* Bridge installer: two simple flows, compact steps; follows the active app theme. */
+.mr-bridge-settings .mr-bridge-guide-tabs{display:inline-flex;max-width:100%;gap:3px;padding:4px;border-radius:12px;background:var(--mr-control-bg,rgba(120,132,155,.12));border:1px solid var(--mr-control-border,rgba(125,135,155,.18));margin:1px 0 14px}
+.mr-bridge-settings .mr-bridge-guide-tab{background:transparent;border:0;border-radius:9px;padding:9px 14px;font-size:12px;font-weight:700;color:inherit;opacity:.75;cursor:pointer;transition:background .16s,box-shadow .16s,opacity .16s}
+.mr-bridge-settings .mr-bridge-guide-tab.is-selected{opacity:1;background:var(--mr-card-bg,var(--card-bg,#fff));box-shadow:0 2px 8px rgba(0,0,0,.11)}
+.mr-bridge-settings .mr-bridge-guide-tab:focus-visible,.mr-bridge-settings .mr-bridge-guide-copy:focus-visible{outline:2px solid var(--mr-focus,#5797ff);outline-offset:2px}
+.mr-bridge-settings #mr-bridge-install-body>.mr-bridge-browser-row{margin-bottom:9px}
+.mr-bridge-settings .mr-bridge-guide-address{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;padding:10px 12px;border:1px solid var(--mr-control-border,rgba(125,135,155,.2));border-radius:12px;background:var(--mr-control-bg,rgba(125,135,155,.06));margin:0 0 19px}
+.mr-bridge-settings .mr-bridge-guide-address-value{display:flex;align-items:center;gap:10px;min-width:0;overflow-wrap:anywhere}
+.mr-bridge-settings .mr-bridge-guide-address-value code{font-size:12px;white-space:normal;overflow-wrap:anywhere;color:inherit}
+.mr-bridge-settings .mr-bridge-guide-icon{flex-shrink:0;color:inherit;opacity:.7}
+.mr-bridge-settings .mr-bridge-guide-copy{display:flex;align-items:center;gap:7px;border:1px solid var(--mr-control-border,rgba(125,135,155,.3));border-radius:9px;background:var(--mr-card-bg,var(--card-bg,#fff));color:inherit;padding:8px 10px;font-weight:650;font-size:12px;cursor:pointer}
+.mr-bridge-settings .mr-bridge-guide-content{display:grid;gap:17px}
+.mr-bridge-settings .mr-bridge-guide-content[hidden]{display:none!important}
+.mr-bridge-settings .mr-bridge-guide-step{display:flex;align-items:flex-start;gap:13px}
+.mr-bridge-settings .mr-bridge-guide-step-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:11px;background:var(--mr-control-bg,rgba(125,135,155,.1));color:inherit}
+.mr-bridge-settings .mr-bridge-guide-step-content{min-width:0;flex:1}
+.mr-bridge-settings .mr-bridge-guide-step-content strong{display:block;font-size:13px;line-height:1.4;margin:1px 0 4px}
+.mr-bridge-settings .mr-bridge-guide-step-content p,.mr-bridge-settings .mr-bridge-guide-note p{font-size:12px;line-height:1.6;margin:0;opacity:.86;overflow-wrap:anywhere}
+.mr-bridge-settings .mr-bridge-guide-note{display:flex;align-items:flex-start;gap:11px;border-top:1px solid var(--mr-control-border,rgba(125,135,155,.18));padding-top:15px;margin-top:1px}
+.mr-bridge-settings .mr-bridge-guide-note strong{display:block;font-size:12px;margin:0 0 4px}
+@media(max-width:480px){.mr-bridge-settings .mr-bridge-guide-tabs{display:flex;width:100%}.mr-bridge-settings .mr-bridge-guide-tab{flex:1;padding:9px 6px}.mr-bridge-settings .mr-bridge-guide-step{gap:10px}.mr-bridge-settings .mr-bridge-guide-step-icon{flex-basis:34px;width:34px;height:34px}.mr-bridge-settings .mr-bridge-guide-address{padding:9px}}
