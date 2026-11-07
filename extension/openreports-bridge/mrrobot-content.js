@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.11';
+  const bridgeVersion = '0.3.12';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -25,7 +25,9 @@
     ai_audyt: {name:'ECM_AI_Audit',label:'ECM_AI_Audit.xlsx',module:'AL_AUDYT / FORMATKA_59'},
     godziny_mdt: {name:'ECM_STOCK_Items_after_receiving',label:'ECM_STOCK_Items_after_receiving.xlsx',module:'GODZINY_MDT'},
     stock: {name:'ECM_PICK_Lacks_during_picking',label:'',module:'STOCK'},
-    mp_baza: {name:'ECM_STOCK_MP_and_on_the_floor',label:'',module:'Baza MP (MP / RS)'}
+    mp_baza: {name:'ECM_STOCK_MP_and_on_the_floor',label:'',module:'Baza MP (MP / RS)'},
+    kpi_audit: {name:'Audit_ECM_KPI',label:'Audit_ECM_KPI.xlsx',module:'KPI · Audyt'},
+    kpi_scalanie: {name:'Pick_ECM_KPI',label:'Pick_ECM_KPI.xlsx',module:'KPI · Scalanie'}
   });
   let selectedReport = 'ai_audyt';
   const MAX_FILE_BYTES = 160 * 1024 * 1024;
@@ -125,6 +127,13 @@
       if(report==='mp_baza'){
         const input=bar.querySelector('input[data-mr-mp-base-input="true"]');
         if(input&&bar.getClientRects().length)return {bar,input};
+        continue;
+      }
+      if(report==='kpi_audit'||report==='kpi_scalanie'){
+        const expected=report==='kpi_audit'?'audit':'scalanie';
+        if(bar.dataset.mrKpiBridge!==expected || !bar.getClientRects().length)continue;
+        const input=bar.querySelector('input[type="file"][accept*=".xlsx"]');
+        if(input)return {bar,input};
         continue;
       }
       if(report==='stock'){
@@ -255,6 +264,7 @@
         <div class="mr-or-grid" id="mr-or-last-row"><label><span data-mr-tr="dateTo">Data do</span>${periodMarkup("mr-or-to")}</label>
           <label><span data-mr-tr="timeTo">Godzina do</span>${clockMarkup("mr-or-to")}</label></div>
         <div id="mr-or-mp-fields">${mpOptions.markup('mr-or-mp')}</div>
+        <div id="mr-or-kpi-pick-hint" class="mr-or-help" style="margin:0 0 9px"></div>
         <button id="mr-or-start" class="mr-or-primary" type="button" data-mr-tr="start">↓ Pobierz z OpenReports</button>
         <button id="mr-or-cancel" class="mr-or-cancel" type="button" data-mr-tr="cancel" hidden>Anuluj</button>
         <div class="mr-or-status" id="mr-or-status" role="status" aria-live="polite"></div>
@@ -333,6 +343,8 @@
     $('mr-or-description').textContent=selectedReport==='mp_baza'?tt('mpHint'):selectedReport==='stock'?tt('stockHint'):tt('choosePeriod',{module:config.module})+
       (selectedReport==='godziny_mdt'?tt('mdtHint'):'');
     $('mr-or-panel').classList.toggle('mr-stock-mode',selectedReport==='stock');
+    $('mr-or-kpi-pick-hint').hidden=selectedReport!=='kpi_scalanie';
+    $('mr-or-kpi-pick-hint').textContent=({pl:'Typ kompletacji: Pick Scal · wybierany automatycznie',ru:'Тип комплектации: Pick Scal · выбирается автоматически',en:'Pick type: Pick Scal · selected automatically',uk:'Тип комплектування: Pick Scal · вибирається автоматично'})[lang()]||'Pick Scal';
     $('mr-or-panel').classList.toggle('mr-mp-mode',selectedReport==='mp_baza');
     mpOptionsDirty=false;
     const mpToken=++mpOptionsToken;

@@ -22,7 +22,9 @@ const REPORTS = Object.freeze({
   ai_audyt: 'ECM_AI_Audit',
   godziny_mdt: 'ECM_STOCK_Items_after_receiving',
   stock: 'ECM_PICK_Lacks_during_picking',
-  mp_baza: 'ECM_STOCK_MP_and_on_the_floor'
+  mp_baza: 'ECM_STOCK_MP_and_on_the_floor',
+  kpi_audit: 'Audit_ECM_KPI',
+  kpi_scalanie: 'Pick_ECM_KPI'
 });
 // Check the name against the selected job's report, not against any XLSX.
 const isReportName = (name, key) => {

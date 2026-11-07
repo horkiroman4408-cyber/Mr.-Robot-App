@@ -15,8 +15,9 @@
   // Locate links by their visible labels, never by hard-coded action URLs.
   const findLink = name => [...document.querySelectorAll('a')]
     .find(a=>visible(a) && label(a).toLowerCase()===name.toLowerCase());
-  const groupLink = () => findLink('ECM_Warehouse');
-  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking',mp_baza:'ECM_STOCK_MP_and_on_the_floor'};
+  const groupLink = report => findLink(report?.startsWith('kpi_')?'ECM_KPI':'ECM_Warehouse');
+  const groupName = report => report?.startsWith('kpi_')?'ECM_KPI':'ECM_Warehouse';
+  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking',mp_baza:'ECM_STOCK_MP_and_on_the_floor',kpi_audit:'Audit_ECM_KPI',kpi_scalanie:'Pick_ECM_KPI'};
   const reportLink = name => findLink(name);
   const button = name => [...document.querySelectorAll('button,input[type="submit"],input[type="button"],a')].find(e=>visible(e)&&label(e).toLowerCase()===name.toLowerCase());
   function setValue(element,value){
@@ -56,7 +57,7 @@
       // Login/SSO may take several minutes. Wait without touching credentials.
       const loginVisible = /not currently logged into the system/i.test(title) ||
         !!document.querySelector('input[type="password"]') ||
-        (/log\s?in|sign\s?in|zaloguj/i.test(title.slice(0,1200))&&!button('Reports')&&!groupLink());
+        (/log\s?in|sign\s?in|zaloguj/i.test(title.slice(0,1200))&&!button('Reports')&&!groupLink(job.report));
       if(job.step==='open-reports' && loginVisible){
         await chrome.runtime.sendMessage({type:'MR_WAIT_LOGIN',jobId:job.jobId});
         retry(2500);return;
@@ -65,8 +66,8 @@
         // When the browser is already on Groups, avoid an unnecessary round trip.
         // Otherwise always go via the top-level Reports navigation, regardless
         // of whether the current page is Export Options, parameters or a list.
-        if(groupLink()){
-          if(!await update(job,'Wybieram grupę ECM_Warehouse…'))return;
+        if(groupLink(job.report)){
+          if(!await update(job,'Wybieram grupę '+groupName(job.report)+'…'))return;
           advanced(job.step);retry();
           return;
         }
@@ -82,24 +83,24 @@
         return;
       }
       if(job.step==='open-group'){
-        const group=groupLink();
+        const group=groupLink(job.report);
         if(!group){
           // Old page may still be loading or the Groups view may be updated by JS.
           if(reportLink(report)){
             if(!await update(job,'Raport znaleziony. Otwieram…'))return;
             advanced(job.step);retry();return;
           }
-          waitForPage(job,'Nie znaleziono ECM_Warehouse. Wejdź w Reports → Groups i sprawdź dostęp.');
+          waitForPage(job,'Nie znaleziono '+groupName(job.report)+'. Wejdź w Reports → Groups i sprawdź dostęp.');
           return;
         }
-        if(!await update(job,'Otwieram grupę ECM_Warehouse…'))return;
+        if(!await update(job,'Otwieram grupę '+groupName(job.report)+'…'))return;
         advanced(job.step);clickAndRetry(group);
         return;
       }
       if(job.step==='find-report'){
         const link=reportLink(report);
         if(!link){
-          waitForPage(job,'Nie znaleziono '+report+' w grupie ECM_Warehouse. Sprawdź uprawnienia.');
+          waitForPage(job,'Nie znaleziono '+report+' w grupie '+groupName(job.report)+'. Sprawdź uprawnienia.');
           return;
         }
         if(!await update(job,'Otwieram parametry '+report+'…'))return;
@@ -162,6 +163,26 @@
           source.value=option.value;source.dispatchEvent(new Event('change',{bubbles:true}));
           if(dates.length!==1)throw Error('Nieznany układ pól raportu STOCK ('+dates.length+').');
           setValue(dates[0],job.from.slice(0,10));
+        }else if(job.report==='kpi_audit'||job.report==='kpi_scalanie'){
+          // Only submit the exact KPI form; fail closed if the corporate layout changes.
+          if(!namedForm || dates.length!==2 || !/\bDate\s+from\b/i.test(title) || !/\bDate\s+to\b/i.test(title))
+            throw Error('Nie rozpoznano pól dat raportu KPI. Nie uruchomiono raportu.');
+          const selects=[...document.querySelectorAll('select')].filter(visible);
+          const source=selects.find(sel=>[...sel.options].some(o=>clean(o.textContent||o.text)==='WMS ECM REPL PODKARPACIE'));
+          if(!source)throw Error('Brak Data Source: WMS ECM REPL PODKARPACIE.');
+          const sourceOpt=[...source.options].find(o=>clean(o.textContent||o.text)==='WMS ECM REPL PODKARPACIE');
+          if(job.report==='kpi_scalanie'){
+            if(selects.length!==2 || !/Select\s+pick\s+type/i.test(title))
+              throw Error('Nie rozpoznano pola Select pick type dla KPI Scalanie.');
+            const pick=selects.find(sel=>sel!==source && [...sel.options].some(o=>clean(o.textContent||o.text)==='Pick Scal'));
+            if(!pick)throw Error('Brak opcji Pick Scal w raporcie KPI Scalanie.');
+            const option=[...pick.options].find(o=>clean(o.textContent||o.text)==='Pick Scal');
+            pick.value=option.value;pick.dispatchEvent(new Event('change',{bubbles:true}));
+          }else if(selects.length!==1){
+            throw Error('Nieznane dodatkowe parametry KPI Audyt.');
+          }
+          source.value=sourceOpt.value;source.dispatchEvent(new Event('change',{bubbles:true}));
+          setValue(dates[0],job.from);setValue(dates[1],job.to);
         }else if(job.report==='godziny_mdt'){
           // MDT form: Data Source (required), Date from, Date to, EAN, Location.
           // The last two filters are optional and must remain empty.

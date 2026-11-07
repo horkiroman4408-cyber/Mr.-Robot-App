@@ -71,7 +71,7 @@ function loadMpOptions(){const token=++mpToken;mpDirty=false;mpOptions.load().th
 
 let loadingPeriod=false,periodSelectionToken=0,periodDirty=false;
 const currentPeriod=()=>{const raw=readPeriod(document,'from');return $('report').value==='stock'?{from:raw?raw.slice(0,10)+' 00:00:00':null,to:raw?raw.slice(0,10)+' 23:59:59':null}:{from:raw,to:readPeriod(document,'to')};};
-function reflectReport(){document.body.classList.toggle('mp-mode',$('report').value==='mp_baza');document.body.classList.toggle('stock-mode',$('report').value==='stock');$('popup-date-label').textContent=$('report').value==='stock'?t('stockDate'):t('dateFrom');}
+function reflectReport(){const hint=$('popup-kpi-hint');hint.hidden=$('report').value!=='kpi_scalanie';hint.textContent=({pl:'Typ kompletacji: Pick Scal · automatycznie',ru:'Тип комплектации: Pick Scal · автоматически',en:'Pick type: Pick Scal · automatic',uk:'Тип комплектування: Pick Scal · автоматично'})[locale]||'Pick Scal';document.body.classList.toggle('mp-mode',$('report').value==='mp_baza');document.body.classList.toggle('stock-mode',$('report').value==='stock');$('popup-date-label').textContent=$('report').value==='stock'?t('stockDate'):t('dateFrom');}
 async function loadPeriod(report){
   const token=++periodSelectionToken;
   const loaded=await periodStore.load(report);

@@ -246,7 +246,7 @@
 
 
 <div v-show="kpiTab==='audit'" class="space-y-6">
-<div class="glass grafik-bar float-up" :class="{dragover:kpiAudit.drag,loaded:kpiAudit.loaded&&!kpiAudit.loading,loading:kpiAudit.loading}" @dragover.prevent="kpiAudit.drag=true" @dragleave.prevent="kpiAudit.drag=false" @drop.prevent="kpiOnAuditDrop($event)">
+<div data-mr-kpi-bridge="audit" class="glass grafik-bar float-up" :class="{dragover:kpiAudit.drag,loaded:kpiAudit.loaded&&!kpiAudit.loading,loading:kpiAudit.loading}" @dragover.prevent="kpiAudit.drag=true" @dragleave.prevent="kpiAudit.drag=false" @drop.prevent="kpiOnAuditDrop($event)">
   <span class="grafik-ico" :class="{ok:kpiAudit.loaded&&!kpiAudit.loading}"><span class="num">1</span></span>
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2 flex-wrap">
@@ -262,6 +262,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
+  <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!kpiAudit.loaded,disabled:kpiAudit.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnAuditFile" :disabled="kpiAudit.loading"/>
     <span>{{ tr(kpiAudit.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -298,7 +299,7 @@
 </div>
 
 <div v-show="kpiTab==='scalanie'" class="space-y-6">
-<div class="glass grafik-bar float-up" :class="{dragover:kpiScalanie.drag,loaded:kpiScalanie.loaded&&!kpiScalanie.loading,loading:kpiScalanie.loading}" @dragover.prevent="kpiScalanie.drag=true" @dragleave.prevent="kpiScalanie.drag=false" @drop.prevent="kpiOnScalanieDrop($event)">
+<div data-mr-kpi-bridge="scalanie" class="glass grafik-bar float-up" :class="{dragover:kpiScalanie.drag,loaded:kpiScalanie.loaded&&!kpiScalanie.loading,loading:kpiScalanie.loading}" @dragover.prevent="kpiScalanie.drag=true" @dragleave.prevent="kpiScalanie.drag=false" @drop.prevent="kpiOnScalanieDrop($event)">
   <span class="grafik-ico" :class="{ok:kpiScalanie.loaded&&!kpiScalanie.loading}"><span class="num">1</span></span>
   <div class="min-w-0 flex-1">
     <div class="flex items-center gap-2 flex-wrap">
@@ -314,6 +315,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
+  <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!kpiScalanie.loaded,disabled:kpiScalanie.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnScalanieFile" :disabled="kpiScalanie.loading"/>
     <span>{{ tr(kpiScalanie.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>

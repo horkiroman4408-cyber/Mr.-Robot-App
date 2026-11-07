@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Mr. Robot | OpenReports Bridge",
-  "description": "OpenReports Bridge: XLSX for AL_AUDYT, GODZINY_MDT, STOCK, Baza MP; PL/RU/EN/UK.",
-  "version": "0.3.11",
+  "description": "OpenReports Bridge: XLSX for MP, RS and KPI Audyt/Scalanie; PL/RU/EN/UK.",
+  "version": "0.3.12",
   "permissions": [
     "storage",
     "tabs",

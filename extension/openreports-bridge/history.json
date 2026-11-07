@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.12",
+      "date": "2026-11-07",
+      "title": {
+        "pl": "KPI Audyt i Scalanie",
+        "ru": "KPI Аудит и Объединение",
+        "en": "KPI Audit and Scalanie",
+        "uk": "KPI Аудит та Об’єднання"
+      },
+      "changes": {
+        "pl": [
+          "Automatyczne raporty Audit_ECM_KPI i Pick_ECM_KPI z grupy ECM_KPI.",
+          "Oddzielne zapamiętywanie zakresu dat; dla Scalanie automatycznie Pick Scal."
+        ],
+        "ru": [
+          "Автоматическая загрузка Audit_ECM_KPI и Pick_ECM_KPI из группы ECM_KPI.",
+          "Раздельное сохранение периодов, автоматический выбор Pick Scal для Scalanie."
+        ],
+        "en": [
+          "Download Audit_ECM_KPI and Pick_ECM_KPI from ECM_KPI.",
+          "Independent date ranges; automatic Pick Scal for Scalanie."
+        ],
+        "uk": [
+          "Завантаження Audit_ECM_KPI та Pick_ECM_KPI із групи ECM_KPI.",
+          "Окремі періоди дат; автоматичний вибір Pick Scal для Scalanie."
+        ]
+      }
+    },
+    {
       "version": "0.3.11",
       "date": "2026-11-07",
       "title": {
