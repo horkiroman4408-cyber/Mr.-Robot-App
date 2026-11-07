@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.13",
+      "date": "2026-11-07",
+      "title": {
+        "pl": "KPI Rozkładanie i NADWE/VAS",
+        "ru": "KPI Размещение и NADWE/VAS",
+        "en": "KPI Putaway and NADWE/VAS",
+        "uk": "KPI Розміщення та NADWE/VAS"
+      },
+      "changes": {
+        "pl": [
+          "Automatyczne pobieranie Storage_RSORT_ECM_KPI i NADWE_VAS_ECM_KPI z ECM_KPI do odpowiednich stref KPI.",
+          "Osobne zapamiętywanie okresów dla wszystkich raportów KPI, także Audyt i Scalanie."
+        ],
+        "ru": [
+          "Автоматическая загрузка Storage_RSORT_ECM_KPI и NADWE_VAS_ECM_KPI из ECM_KPI в соответствующие зоны KPI.",
+          "Отдельное сохранение периодов для всех отчётов KPI, включая Аудит и Scalanie."
+        ],
+        "en": [
+          "Automatic download of Storage_RSORT_ECM_KPI and NADWE_VAS_ECM_KPI into their KPI upload areas.",
+          "Independent saved periods for all KPI reports, including Audit and Scalanie."
+        ],
+        "uk": [
+          "Автоматичне завантаження Storage_RSORT_ECM_KPI і NADWE_VAS_ECM_KPI до відповідних зон KPI.",
+          "Окреме збереження періодів для всіх звітів KPI, включно з Аудитом та Scalanie."
+        ]
+      }
+    },
+    {
       "version": "0.3.12",
       "date": "2026-11-07",
       "title": {

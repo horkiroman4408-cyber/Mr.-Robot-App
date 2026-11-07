@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![version](https://img.shields.io/badge/version-3.19.0-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.12-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.13-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -132,11 +132,11 @@ Reports download to `Downloads/MrRobot/OpenReports`. Grant read access to this f
 
 STOCK now uses ECM_PICK_Lacks_during_picking with one date and Data Source WMS ECM PODKARPACIE Prod.
 
-**Baza MP (Bridge v0.3.12):** `ECM_STOCK_MP_and_on_the_floor` shows MP/MP1/MP2/MP3 choices and sends MP%/MP1%/MP2%/MP3% location filters and brand selection. The downloaded XLSX uses the shared MP database in Scalanie/Konsolidacja and RS.
+**Baza MP (Bridge v0.3.13):** `ECM_STOCK_MP_and_on_the_floor` shows MP/MP1/MP2/MP3 choices and sends MP%/MP1%/MP2%/MP3% location filters and brand selection. The downloaded XLSX uses the shared MP database in Scalanie/Konsolidacja and RS.
 
 KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available through Bridge with independent date ranges and automatic `Pick Scal` selection.
 
-**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.12.zip`](downloads/OpenReports-Bridge-v0.3.12.zip).
+**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.13.zip`](downloads/OpenReports-Bridge-v0.3.13.zip).
 
 ---
 

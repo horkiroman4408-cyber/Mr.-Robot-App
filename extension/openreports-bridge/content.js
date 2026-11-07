@@ -17,7 +17,7 @@
     .find(a=>visible(a) && label(a).toLowerCase()===name.toLowerCase());
   const groupLink = report => findLink(report?.startsWith('kpi_')?'ECM_KPI':'ECM_Warehouse');
   const groupName = report => report?.startsWith('kpi_')?'ECM_KPI':'ECM_Warehouse';
-  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking',mp_baza:'ECM_STOCK_MP_and_on_the_floor',kpi_audit:'Audit_ECM_KPI',kpi_scalanie:'Pick_ECM_KPI'};
+  const REPORTS={ai_audyt:'ECM_AI_Audit',godziny_mdt:'ECM_STOCK_Items_after_receiving',stock:'ECM_PICK_Lacks_during_picking',mp_baza:'ECM_STOCK_MP_and_on_the_floor',kpi_audit:'Audit_ECM_KPI',kpi_scalanie:'Pick_ECM_KPI',kpi_rozk:'Storage_RSORT_ECM_KPI',kpi_nadwevas:'NADWE_VAS_ECM_KPI'};
   const reportLink = name => findLink(name);
   const button = name => [...document.querySelectorAll('button,input[type="submit"],input[type="button"],a')].find(e=>visible(e)&&label(e).toLowerCase()===name.toLowerCase());
   function setValue(element,value){
@@ -163,7 +163,7 @@
           source.value=option.value;source.dispatchEvent(new Event('change',{bubbles:true}));
           if(dates.length!==1)throw Error('Nieznany układ pól raportu STOCK ('+dates.length+').');
           setValue(dates[0],job.from.slice(0,10));
-        }else if(job.report==='kpi_audit'||job.report==='kpi_scalanie'){
+        }else if(job.report==='kpi_audit'||job.report==='kpi_scalanie'||job.report==='kpi_rozk'||job.report==='kpi_nadwevas'){
           // Only submit the exact KPI form; fail closed if the corporate layout changes.
           if(!namedForm || dates.length!==2 || !/\bDate\s+from\b/i.test(title) || !/\bDate\s+to\b/i.test(title))
             throw Error('Nie rozpoznano pól dat raportu KPI. Nie uruchomiono raportu.');
@@ -179,7 +179,7 @@
             const option=[...pick.options].find(o=>clean(o.textContent||o.text)==='Pick Scal');
             pick.value=option.value;pick.dispatchEvent(new Event('change',{bubbles:true}));
           }else if(selects.length!==1){
-            throw Error('Nieznane dodatkowe parametry KPI Audyt.');
+            throw Error('Nieznane dodatkowe parametry KPI: '+report+'.');
           }
           source.value=sourceOpt.value;source.dispatchEvent(new Event('change',{bubbles:true}));
           setValue(dates[0],job.from);setValue(dates[1],job.to);

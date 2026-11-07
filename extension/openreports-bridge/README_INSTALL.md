@@ -1,4 +1,4 @@
-# OpenReports Bridge v0.3.12
+# OpenReports Bridge v0.3.13
 
 Optional Microsoft Edge extension for Mr. Robot. Runs on OpenReports and Mr. Robot GitHub Pages.
 
@@ -11,7 +11,7 @@ Reports are saved locally in Downloads/MrRobot/OpenReports. Never put company cr
 
 ## Install in Edge or Chrome
 
-1. Download `OpenReports-Bridge-v0.3.12.zip` (the **browser installation ZIP**, not the `GitHub-READY.zip` distribution).
+1. Download `OpenReports-Bridge-v0.3.13.zip` (the **browser installation ZIP**, not the `GitHub-READY.zip` distribution).
 2. Extract it to a **permanent folder** such as `Documents/OpenReports-Bridge`. You should see `manifest.json` and `background.js` directly inside it. There is **no `extension/` directory inside this ZIP**.
 3. Open `edge://extensions` (Edge) or `chrome://extensions` (Chrome).
 4. Enable **Developer mode**, select **Load unpacked**, and choose the folder that **directly contains `manifest.json`**. Do not select the ZIP file.
@@ -25,7 +25,7 @@ Download the newer browser ZIP, extract it, **replace files in the existing exte
 
 ### GitHub publishing versus browser installation
 
-`OpenReports-Bridge-v0.3.12-GitHub-READY.zip` is for uploading to the **repository root**. It contains `extension/openreports-bridge/`, `downloads/` and related README and app files. The browser-installation ZIP is nested at `downloads/OpenReports-Bridge-v0.3.12.zip`, and its `manifest.json` is at its own root.
+`OpenReports-Bridge-v0.3.13-GitHub-READY.zip` is for uploading to the **repository root**. It contains `extension/openreports-bridge/`, `downloads/` and related README and app files. The browser-installation ZIP is nested at `downloads/OpenReports-Bridge-v0.3.13.zip`, and its `manifest.json` is at its own root.
 
 ## Bridge 0.3.11 (Edge / Chrome)
 
@@ -33,9 +33,9 @@ When a report is requested with no OpenReports tab open, Bridge opens it automat
 
 New versions are published in `extension/openreports-bridge/latest.json` alongside standalone download archives. The installed unpacked extension is **not** automatically updated; reload the unpacked extension from its updated folder in Edge/Chrome.
 
-## Changes in v0.3.12
+## Changes in v0.3.13
 
-Fixed the Bridge shortcut in the STOCK header and made STOCK XLSX upload detection independent of translated labels. The Mr. Robot app header and the extension must be updated together for this fix.
+Added KPI Rozkładanie (`Storage_RSORT_ECM_KPI`) and NADWE/VAS (`NADWE_VAS_ECM_KPI`) with XLSX import into the existing KPI file inputs. All KPI date ranges now persist individually. Fixed Data Source: WMS ECM REPL PODKARPACIE. Both reports require Date from / Date to with seconds and have no extra pick-type field.
 
 ## Changes in v0.3.7
 

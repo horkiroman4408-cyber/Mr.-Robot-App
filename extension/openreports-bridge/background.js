@@ -24,7 +24,9 @@ const REPORTS = Object.freeze({
   stock: 'ECM_PICK_Lacks_during_picking',
   mp_baza: 'ECM_STOCK_MP_and_on_the_floor',
   kpi_audit: 'Audit_ECM_KPI',
-  kpi_scalanie: 'Pick_ECM_KPI'
+  kpi_scalanie: 'Pick_ECM_KPI',
+  kpi_rozk: 'Storage_RSORT_ECM_KPI',
+  kpi_nadwevas: 'NADWE_VAS_ECM_KPI'
 });
 // Check the name against the selected job's report, not against any XLSX.
 const isReportName = (name, key) => {

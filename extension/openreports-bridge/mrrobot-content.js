@@ -27,7 +27,9 @@
     stock: {name:'ECM_PICK_Lacks_during_picking',label:'',module:'STOCK'},
     mp_baza: {name:'ECM_STOCK_MP_and_on_the_floor',label:'',module:'Baza MP (MP / RS)'},
     kpi_audit: {name:'Audit_ECM_KPI',label:'Audit_ECM_KPI.xlsx',module:'KPI · Audyt'},
-    kpi_scalanie: {name:'Pick_ECM_KPI',label:'Pick_ECM_KPI.xlsx',module:'KPI · Scalanie'}
+    kpi_scalanie: {name:'Pick_ECM_KPI',label:'Pick_ECM_KPI.xlsx',module:'KPI · Scalanie'},
+    kpi_rozk: {name:'Storage_RSORT_ECM_KPI',label:'Storage_RSORT_ECM_KPI.xlsx',module:'KPI · Rozkładanie'},
+    kpi_nadwevas: {name:'NADWE_VAS_ECM_KPI',label:'NADWE_VAS_ECM_KPI.xlsx',module:'KPI · NADWE/VAS'}
   });
   let selectedReport = 'ai_audyt';
   const MAX_FILE_BYTES = 160 * 1024 * 1024;
@@ -129,8 +131,8 @@
         if(input&&bar.getClientRects().length)return {bar,input};
         continue;
       }
-      if(report==='kpi_audit'||report==='kpi_scalanie'){
-        const expected=report==='kpi_audit'?'audit':'scalanie';
+      if(report==='kpi_audit'||report==='kpi_scalanie'||report==='kpi_rozk'||report==='kpi_nadwevas'){
+        const expected=({kpi_audit:'audit',kpi_scalanie:'scalanie',kpi_rozk:'rozk',kpi_nadwevas:'nadwevas'})[report];
         if(bar.dataset.mrKpiBridge!==expected || !bar.getClientRects().length)continue;
         const input=bar.querySelector('input[type="file"][accept*=".xlsx"]');
         if(input)return {bar,input};
