@@ -1469,3 +1469,34 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 .grafik-bar .mr-or-trigger:hover, #rs-drop-mp .grafik-bar .mr-or-trigger-mp:hover{filter:none!important;background:var(--mr-control-bg,rgba(148,163,184,.16))!important;border-color:var(--mr-focus,#64748b)!important}
 .grafik-bar .mr-or-trigger:focus-visible{outline:2px solid var(--mr-focus,#64748b);outline-offset:2px}
 @media(max-width:640px){.grafik-bar .mr-bridge-upload-status{padding:6px 8px;font-size:10px}.grafik-bar .mr-or-trigger{padding:7px 9px!important;font-size:11px!important}}
+
+
+/* Mr. Robot 3.19.0 · RS Baza MP: dedicated, wrapping upload control row.
+   The extension inserts its OpenReports button immediately after the file label,
+   keeping every control inside the same row without affecting other modules. */
+#rs-drop-mp{min-width:0;max-width:100%}
+#rs-drop-mp .rs-mp-drop-card{
+ display:flex;flex-direction:column;align-items:stretch;gap:9px;
+ min-width:0;max-width:100%;width:100%;overflow:visible;
+}
+#rs-drop-mp .rs-mp-drop-main{
+ display:flex;align-items:center;gap:10px;min-width:0;width:100%;
+}
+#rs-drop-mp .rs-mp-drop-main>.min-w-0{min-width:0;flex:1 1 auto}
+#rs-drop-mp .rs-mp-drop-main .grafik-ico{flex:0 0 auto}
+#rs-drop-mp .rs-mp-drop-actions{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;
+ gap:7px;min-width:0;width:100%;
+}
+#rs-drop-mp .rs-mp-drop-actions>*{max-width:100%;position:relative;flex:0 0 auto}
+#rs-drop-mp .rs-mp-drop-actions .mr-bridge-upload-status{
+ margin-right:auto;flex:0 1 auto;min-width:0;
+}
+#rs-drop-mp .rs-mp-drop-actions .mr-bridge-status-label{white-space:normal;overflow-wrap:anywhere;text-align:left}
+#rs-drop-mp .rs-mp-drop-actions .mr-or-trigger-mp{
+ white-space:nowrap;max-width:100%;
+}
+@media(max-width:440px){
+ #rs-drop-mp .rs-mp-drop-actions{justify-content:flex-start}
+ #rs-drop-mp .rs-mp-drop-actions .mr-bridge-upload-status{margin-right:0}
+}

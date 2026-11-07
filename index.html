@@ -557,7 +557,8 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     <div id="rs-drop-mp" class="rounded-2xl transition-all">
-      <div class="glass grafik-bar float-up" :class="{dragover:toteMp.drag,loaded:toteMpLoaded&&!toteMp.loading,loading:toteMp.loading}" @dragover.prevent="toteMp.drag=true" @dragleave.prevent="toteMp.drag=false" @drop.prevent="toteOnMpDrop($event)">
+      <div class="glass grafik-bar float-up rs-mp-drop-card" :class="{dragover:toteMp.drag,loaded:toteMpLoaded&&!toteMp.loading,loading:toteMp.loading}" @dragover.prevent="toteMp.drag=true" @dragleave.prevent="toteMp.drag=false" @drop.prevent="toteOnMpDrop($event)">
+        <div class="rs-mp-drop-main">
         <span class="grafik-ico green" :class="{ok:toteMpLoaded&&!toteMp.loading}"><svg viewBox="0 0 24 24" class="w-3.5 h-3.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v6c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 11v6c0 1.66 4 3 9 3s9-1.34 9-3v-6"/></svg></span>
         <div class="min-w-0 flex-1">
           <div class="flex items-center gap-2 flex-wrap">
@@ -572,12 +573,15 @@
             <template v-else>{{ tr(133) }}</template>
           </div>
         </div>
+        </div>
+        <div class="rs-mp-drop-actions">
           <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
         <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
           <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
           <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
         </label>
         <button v-if="(toteMpLoaded || toteMp.savedAt) && !toteMp.loading" class="grafik-btn danger" :title="tr(128)" @click="toteResetMp">✕</button>
+        </div>
       </div>
     </div>
 
