@@ -1,4 +1,4 @@
-# OpenReports Bridge v0.3.10
+# OpenReports Bridge v0.3.11
 
 Optional Microsoft Edge extension for Mr. Robot. Runs on OpenReports and Mr. Robot GitHub Pages.
 
@@ -11,7 +11,7 @@ Reports are saved locally in Downloads/MrRobot/OpenReports. Never put company cr
 
 ## Install in Edge or Chrome
 
-1. Download `OpenReports-Bridge-v0.3.10.zip` (the **browser installation ZIP**, not the `GitHub-READY.zip` distribution).
+1. Download `OpenReports-Bridge-v0.3.11.zip` (the **browser installation ZIP**, not the `GitHub-READY.zip` distribution).
 2. Extract it to a **permanent folder** such as `Documents/OpenReports-Bridge`. You should see `manifest.json` and `background.js` directly inside it. There is **no `extension/` directory inside this ZIP**.
 3. Open `edge://extensions` (Edge) or `chrome://extensions` (Chrome).
 4. Enable **Developer mode**, select **Load unpacked**, and choose the folder that **directly contains `manifest.json`**. Do not select the ZIP file.
@@ -25,15 +25,15 @@ Download the newer browser ZIP, extract it, **replace files in the existing exte
 
 ### GitHub publishing versus browser installation
 
-`OpenReports-Bridge-v0.3.10-GitHub-READY.zip` is for uploading to the **repository root**. It contains `extension/openreports-bridge/`, `downloads/` and related README and app files. The browser-installation ZIP is nested at `downloads/OpenReports-Bridge-v0.3.10.zip`, and its `manifest.json` is at its own root.
+`OpenReports-Bridge-v0.3.11-GitHub-READY.zip` is for uploading to the **repository root**. It contains `extension/openreports-bridge/`, `downloads/` and related README and app files. The browser-installation ZIP is nested at `downloads/OpenReports-Bridge-v0.3.11.zip`, and its `manifest.json` is at its own root.
 
-## Bridge 0.3.10 (Edge / Chrome)
+## Bridge 0.3.11 (Edge / Chrome)
 
 When a report is requested with no OpenReports tab open, Bridge opens it automatically. If the session has expired, sign in directly on the OpenReports site; the queued report continues after the Reports interface becomes available. Bridge never handles credentials. Waiting for sign-in times out after 15 minutes; Cancel stops the queued request.
 
 New versions are published in `extension/openreports-bridge/latest.json` alongside standalone download archives. The installed unpacked extension is **not** automatically updated; reload the unpacked extension from its updated folder in Edge/Chrome.
 
-## Changes in v0.3.10
+## Changes in v0.3.11
 
 Fixed the Bridge shortcut in the STOCK header and made STOCK XLSX upload detection independent of translated labels. The Mr. Robot app header and the extension must be updated together for this fix.
 

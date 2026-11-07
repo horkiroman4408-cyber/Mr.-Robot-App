@@ -148,7 +148,9 @@
           const brandOption=[...brandSelect.options].find(o=>clean(o.textContent||o.text)===brandLabel);
           if(!srcOpt||!brandOption)throw Error('Brak żądanego Data Source lub marki.');
           source.value=srcOpt.value;source.dispatchEvent(new Event('change',{bubbles:true}));
-          setValue(areaInput,job.area);
+          // OpenReports uses SQL-style % wildcard, not the * used in saved Bridge values.
+          // Leave persisted MP area identifiers unchanged for backward compatibility.
+          setValue(areaInput,job.area.slice(0,-1)+'%');
           brandSelect.value=brandOption.value;brandSelect.dispatchEvent(new Event('change',{bubbles:true}));
         }else if(job.report==='stock'){
           // STOCK: one day only, no time and no Date to. Verify the exact source.

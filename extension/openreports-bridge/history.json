@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.11",
+      "date": "2026-11-07",
+      "title": {
+        "pl": "Właściwy filtr lokalizacji Baza MP",
+        "ru": "Правильный фильтр локализаций Baza MP",
+        "en": "Correct Baza MP location filters",
+        "uk": "Правильний фільтр локацій Baza MP"
+      },
+      "changes": {
+        "pl": [
+          "Przyciski pokazują MP, MP1, MP2 i MP3 bez gwiazdki.",
+          "OpenReports otrzymuje odpowiednio MP%, MP1%, MP2% i MP3%. Zapamiętane ustawienia pozostają zgodne."
+        ],
+        "ru": [
+          "Кнопки показывают MP, MP1, MP2 и MP3 без звёздочки.",
+          "OpenReports получает соответственно MP%, MP1%, MP2% и MP3%. Сохранённые параметры остаются совместимыми."
+        ],
+        "en": [
+          "Location buttons now display MP, MP1, MP2, and MP3 without asterisk symbols.",
+          "OpenReports receives MP%, MP1%, MP2%, and MP3%, respectively, preserving saved preferences."
+        ],
+        "uk": [
+          "Кнопки показують MP, MP1, MP2 і MP3 без зірочки.",
+          "OpenReports отримує відповідно MP%, MP1%, MP2% і MP3%. Збережені параметри залишаються сумісними."
+        ]
+      }
+    },
+    {
       "version": "0.3.10",
       "date": "2026-11-07",
       "title": {
