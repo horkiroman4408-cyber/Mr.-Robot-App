@@ -1966,6 +1966,62 @@ function intelOpenKpi(kind,record){
  details.procesFilter=(mod.selectedProcesy||[]).map(attrLabel).join(', ');
  intelPresent(details);
 }
+
+// FORMATKA_59 Intelligence: read-only explanation of the existing calculation.
+// It intentionally reproduces the exact source-row rules without modifying FORMATKA_59.
+const intelFmtMetric=ref('lokalizacjeUnikatowe');
+const INTEL_FMT_TEXT={
+ pl:{title:'Skąd pochodzą liczby?',intro:'Śledzenie obliczeń FORMATKA_59 na podstawie wierszy MP2 z ECM_AI_Audit.',selection:'Który wynik wyjaśnić?',rule:'Zasada obliczania',formula:'Obliczenie',included:'Wiersze uwzględnione',rows:'Wiersze źródłowe',location:'Lokalizacja',incident:'Incident (L)',input:'Wartość źródłowa',contribution:'Wkład do wyniku',empty:'Brak pasujących wierszy',limit:'Pokazano pierwsze 60 pasujących wierszy. Suma obejmuje wszystkie.',match:'Wynik zgodny z bieżącym raportem',mismatch:'Uwaga: wynik nie zgadza się z raportem',noExcelRows:'Parser nie przechowuje numerów wierszy Excela: lokalizacja identyfikuje wpis.',source:'Źródło: ECM_AI_Audit · tylko MP2',all:'Wszystkie wiersze MP2',counted:'Suma kolumny J (Counted Qty) dla wszystkich MP2.',unique:'Suma kolumny I (Unique Qty) dla wszystkich MP2. Nazwa nie oznacza liczby różnych SKU.',correct:'Suma kolumny I tylko dla wierszy, gdzie Incident = "-".',incidentQty:'Suma kolumny I tylko dla wierszy, gdzie Incident = "Incident".',shortage:'Wartość bezwzględna sumy kolumny K (Diff Qty) dla wierszy z Incident = "Shortage". Najpierw sumowane są wartości ze znakami.',surplus:'Suma kolumny K (Diff Qty) dla wierszy z Incident = "Surplus" (bez wartości bezwzględnej).',checked:'Liczba wierszy MP2, nie liczba unikalnych lokalizacji.',locations:'Liczba różnych niepustych nazw lokalizacji w wierszach MP2.',errors:'Liczba wierszy oznaczonych "Shortage" lub "Surplus". To nie musi być liczba różnych lokalizacji.',locShort:'Liczba wierszy z Incident = "Shortage".',locSurp:'Liczba wierszy z Incident = "Surplus".',total:'Niedobór (wartość bezwzględna sumy K dla Shortage) + nadwyżka (suma K dla Surplus).',warning:'Wyniki liczone są dokładnie według warunków modułu. Różnica ilości sztuk i liczby wierszy jest zamierzona.'},
+ ru:{title:'Откуда берутся цифры?',intro:'Разбор расчётов FORMATKA_59 по строкам MP2 из ECM_AI_Audit.',selection:'Какой показатель объяснить?',rule:'Правило расчёта',formula:'Расчёт',included:'Учтено строк',rows:'Исходные строки',location:'Локация',incident:'Incident (L)',input:'Значение источника',contribution:'Вклад в результат',empty:'Нет подходящих строк',limit:'Показаны первые 60 подходящих строк. Итог учитывает все строки.',match:'Совпадает с текущим отчётом',mismatch:'Внимание: не совпадает с отчётом',noExcelRows:'Парсер не сохраняет номера строк Excel: запись определяется локацией.',source:'Источник: ECM_AI_Audit · только MP2',all:'Все строки MP2',counted:'Сумма колонки J (Counted Qty) по всем строкам MP2.',unique:'Сумма колонки I (Unique Qty) по всем строкам MP2. Это не число уникальных SKU.',correct:'Сумма колонки I только для строк с Incident = "-".',incidentQty:'Сумма колонки I только для строк с Incident = "Incident".',shortage:'Модуль складывает значения колонки K (Diff Qty) по строкам Incident = "Shortage", затем берёт модуль общей суммы. Не сумма модулей по строкам.',surplus:'Сумма колонки K (Diff Qty) для строк Incident = "Surplus" без модуля.',checked:'Количество строк MP2, а не уникальных локаций.',locations:'Количество разных непустых названий локаций в строках MP2.',errors:'Количество строк с Incident = "Shortage" или "Surplus". Это не обязательно количество уникальных локаций.',locShort:'Количество строк с Incident = "Shortage".',locSurp:'Количество строк с Incident = "Surplus".',total:'Недостача (модуль суммы K для Shortage) + излишки (сумма K для Surplus).',warning:'Это точные правила модуля. Количество штук и количество строк означают разные вещи.'},
+ en:{title:'Where do the numbers come from?',intro:'FORMATKA_59 calculations traced to MP2 source records in ECM_AI_Audit.',selection:'Which result should be explained?',rule:'Calculation rule',formula:'Calculation',included:'Rows included',rows:'Source records',location:'Location',incident:'Incident (L)',input:'Source value',contribution:'Contribution',empty:'No matching rows',limit:'First 60 matching records shown. Totals use every record.',match:'Matches the current report',mismatch:'Warning: does not match the report',noExcelRows:'The parser does not retain Excel row numbers: locations identify records.',source:'Source: ECM_AI_Audit · MP2 only',all:'All MP2 records',counted:'Sum of column J (Counted Qty) across all MP2 records.',unique:'Sum of column I (Unique Qty) across all MP2 records. This is not a distinct-SKU count.',correct:'Sum of column I where Incident = "-" only.',incidentQty:'Sum of column I where Incident = "Incident" only.',shortage:'Absolute value of the signed sum of column K (Diff Qty) for Incident = "Shortage". Absolute value is applied after summing.',surplus:'Signed sum of column K (Diff Qty) for Incident = "Surplus".',checked:'Count of MP2 records, not unique locations.',locations:'Count of distinct non-empty location identifiers across MP2 records.',errors:'Count of rows where Incident = "Shortage" or "Surplus", not necessarily unique locations.',locShort:'Count of records with Incident = "Shortage".',locSurp:'Count of records with Incident = "Surplus".',total:'Shortage (absolute signed K sum) plus surplus (signed K sum).',warning:'These are the module’s exact rules. Piece quantities and record counts are different measures.'},
+ uk:{title:'Звідки беруться цифри?',intro:'Пояснення розрахунків FORMATKA_59 за рядками MP2 з ECM_AI_Audit.',selection:'Який показник пояснити?',rule:'Правило розрахунку',formula:'Розрахунок',included:'Враховано рядків',rows:'Вихідні рядки',location:'Локація',incident:'Incident (L)',input:'Вихідне значення',contribution:'Внесок у результат',empty:'Немає відповідних рядків',limit:'Показано перші 60 рядків. Підсумок враховує всі.',match:'Збігається з поточним звітом',mismatch:'Увага: не збігається зі звітом',noExcelRows:'Парсер не зберігає номери рядків Excel: записи ідентифікуються локаціями.',source:'Джерело: ECM_AI_Audit · лише MP2',all:'Усі рядки MP2',counted:'Сума колонки J (Counted Qty) для всіх MP2.',unique:'Сума колонки I (Unique Qty) для всіх MP2. Це не число унікальних SKU.',correct:'Сума колонки I лише для рядків Incident = "-".',incidentQty:'Сума колонки I лише для рядків Incident = "Incident".',shortage:'Модуль підсумовує значення колонки K (Diff Qty) для Incident = "Shortage" та бере модуль загальної суми.',surplus:'Сума колонки K (Diff Qty) для Incident = "Surplus" без модуля.',checked:'Кількість рядків MP2, а не унікальних локацій.',locations:'Кількість різних непорожніх назв локацій у MP2.',errors:'Кількість рядків із Incident = "Shortage" або "Surplus", не обов’язково унікальних локацій.',locShort:'Кількість рядків із Incident = "Shortage".',locSurp:'Кількість рядків із Incident = "Surplus".',total:'Нестача (модуль суми K для Shortage) + надлишки (сума K для Surplus).',warning:'Це точні правила модуля. Кількість штук і кількість рядків — різні величини.'}
+};
+function intelFmtT(key){uiLanguage.value;return (INTEL_FMT_TEXT[uiLanguage.value]||INTEL_FMT_TEXT.pl)[key]||key;}
+const INTEL_FMT_METRICS=[
+ {key:'sumaZliczonychSztuk',label:['Suma zliczonych sztuk','Всего пересчитано штук','Total counted pieces','Усього перераховано штук'],rule:'counted',field:'countedQty',mode:'sum'},
+ {key:'sztukiBezPowtorzen',label:['Unikalne sztuki','Уникальные штуки','Unique pieces','Унікальні штуки'],rule:'unique',field:'uniqueQty',mode:'sum'},
+ {key:'qtyMinus',label:['Poprawne (−)','Корректные (−)','Correct (−)','Коректні (−)'],rule:'correct',field:'uniqueQty',incident:'-',mode:'sum'},
+ {key:'qtyIncident',label:['Incident','Инцидент','Incident','Інцидент'],rule:'incidentQty',field:'uniqueQty',incident:'Incident',mode:'sum'},
+ {key:'brak',label:['Niedobór','Недостача','Shortage','Нестача'],rule:'shortage',field:'diffQty',incident:'Shortage',mode:'absSum'},
+ {key:'nadwyzka',label:['Nadwyżka','Излишки','Surplus','Надлишки'],rule:'surplus',field:'diffQty',incident:'Surplus',mode:'sum'},
+ {key:'zliczoneLokalizacje',label:['Zliczone lokalizacje','Пересчитанные локации','Counted locations','Перераховані локації'],rule:'checked',mode:'count'},
+ {key:'lokalizacjeUnikatowe',label:['Unikatowe lokalizacje','Уникальные локации','Unique locations','Унікальні локації'],rule:'locations',mode:'unique'},
+ {key:'locShortage',label:['Lokalizacje z brakami','Локации с недостачами','Shortage locations','Локації з нестачею'],rule:'locShort',incident:'Shortage',mode:'count'},
+ {key:'locSurplus',label:['Lokalizacje z nadwyżkami','Локации с излишками','Surplus locations','Локації з надлишком'],rule:'locSurp',incident:'Surplus',mode:'count'},
+ {key:'niezgodnosc',label:['Niezgodności','Расхождения','Discrepancies','Розбіжності'],rule:'errors',incidents:['Shortage','Surplus'],mode:'count'},
+ {key:'razem',label:['Razem','Итого','Total','Разом'],rule:'total',incidents:['Shortage','Surplus'],mode:'combined'}
+];
+function intelFmtLabel(x){uiLanguage.value;return x.label[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+function intelFmtOpen(){
+ if(!formatka59.result||!audyt.formatkaRows?.length)return;
+ const rows=audyt.formatkaRows.filter(r=>String(r.location||'').trim().substring(0,3)==='MP2');
+ // Keep a view of the actual parser records, not a second invocation of analysis.
+ intelFmtMetric.value='lokalizacjeUnikatowe';
+ intelPresent({type:'formatkaTrace',module:'mp',title:'FORMATKA_59',fileName:audyt.fileName,rows,expected:{...formatka59.result},value:formatka59.result.lokalizacjeUnikatowe});
+}
+const intelFmtDetails=computed(()=>{
+ if(intelPanel.value?.type!=='formatkaTrace')return null;
+ const metric=INTEL_FMT_METRICS.find(x=>x.key===intelFmtMetric.value)||INTEL_FMT_METRICS[0];
+ const all=intelPanel.value.rows;
+ const selected=metric.incident?all.filter(r=>String(r.incident||'').trim()===metric.incident):metric.incidents?all.filter(r=>metric.incidents.includes(String(r.incident||'').trim())):all;
+ let result=0,parts=[],calculation='';
+ if(metric.mode==='unique'){
+  const seen=new Set();
+  for(const row of selected){const loc=String(row.location||'').trim();if(!loc||seen.has(loc))continue;seen.add(loc);parts.push({row,value:1,source:loc});}
+  result=seen.size;calculation=String(result);
+ }else if(metric.mode==='combined'){
+  let shortage=0,surplus=0;
+  for(const row of selected){const inc=String(row.incident||'').trim(),v=Number(row.diffQty)||0;if(inc==='Shortage')shortage+=v;else if(inc==='Surplus')surplus+=v;parts.push({row,value:v,source:'K'});}
+  result=Math.abs(shortage)+surplus;calculation='|'+shortage+'| + '+surplus+' = '+result;
+ }else{
+  parts=selected.map(row=>({row,value:metric.field?(Number(row[metric.field])||0):1,source:metric.field==='uniqueQty'?'I':metric.field==='countedQty'?'J':metric.field==='diffQty'?'K':'—'}));
+  result=parts.reduce((total,x)=>total+x.value,0);
+  if(metric.mode==='absSum'){calculation='|'+result+'| = '+Math.abs(result);result=Math.abs(result);}
+ }
+ const current=intelPanel.value.expected[metric.key];
+ return {metric,result,current,matching:Math.abs(result-current)<0.00001,count:selected.length,calculation,parts:parts.slice(0,60)};
+});
+
 function intelOpenOverview(kind){
  const viewBuilder=window.MRIntelligence.buildOverview;
  const item=(label,value)=>({label:window.MRIntelligence.t(uiLanguage.value,label),value});
@@ -1989,10 +2045,7 @@ function intelOpenOverview(kind){
    details=viewBuilder('mp','MP Audyt',r.totalLoc,audyt.fileName,'audytSummaryRule',[
      item('Lokacje',r.totalLoc),item('Poprawne',r.correctLoc),item('Braki',r.shortage),
      item('Nadwyżki',r.surplus),item('Błędne',r.errorLoc)],[]);
- }else if(kind==='formatka'&&formatka59.result){const r=formatka59.result;
-   details=viewBuilder('mp','FORMATKA_59',r.lokalizacjeUnikatowe,audyt.fileName,'formatkaSummaryRule',[
-     item('Unikatowe lokalizacje',r.lokalizacjeUnikatowe),item('Braki',r.brak),
-     item('Nadwyżki',r.nadwyzka),item('Niezgodności',r.niezgodnosc)],[]);
+ }else if(kind==='formatka'&&formatka59.result){intelFmtOpen();return;
  }
  intelPresent(details);
 }
@@ -2047,7 +2100,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

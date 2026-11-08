@@ -2037,6 +2037,33 @@
           <div class="mr-intel-footer">✓ {{ intelConsT('safety') }}</div>
         </template>
       </template>
+      <template v-else-if="intelPanel.type==='formatkaTrace'">
+        <div class="mr-intel-eyebrow">FORMATKA_59 · {{ intelFmtT('title') }}</div>
+        <p class="mr-intel-hint">{{ intelFmtT('intro') }}</p>
+        <div class="mr-intel-section"><h3>{{ intelFmtT('source') }}</h3><div class="mr-intel-meta"><span>{{ intelT('source') }}</span><strong style="overflow-wrap:anywhere">{{ intelPanel.fileName }}</strong></div></div>
+        <div class="mr-intel-section"><h3>{{ intelFmtT('selection') }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:8px">
+            <button v-for="item in INTEL_FMT_METRICS" :key="item.key" type="button" @click="intelFmtMetric=item.key" :aria-pressed="intelFmtMetric===item.key" :style="{padding:'10px 12px',borderRadius:'11px',textAlign:'left',border:intelFmtMetric===item.key?'1px solid #0a84ff':'1px solid var(--mr-intel-line,rgba(140,140,140,.25))',background:intelFmtMetric===item.key?'rgba(10,132,255,.1)':'transparent',color:'inherit',cursor:'pointer'}">
+              <span style="display:block;font-size:11px;opacity:.8">{{ intelFmtLabel(item) }}</span>
+              <strong style="font-size:19px">{{ mrIntel.compact(intelPanel.expected[item.key] ?? 0) }}</strong>
+            </button>
+          </div>
+        </div>
+        <template v-if="intelFmtDetails">
+          <div class="mr-intel-section"><h3>≡ {{ intelFmtT('rule') }}</h3><p>{{ intelFmtT(intelFmtDetails.metric.rule) }}</p>
+            <div class="mr-intel-stats"><div><span>{{ intelFmtT('included') }}</span><strong>{{ mrIntel.compact(intelFmtDetails.count) }}</strong></div><div><span>{{ intelFmtT('formula') }}</span><strong>{{ mrIntel.compact(intelFmtDetails.result) }}</strong></div></div>
+            <p v-if="intelFmtDetails.calculation" class="mr-intel-hint" style="font-weight:650">{{ intelFmtDetails.calculation }}</p>
+            <p class="mr-intel-hint" :style="{color:intelFmtDetails.matching?'var(--mr-intel-success,#16a34a)':'var(--mr-intel-error,#ef4444)'}">{{ intelFmtDetails.matching ? '✓ '+intelFmtT('match') : '! '+intelFmtT('mismatch') }}</p>
+          </div>
+          <div class="mr-intel-section"><h3>▤ {{ intelFmtT('rows') }}</h3><p class="mr-intel-hint">{{ intelFmtT('noExcelRows') }}</p>
+            <div class="mr-intel-table-wrap"><table class="mr-intel-table"><thead><tr><th>{{ intelFmtT('location') }}</th><th>{{ intelFmtT('incident') }}</th><th>{{ intelFmtT('input') }}</th><th>{{ intelFmtT('contribution') }}</th></tr></thead><tbody>
+              <tr v-for="(entry,i) in intelFmtDetails.parts" :key="i"><td class="mr-intel-cell-bin">{{ entry.row.location }}</td><td>{{ entry.row.incident || '—' }}</td><td>{{ entry.source }}</td><td>{{ mrIntel.compact(entry.value) }}</td></tr>
+              <tr v-if="!intelFmtDetails.parts.length"><td colspan="4">{{ intelFmtT('empty') }}</td></tr>
+            </tbody></table></div><p v-if="intelFmtDetails.count>60" class="mr-intel-hint">{{ intelFmtT('limit') }}</p>
+          </div>
+          <p class="mr-intel-hint">{{ intelFmtT('warning') }}</p>
+        </template>
+      </template>
       <template v-else>
       <div class="mr-intel-eyebrow">{{ intelPanel.type==='overview' ? intelPanel.title : (intelPanel.type==='ret' ? ('AUDYT GEEK · '+(intelPanel.groupLabel||'AUDYT RET')) : ('KPI NORMS · '+intelPanel.rodzaj)) }}</div>
       <div class="mr-intel-metric"><div><span>{{ intelPanel.title }}</span><strong>{{ intelPanel.type==='overview' ? mrIntel.compact(intelPanel.value) : (intelPanel.type==='ret' ? (intelPanel.displayExpected||mrIntel.compact(intelPanel.expected)) : mrIntel.compact(intelPanel.perHour)) }}</strong></div><span class="mr-intel-check" :class="intelPanel.matched?'ok':'alert'">{{ intelPanel.type==='overview' ? ('◫ '+intelT('overviewBadge')) : (intelPanel.type==='nv' ? ('✓ '+intelT('readDirectly')) : (intelPanel.matched ? ('✓ '+intelT('matched')) : ('! '+intelT('mismatch')))) }}</span></div>
@@ -2132,7 +2159,7 @@
 <script src="js/workers/common.js"></script>
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
-<script src="js/app.js?v=3.21.2-intel-sync-20261108"></script>
+<script src="js/app.js?v=3.21.2-formatka-trace-20261108"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
