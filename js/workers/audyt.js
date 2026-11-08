@@ -25,7 +25,7 @@ const infoRaw=String(val(r,cInfo)).trim();
 if(itemRaw==='-'){continue;}
 out.push({location:locRaw,incident:incidentRaw,info:infoRaw});
 const pct=Math.floor((i-hIdx)/total*100);
-if(pct>=lastReport+10){lastReport=pct;self.postMessage({type:'progress',stage:'parse',percent:pct});}
+if(pct>=lastReport+2){lastReport=pct;self.postMessage({type:'progress',stage:'parse',percent:Math.floor(pct/2)});}
 }
 return out;
 }
@@ -45,7 +45,7 @@ const countedQty=parseFloat(String(r[9]||'0').replace(',','.'))||0;
 const diffQty=parseFloat(String(r[10]||'0').replace(',','.'))||0;
 out.push({location:locRaw,incident:incidentRaw,uniqueQty,countedQty,diffQty});
 const pct=Math.floor((i-hIdx)/total*100);
-if(pct>=lastReport+10){lastReport=pct;self.postMessage({type:'progress',stage:'parse',percent:pct});}
+if(pct>=lastReport+2){lastReport=pct;self.postMessage({type:'progress',stage:'parse',percent:50+Math.floor(pct/2)});}
 }
 return out;
 }

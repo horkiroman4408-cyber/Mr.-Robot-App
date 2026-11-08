@@ -29,7 +29,7 @@ function findGrafikHeader(rows) {
   }
   return -1;
 }
-function parsePracownicySheet(rows, sheetName) {
+function parsePracownicySheet(rows, sheetName, onRowProgress) {
   const out = [];
   const hIdx = findGrafikHeader(rows);
   if (hIdx < 0) return out;
@@ -39,7 +39,9 @@ function parsePracownicySheet(rows, sheetName) {
   const extra = ['pl','lpp'].includes(grafikHeader(sheetName));
   // Grafik: M=1. dzień, AQ=31. dzień. AR:AY = podsumowanie z Excela.
   const totalNames = (rows[hIdx] || []).slice(43,51).map(v => String(v ?? '').trim());
-  for (const r of rows.slice(hIdx + 1)) {
+  for (let ri=hIdx+1;ri<rows.length;ri++) {
+    const r=rows[ri];
+    if (onRowProgress) onRowProgress(ri-hIdx, Math.max(1,rows.length-hIdx-1));
     if (!r || !r.length) continue;
     const login = String(val(r,'PDXXXXX','PD','PD XXXXX','Numer PD','PD pracownika','Login','USER LOGIN','USER ID')).replace(/\\s+/g,'').toUpperCase();
     if (!/^(?:PD|PM|SPM)\\d+$/.test(login) && !/^\\d+$/.test(login)) continue;
@@ -86,10 +88,14 @@ self.onmessage = function(e) {
     });
     const total = graphSheets.length || 1;
     let processed = 0;
+    let lastRowProgress = 0;
     for (const sheetName of graphSheets) {
       const sheet = wb.Sheets[sheetName];
       const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-      all.push(...parsePracownicySheet(rows, sheetName));
+      all.push(...parsePracownicySheet(rows, sheetName, (rowIndex, rowTotal) => {
+        const pct=Math.floor((processed+rowIndex/rowTotal)/total*100);
+        if(pct>=lastRowProgress+2){lastRowProgress=pct;self.postMessage({type:'progress',stage:'parse',percent:pct});}
+      }));
       processed++;
       self.postMessage({ type: 'progress', stage: 'parse', percent: Math.floor(processed/total*100) });
     }
