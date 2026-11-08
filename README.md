@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.21.0-blue)
+![version](https://img.shields.io/badge/version-3.21.1-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -141,6 +141,8 @@ KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available thro
 ---
 
 ## 🧩 The Modules (Deep Dive)
+
+**v3.21.1:** Konsolidacja Intelligence now provides an EAN action plan and deeper analysis, without changing the consolidation calculations.
 
 **v3.21.0:** MR. BOT Intelligence now explains KPI Audyt/Scalanie/Rozkładanie and MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja and Przestoje summaries. Existing AUDYT GEEK and NADWE/VAS explanations remain available. MR. BOT instructions updated in four app languages. Business logic and exports unchanged. Bridge stays at v0.3.14.
 
