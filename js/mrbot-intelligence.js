@@ -69,6 +69,46 @@
     'retMixed':["Wiele wierszy w tej samej lokalizacji", "Несколько строк в одной локации", "Multiple rows at the same location", "Кілька рядків в одній локації"],
     'retPriority':["Lokalizacja mieszana: wyłączono z innych kategorii", "Смешанная локация: исключена из других категорий", "Mixed location: excluded from other categories", "Змішана локація: виключено з інших категорій"],
     'noCalculation':["Brak źródłowych rekordów dla stałej wartości", "Для константы нет исходных строк", "No source rows for fixed value", "Немає вихідних рядків для сталої величини"],
+    'kpiGeneralRule':["ITEMS PER HOUR pochodzi bezpośrednio z kolumny raportu. Próg jest ustawiany w module; nie obliczamy wyniku przez dzielenie zaokrąglonych wartości.", "ITEMS PER HOUR берётся непосредственно из колонки отчёта. Порог задаётся в модуле; показатель не пересчитывается из округлённых значений.", "ITEMS PER HOUR comes directly from the report column. The module threshold is user-selected; the value is not recalculated from rounded totals.", "ITEMS PER HOUR береться безпосередньо з колонки звіту. Поріг задається в модулі, а показник не перераховується з округлених значень."],
+    'overviewRule':["To wyjaśnienie bieżącej agregacji i jej parametrów; nie jest to niezależny audyt wszystkich wierszy źródłowych.", "Это объяснение текущих итогов и параметров, а не независимая перепроверка всех исходных строк.", "This explains the current totals and parameters; it is not an independent verification of every source row.", "Це пояснення поточних підсумків і параметрів, а не незалежна перевірка кожного вихідного рядка."],
+    'mdtSummaryRule':["Po odfiltrowaniu wierszy według reguł MDT sumowana jest kolumna E. Duplikaty lokalizacji w B usuwa się przed obliczeniem liczby półek i sumy STOCK (K); 1/1 oznacza E = K.", "После фильтрации MDT суммируется столбец E. Дубликаты локаций из B удаляются до подсчёта полок и суммы STOCK (K); 1/1 означает E = K.", "After MDT filtering, column E is summed. Duplicate B locations are removed before shelf counting and summing STOCK (K); 1/1 means E = K.", "Після фільтрації MDT підсумовується колонка E. Дублікати локацій B прибирають до підрахунку полиць і суми STOCK (K); 1/1 означає E = K."],
+    'stockSummaryRule':["Wiersze STOCK są filtrowane zgodnie z regułami lokalizacji MP oraz wyłączeniami PKECOM i operatorów S. Następnie można wybrać daty/godziny do listy lokalizacji.", "Строки STOCK фильтруются по правилам MP, исключая PKECOM и операторов S. Затем выбираются даты и часы для списка локаций.", "STOCK rows are filtered by MP location rules, excluding PKECOM and S operators. Selected date/hour periods then determine the location list.", "Рядки STOCK фільтруються за правилами локацій MP із виключенням PKECOM та операторів S. Обрані дати й години формують список локацій."],
+    'downtimeSummaryRule':["Analiza porównuje kolejne wpisy tego samego USER ID. Uwzględnia dodatnie przerwy od ustawionego progu do 300 minut; suma, maksimum i średnia dotyczą wykrytych przerw.", "Анализ сравнивает соседние записи одного USER ID. Учитываются положительные интервалы от заданного порога до 300 минут; сумма, максимум и среднее относятся к найденным простоям.", "The analysis compares adjacent records for the same USER ID. Positive gaps from the chosen threshold up to 300 minutes are counted; total, maximum and average describe the detected gaps.", "Аналіз порівнює сусідні записи одного USER ID. Враховуються додатні інтервали від обраного порога до 300 хвилин; сума, максимум і середнє стосуються знайдених простоїв."],
+    'consolidationSummaryRule':["Wynik pochodzi z bieżącej analizy Konsolidacja: wybranego procentu i minimalnej liczby lokalizacji, a nie z dodatkowego obliczenia Intelligence.", "Результат взят из текущего анализа Konsolidacja с выбранным процентом и минимумом локаций; Intelligence не пересчитывает его повторно.", "The result comes from the existing Konsolidacja analysis using the selected percentage and minimum locations; Intelligence does not recompute it.", "Результат узято з поточного аналізу Konsolidacja з обраним відсотком і мінімумом локацій; Intelligence не рахує його заново."],
+    'audytSummaryRule':["Zestawienie pochodzi z wykonanego MP Audyt i jego bieżących reguł lokalizacji; Intelligence przedstawia wartości raportu bez ingerencji w liczenie.", "Сводка получена из выполненного MP Audyt с текущими правилами локаций. Intelligence показывает значения отчёта без вмешательства в расчёт.", "The summary comes from the completed MP Audyt under the active location rules; Intelligence displays the existing report values without changing calculations.", "Підсумок походить із виконаного MP Audyt за поточними правилами локацій; Intelligence показує значення без зміни розрахунків."],
+    'formatkaSummaryRule':["Wartości pochodzą z analizy FORMATKA_59, w tym rozróżnienia unikatowych lokalizacji, braków i nadwyżek. Intelligence nie łączy ich z MP Audyt.", "Значения получены из FORMATKA_59, включая уникальные локации, недостачи и излишки. Intelligence не смешивает их с MP Audyt.", "Values come from FORMATKA_59, including unique locations, shortages and surpluses. Intelligence does not merge them with MP Audyt.", "Значення взято з FORMATKA_59, зокрема унікальні локації, нестачі та надлишки. Intelligence не змішує їх із MP Audyt."],
+    'overviewInfo':["Dane z bieżącego wyniku", "Данные текущего результата", "Current result data", "Дані поточного результату"],
+    'activeSettings':["Parametry", "Параметры", "Parameters", "Параметри"],
+    'overviewBadge':["Podgląd wyniku", "Объяснение результата", "Result explanation", "Пояснення результату"],
+    'kpiExplained':["Wartość z raportu", "Значение из отчёта", "From report", "Значення зі звіту"],
+    "Suma półek":["Suma półek", "Всего полок", "Total shelves", "Усього полиць"],
+    "Suma MDT":["Suma MDT", "Сумма MDT", "MDT total", "Сума MDT"],
+    "Suma STOCK":["Suma STOCK", "Сумма STOCK", "STOCK total", "Сума STOCK"],
+    "Półki 1/1":["Półki 1/1", "Полки 1/1", "1/1 shelves", "Полиці 1/1"],
+    "Sztuki 1/1":["Sztuki 1/1", "Штуки 1/1", "1/1 items", "Штуки 1/1"],
+    "Wiersze w pliku":["Wiersze w pliku", "Строк в файле", "Rows in file", "Рядків у файлі"],
+    "Po filtrach":["Po filtrach", "После фильтров", "After filters", "Після фільтрів"],
+    "Okresy":["Okresy", "Периоды", "Periods", "Періоди"],
+    "Wykryte przerwy":["Wykryte przerwy", "Найденные простои", "Detected gaps", "Виявлені простої"],
+    "Wszystkie pary":["Wszystkie pary", "Всего пар записей", "Record pairs", "Усі пари записів"],
+    "Suma [min]":["Suma [min]", "Сумма [мин]", "Total [min]", "Сума [хв]"],
+    "Maksimum [min]":["Maksimum [min]", "Максимум [мин]", "Maximum [min]", "Максимум [хв]"],
+    "Średnia [min]":["Średnia [min]", "Среднее [мин]", "Average [min]", "Середнє [хв]"],
+    "Próg [min]":["Próg [min]", "Порог [мин]", "Threshold [min]", "Поріг [хв]"],
+    "Procent":["Procent", "Процент", "Percentage", "Відсоток"],
+    "Min. lokalizacji":["Min. lokalizacji", "Мин. локаций", "Min. locations", "Мін. локацій"],
+    "Małe lokalizacje":["Małe lokalizacje", "Малые локации", "Small locations", "Малі локації"],
+    "Ilość sztuk":["Ilość sztuk", "Количество штук", "Item count", "Кількість штук"],
+    "Lokacje":["Lokacje", "Локации", "Locations", "Локації"],
+    "Poprawne":["Poprawne", "Правильные", "Correct", "Правильні"],
+    "Braki":["Braki", "Недостачи", "Shortages", "Нестачі"],
+    "Nadwyżki":["Nadwyżki", "Излишки", "Surpluses", "Надлишки"],
+    "Błędne":["Błędne", "Ошибочные", "Incorrect", "Помилкові"],
+    "Unikatowe lokalizacje":["Unikatowe lokalizacje", "Уникальные локации", "Unique locations", "Унікальні локації"],
+    "Niezgodności":["Niezgodności", "Несоответствия", "Discrepancies", "Невідповідності"],
+    "EAN":["EAN", "EAN", "EAN", "EAN"],
+    "Total EAN":["EAN ogółem", "Всего EAN", "Total EAN", "Усього EAN"],
+    "MP":["MP", "MP", "MP", "MP"],
   };
   const languageIdx={pl:0,ru:1,en:2,uk:3};
   function t(language,key){const group=strings[key];return group?group[languageIdx[language]??0]:key;}
@@ -186,5 +226,17 @@
       matched,included:constant?0:included,excluded:constant?0:excluded,selected:selected.length,
       rows,truncated:!constant&&selected.length>rows.length,constant};
   }
-  root.MRIntelligence={t,compact,buildRet,buildNv,buildGeek};
+  function buildKpi(record,norm,process){
+    const info=buildNv(record,norm);
+    info.rodzaj=process;
+    info.ruleKey='kpiGeneralRule';
+    info.title='ITEMS PER HOUR';
+    return info;
+  }
+  function buildOverview(module,title,value,source,ruleKey,stats,settings){
+    return {type:'overview',module,title,value, fileName:source||'',ruleKey,
+      stats:(stats||[]).filter(x=>x&&x.label&&x.value!==undefined),
+      settings:(settings||[]).filter(x=>x&&x.label&&x.value!==undefined)};
+  }
+  root.MRIntelligence={t,compact,buildRet,buildNv,buildGeek,buildKpi,buildOverview};
 })(window);

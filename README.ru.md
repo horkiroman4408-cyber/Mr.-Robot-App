@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.20.0-blue)
+![версия](https://img.shields.io/badge/version-3.21.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -141,6 +141,9 @@ KPI Аудит (`Audit_ECM_KPI`) и KPI Scalanie (`Pick_ECM_KPI`) доступн
 ---
 
 ## 🧩 Модули (подробно)
+
+**v3.21.0:** MR. BOT Intelligence теперь объясняет KPI Audyt/Scalanie/Rozkładanie и сводки MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja и Przestoje. Возможности AUDYT GEEK и NADWE/VAS сохранены. Инструкции бота обновлены на четырёх языках. Расчёты и экспорт без изменений. Bridge: v0.3.14.
+
 
 Приложение — хаб из четырёх разделов. Каждый заменяет повторяющуюся задачу.
 

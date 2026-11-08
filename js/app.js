@@ -1796,6 +1796,55 @@ function intelOpenNv(record){
  intelPanel.value=details;intelPage.value=0;intelRowsMode.value='all';
  Vue.nextTick(()=>document.querySelector('.mr-intel-dialog .mr-intel-close')?.focus());
 }
+// Additional Intelligence views read already-calculated state. They do not write to any module.
+function intelPresent(details){
+ if(!details)return;
+ intelPanel.value=details;intelPage.value=0;intelRowsMode.value='all';
+ Vue.nextTick(()=>document.querySelector('.mr-intel-dialog .mr-intel-close')?.focus());
+}
+function intelOpenKpi(kind,record){
+ const options={audit:[kpiAudit,kpiNormThreshold.value,'AUDYT'],scalanie:[kpiScalanie,kpiScalanieNormThreshold.value,'SCALANIE'],rozk:[kpiRozk,kpiRozkNormThreshold.value,'ROZKŁADANIE']};
+ const item=options[kind];if(!item||!record||!item[0].records?.length)return;
+ const [mod,norm,process]=item;
+ const details=window.MRIntelligence.buildKpi(record,norm,record.rodzaj||process);
+ details.fileName=mod.fileName;details.statusFilter=mod.statusFilter;
+ details.shiftFilter=mod.selectedShifts?.length===allShiftKeys.length?'':(mod.selectedShifts||[]).join(', ');
+ details.firmaFilter=(mod.selectedFirmy||[]).map(attrLabel).join(', ');
+ details.procesFilter=(mod.selectedProcesy||[]).map(attrLabel).join(', ');
+ intelPresent(details);
+}
+function intelOpenOverview(kind){
+ const viewBuilder=window.MRIntelligence.buildOverview;
+ const item=(label,value)=>({label:window.MRIntelligence.t(uiLanguage.value,label),value});
+ let details=null;
+ if(kind==='mdt'&&mdt.result){const r=mdt.result;
+   details=viewBuilder('mp','GODZINY MDT',r.sumaPolek,mdt.fileName,'mdtSummaryRule',[
+     item('Suma półek',r.sumaPolek),item('Suma MDT',r.sumaMDT),item('Suma STOCK',r.sumaStock),item('Półki 1/1',r.polki11),item('Sztuki 1/1',r.szt11)],
+     [item('MP',Array.from(mpLocationPrefixes.value||[]).join(', ')||'—')]);
+ }else if(kind==='stock'&&stock.rows.length){
+   details=viewBuilder('mp','STOCK',stockStats.value.filtered,stock.fileName,'stockSummaryRule',[
+     item('Wiersze w pliku',stockStats.value.total),item('Po filtrach',stockStats.value.filtered),
+     item('Okresy',stockPeriods.value.length)],[]);
+ }else if(kind==='przestoje'&&przestojeReport.value){const r=przestojeReport.value;
+   details=viewBuilder('ui','Analiza Przestojów',r.incidents.length,przestoje.fileName,'downtimeSummaryRule',[
+     item('Wykryte przerwy',r.incidents.length),item('Wszystkie pary',r.pairsCount),item('Suma [min]',Number(r.totalMin.toFixed(2))),
+     item('Maksimum [min]',Number(r.maxMin.toFixed(2))),item('Średnia [min]',Number(r.avg.toFixed(2)))],
+     [item('Próg [min]',przestoje.minMin),item('Maksimum [min]',300)]);
+ }else if(kind==='konsolidacja'&&konsolidacja.result){const r=konsolidacja.result;
+   details=viewBuilder('mp','Konsolidacja',r.liczbaEAN,toteMp.fileName,'consolidationSummaryRule',[
+     item('EAN',r.liczbaEAN),item('Total EAN',r.totalEAN),item('Małe lokalizacje',r.totalSmall),item('Ilość sztuk',r.totalSmallQty)],
+     [item('Procent',r.percent+'%'),item('Min. lokalizacji',r.minLocations)]);
+ }else if(kind==='audyt'&&audyt.result){const r=audyt.result;
+   details=viewBuilder('mp','MP Audyt',r.totalLoc,audyt.fileName,'audytSummaryRule',[
+     item('Lokacje',r.totalLoc),item('Poprawne',r.correctLoc),item('Braki',r.shortage),
+     item('Nadwyżki',r.surplus),item('Błędne',r.errorLoc)],[]);
+ }else if(kind==='formatka'&&formatka59.result){const r=formatka59.result;
+   details=viewBuilder('mp','FORMATKA_59',r.lokalizacjeUnikatowe,audyt.fileName,'formatkaSummaryRule',[
+     item('Unikatowe lokalizacje',r.lokalizacjeUnikatowe),item('Braki',r.brak),
+     item('Nadwyżki',r.nadwyzka),item('Niezgodności',r.niezgodnosc)],[]);
+ }
+ intelPresent(details);
+}
 const intelFilteredRows=computed(()=>{
  if(!intelPanel.value||intelPanel.value.type!=='ret')return [];
  const rows=intelPanel.value.rows;
@@ -1807,7 +1856,7 @@ const intelPageCount=computed(()=>Math.max(1,Math.ceil(intelFilteredRows.value.l
 const intelVisibleRows=computed(()=>intelFilteredRows.value.slice(intelPage.value*intelPageSize,(intelPage.value+1)*intelPageSize));
 function intelSelectRows(filter){intelRowsMode.value=filter;intelPage.value=0;}
 window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value)intelClose();});
-watch([()=>geek.result,()=>kpiNv.records],()=>intelClose());
+watch([()=>geek.result,()=>kpiNv.records,()=>kpiAudit.records,()=>kpiScalanie.records,()=>kpiRozk.records,()=>mdt.result,()=>stock.rows,()=>audyt.result,()=>formatka59.result,()=>konsolidacja.result,()=>przestoje.rows],()=>intelClose());
 
 // MR. BOT visual bridge: reads existing state; never writes report data.
 const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
@@ -1847,7 +1896,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelPanel,intelT,intelClose,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

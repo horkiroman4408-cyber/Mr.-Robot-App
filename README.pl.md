@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.20.0-blue)
+![wersja](https://img.shields.io/badge/version-3.21.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -141,6 +141,9 @@ KPI Audyt (`Audit_ECM_KPI`) i KPI Scalanie (`Pick_ECM_KPI`) są dostępne przez 
 ---
 
 ## 🧩 Moduły (szczegóły)
+
+**v3.21.0:** MR. BOT Intelligence wyjaśnia teraz KPI Audyt/Scalanie/Rozkładanie oraz podsumowania MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja i Przestoje. Funkcje AUDYT GEEK i NADWE/VAS pozostają dostępne. Instrukcje bota zaktualizowano w czterech językach. Obliczenia i eksport bez zmian. Bridge: v0.3.14.
+
 
 Aplikacja to hub z czterema sekcjami. Każda zastępuje powtarzające się zadanie.
 
