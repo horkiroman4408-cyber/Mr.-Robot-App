@@ -1761,101 +1761,158 @@ async function mrRestoreFiles(){
  }catch(e){if(runId!==mrRestore.runId)return;mrRestore.phase='error';console.warn('Mr. Robot: pamięć plików niedostępna',e);}
 }
 
-// MR. BOT Intelligence: provenance is prepared on-demand; existing calculations are untouched.
-// Konsolidacja Intelligence: independent read-only analytics from the loaded MP rows.
-// The warehouse selection algorithm in konsolidacjaRun remains unchanged.
-const intelConsTab=ref('plan');
+// Konsolidacja Intelligence reads the loaded MP data without changing warehouse results.
+// The scenarios and opportunities below are separate, advisory calculations.
+const intelConsTab=ref('discoveries');
 const intelConsScenario=ref(20);
-const intelConsSelected=ref('');
+const intelConsMin=ref(5);
 const intelConsData=ref([]);
 const intelConsLoading=ref(false);
+let intelConsRunId=0;
+const intelConsExpanded=ref('');
 const intelConsText={
- loading:['Analiza danych…','Анализ данных…','Analyzing data…','Аналіз даних…'],
- summary:['Weryfikacja, nie gwarancja zwolnienia miejsc','Проверка, а не гарантия освобождения мест','Verification, not a guarantee of freed bins','Перевірка, а не гарантія звільнення місць'],
- plan:['Plan działań','План действий','Action plan','План дій'],
- deep:['Głębsza analiza','Глубокий анализ','Deep analysis','Глибокий аналіз'],
- intro:['Priorytety na podstawie małych lokalizacji. Nie są prognozą zwolnionych miejsc.','Приоритеты по малым локациям. Не являются прогнозом освобождённых мест.','Priorities based on small-location counts, not predicted freed bins.','Пріоритети за малими локаціями, не прогноз звільнених місць.'],
- priority:['Kolejność weryfikacji','Очередность проверки','Verification order','Черга перевірки'],
- reason:['Najpierw sprawdź EAN z największą liczbą małych lokalizacji.','Начните с EAN с наибольшим числом малых локаций.','Start with EANs with the most small locations.','Почніть з EAN із найбільшою кількістю малих локацій.'],
- small:['Małe lokalizacje','Малые локации','Small locations','Малі локації'],
- qty:['Sztuki w małych lokalizacjach','Штук в малых локациях','Units in small locations','Штук у малих локаціях'],
- main:['Największa lokalizacja','Крупнейшая локация','Largest location','Найбільша локація'],
- total:['Wszystkie wiersze EAN','Все строки EAN','All EAN rows','Усі рядки EAN'],
- details:['Dlaczego ten EAN?','Почему этот EAN?','Why this EAN?','Чому цей EAN?'],
- explain:['Kandydat ma wiele dodatnich stanów nieprzekraczających ustawionego procentu największego stanu. Przed przeniesieniem sprawdź miejsce docelowe i faktyczne lokalizacje.','У товара много положительных остатков не выше заданного процента от максимального. Перед перемещением проверь место назначения и физические локации.','Many positive balances fall below the selected percentage of the largest balance. Verify destination space and physical bins before moving.','Багато позитивних залишків нижче вибраного відсотка найбільшого. Перед переміщенням перевірте місце призначення та фактичні локації.'],
- near:['Blisko progu','Почти прошли порог','Near-miss candidates','Майже пройшли поріг'],
- near_pl:['Blisko progu','Почти прошли порог','Near-miss candidates','Майже пройшли поріг'],
- missing:['Brakuje małych lokalizacji','Не хватает малых локаций','Small locations short','Бракує малих локацій'],
- scenario:['Symulacja progu procentowego','Сценарий процентного порога','Percentage threshold scenario','Сценарій відсоткового порогу'],
- candidate:['EAN spełniające oba progi','EAN, проходящие оба порога','EANs meeting both thresholds','EAN, що відповідають обом порогам'],
- delta:['Zmiana wobec raportu','Изменение относительно отчёта','Change vs report','Зміна відносно звіту'],
- safety:['Symulacja niczego nie zmienia w Konsolidacja. Nie potwierdza wolnego miejsca na regałach.','Сценарий ничего не меняет в Konsolidacja и не подтверждает свободное место.','Scenario does not change Konsolidacja or confirm available bin capacity.','Сценарій не змінює Konsolidacja і не підтверджує вільне місце.'],
- warning:['Uwaga na dane','Проверка данных','Data checks','Перевірка даних'],
- duplicate:['EAN z powtarzającymi się adresami lokalizacji','EAN с повторяющимися адресами локаций','EANs with repeated location addresses','EAN з повторюваними адресами локацій'],
- invalid:['Pominięte wiersze bez EAN lub z nieprawidłową ilością','Пропущены строки без EAN или с некорректным количеством','Skipped rows with missing EAN or invalid quantity','Пропущено рядки без EAN або з некоректною кількістю'],
- note:['To analiza pomocnicza: lokalizacje są liczone według wierszy źródłowych, jak w głównym raporcie.','Это дополнительный анализ: локации считаются по строкам источника, как в основном отчёте.','Additional analysis: locations are counted per source row, as in the main report.','Додатковий аналіз: локації рахуються за рядками джерела, як в основному звіті.'],
- goToCard:['Pokaż kartę w raporcie','Показать карточку в отчёте','Show card in report','Показати картку у звіті'],
- none:['Nie znaleziono kandydatów.','Кандидаты не найдены.','No candidates found.','Кандидатів не знайдено.']
+ discoveries:['Odkrycia','Находки','Discoveries','Знахідки'],
+ simulations:['Symulacje','Сценарии','Scenarios','Сценарії'],
+ opportunities:['Możliwości','Возможности','Opportunities','Можливості'],
+ almost:['Blisko minimalnej liczby lokalizacji','Почти прошли минимум локаций','Near the minimum-location threshold','Майже пройшли мінімум локацій'],
+ nearPct:['Niewiele ponad progiem procentowym','Немного выше процентного порога','Just above the percentage threshold','Трохи вище відсоткового порогу'],
+ fragmented:['Rozproszone bez dominującej lokalizacji','Распределены без доминирующей локации','Fragmented without a dominant location','Розподілені без домінантної локації'],
+ equal:['Równomiernie rozłożone stany','Равномерно распределённые остатки','Evenly spread balances','Рівномірно розподілені залишки'],
+ explanation:['Kandydaci spoza obecnego raportu, bez automatycznej zmiany filtrów.','Кандидаты вне текущего отчёта. Фильтры автоматически не меняются.','Candidates outside the current report. No automatic filter changes.','Кандидати поза поточним звітом. Фільтри не змінюються.'],
+ percent:['Próg procentowy','Процентный порог','Percentage threshold','Відсотковий поріг'],
+ minimum:['Minimum małych lokalizacji','Минимум малых локаций','Minimum small locations','Мінімум малих локацій'],
+ scenarioHint:['Porównanie z aktualnym raportem. Symulacja nie zmienia wyników ani zaznaczeń.','Сравнение с текущим отчётом. Сценарий не изменяет результаты и выбор локаций.','Compared with the current report. This simulation changes neither results nor selections.','Порівняння з поточним звітом. Сценарій не змінює результатів і вибору.'],
+ suggested:['Szybkie warianty','Быстрые варианты','Quick scenarios','Швидкі варіанти'],
+ added:['Nowe EAN','Новые EAN','New EANs','Нові EAN'],
+ removed:['EAN poza scenariuszem','EAN исключены сценарием','EANs excluded by scenario','EAN поза сценарієм'],
+ current:['EAN w obecnym raporcie','EAN в текущем отчёте','EANs in current report','EAN в поточному звіті'],
+ scenarioTotal:['EAN w scenariuszu','EAN в сценарии','EANs in scenario','EAN у сценарії'],
+ noCandidates:['Brak kandydatów dla tych kryteriów.','Кандидатов по этим условиям нет.','No candidates for these conditions.','Немає кандидатів за цими умовами.'],
+ showMore:['Szczegóły','Подробнее','Details','Деталі'],
+ low:['Małe lokalizacje','Малые локации','Small locations','Малі локації'],
+ threshold:['Wymagany próg dla tego EAN','Необходимый процент для этого EAN','Percentage needed for this EAN','Необхідний відсоток для цього EAN'],
+ missing:['Brakuje','Не хватает','Missing','Бракує'],
+ rows:['Lokalizacje z dodatnim stanem','Локации с положительным остатком','Locations with positive stock','Локації з додатним залишком'],
+ share:['Udział największego stanu','Доля крупнейшего остатка','Largest stock share','Частка найбільшого залишку'],
+ balanced:['Brak wyraźnie dominującego stanu; sprawdź ręcznie możliwość połączenia.','Нет явно доминирующего остатка. Проверь возможность объединения вручную.','No clearly dominant balance. Check consolidation feasibility manually.','Немає явно найбільшого залишку. Перевірте можливість об’єднання вручну.'],
+ multi:['Grupy małych stanów do sprawdzenia','Группы небольших остатков для проверки','Small-stock groups to inspect','Групи малих залишків для перевірки'],
+ multiHint:['Kilka dodatnich stanów może tworzyć grupę do ręcznej weryfikacji. Brak danych o pojemności, więc nie jest to gotowy plan przeniesienia.','Несколько небольших остатков можно рассмотреть вместе. Без вместимости локаций это не готовый план перемещений.','Several small balances could be reviewed together. Without bin capacity data, this is not a move plan.','Кілька малих залишків можна перевірити разом. Без даних про місткість це не план переміщень.'],
+ alternative:['Alternatywne miejsca docelowe','Альтернативные места назначения','Alternative destination locations','Альтернативні місця призначення'],
+ alternativeHint:['Pokazano lokalizacje z największymi dodatnimi stanami. Ich pojemność nie jest znana.','Показаны локации с наибольшими положительными остатками. Свободная вместимость неизвестна.','Locations with the highest positive balances are shown. Free capacity is unknown.','Показано локації з найбільшими додатними залишками. Вільна місткість невідома.'],
+ concentration:['Koncentracja możliwości','Концентрация возможностей','Opportunity concentration','Концентрація можливостей'],
+ concentrationHint:['Udział małych lokalizacji obecnego raportu przypadający na 5 EAN o największej liczbie takich lokalizacji. To nie są gwarantowane zwolnione miejsca.','Доля малых локаций текущего отчёта у пяти EAN с наибольшим числом таких локаций. Это не гарантированно освобождаемые места.','Share of current-report small locations belonging to the five EANs with the most small locations. Not guaranteed freed bins.','Частка малих локацій поточного звіту серед п’яти EAN з найбільшою кількістю таких локацій. Це не гарантовано звільнені місця.'],
+ checks:['Uwaga: niespójności w danych','Внимание: проблемы в данных','Attention: data issues','Увага: проблеми в даних'],
+ duplicates:['EAN z powtórzonym adresem','EAN с повторным адресом','EANs with duplicate locations','EAN з повторною адресою'],
+ invalid:['Wiersze bez EAN lub z nieprawidłową ilością','Строки без EAN или с неправильным количеством','Rows missing EAN or with invalid quantity','Рядки без EAN або з невірною кількістю'],
+ none:['Nie znaleziono dodatkowych przypadków.','Дополнительных случаев не найдено.','No additional cases found.','Додаткових випадків не знайдено.'],
+ source:['Dane z obecnie wczytanego arkusza MP','Данные из текущего файла MP','Using the currently loaded MP workbook','Дані з поточного файлу MP'],
+ safety:['Wskazówki wymagają sprawdzenia fizycznej pojemności i ograniczeń magazynowych. Główna Konsolidacja pozostaje bez zmian.','Рекомендации требуют проверки реальной вместимости и складских ограничений. Основная Konsolidacja не изменяется.','Verify actual bin capacity and warehouse restrictions. Main Konsolidacja is unchanged.','Потрібно перевірити місткість і складські обмеження. Основна Konsolidacja незмінна.'],
+ places:['lok.','лок.','bins','лок.'],
+ pieces:['szt.','шт.','units','шт.'],
+ sample:['Przykładowe EAN','Примеры EAN','Example EANs','Приклади EAN'],
+ loading:['Trwa analiza…','Выполняется анализ…','Analyzing…','Триває аналіз…']
 };
-function intelConsT(key){const ix={pl:0,ru:1,en:2,uk:3}[uiLanguage.value]??0;return intelConsText[key]?.[ix]||key;}
-function intelConsOpen(){
+function intelConsT(key){uiLanguage.value;const ix={pl:0,ru:1,en:2,uk:3}[uiLanguage.value]??0;return intelConsText[key]?.[ix]||key;}
+function intelConsMeasure(g,pct){const limit=g.maxItems*(pct/100);let count=0;
+ for(const r of g.rows){if(r.loc!==g.mainLoc&&r.qty>0&&r.qty<=limit)count++;}
+ return count;}
+// Build on demand in chunks, so the modal can paint during large data sets.
+async function intelConsOpen(){
  if(!konsolidacja.result||intelConsLoading.value)return;
  intelConsLoading.value=true;
- const groups=new Map();let invalid=0;
- for(const r of toteMp.records){
-  if(!mpLocationAllowed(r.location))continue;
-  const ean=String(r.ean||'').trim(),loc=String(r.location||'').trim(),qty=Number(r.qty);
-  if(!ean||!Number.isFinite(qty)){invalid++;continue;}
-  let g=groups.get(ean);
-  if(!g){g={ean,rows:[],descriptions:new Set(),mainLoc:loc,maxItems:qty,addresses:new Set(),duplicates:0};groups.set(ean,g);}
-  if(qty>g.maxItems){g.maxItems=qty;g.mainLoc=loc;}
-  if(g.addresses.has(loc))g.duplicates++;
-  g.addresses.add(loc);
-  const desc=String(r.technicalDescription||'').trim();if(desc)g.descriptions.add(desc);
-  g.rows.push({loc,qty});
- }
- const data=[];
- for(const g of groups.values()){
-  // Exactly mirror the existing row-by-row small-location comparison.
-  const info=intelConsMeasure(g,konsolidacja.result.percent);
-  data.push({ean:g.ean,mainLoc:g.mainLoc,maxItems:g.maxItems,rows:g.rows,descriptions:[...g.descriptions],duplicates:g.duplicates,...info});
- }
- intelConsData.value=markRaw(data);
- intelConsTab.value='plan';intelConsSelected.value='';intelConsScenario.value=konsolidacja.result.percent;
- const details={type:'consolidation',module:'mp',title:'Konsolidacja',fileName:toteMp.fileName,
-  invalid,duplicateEan:data.filter(x=>x.duplicates).length};
- intelPresent(details);intelConsLoading.value=false;
+ const result=konsolidacja.result,records=toteMp.records;
+ const runId=++intelConsRunId;
+ const details={type:'consolidation',module:'mp',title:'Konsolidacja',fileName:toteMp.fileName,invalid:0,duplicateEan:0,loading:true};
+ intelPanel.value=details;intelConsTab.value='discoveries';intelConsExpanded.value='';
+ intelConsScenario.value=result.percent;intelConsMin.value=result.minLocations;
+ try{
+  await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
+  const groups=new Map();let invalid=0;
+  for(let i=0;i<records.length;i++){
+   if(runId!==intelConsRunId||intelPanel.value?.type!=='consolidation'||konsolidacja.result!==result)return;
+   const r=records[i];
+   if(mpLocationAllowed(r.location)){
+    const ean=String(r.ean||'').trim(),loc=String(r.location||'').trim(),qty=Number(r.qty);
+    if(!ean||!Number.isFinite(qty)){invalid++;}
+    else{
+     let g=groups.get(ean);
+     if(!g){g={ean,rows:[],descriptions:new Set(),mainLoc:loc,maxItems:qty,addresses:new Set(),duplicates:0};groups.set(ean,g);}
+     else if(qty>g.maxItems){g.maxItems=qty;g.mainLoc=loc;}
+     if(g.addresses.has(loc))g.duplicates++;
+     g.addresses.add(loc);
+     const desc=String(r.technicalDescription||'').trim();if(desc)g.descriptions.add(desc);
+     g.rows.push({loc,qty});
+    }
+   }
+   if(i>0&&i%8000===0)await new Promise(resolve=>setTimeout(resolve,0));
+  }
+  const data=[];let dup=0;
+  for(const g of groups.values()){
+   if(g.duplicates)dup++;
+   const positive=g.rows.filter(r=>r.qty>0);
+   const totalQty=positive.reduce((s,r)=>s+r.qty,0);
+   const smallCount=intelConsMeasure(g,result.percent);
+   const possible=positive.filter(r=>r.loc!==g.mainLoc);
+   const sorted=possible.map(r=>({loc:r.loc,qty:r.qty,ratio:g.maxItems>0?r.qty/g.maxItems*100:Infinity})).sort((a,b)=>a.ratio-b.ratio);
+   data.push({ean:g.ean,rows:g.rows,descriptions:[...g.descriptions],mainLoc:g.mainLoc,maxItems:g.maxItems,
+    totalQty,positiveCount:positive.length,share:totalQty>0?g.maxItems/totalQty*100:0,smallCount,
+    duplicates:g.duplicates,sorted,alt:positive.slice().sort((a,b)=>b.qty-a.qty).slice(0,3)});
+   if(data.length%2500===0)await new Promise(resolve=>setTimeout(resolve,0));
+  }
+  if(runId!==intelConsRunId||intelPanel.value?.type!=='consolidation'||konsolidacja.result!==result)return;
+  intelConsData.value=markRaw(data);
+  intelPanel.value.invalid=invalid;intelPanel.value.duplicateEan=dup;intelPanel.value.loading=false;
+ }catch(err){console.warn('Intelligence Konsolidacja',err);if(runId===intelConsRunId&&intelPanel.value?.type==='consolidation')intelClose();}
+ finally{intelConsLoading.value=false;}
 }
-function intelConsMeasure(g,pct){
- const limit=g.maxItems*(pct/100);let count=0,qty=0;
- for(const r of g.rows){if(r.loc!==g.mainLoc&&r.qty>0&&r.qty<=limit){count++;qty+=r.qty;}}
- return {smallCount:count,smallQty:qty,allCount:g.rows.length};
-}
-function intelConsGoToEan(ean){
- intelClose();
- Vue.nextTick(()=>{
-  const card=Array.from(document.querySelectorAll('[data-konsolidacja-ean]')).find(el=>el.getAttribute('data-konsolidacja-ean')===ean);
-  if(!card)return;
-  card.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});
- });
-}
-const intelConsPlan=computed(()=>{
- return konsolidacja.report.map(e=>({ean:e.ean,descriptions:e.descriptions,mainLoc:e.mainLoc,maxItems:e.maxItems,allCount:e.allCount,smallCount:e.smallCount,smallQty:e.small.reduce((s,r)=>s+r.qty,0)}))
-  .sort((a,b)=>b.smallCount-a.smallCount||a.smallQty-b.smallQty||a.ean.localeCompare(b.ean)).slice(0,8);
+const intelConsExcluded=computed(()=>{
+ const found=new Set(konsolidacja.report.map(e=>e.ean));
+ return intelConsData.value.filter(e=>!found.has(e.ean));
 });
 const intelConsNear=computed(()=>{
  const min=konsolidacja.result?.minLocations||1;
- const selected=new Set(konsolidacja.report.map(e=>e.ean));
- return intelConsData.value.filter(e=>!selected.has(e.ean)&&e.smallCount>0&&e.smallCount<min&&e.smallCount>=Math.max(1,min-2))
-  .sort((a,b)=>b.smallCount-a.smallCount||b.smallQty-a.smallQty).slice(0,10);
+ return intelConsExcluded.value.filter(e=>e.smallCount>0&&e.smallCount<min&&e.smallCount>=Math.max(1,min-2))
+ .sort((a,b)=>b.smallCount-a.smallCount||a.ean.localeCompare(b.ean)).slice(0,8);
+});
+const intelConsNearPercent=computed(()=>{
+ const min=konsolidacja.result?.minLocations||1,pct=konsolidacja.result?.percent||20;
+ return intelConsExcluded.value.filter(e=>{
+  if(e.smallCount>=min||e.maxItems<=0)return false;
+  const needed=e.sorted[min-1]?.ratio;
+  return Number.isFinite(needed)&&needed>pct&&needed<=pct+5;
+ }).map(e=>({...e,needed:e.sorted[min-1].ratio})).sort((a,b)=>a.needed-b.needed).slice(0,8);
+});
+const intelConsFragmented=computed(()=>intelConsExcluded.value.filter(e=>e.positiveCount>=4&&e.totalQty>0&&e.share<=35)
+ .sort((a,b)=>a.share-b.share||b.positiveCount-a.positiveCount).slice(0,6));
+const intelConsBalanced=computed(()=>intelConsExcluded.value.filter(e=>e.positiveCount>=3&&e.totalQty>0&&e.share<=45)
+ .sort((a,b)=>b.positiveCount-a.positiveCount||a.share-b.share).slice(0,6));
+const intelConsClusters=computed(()=>intelConsExcluded.value.filter(e=>e.sorted.length>=2&&e.maxItems>0&&e.sorted[0].loc!==e.sorted[1].loc)
+ .map(e=>{
+  const pair=e.sorted.slice(0,2);return {...e,pair,ratio:(pair[0].qty+pair[1].qty)/e.maxItems*100};
+ }).filter(e=>e.ratio<=100).sort((a,b)=>a.ratio-b.ratio||b.positiveCount-a.positiveCount).slice(0,8));
+const intelConsAlternative=computed(()=>intelConsExcluded.value.filter(e=>e.alt.length>=2&&e.positiveCount>=3)
+ .sort((a,b)=>b.positiveCount-a.positiveCount).slice(0,6));
+const intelConsConcentration=computed(()=>{
+ const r=konsolidacja.report;
+ const ordered=r.map(e=>e.smallCount).sort((a,b)=>b-a);
+ const top=ordered.slice(0,5).reduce((s,n)=>s+n,0);
+ return {top,total:konsolidacja.result?.totalSmall||0,share:konsolidacja.result?.totalSmall?Math.round(1000*top/konsolidacja.result.totalSmall)/10:0};
 });
 const intelConsSimulation=computed(()=>{
- const min=konsolidacja.result?.minLocations||1;const pct=Math.max(1,Math.min(50,Number(intelConsScenario.value)||1));
- let candidates=0;
- for(const g of intelConsData.value){if(intelConsMeasure(g,pct).smallCount>=min)candidates++;}
- return {candidates,delta:candidates-(konsolidacja.result?.liczbaEAN||0)};
+ const pct=Math.min(50,Math.max(1,Number(intelConsScenario.value)||1));
+ const min=Math.max(1,Math.floor(Number(intelConsMin.value)||1));
+ const before=new Set(konsolidacja.report.map(e=>e.ean));
+ let count=0,addedCount=0,removedCount=0;const added=[],removed=[];
+ for(const g of intelConsData.value){
+  const scenarioCount=intelConsMeasure(g,pct);
+  const ok=scenarioCount>=min;
+  const had=before.has(g.ean);
+  if(ok)count++;
+  if(ok&&!had){addedCount++;if(added.length<8)added.push({...g,scenarioCount});}
+  if(!ok&&had){removedCount++;if(removed.length<8)removed.push({...g,scenarioCount});}
+ }
+ return {count,addedCount,removedCount,added,removed};
 });
-
 const intelPanel=ref(null);
 const intelRowsMode=ref('all');
 const intelPage=ref(0);
@@ -1990,7 +2047,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelConsLoading,intelConsGoToEan,intelConsTab,intelConsScenario,intelConsSelected,intelConsPlan,intelConsNear,intelConsSimulation,intelConsT,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
