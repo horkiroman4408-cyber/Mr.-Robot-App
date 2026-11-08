@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.21.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.21.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -1482,7 +1482,7 @@
 <div class="scalanie-section space-y-3">
 <div class="grp-label">{{ tr(571) }} {{ konsolidacja.result.minLocations }} {{ tr(572) }}</div>
 <div v-if="!konsolidacja.report.length" class="text-center py-12 text-slate-400 italic text-sm">{{ tr(573) }}</div>
-<div v-for="e in konsolidacja.report" :key="e.ean" :data-konsolidacja-ean="e.ean" class="glass p-4 space-y-3 float-up">
+<div v-for="e in konsolidacja.report" :key="e.ean" class="glass p-4 space-y-3 float-up">
 <div class="flex flex-wrap items-start justify-between gap-3">
   <div class="min-w-0 flex-1 space-y-1">
     <div class="text-[10px] uppercase tracking-wider font-bold" style="color:var(--mr-c35,#8e8e93)">EAN</div>
@@ -1747,7 +1747,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.21.1">v3.21.1</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.21.0">v3.21.0</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1913,7 +1913,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.21.1</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.21.0</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -1966,53 +1966,6 @@
       <button type="button" class="mr-intel-close" @click="intelClose" :aria-label="intelT('close')" :title="intelT('close')">✕</button>
     </header>
     <div class="mr-intel-content">
-
-      <template v-if="intelPanel.type==='consolidation'">
-        <div class="mr-intel-eyebrow">MP · Konsolidacja</div>
-        <p class="mr-intel-hint">{{ intelConsT('intro') }}</p>
-        <div class="mr-intel-filters" style="margin:12px 0 18px;display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" :class="{active:intelConsTab==='plan'}" @click="intelConsTab='plan'">{{ intelConsT('plan') }}</button>
-          <button type="button" :class="{active:intelConsTab==='deep'}" @click="intelConsTab='deep'">{{ intelConsT('deep') }}</button>
-        </div>
-        <template v-if="intelConsTab==='plan'">
-          <div class="mr-intel-section"><h3>◎ {{ intelConsT('priority') }}</h3><p>{{ intelConsT('reason') }}</p>
-            <p v-if="!intelConsPlan.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
-            <div v-for="(e,i) in intelConsPlan" :key="e.ean" style="margin-top:10px;border:1px solid var(--intel-border);background:var(--intel-card);color:var(--intel-text);border-radius:13px;padding:12px">
-              <button type="button" @click="intelConsSelected=intelConsSelected===e.ean?'':e.ean" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;cursor:pointer;color:inherit">
-                <span style="min-width:0"><strong style="display:block;overflow-wrap:anywhere">{{ i+1 }}. {{ e.ean }}</strong><small style="display:block;opacity:.7">{{ e.descriptions.join(' · ') }}</small></span>
-                <span style="white-space:nowrap;font-weight:700">{{ e.smallCount }} ↗</span>
-              </button>
-              <div v-if="intelConsSelected===e.ean" style="margin-top:12px">
-                <div class="mr-intel-meta"><span>{{ intelConsT('main') }}</span><strong>{{ e.mainLoc }} · {{ mrIntel.compact(e.maxItems) }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('small') }}</span><strong>{{ e.smallCount }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('qty') }}</span><strong>{{ mrIntel.compact(e.smallQty) }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('total') }}</span><strong>{{ e.allCount }}</strong></div>
-                <p class="mr-intel-hint">{{ intelConsT('explain') }}</p>
-                <button type="button" class="ios-btn ios-btn-neutral" style="margin-top:10px" @click="intelConsGoToEan(e.ean)">{{ intelConsT('goToCard') }} ↗</button>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="mr-intel-section"><h3>◇ {{ intelConsT('near_pl') }}</h3>
-            <p v-if="!intelConsNear.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
-            <div v-for="e in intelConsNear" :key="e.ean" class="mr-intel-meta" style="align-items:flex-start;gap:12px"><span style="overflow-wrap:anywhere"><strong>{{ e.ean }}</strong><small style="display:block;opacity:.7">{{ e.descriptions.join(' · ') }}</small></span><strong style="white-space:nowrap">{{ e.smallCount }} / {{ konsolidacja.result.minLocations }}</strong></div>
-          </div>
-          <div class="mr-intel-section"><h3>⎇ {{ intelConsT('scenario') }}</h3>
-            <div class="mr-intel-meta"><span>{{ intelConsT('scenario') }}</span><strong><input type="number" min="1" max="50" step="1" v-model.number="intelConsScenario" class="norm-input" style="width:77px;max-width:100%;background:var(--intel-surface);color:var(--intel-text);border:1px solid var(--intel-border)"> %</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('candidate') }}</span><strong>{{ intelConsSimulation.candidates }}</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('delta') }}</span><strong>{{ intelConsSimulation.delta>0?'+':'' }}{{ intelConsSimulation.delta }}</strong></div>
-            <p class="mr-intel-hint">{{ intelConsT('safety') }}</p>
-          </div>
-          <div class="mr-intel-section"><h3>⚑ {{ intelConsT('warning') }}</h3>
-            <div class="mr-intel-meta"><span>{{ intelConsT('duplicate') }}</span><strong>{{ intelPanel.duplicateEan }}</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('invalid') }}</span><strong>{{ intelPanel.invalid }}</strong></div>
-            <p class="mr-intel-hint">{{ intelConsT('note') }}</p>
-          </div>
-        </template>
-        <div class="mr-intel-footer">✓ {{ intelT('noChange') }}</div>
-      </template>
-      <template v-else>
       <div class="mr-intel-eyebrow">{{ intelPanel.type==='overview' ? intelPanel.title : (intelPanel.type==='ret' ? ('AUDYT GEEK · '+(intelPanel.groupLabel||'AUDYT RET')) : ('KPI NORMS · '+intelPanel.rodzaj)) }}</div>
       <div class="mr-intel-metric"><div><span>{{ intelPanel.title }}</span><strong>{{ intelPanel.type==='overview' ? mrIntel.compact(intelPanel.value) : (intelPanel.type==='ret' ? (intelPanel.displayExpected||mrIntel.compact(intelPanel.expected)) : mrIntel.compact(intelPanel.perHour)) }}</strong></div><span class="mr-intel-check" :class="intelPanel.matched?'ok':'alert'">{{ intelPanel.type==='overview' ? ('◫ '+intelT('overviewBadge')) : (intelPanel.type==='nv' ? ('✓ '+intelT('readDirectly')) : (intelPanel.matched ? ('✓ '+intelT('matched')) : ('! '+intelT('mismatch')))) }}</span></div>
       <div class="mr-intel-section"><h3>◫ {{ intelT('source') }}</h3>
@@ -2070,7 +2023,6 @@
         </div>
       </template>
       <div class="mr-intel-footer">✓ {{ intelT('noChange') }}</div>
-      </template>
     </div>
   </section>
 </div>
