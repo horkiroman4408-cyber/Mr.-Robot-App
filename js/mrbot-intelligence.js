@@ -2,7 +2,7 @@
 (function (root) {
   'use strict';
   const strings = {
-    'subtitle':['Skąd pochodzi ten wynik?','Откуда взялся этот результат?','Where does this result come from?','Звідки взявся цей результат?'],
+    'subtitle':['Odkrywaj więcej możliwości w danych','Находи больше возможностей в данных','Discover more opportunities in your data','Відкривай більше можливостей у даних'],
     'source':['Plik źródłowy','Исходный файл','Source file','Вихідний файл'],
     'sheet':['Arkusz','Лист Excel','Excel sheet','Аркуш Excel'],
     'row':['Wiersz Excela','Строка Excel','Excel row','Рядок Excel'],
