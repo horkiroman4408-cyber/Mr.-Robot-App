@@ -1968,49 +1968,74 @@
     <div class="mr-intel-content">
       <template v-if="intelPanel.type==='consolidation'">
         <div class="mr-intel-eyebrow">MP · Konsolidacja</div>
-        <p class="mr-intel-hint" style="overflow-wrap:anywhere">{{ intelPanel.fileName }}</p>
-        <p class="mr-intel-hint">{{ intelConsT('intro') }}</p>
-        <div class="mr-intel-filters" style="margin:12px 0 18px;display:flex;gap:8px;flex-wrap:wrap">
-          <button type="button" :class="{active:intelConsTab==='plan'}" @click="intelConsTab='plan'">{{ intelConsT('plan') }}</button>
-          <button type="button" :class="{active:intelConsTab==='deep'}" @click="intelConsTab='deep'">{{ intelConsT('deep') }}</button>
-        </div>
-        <template v-if="intelConsTab==='plan'">
-          <div class="mr-intel-section"><h3>◎ {{ intelConsT('priority') }}</h3><p>{{ intelConsT('reason') }}</p>
-            <p v-if="!intelConsPlan.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
-            <div v-for="(e,i) in intelConsPlan" :key="e.ean" style="margin-top:10px;border:1px solid var(--intel-border);background:var(--intel-card);color:var(--intel-text);border-radius:13px;padding:12px">
-              <button type="button" @click="intelConsSelected=intelConsSelected===e.ean?'':e.ean" style="width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;background:transparent;cursor:pointer;color:inherit">
-                <span style="min-width:0"><strong style="display:block;overflow-wrap:anywhere">{{ i+1 }}. {{ e.ean }}</strong><small style="display:block;opacity:.7">{{ e.descriptions.join(' · ') }}</small></span>
-                <span style="white-space:nowrap;font-weight:700">{{ e.smallCount }} ↗</span>
-              </button>
-              <div v-if="intelConsSelected===e.ean" style="margin-top:12px">
-                <div class="mr-intel-meta"><span>{{ intelConsT('main') }}</span><strong>{{ e.mainLoc }} · {{ mrIntel.compact(e.maxItems) }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('small') }}</span><strong>{{ e.smallCount }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('qty') }}</span><strong>{{ mrIntel.compact(e.smallQty) }}</strong></div>
-                <div class="mr-intel-meta"><span>{{ intelConsT('total') }}</span><strong>{{ e.allCount }}</strong></div>
-                <p class="mr-intel-hint">{{ intelConsT('explain') }}</p>
-                <button type="button" class="ios-btn ios-btn-neutral" style="margin-top:10px" @click="intelConsGoToEan(e.ean)">{{ intelConsT('goToCard') }} ↗</button>
-              </div>
-            </div>
-          </div>
-        </template>
+        <p class="mr-intel-hint" style="overflow-wrap:anywhere">{{ intelConsT('source') }} · {{ intelPanel.fileName }}</p>
+        <p v-if="intelPanel.loading" class="mr-intel-hint" role="status">{{ intelConsT('loading') }}</p>
         <template v-else>
-          <div class="mr-intel-section"><h3>◇ {{ intelConsT('near_pl') }}</h3>
-            <p v-if="!intelConsNear.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
-            <div v-for="e in intelConsNear" :key="e.ean" class="mr-intel-meta" style="align-items:flex-start;gap:12px"><span style="overflow-wrap:anywhere"><strong>{{ e.ean }}</strong><small style="display:block;opacity:.7">{{ e.descriptions.join(' · ') }}</small></span><strong style="white-space:nowrap">{{ e.smallCount }} / {{ konsolidacja.result.minLocations }}</strong></div>
+          <div class="mr-intel-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px">
+            <button type="button" :class="{active:intelConsTab==='discoveries'}" @click="intelConsTab='discoveries'">{{ intelConsT('discoveries') }}</button>
+            <button type="button" :class="{active:intelConsTab==='simulations'}" @click="intelConsTab='simulations'">{{ intelConsT('simulations') }}</button>
+            <button type="button" :class="{active:intelConsTab==='opportunities'}" @click="intelConsTab='opportunities'">{{ intelConsT('opportunities') }}</button>
           </div>
-          <div class="mr-intel-section"><h3>⎇ {{ intelConsT('scenario') }}</h3>
-            <div class="mr-intel-meta"><span>{{ intelConsT('scenario') }}</span><strong><input type="number" min="1" max="50" step="1" v-model.number="intelConsScenario" class="norm-input" style="width:77px;max-width:100%;background:var(--intel-surface);color:var(--intel-text);border:1px solid var(--intel-border)"> %</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('candidate') }}</span><strong>{{ intelConsSimulation.candidates }}</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('delta') }}</span><strong>{{ intelConsSimulation.delta>0?'+':'' }}{{ intelConsSimulation.delta }}</strong></div>
-            <p class="mr-intel-hint">{{ intelConsT('safety') }}</p>
-          </div>
-          <div class="mr-intel-section"><h3>⚑ {{ intelConsT('warning') }}</h3>
-            <div class="mr-intel-meta"><span>{{ intelConsT('duplicate') }}</span><strong>{{ intelPanel.duplicateEan }}</strong></div>
-            <div class="mr-intel-meta"><span>{{ intelConsT('invalid') }}</span><strong>{{ intelPanel.invalid }}</strong></div>
-            <p class="mr-intel-hint">{{ intelConsT('note') }}</p>
-          </div>
+          <template v-if="intelConsTab==='discoveries'">
+            <p class="mr-intel-hint">{{ intelConsT('explanation') }}</p>
+            <div class="mr-intel-section"><h3>◇ {{ intelConsT('almost') }}</h3>
+              <p v-if="!intelConsNear.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsNear" :key="e.ean" class="mr-intel-meta" style="align-items:flex-start"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>{{ e.smallCount }} / {{ konsolidacja.result.minLocations }}</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>◇ {{ intelConsT('nearPct') }}</h3>
+              <p v-if="!intelConsNearPercent.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsNearPercent" :key="e.ean" class="mr-intel-meta" style="align-items:flex-start"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>≥ {{ e.needed.toFixed(1) }}%</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>◇ {{ intelConsT('fragmented') }}</h3>
+              <p v-if="!intelConsFragmented.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsFragmented" :key="e.ean" class="mr-intel-meta" style="align-items:flex-start"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>{{ e.positiveCount }} {{ intelConsT('places') }} · {{ e.share.toFixed(1) }}%</strong></div>
+            </div>
+            <div v-if="intelPanel.invalid||intelPanel.duplicateEan" class="mr-intel-section"><h3>⚑ {{ intelConsT('checks') }}</h3>
+              <div v-if="intelPanel.duplicateEan" class="mr-intel-meta"><span>{{ intelConsT('duplicates') }}</span><strong>{{ intelPanel.duplicateEan }}</strong></div>
+              <div v-if="intelPanel.invalid" class="mr-intel-meta"><span>{{ intelConsT('invalid') }}</span><strong>{{ intelPanel.invalid }}</strong></div>
+            </div>
+          </template>
+          <template v-else-if="intelConsTab==='simulations'">
+            <div class="mr-intel-section"><h3>⎇ {{ intelConsT('simulations') }}</h3>
+              <div class="mr-intel-meta"><span>{{ intelConsT('percent') }}</span><strong><input type="number" min="1" max="50" step="1" v-model.number="intelConsScenario" class="norm-input" style="width:84px;max-width:100%;background:var(--intel-surface);color:var(--intel-text);border:1px solid var(--intel-border)"> %</strong></div>
+              <div class="mr-intel-meta"><span>{{ intelConsT('minimum') }}</span><strong><input type="number" min="1" max="1000" step="1" v-model.number="intelConsMin" class="norm-input" style="width:84px;max-width:100%;background:var(--intel-surface);color:var(--intel-text);border:1px solid var(--intel-border)"></strong></div>
+              <p class="mr-intel-hint">{{ intelConsT('scenarioHint') }}</p>
+              <div class="mr-intel-filters" style="display:flex;flex-wrap:wrap;gap:6px"><span style="font-size:11px;align-self:center">{{ intelConsT('suggested') }}:</span><button type="button" v-for="step in [2,5,10]" :key="step" @click="intelConsScenario=Math.min(50,konsolidacja.result.percent+step)">+{{ step }}%</button></div>
+              <div class="mr-intel-meta"><span>{{ intelConsT('current') }}</span><strong>{{ konsolidacja.result.liczbaEAN }}</strong></div>
+              <div class="mr-intel-meta"><span>{{ intelConsT('scenarioTotal') }}</span><strong>{{ intelConsSimulation.count }}</strong></div>
+              <div class="mr-intel-meta"><span>{{ intelConsT('added') }}</span><strong>+{{ intelConsSimulation.addedCount }}</strong></div>
+              <div class="mr-intel-meta"><span>{{ intelConsT('removed') }}</span><strong>−{{ intelConsSimulation.removedCount }}</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>+ {{ intelConsT('added') }}</h3>
+              <p v-if="!intelConsSimulation.addedCount" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsSimulation.added" :key="e.ean" class="mr-intel-meta"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>{{ intelConsT('low') }}: {{ e.scenarioCount }}</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>− {{ intelConsT('removed') }}</h3>
+              <p v-if="!intelConsSimulation.removedCount" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsSimulation.removed" :key="e.ean" class="mr-intel-meta"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>{{ intelConsT('low') }}: {{ e.scenarioCount }}</strong></div>
+            </div>
+          </template>
+          <template v-else>
+            <div class="mr-intel-section"><h3>◎ {{ intelConsT('equal') }}</h3>
+              <p class="mr-intel-hint">{{ intelConsT('balanced') }}</p>
+              <p v-if="!intelConsBalanced.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsBalanced" :key="e.ean" class="mr-intel-meta"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.descriptions.join(' · ') }}</small></span><strong>{{ e.positiveCount }} {{ intelConsT('places') }}</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>◎ {{ intelConsT('multi') }}</h3><p class="mr-intel-hint">{{ intelConsT('multiHint') }}</p>
+              <p v-if="!intelConsClusters.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsClusters" :key="e.ean" class="mr-intel-meta"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.pair.map(r=>r.loc+' ('+r.qty+')').join(' + ') }}</small></span><strong>{{ e.ratio.toFixed(1) }}%</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>◎ {{ intelConsT('alternative') }}</h3><p class="mr-intel-hint">{{ intelConsT('alternativeHint') }}</p>
+              <p v-if="!intelConsAlternative.length" class="mr-intel-hint">{{ intelConsT('none') }}</p>
+              <div v-for="e in intelConsAlternative" :key="e.ean" class="mr-intel-meta"><span><strong>{{ e.ean }}</strong><small style="display:block;opacity:.75">{{ e.alt.map(r=>r.loc+' ('+r.qty+')').join(' · ') }}</small></span><strong>{{ e.positiveCount }} {{ intelConsT('places') }}</strong></div>
+            </div>
+            <div class="mr-intel-section"><h3>◎ {{ intelConsT('concentration') }}</h3>
+              <div class="mr-intel-meta"><span>TOP 5 EAN</span><strong>{{ intelConsConcentration.share }}%</strong></div>
+              <p class="mr-intel-hint">{{ intelConsT('concentrationHint') }}</p>
+            </div>
+          </template>
+          <div class="mr-intel-footer">✓ {{ intelConsT('safety') }}</div>
         </template>
-        <div class="mr-intel-footer">✓ {{ intelT('noChange') }}</div>
       </template>
       <template v-else>
       <div class="mr-intel-eyebrow">{{ intelPanel.type==='overview' ? intelPanel.title : (intelPanel.type==='ret' ? ('AUDYT GEEK · '+(intelPanel.groupLabel||'AUDYT RET')) : ('KPI NORMS · '+intelPanel.rodzaj)) }}</div>
