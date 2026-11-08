@@ -1506,3 +1506,64 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
  }
  #rs-drop-mp .rs-mp-drop-actions{justify-content:flex-start}
 }
+
+/* Mr. Robot v3.20.0 — Bridge guide controls: high contrast in every theme.
+   Use currentColor translucency instead of a light card token for selected states. */
+.mr-bridge-settings .mr-bridge-guide-tab.is-selected,
+.mr-bridge-settings .mr-bridge-guide-copy,
+.mr-bridge-settings .mr-bridge-browser-choice.is-selected {
+  background:color-mix(in srgb,currentColor 11%,transparent);
+  color:inherit;
+  opacity:1;
+  border-color:color-mix(in srgb,currentColor 25%,transparent);
+}
+.mr-bridge-settings .mr-bridge-guide-tab:hover,
+.mr-bridge-settings .mr-bridge-guide-copy:hover,
+.mr-bridge-settings .mr-bridge-browser-choice:hover {
+  background:color-mix(in srgb,currentColor 17%,transparent);
+  color:inherit;
+}
+.mr-bridge-settings .mr-bridge-guide-tab.is-selected {
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 14%,transparent);
+}
+.mr-bridge-settings .mr-bridge-guide-copy:focus-visible,
+.mr-bridge-settings .mr-bridge-guide-tab:focus-visible,
+.mr-bridge-settings .mr-bridge-browser-choice:focus-visible {
+  outline:2px solid currentColor;
+  outline-offset:2px;
+}
+/* Identical moving activity cue for both shared RS/MP upload zones.
+   The track width is driven ONLY by Worker progress; the moving highlight
+   is decorative and does not invent elapsed percentages. */
+#rs-drop-mp .grafik-bar.loading .progress-track,
+#rs-drop-rs .grafik-bar.loading .progress-track {
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  min-height:5px;
+}
+#rs-drop-mp .grafik-bar.loading .progress-fill,
+#rs-drop-rs .grafik-bar.loading .progress-fill {
+  position:relative;
+  overflow:hidden;
+  min-height:5px;
+  transition:width .3s ease-out;
+}
+#rs-drop-mp .grafik-bar.loading .progress-fill::after,
+#rs-drop-rs .grafik-bar.loading .progress-fill::after {
+  content:'';
+  position:absolute;
+  inset:0;
+  width:48%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+  animation:mr-rs-mp-progress-run 1.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes mr-rs-mp-progress-run {
+  from {transform:translateX(-110%)}
+  to {transform:translateX(330%)}
+}
+@media(prefers-reduced-motion:reduce){
+  #rs-drop-mp .grafik-bar.loading .progress-fill::after,
+  #rs-drop-rs .grafik-bar.loading .progress-fill::after {animation:none;opacity:.15}
+}
