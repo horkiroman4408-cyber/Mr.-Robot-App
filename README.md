@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.21.0-blue)
+![version](https://img.shields.io/badge/version-3.21.2-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -79,6 +79,12 @@ You never re-download or re-install anything manually. Updates arrive like this:
 
 The update is applied only when you click — an in-progress report is never interrupted. On the first launch, new users get a short welcome. After subsequent version updates, a one-time summary appears with a button to the full **What’s new** history. The ✨ badge still marks unread changelog entries.
 
+### Recent releases
+
+**v3.21.2:** Konsolidacja Intelligence adds EAN action priorities, near-threshold candidates and percentage scenario checks. Large EAN result sorting is faster. Other warehouse calculations and Bridge v0.3.14 remain unchanged.
+
+**v3.21.0:** MR. BOT Intelligence now explains KPI Audyt/Scalanie/Rozkładanie and MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja and Przestoje summaries. Existing AUDYT GEEK and NADWE/VAS explanations remain available. MR. BOT instructions updated in four app languages. Business logic and exports unchanged. Bridge stays at v0.3.14.
+
 ---
 
 ## 🔥 Why it exists
@@ -142,7 +148,7 @@ KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available thro
 
 ## 🧩 The Modules (Deep Dive)
 
-**v3.21.0:** MR. BOT Intelligence now explains KPI Audyt/Scalanie/Rozkładanie and MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja and Przestoje summaries. Existing AUDYT GEEK and NADWE/VAS explanations remain available. MR. BOT instructions updated in four app languages. Business logic and exports unchanged. Bridge stays at v0.3.14.
+
 
 
 The app is a hub with four sections. Each one replaces a recurring task.

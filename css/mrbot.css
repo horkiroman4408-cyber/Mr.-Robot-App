@@ -309,3 +309,6 @@ html[data-theme="ivory"] #mrbot-root{
  --mb-input:#fffcf7;--mb-accent:#246951;--mb-shadow:0 16px 44px rgba(83,69,49,.19);
 }
 html[data-theme="ivory"] #mrbot-suggestions button:hover{background:#e0ede2;color:#205b46}
+
+/* Konsolidacja Intelligence: never show a second MR. BOT panel behind the analysis dialog. */
+body.mr-intel-active #mrbot-root{visibility:hidden!important;pointer-events:none!important}
