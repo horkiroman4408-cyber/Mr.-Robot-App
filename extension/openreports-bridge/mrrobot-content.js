@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.13';
+  const bridgeVersion = '0.3.14';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -51,7 +51,10 @@
     const reportName=REPORTS[report]?.name?.toLowerCase();
     if(!reportName)return false;
     const n=String(name||'').toLowerCase();
-    return n===reportName+'.xlsx'||(n.startsWith(reportName+'_')&&n.endsWith('.xlsx'));
+    // Keep the original report-specific check after stripping only Edge's
+    // trailing positive-number duplicate suffix (also after timestamped names).
+    const canonical=n.replace(/ \([1-9]\d*\)(?=\.xlsx$)/i,'');
+    return canonical===reportName+'.xlsx'||(canonical.startsWith(reportName+'_')&&canonical.endsWith('.xlsx'));
   };
 
 

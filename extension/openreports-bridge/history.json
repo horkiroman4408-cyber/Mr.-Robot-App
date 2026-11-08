@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.14",
+      "date": "2026-11-08",
+      "title": {
+        "pl": "Poprawne rozpoznawanie ponownie pobranych XLSX",
+        "ru": "Правильное распознавание повторных XLSX",
+        "en": "Reliable recognition of repeated XLSX downloads",
+        "uk": "Правильне розпізнавання повторних XLSX"
+      },
+      "changes": {
+        "pl": [
+          "Obsługa sufiksów Edge/Chrome (1), (2) i kolejnych, również dla nazw raportów z datą.",
+          "Zgodne rozpoznawanie plików we wszystkich ośmiu raportach: pobieranie, automatyczny i ręczny import; kontrola typu raportu pozostaje ścisła."
+        ],
+        "ru": [
+          "Поддержка суффиксов Edge/Chrome (1), (2) и далее, в том числе у отчётов с датой в имени.",
+          "Единая проверка имён во всех восьми отчётах при скачивании, автоимпорте и ручном выборе; защита от чужих отчётов сохранена."
+        ],
+        "en": [
+          "Accept Edge/Chrome duplicate suffixes (1), (2) and higher, including timestamped report filenames.",
+          "Consistent filename recognition for all eight reports during download, automatic import and manual selection; report-type validation stays strict."
+        ],
+        "uk": [
+          "Підтримка суфіксів Edge/Chrome (1), (2) тощо, включно зі звітами з датою в назві.",
+          "Узгоджена перевірка файлів для всіх восьми звітів під час завантаження, автоімпорту та ручного вибору; перевірка типу звіту залишається суворою."
+        ]
+      }
+    },
+    {
       "version": "0.3.13",
       "date": "2026-11-07",
       "title": {

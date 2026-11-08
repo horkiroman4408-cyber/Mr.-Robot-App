@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Mr. Robot | OpenReports Bridge",
   "description": "OpenReports Bridge: XLSX reports for MP, RS and KPI Audyt, Scalanie, Rozkładanie and NADWE/VAS; PL/RU/EN/UK.",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "permissions": [
     "storage",
     "tabs",

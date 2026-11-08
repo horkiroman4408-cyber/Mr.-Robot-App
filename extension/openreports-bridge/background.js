@@ -34,7 +34,11 @@ const isReportName = (name, key) => {
   if (!report) return false;
   const file = basename(name).toLowerCase();
   const prefix = report.toLowerCase();
-  return file === prefix + '.xlsx' || (file.startsWith(prefix+'_') && file.endsWith('.xlsx'));
+  // Edge's conflictAction:'uniquify' may add (1), (2), ... before .xlsx.
+  // Remove ONLY a final positive-number duplicate suffix, then apply the
+  // original strict report-specific filename test.
+  const canonical = file.replace(/ \([1-9]\d*\)(?=\.xlsx$)/i, '');
+  return canonical === prefix + '.xlsx' || (canonical.startsWith(prefix+'_') && canonical.endsWith('.xlsx'));
 };
 const isApp = url => { try { const u=new URL(url);return u.origin===APP_ORIGIN&&(u.pathname===APP_PREFIX.slice(0,-1)||u.pathname.startsWith(APP_PREFIX)); } catch { return false; } };
 
