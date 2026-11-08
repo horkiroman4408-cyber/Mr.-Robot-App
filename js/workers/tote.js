@@ -117,5 +117,82 @@ async function rsStreamWorkbook(buffer,entries){
   const err=new Error('RS worksheet with required columns was not found');err.code='RS_SHEET_NOT_FOUND';throw err;
 }
 
-self.onmessage=async function(e){try{const{buffer,kind}=e.data;self.postMessage({type:'progress',stage:'read',percent:10});const data=new Uint8Array(buffer);self.postMessage({type:'progress',stage:'excel',percent:30});if(kind==='RS'){const entries=rsZipEntries(buffer);if(rsWorksheetEntries(entries).some(e=>e.size>RS_STREAM_THRESHOLD)){self.postMessage({type:'progress',stage:'parse',percent:0});const records=await rsStreamWorkbook(buffer,entries);self.postMessage({type:'done',records});return;}}const wb=XLSX.read(data,{type:'array',dense:true,cellStyles:false,cellNF:false,cellHTML:false,cellFormula:false,sheetStubs:false});self.postMessage({type:'progress',stage:'excel',percent:60});const rows=kind==='RS'?findRsDataRows(wb):XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});self.postMessage({type:'progress',stage:'parse',percent:0});const records=kind==='MP'?parseMP(rows):parseRS(rows);self.postMessage({type:'done',records});}catch(err){self.postMessage({type:'error',message:err.message,code:err.code||''});}};
+
+// Big MP exports: stream XML rows instead of materializing the entire workbook
+// and its large AOA. Keep every record key and legacy field normalization.
+// This optimized path deliberately supports inline strings (OpenReports XML).
+// Workbooks with sharedStrings continue through the proven SheetJS path.
+const MP_STREAM_THRESHOLD=100*1024*1024;
+function mpXmlRow(xml){
+  const row=[];let m;
+  const cells=/<c\\b([^>]*?)(?:\\/\\s*>|>([\\s\\S]*?)<\\/c>)/g;
+  while((m=cells.exec(xml))!==null){
+    const addr=/\\br="([A-Z]+)\\d+"/.exec(m[1]);if(!addr)continue;
+    const index=rsExcelCol(addr[1]);const body=m[2]||'';
+    const type=/\\bt="([^"]+)"/.exec(m[1])?.[1]||'n';
+    let v='';
+    if(type==='inlineStr'||type==='str'){
+      const texts=/<t(?:\\s[^>]*)?>([\\s\\S]*?)<\\/t>/g;let t;
+      while((t=texts.exec(body))!==null)v+=rsXmlUnescape(t[1]);
+      if(!v){const raw=/<v>([\\s\\S]*?)<\\/v>/.exec(body);if(raw)v=rsXmlUnescape(raw[1]);}
+    }else{
+      const raw=/<v>([\\s\\S]*?)<\\/v>/.exec(body);
+      if(raw){const value=rsXmlUnescape(raw[1]);
+        v=type==='b'?value==='1':type==='n'?(value===''?'':Number(value)):value;
+      }
+    }
+    row[index]=v;
+  }
+  return row;
+}
+function mpMapping(header){
+  const h=header.map(v=>String(v||'').replace(/\\s+/g,' ').trim());
+  const found=['BRAND','LOCATION','LOCATION TYPE','EAN','NO OF ITEMS'].filter(k=>h.some(v=>v.toLowerCase().includes(k.toLowerCase()))).length;
+  if(found<3)return null;
+  return {loc:colIdx(h,['LOCATION']),type:colIdx(h,['LOCATION TYPE']),lock:colIdx(h,['LOCK_DESC']),
+    ean:colIdx(h,['EAN']),abc:colIdx(h,['ABC']),qty:colIdx(h,['NO OF ITEMS']),
+    avail:colIdx(h,['QTY AVAILABLE']),res:colIdx(h,['QTY RESERVED']),desc:colIdx(h,['TECHNICAL DESCRIPTION'])};
+}
+function mpRecord(row,c){
+  const ean=String(val(row,c.ean)).trim();if(!ean)return null;
+  return {location:String(val(row,c.loc)).trim(),locationType:String(val(row,c.type)).trim(),
+    lockDesc:String(val(row,c.lock)).trim(),ean,technicalDescription:String(val(row,c.desc)).trim(),
+    abc:String(val(row,c.abc)).trim().toUpperCase(),qty:num(val(row,c.qty)),
+    qtyAvailable:numOrNull(val(row,c.avail)),qtyReserved:numOrNull(val(row,c.res)),
+    raw4:val(row,3),raw5:val(row,4),raw15:val(row,14),raw16:val(row,15)};
+}
+async function mpStreamWorksheet(buffer,entry){
+  const reader=rsZipXmlStream(buffer,entry).getReader(),decoder=new TextDecoder();
+  let pending='',consumed=0,seenRows=0,mapping=null,last=-1;const records=[];
+  try{
+    while(true){
+      const {done,value}=await reader.read();if(done)break;
+      consumed+=value.byteLength;pending+=decoder.decode(value,{stream:true});
+      let end;
+      while((end=pending.indexOf('</row>'))>=0){
+        const start=pending.lastIndexOf('<row',end);
+        if(start>=0){
+          const row=mpXmlRow(pending.slice(start,end+6));
+          if(!mapping){if(seenRows<10)mapping=mpMapping(row);}
+          else{const record=mpRecord(row,mapping);if(record)records.push(record);}
+          seenRows++;
+        }
+        pending=pending.slice(end+6);
+      }
+      if(pending.length>8388608)throw Error('Invalid MP XLSX worksheet row');
+      const pct=Math.min(99,Math.floor(consumed/entry.size*100));
+      if(pct>=last+2){last=pct;self.postMessage({type:'progress',stage:'parse',percent:pct});}
+    }
+  }finally{reader.releaseLock();}
+  return mapping?records:null;
+}
+async function mpStreamWorkbook(buffer,entries){
+  for(const entry of rsWorksheetEntries(entries)){
+    const found=await mpStreamWorksheet(buffer,entry);
+    if(found!==null)return found;
+  }
+  const err=new Error('MP worksheet with required columns was not found');err.code='MP_SHEET_NOT_FOUND';throw err;
+}
+
+self.onmessage=async function(e){try{const{buffer,kind}=e.data;self.postMessage({type:'progress',stage:'read',percent:10});const data=new Uint8Array(buffer);self.postMessage({type:'progress',stage:'excel',percent:30});if(kind==='RS'){const entries=rsZipEntries(buffer);if(rsWorksheetEntries(entries).some(e=>e.size>RS_STREAM_THRESHOLD)){self.postMessage({type:'progress',stage:'parse',percent:0});const records=await rsStreamWorkbook(buffer,entries);self.postMessage({type:'done',records});return;}}if(kind==='MP'){const entries=rsZipEntries(buffer);if(!entries.some(e=>e.name==='xl/sharedStrings.xml')&&rsWorksheetEntries(entries).some(e=>e.size>MP_STREAM_THRESHOLD)){self.postMessage({type:'progress',stage:'parse',percent:0});const records=await mpStreamWorkbook(buffer,entries);self.postMessage({type:'done',records});return;}}const wb=XLSX.read(data,{type:'array',dense:true,cellStyles:false,cellNF:false,cellHTML:false,cellFormula:false,sheetStubs:false});self.postMessage({type:'progress',stage:'excel',percent:60});const rows=kind==='RS'?findRsDataRows(wb):XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''});self.postMessage({type:'progress',stage:'parse',percent:0});const records=kind==='MP'?parseMP(rows):parseRS(rows);self.postMessage({type:'done',records});}catch(err){self.postMessage({type:'error',message:err.message,code:err.code||''});}};
 `;
