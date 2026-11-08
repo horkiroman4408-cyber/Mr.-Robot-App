@@ -2037,6 +2037,39 @@
           <div class="mr-intel-footer">✓ {{ intelConsT('safety') }}</div>
         </template>
       </template>
+      <template v-else-if="intelPanel.type==='auditTrace'">
+        <div class="mr-intel-eyebrow">AL_AUDYT · {{ intelAuditT('heading') }}</div>
+        <p class="mr-intel-hint">{{ intelAuditT('desc') }}</p>
+        <div class="mr-intel-section"><h3>◫ {{ intelAuditT('source') }}</h3><div class="mr-intel-meta"><span>ECM_AI_Audit</span><strong style="overflow-wrap:anywhere">{{ intelPanel.fileName }}</strong></div><p class="mr-intel-hint">{{ intelAuditT('filter') }}</p></div>
+        <div class="mr-intel-section"><h3>▤ {{ intelAuditT('choose') }}</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px">
+            <button v-for="m in INTEL_AUDIT_METRICS" :key="m.key" type="button" @click="intelAuditMetric=m.key;intelAuditView='included'" :aria-pressed="intelAuditMetric===m.key" :style="{padding:'9px 12px',borderRadius:'11px',textAlign:'left',border:intelAuditMetric===m.key?'1px solid #0a84ff':'1px solid var(--intel-border)',background:intelAuditMetric===m.key?'rgba(10,132,255,.1)':'var(--intel-surface)',color:'var(--intel-text)',cursor:'pointer'}">
+              <span style="font-size:11px;display:block;opacity:.8">{{ intelAuditLabel(m) }}</span>
+              <strong style="font-size:18px">{{ ['odsetek','infoPercent'].includes(m.key) ? '％' : '∑' }}</strong>
+            </button>
+          </div>
+          <div v-if="intelAuditMetric.startsWith('info')" class="mr-intel-meta" style="margin-top:12px"><span>{{ intelAuditT('group') }}</span><select v-model="intelAuditInfo" :aria-label="intelAuditT('group')" style="max-width:65%;min-width:150px;background:var(--intel-surface);color:var(--intel-text);border:1px solid var(--intel-border);border-radius:8px;padding:7px"><option value="">{{ intelAuditT('groupAll') }}</option><option v-for="g in intelAuditGroups" :key="g.name" :value="g.name">{{ g.name }}</option></select></div>
+        </div>
+        <template v-if="intelAuditDetail">
+          <div class="mr-intel-section"><h3>≡ {{ intelAuditT('rule') }}</h3>
+            <p>{{ intelAuditT(intelAuditDetail.rule) }}</p>
+            <div class="mr-intel-stats"><div><span>{{ intelAuditT('included') }}</span><strong>{{ mrIntel.compact(intelAuditDetail.included) }}</strong></div><div><span>{{ intelAuditT('excluded') }}</span><strong>{{ mrIntel.compact(intelAuditDetail.excluded) }}</strong></div></div>
+            <div v-if="intelAuditDetail.percent" class="mr-intel-meta"><span>{{ intelAuditT('numerator') }} / {{ intelAuditT('denominator') }}</span><strong>{{ intelAuditDetail.numerator }} / {{ intelAuditDetail.denominator }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelAuditT('result') }}</span><strong>{{ intelAuditDetail.percent?(intelAuditDetail.computed*100).toFixed(2)+'%':mrIntel.compact(intelAuditDetail.computed) }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelAuditT('report') }}</span><strong>{{ intelAuditDetail.percent?(intelAuditDetail.expected*100).toFixed(2)+'%':mrIntel.compact(intelAuditDetail.expected) }}</strong></div>
+            <p class="mr-intel-hint" :style="{color:intelAuditDetail.matched?'var(--mr-intel-success,#16a34a)':'var(--mr-intel-error,#ef4444)'}">{{ intelAuditDetail.matched?'✓ '+intelAuditT('same'):'! '+intelAuditT('different') }}</p>
+          </div>
+          <div class="mr-intel-section"><h3>▤ {{ intelAuditT('rows') }}</h3>
+            <div class="mr-intel-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"><button type="button" v-for="v in ['included','excluded','all']" :key="v" :class="{active:intelAuditView===v}" @click="intelAuditView=v">{{ intelAuditT(v) }}</button></div>
+            <div class="mr-intel-table-wrap"><table class="mr-intel-table"><thead><tr><th>{{ intelAuditT('loc') }}</th><th>{{ intelAuditT('incident') }}</th><th>{{ intelAuditT('info') }}</th><th>{{ intelAuditT('reason') }}</th></tr></thead><tbody>
+              <tr v-for="(r,i) in intelAuditRows" :key="i"><td class="mr-intel-cell-bin">{{ r.loc }}</td><td>{{ r.incident }}</td><td>{{ r.info }}</td><td><span :class="r.ok?'mr-intel-included':'mr-intel-excluded'">{{ r.ok?'✓':'−' }} {{ intelAuditT(r.reason) }}</span></td></tr>
+              <tr v-if="!intelAuditRows.length"><td colspan="4">{{ intelAuditT('none') }}</td></tr>
+            </tbody></table></div>
+            <p class="mr-intel-hint">{{ intelAuditT('limit') }} {{ intelAuditT('noExcel') }}</p>
+          </div>
+          <p class="mr-intel-hint">{{ intelAuditT('warning') }}</p>
+        </template>
+      </template>
       <template v-else-if="intelPanel.type==='formatkaTrace'">
         <div class="mr-intel-eyebrow">FORMATKA_59 · {{ intelFmtT('title') }}</div>
         <p class="mr-intel-hint">{{ intelFmtT('intro') }}</p>
@@ -2159,7 +2192,7 @@
 <script src="js/workers/common.js"></script>
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
-<script src="js/app.js?v=3.21.2-formatka-trace-20261108"></script>
+<script src="js/app.js?v=3.21.2-audyt-formatka-trace-20261108"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>

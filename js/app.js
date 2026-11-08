@@ -2022,6 +2022,87 @@ const intelFmtDetails=computed(()=>{
  return {metric,result,current,matching:Math.abs(result-current)<0.00001,count:selected.length,calculation,parts:parts.slice(0,60)};
 });
 
+
+// AL_AUDYT Intelligence: trace the existing calculation without changing source or report.
+// The two row populations are deliberately distinct: headline totals and the INFO table.
+const intelAuditMetric=ref('totalLoc');
+const intelAuditInfo=ref('');
+const intelAuditView=ref('included');
+const INTEL_AUDIT_TEXT={
+ pl:{total:'Total = poprawne + shortage + surplus. Inne wartości Incident są pomijane.',error:'Błędne = shortage + surplus; wiersze poprawne i inne statusy są pomijane.',heading:'Jak powstał wynik?',desc:'Śledzenie zasad i wierszy źródłowych AL_AUDYT.',choose:'Wybierz wskaźnik',source:'Plik źródłowy',rule:'Zasada wyliczenia',included:'Uwzględnione',excluded:'Pominięte',all:'Wszystkie',rows:'Wiersze źródłowe',loc:'Lokalizacja',incident:'Incident',info:'INFO',reason:'Powód',result:'Obliczono',report:'W raporcie',same:'Wynik zgodny z raportem',different:'Wynik niezgodny z raportem',limit:'Lista ograniczona do 60 wierszy; suma obejmuje wszystkie.',none:'Brak wierszy w tym widoku.',noExcel:'Numery wierszy Excela nie są zachowywane przez parser; podano lokalizację.',group:'Grupa INFO',groupAll:'Wszystkie grupy',numerator:'Błędy',denominator:'Mianownik',invalid:'Status nieuwzględniony w podsumowaniu',other:'Inna kategoria',correct:'Wiersz poprawny (Incident pusty lub „-”).',short:'Wiersz zawierający „shortage”.',surp:'Wiersz zawierający „surplus” (bez shortage).',both:'Wiersz zawierający shortage; ten status ma pierwszeństwo.',notCorrect:'Status nie jest pusty ani „-”.',notShort:'Status bez „shortage”.',notSurp:'Status bez „surplus” lub ma pierwszeństwo shortage.',notTotal:'Status nie kwalifikuje się do żadnej z trzech kategorii.',notErr:'Wiersz poprawny albo pomijany.',infoInclude:'Niepuste INFO inne niż dokładnie „INFO”.',infoExclude:'INFO puste lub dokładnie „INFO”.',groupExclude:'Inna grupa INFO.',infoShort:'INFO wypełnione i status shortage.',infoSurp:'INFO wypełnione i status surplus (bez shortage).',infoTotal:'Każdy wiersz z kwalifikującym się INFO, niezależnie od Incident.',pct:'Odsetek = (Shortage + Surplus) / Total; Total nie obejmuje pozostałych statusów.',infoPct:'Odsetek INFO = (Shortage + Surplus) / wiersze w danej grupie INFO.',warning:'Wskaźniki główne i tabela INFO mają różne zasady kwalifikacji. Wiersz pominięty w Total może wystąpić w INFO.',filter:'Aktualny filtr lokalizacji / marki jest używany bez zmian.'},
+ ru:{total:'Total = корректные + shortage + surplus. Другие значения Incident не учитываются.',error:'Ошибки = shortage + surplus. Корректные и прочие статусы исключаются.',heading:'Откуда взялся результат?',desc:'Подробный разбор расчётов и исходных строк AL_AUDYT.',choose:'Выбери показатель',source:'Исходный файл',rule:'Правило расчёта',included:'Учтены',excluded:'Исключены',all:'Все',rows:'Исходные строки',loc:'Локация',incident:'Incident',info:'INFO',reason:'Причина',result:'Пересчитано',report:'В отчёте',same:'Совпадает с отчётом',different:'Расхождение с отчётом',limit:'Показаны первые 60 строк; итог учитывает все.',none:'Нет строк в этой категории.',noExcel:'Парсер не сохраняет номера строк Excel; для ориентира указана локация.',group:'Группа INFO',groupAll:'Все группы',numerator:'Ошибки',denominator:'Знаменатель',invalid:'Статус не входит в итог',other:'Другая категория',correct:'Строка корректна: Incident пустой или «-».',short:'Статус содержит shortage.',surp:'Статус содержит surplus и не содержит shortage.',both:'Статус содержит shortage: у него приоритет.',notCorrect:'Incident не пустой и не «-».',notShort:'В статусе нет shortage.',notSurp:'В статусе нет surplus либо сработал shortage.',notTotal:'Incident не подходит ни под один из трёх статусов.',notErr:'Корректная или исключённая строка.',infoInclude:'Непустой INFO, который не равен точно «INFO».',infoExclude:'INFO пустой или точно «INFO».',groupExclude:'Другая группа INFO.',infoShort:'INFO заполнен, статус shortage.',infoSurp:'INFO заполнен, статус surplus (без shortage).',infoTotal:'Любая строка с подходящим INFO, независимо от Incident.',pct:'Процент ошибок = (Shortage + Surplus) / Total; другие статусы не входят в Total.',infoPct:'Процент в INFO = (Shortage + Surplus) / количество строк данной группы INFO.',warning:'Общие итоги и таблица INFO учитывают строки по разным правилам. Исключённая из Total строка может попасть в INFO.',filter:'Существующий фильтр локаций и бренда применяется без изменений.'},
+ en:{total:'Total = correct + shortage + surplus; other Incident statuses are excluded.',error:'Errors = shortage + surplus; correct and other statuses are excluded.',heading:'How was this calculated?',desc:'Trace AL_AUDYT metrics back to their source rows and rules.',choose:'Choose a metric',source:'Source workbook',rule:'Calculation rule',included:'Included',excluded:'Excluded',all:'All',rows:'Source rows',loc:'Location',incident:'Incident',info:'INFO',reason:'Reason',result:'Recalculated',report:'In report',same:'Matches current report',different:'Does not match report',limit:'First 60 records shown; totals include all rows.',none:'No records in this view.',noExcel:'Excel row numbers are not retained by the parser; locations identify entries.',group:'INFO group',groupAll:'All groups',numerator:'Errors',denominator:'Denominator',invalid:'Unrecognized status excluded from totals',other:'Other category',correct:'Correct: Incident is blank or a dash.',short:'Incident contains shortage.',surp:'Incident contains surplus, without shortage.',both:'Shortage takes precedence in status classification.',notCorrect:'Incident is neither blank nor a dash.',notShort:'Incident does not contain shortage.',notSurp:'Incident has no surplus, or shortage took precedence.',notTotal:'Incident does not match any of the three counted categories.',notErr:'Correct or excluded record.',infoInclude:'Nonblank INFO other than the literal INFO.',infoExclude:'INFO is blank or exactly INFO.',groupExclude:'Another INFO group.',infoShort:'Eligible INFO with shortage status.',infoSurp:'Eligible INFO with surplus status (without shortage).',infoTotal:'Every row with eligible INFO, regardless of incident.',pct:'Error rate = (Shortage + Surplus) / Total; other statuses are excluded from Total.',infoPct:'INFO error rate = (Shortage + Surplus) / source rows for this INFO group.',warning:'Headline totals and the INFO table use different inclusion rules. A row excluded from Total may still appear under INFO.',filter:'The existing location and brand filter is applied unchanged.'},
+ uk:{total:'Total = правильні + shortage + surplus; інші статуси Incident не враховуються.',error:'Помилки = shortage + surplus; правильні та інші статуси виключаються.',heading:'Звідки взявся результат?',desc:'Пояснення показників AL_AUDYT за вихідними рядками та правилами.',choose:'Оберіть показник',source:'Вихідний файл',rule:'Правило розрахунку',included:'Враховано',excluded:'Виключено',all:'Усі',rows:'Вихідні рядки',loc:'Локація',incident:'Incident',info:'INFO',reason:'Причина',result:'Перераховано',report:'У звіті',same:'Збігається зі звітом',different:'Не збігається зі звітом',limit:'Перші 60 рядків; сума враховує всі.',none:'Немає рядків у цій категорії.',noExcel:'Парсер не зберігає номери рядків Excel; записи визначаються локаціями.',group:'Група INFO',groupAll:'Усі групи',numerator:'Помилки',denominator:'Знаменник',invalid:'Статус не враховано в підсумку',other:'Інша категорія',correct:'Правильно: Incident порожній або «-».',short:'Incident містить shortage.',surp:'Incident містить surplus без shortage.',both:'Shortage має пріоритет у класифікації.',notCorrect:'Incident не порожній та не «-».',notShort:'Incident не містить shortage.',notSurp:'Incident без surplus або спрацював shortage.',notTotal:'Incident не належить до трьох категорій.',notErr:'Правильний або виключений рядок.',infoInclude:'Непорожнє INFO, не рівне точно «INFO».',infoExclude:'INFO порожнє або точно «INFO».',groupExclude:'Інша група INFO.',infoShort:'INFO заповнене та статус shortage.',infoSurp:'INFO заповнене та статус surplus без shortage.',infoTotal:'Кожний рядок з відповідним INFO незалежно від Incident.',pct:'Частка помилок = (Shortage + Surplus) / Total; інші статуси виключені.',infoPct:'Частка INFO = (Shortage + Surplus) / кількість рядків відповідної групи.',warning:'Загальні результати та INFO мають різні правила включення. Виключений з Total рядок може бути в INFO.',filter:'Фільтр локацій та бренду залишається без змін.'}
+};
+function intelAuditT(key){uiLanguage.value;return (INTEL_AUDIT_TEXT[uiLanguage.value]||INTEL_AUDIT_TEXT.pl)[key]||key;}
+const INTEL_AUDIT_METRICS=[
+ {key:'totalLoc',label:['Total lokacje','Всего локаций','Total locations','Усього локацій'],rule:'total'},
+ {key:'correctLoc',label:['Poprawne','Корректные','Correct','Коректні'],rule:'correct'},
+ {key:'shortage',label:['Braki','Недостачи','Shortage','Нестачі'],rule:'short'},
+ {key:'surplus',label:['Nadwyżki','Излишки','Surplus','Надлишки'],rule:'surp'},
+ {key:'errorLoc',label:['Błędne','Ошибки','Errors','Помилки'],rule:'error'},
+ {key:'odsetek',label:['Odsetek błędnych','Процент ошибок','Error rate','Частка помилок'],rule:'pct'},
+ {key:'infoTotal',label:['INFO · Total','INFO · Всего','INFO · Total','INFO · Усього'],rule:'infoTotal'},
+ {key:'infoShortage',label:['INFO · Shortage','INFO · Недостача','INFO · Shortage','INFO · Нестача'],rule:'infoShort'},
+ {key:'infoSurplus',label:['INFO · Surplus','INFO · Излишки','INFO · Surplus','INFO · Надлишки'],rule:'infoSurp'},
+ {key:'infoPercent',label:['INFO · Odsetek','INFO · Процент','INFO · Percentage','INFO · Частка'],rule:'infoPct'}
+];
+function intelAuditLabel(item){uiLanguage.value;return item.label[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+function intelAuditOpen(){
+ if(!audyt.result||!audyt.rows.length)return;
+ const rows=audyt.rows.filter(r=>mpAuditLocationAllowed(r.location));
+ intelAuditMetric.value='totalLoc';intelAuditView.value='included';intelAuditInfo.value='';
+ intelPresent({type:'auditTrace',module:'mp',title:'AL_AUDYT',fileName:audyt.fileName,rows,expected:{...audyt.result},value:audyt.result.totalLoc});
+}
+const intelAuditGroups=computed(()=>intelPanel.value?.type==='auditTrace'?(intelPanel.value.expected.infoRows||[]):[]);
+const intelAuditDetail=computed(()=>{
+ if(intelPanel.value?.type!=='auditTrace')return null;
+ const metric=intelAuditMetric.value;
+ const infoMode=metric.startsWith('info');
+ const group=intelAuditInfo.value;
+ const rows=intelPanel.value.rows;
+ let included=0,excluded=0, numerator=0,denominator=0,selectedCount=0;
+ const preview=[];let shownIn=0,shownOut=0;
+ // Preserve AL_AUDYT status order exactly: correct, shortage, surplus, then unrecognized.
+ for(const row of rows){
+  const inc=String(row.incident||'').toLowerCase().trim();
+  const info=String(row.info||'').trim();
+  const category=(inc==='-'||inc==='')?'correct':inc.includes('shortage')?'shortage':inc.includes('surplus')?'surplus':'other';
+  const infoEligible=info!==''&&info!=='INFO';
+  const inGroup=infoEligible&&(!group||info===group);
+  let ok=false,reason='notTotal';
+  if(infoMode){
+   const categoryOK=metric==='infoTotal'||metric==='infoPercent'||(metric==='infoShortage'&&category==='shortage')||(metric==='infoSurplus'&&category==='surplus');
+   ok=inGroup&&categoryOK;
+   reason=!infoEligible?'infoExclude':!inGroup?'groupExclude':ok?(metric==='infoTotal'||metric==='infoPercent'?'infoTotal':category==='shortage'?'infoShort':'infoSurp'):'other';
+   // The denominator includes every eligible row from the chosen INFO scope.
+   if(inGroup){denominator++;if(category==='shortage'||category==='surplus')numerator++;}
+  }else{
+   ok=metric==='totalLoc'?category!=='other':metric==='correctLoc'?category==='correct':metric==='shortage'?category==='shortage':metric==='surplus'?category==='surplus':metric==='errorLoc'||metric==='odsetek'?(category==='shortage'||category==='surplus'):false;
+   reason=ok?category==='correct'?'correct':category==='shortage'?'short':'surp':category==='other'?'notTotal':metric==='correctLoc'?'notCorrect':metric==='shortage'?'notShort':metric==='surplus'?'notSurp':'notErr';
+   if(category!=='other')denominator++;
+   if(category==='shortage'||category==='surplus')numerator++;
+  }
+  if(ok)included++;else excluded++;
+  if(ok?shownIn<60:shownOut<60){preview.push({loc:row.location||'—',incident:row.incident||'—',info:row.info||'—',ok,reason});if(ok)shownIn++;else shownOut++;}
+ }
+ const e=intelPanel.value.expected;
+ const infoRow=group?(e.infoRows||[]).find(x=>x.name===group):null;
+ let computed=included,expected=0;
+ if(metric==='odsetek'){computed=denominator?numerator/denominator:0;expected=e.odsetek;}
+ else if(metric==='infoPercent'){computed=denominator?numerator/denominator:0;expected=infoRow?.odsetek??(e.totalAll?(e.totalShort+e.totalSurp)/e.totalAll:0);}
+ else if(metric==='infoTotal')expected=infoRow?.total??e.totalAll;
+ else if(metric==='infoShortage')expected=infoRow?.shortage??e.totalShort;
+ else if(metric==='infoSurplus')expected=infoRow?.surplus??e.totalSurp;
+ else expected=e[metric]??0;
+ return {computed,expected,matched:Math.abs(computed-expected)<1e-9,included,excluded,numerator,denominator,preview,percent:metric==='odsetek'||metric==='infoPercent',infoMode,rule:INTEL_AUDIT_METRICS.find(x=>x.key===metric)?.rule||'total'};
+});
+const intelAuditRows=computed(()=>{
+ const d=intelAuditDetail.value;if(!d)return [];
+ const mode=intelAuditView.value;
+ return d.preview.filter(x=>mode==='all'||x.ok===(mode==='included')).slice(0,60);
+});
+
 function intelOpenOverview(kind){
  const viewBuilder=window.MRIntelligence.buildOverview;
  const item=(label,value)=>({label:window.MRIntelligence.t(uiLanguage.value,label),value});
@@ -2041,10 +2122,7 @@ function intelOpenOverview(kind){
      [item('Próg [min]',przestoje.minMin),item('Maksimum [min]',300)]);
  }else if(kind==='konsolidacja'&&konsolidacja.result){
    intelConsOpen();return;
- }else if(kind==='audyt'&&audyt.result){const r=audyt.result;
-   details=viewBuilder('mp','MP Audyt',r.totalLoc,audyt.fileName,'audytSummaryRule',[
-     item('Lokacje',r.totalLoc),item('Poprawne',r.correctLoc),item('Braki',r.shortage),
-     item('Nadwyżki',r.surplus),item('Błędne',r.errorLoc)],[]);
+ }else if(kind==='audyt'&&audyt.result){intelAuditOpen();return;
  }else if(kind==='formatka'&&formatka59.result){intelFmtOpen();return;
  }
  intelPresent(details);
@@ -2100,7 +2178,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
