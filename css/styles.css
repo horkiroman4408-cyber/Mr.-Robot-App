@@ -1717,3 +1717,25 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
     opacity:.8;pointer-events:none;
   }
 }
+
+/* iPhone / compact PWA: stabilise the animated icons IN module headers and tabs.
+   Their parent breathe(scale) and nested sway(rotate) animations were combined.
+   Keep the static module-specific gradient / colour and shadow. Desktop is unchanged. */
+@media (max-width:640px) {
+  html.mr-mobile-lite #app .robot-glow,
+  html.mr-mobile-lite #app .module-context-badge {
+    animation:none!important;
+    transform:none!important;
+    will-change:auto!important;
+  }
+  html.mr-mobile-lite #app .robot-glow > svg,
+  html.mr-mobile-lite #app .module-context-badge .module-context-icon {
+    animation:none!important;
+    transform:none!important;
+    transition:none!important;
+    will-change:auto!important;
+  }
+  html.mr-mobile-lite #app .module-context-badge {
+    box-shadow:0 5px 17px var(--ctx-shadow,rgba(10,132,255,.26));
+  }
+}
