@@ -2037,6 +2037,107 @@
           <div class="mr-intel-footer">✓ {{ intelConsT('safety') }}</div>
         </template>
       </template>
+      <template v-else-if="intelPanel.type==='mdtExplore'">
+        <div class="mr-intel-eyebrow">MP · GODZINY MDT · {{ intelMdtT('details') }}</div>
+        <p class="mr-intel-hint" style="overflow-wrap:anywhere">{{ intelPanel.fileName }}</p>
+        <div v-if="!intelMdtOperator" class="mr-intel-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px">
+          <button type="button" :class="{active:intelMdtTab==='operators'}" @click="intelMdtTab='operators';intelMdtQuery='';intelMdtLocation=''">{{ intelMdtT('operators') }}</button>
+          <button type="button" :class="{active:intelMdtTab==='locations'}" @click="intelMdtTab='locations';intelMdtQuery='';intelMdtLocation=''">{{ intelMdtT('locations') }}</button>
+          <button type="button" :class="{active:intelMdtTab==='plan'}" @click="intelMdtTab='plan';intelMdtQuery='';intelMdtLocation=''">{{ intelMdtT('plan') }}</button>
+        </div>
+        <template v-if="intelMdtOperator">
+          <button type="button" class="mr-intel-back" style="color:var(--intel-text);background:var(--intel-surface);border:1px solid var(--intel-border);border-radius:10px;padding:8px 12px;cursor:pointer;margin:5px 0 12px" @click="intelMdtBack">← {{ intelMdtT('return') }}</button>
+          <div class="mr-intel-section" style="margin-top:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div class="mr-intel-hint">{{ intelMdtT('details') }}</div><h3 style="font-size:20px;letter-spacing:-.02em;margin:2px 0">{{ intelMdtOperator }}</h3></div>
+              <button type="button" class="mr-intel-number" @click="intelMdtShowEmployee(intelMdtOperator)" :title="intelMdtT('employee')">▣ {{ intelMdtT('employee') }} ↗</button>
+            </div>
+            <div v-if="intelMdtCurrentOperator" class="mr-intel-stats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:8px;margin-top:12px">
+              <div><span>{{ intelMdtT('records') }}</span><strong>{{ intelMdtCurrentOperator.records }}</strong></div>
+              <div><span>{{ intelMdtT('unique') }}</span><strong>{{ intelMdtCurrentOperator.locations.length }}</strong></div>
+              <div><span>{{ intelMdtT('candidates') }}</span><strong>{{ intelMdtCurrentOperator.one }}</strong></div>
+              <div><span>{{ intelMdtT('pieces') }}</span><strong>{{ intelMdtCurrentOperator.units }}</strong></div>
+            </div>
+          </div>
+          <div class="mr-intel-filters" style="display:flex;gap:7px;flex-wrap:wrap;margin:12px 0">
+            <button type="button" :class="{active:intelMdtProfileTab==='overview'}" @click="intelMdtProfileTab='overview'">{{ intelMdtT('overview') }}</button>
+            <button type="button" :class="{active:intelMdtProfileTab==='placements'}" @click="intelMdtProfileTab='placements';intelMdtQuery=''">{{ intelMdtT('placements') }}</button>
+            <button type="button" :class="{active:intelMdtProfileTab==='insights'}" @click="intelMdtProfileTab='insights'">{{ intelMdtT('insights') }}</button>
+          </div>
+          <div v-if="intelMdtCurrentOperator&&intelMdtProfileTab==='overview'" class="mr-intel-section">
+            <h3>◎ {{ intelMdtT('overview') }}</h3>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('qualified') }}</span><strong>{{ intelMdtCurrentOperator.one }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('available') }}</span><strong>{{ intelMdtCurrentOperator.available }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('confirmed') }}</span><strong>{{ intelMdtCurrentOperator.single }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('ambiguous') }}</span><strong>{{ intelMdtCurrentOperator.locations.filter(x=>x.operators.length>1).length }}</strong></div>
+            <p class="mr-intel-hint">{{ intelMdtT('caution') }}</p>
+            <button type="button" class="mr-intel-number" style="margin-top:12px" @click="intelMdtProfileTab='placements';intelMdtFilter='one';intelMdtQuery=''">{{ intelMdtT('one') }} ↗</button>
+          </div>
+          <div v-else-if="intelMdtProfileTab==='insights'" class="mr-intel-section">
+            <h3>✧ {{ intelMdtT('insights') }}</h3>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('onlyOne') }}</span><strong>{{ intelMdtCurrentOperator?.locations.filter(x=>x.single).length||0 }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('multi') }}</span><strong>{{ intelMdtCurrentOperator?.locations.filter(x=>!x.single).length||0 }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('repeats') }}</span><strong>{{ intelMdtCurrentOperator?.locations.filter(x=>x.entries.length>1).length||0 }}</strong></div>
+            <div class="mr-intel-meta"><span>{{ intelMdtT('available') }}</span><strong>{{ intelMdtCurrentOperator?.available||0 }}</strong></div>
+            <p class="mr-intel-hint">{{ intelMdtT('sumNote') }} {{ intelMdtT('caution') }}</p>
+          </div>
+        </template>
+        <template v-if="!intelMdtOperator&&intelMdtTab==='operators'">
+          <div class="mr-intel-section"><h3>◉ {{ intelMdtT('operatorList') }} · {{ intelMdtData?.operators.length||0 }}</h3>
+            <p class="mr-intel-hint">{{ intelMdtT('select') }}</p>
+            <input type="search" class="norm-input" style="width:100%;box-sizing:border-box;margin:7px 0 13px" v-model="intelMdtQuery" :placeholder="intelMdtT('search')">
+            <div v-if="!intelMdtOperators.length" class="mr-intel-hint">{{ intelMdtT('noOperators') }}</div>
+            <button type="button" v-for="o in intelMdtOperators" :key="o.id" @click="intelMdtShowOperator(o.id)" class="mr-intel-meta" style="display:flex;text-align:left;width:100%;color:inherit;background:transparent;border-left:0;border-right:0;border-top:0;cursor:pointer;align-items:center;gap:10px;padding:12px 0">
+              <span style="min-width:0;flex:1"><strong style="display:block">{{ o.id }}</strong><small style="display:block;opacity:.75">{{ intelMdtT('records') }}: {{ o.records }} · {{ intelMdtT('unique') }}: {{ o.locations.length }}</small></span>
+              <strong style="white-space:nowrap">{{ o.one }} × 1/1</strong><span aria-hidden="true">›</span>
+            </button>
+          </div>
+        </template>
+        <template v-if="(!intelMdtOperator&&intelMdtTab==='locations')||(intelMdtOperator&&intelMdtProfileTab==='placements')">
+          <div class="mr-intel-section"><h3>▤ {{ intelMdtT('locations') }} · {{ intelMdtLocations.length }}</h3>
+            <div class="mr-intel-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 11px">
+              <button type="button" v-for="f in ['all','one','other','ambiguous']" :key="f" :class="{active:intelMdtFilter===f}" @click="intelMdtFilter=f;intelMdtLocation=''">{{ intelMdtT(f) }}</button>
+            </div>
+            <input type="search" class="norm-input" style="width:100%;box-sizing:border-box;margin:5px 0 10px" v-model="intelMdtQuery" :placeholder="intelMdtT('search')">
+            <div class="mr-intel-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+              <button type="button" :class="{active:intelMdtSort==='loc'}" @click="intelMdtSort='loc'">{{ intelMdtT('locSort') }}</button>
+              <button type="button" :class="{active:intelMdtSort==='qty'}" @click="intelMdtSort='qty'">{{ intelMdtT('qtySort') }}</button>
+            </div>
+            <p v-if="!intelMdtLocations.length" class="mr-intel-hint">{{ intelMdtT('noLocations') }}</p>
+            <div v-for="loc in intelMdtLocations.slice(0,150)" :key="loc.id" style="border-bottom:1px solid var(--intel-border);padding:9px 0">
+              <button type="button" style="width:100%;display:flex;gap:8px;align-items:center;justify-content:space-between;text-align:left;background:transparent;color:inherit;border:0;cursor:pointer" @click="intelMdtChooseLocation(loc.id)">
+                <span style="min-width:0;flex:1;overflow-wrap:anywhere"><strong style="display:block">{{ loc.id||'—' }}</strong><small style="display:block;opacity:.75">{{ loc.entries.length }} {{ intelMdtT('source').toLowerCase() }} · {{ loc.operators.join(', ')||'—' }}</small></span>
+                <span style="white-space:nowrap">{{ loc.one?'✓ 1/1':'○' }} <span style="opacity:.6">{{ loc.first.stock }}</span></span><span>{{ intelMdtLocation===loc.id?'⌃':'›' }}</span>
+              </button>
+              <div v-if="intelMdtLocation===loc.id" style="margin:12px 0 3px;padding:12px;background:var(--intel-surface);border:1px solid var(--intel-border);border-radius:12px">
+                <div class="mr-intel-meta"><span>{{ intelMdtT('placed') }} · E</span><strong>{{ loc.first.qty }}</strong></div>
+                <div class="mr-intel-meta"><span>{{ intelMdtT('stock') }} · K</span><strong>{{ loc.first.stock }}</strong></div>
+                <div class="mr-intel-meta"><span>{{ intelMdtT('onlyOne') }}</span><strong>{{ loc.single?'✓':'✕' }} · {{ loc.operators.length }}</strong></div>
+                <div class="mr-intel-meta"><span>{{ intelMdtT('available') }}</span><strong>{{ loc.available?'✓':'−' }}</strong></div>
+                <p style="margin-top:9px;font-size:12px;line-height:1.55">{{ intelMdtT(loc.one?'matched':'notMatched') }} {{ intelMdtT(loc.single?'single':'multiple') }} {{ loc.one&&!loc.available?intelMdtT('excluded'):'' }}</p>
+                <h4 style="margin:13px 0 6px;font-size:12px;font-weight:700">{{ intelMdtT('allRows') }}</h4>
+                <div v-for="(r,idx) in loc.entries" :key="r.excelRow" class="mr-intel-meta" style="align-items:flex-start;gap:12px"><span style="min-width:0;overflow-wrap:anywhere"><strong>{{ r.description||r.ean||'—' }}</strong><small style="display:block;opacity:.7">EAN {{ r.ean||'—' }} · {{ intelMdtT('source') }} #{{ r.excelRow }}<span v-if="idx===0"> · {{ intelMdtT('first') }}</span></small><button type="button" class="mr-intel-number" @click="intelMdtShowEmployee(r.login)" style="margin-top:4px">{{ r.login||'—' }} ↗</button></span><strong style="white-space:nowrap">{{ r.qty }} / {{ r.stock }}</strong></div>
+              </div>
+            </div>
+            <p v-if="intelMdtLocations.length>150" class="mr-intel-hint">150 / {{ intelMdtLocations.length }} · {{ intelMdtT('search') }}</p>
+          </div>
+        </template>
+        <template v-if="!intelMdtOperator&&intelMdtTab==='plan'">
+          <div class="mr-intel-section"><h3>◇ {{ intelMdtT('proposal') }}</h3>
+            <p class="mr-intel-hint">{{ intelMdtT('planHint') }}</p>
+            <div class="mr-intel-filters" style="display:flex;gap:7px;flex-wrap:wrap;margin:12px 0">
+              <button type="button" :class="{active:intelMdtPlanMode==='balanced'}" @click="intelMdtPlanMode='balanced'">{{ intelMdtT('balanced') }}</button>
+              <button type="button" :class="{active:intelMdtPlanMode==='largest'}" @click="intelMdtPlanMode='largest'">{{ intelMdtT('largest') }}</button>
+              <button type="button" :class="{active:intelMdtPlanMode==='ambiguous'}" @click="intelMdtPlanMode='ambiguous'">{{ intelMdtT('ambiguousPlan') }}</button>
+            </div>
+            <label style="font-size:12px">{{ intelMdtT('sample') }} <input class="norm-input" type="number" min="1" max="100" v-model.number="intelMdtPlanQty" style="max-width:82px;margin-left:10px"></label>
+            <div v-for="loc in intelMdtPlan" :key="loc.id" class="mr-intel-meta"><span><strong>{{ loc.id }}</strong><small style="display:block;opacity:.7">{{ loc.operators.join(', ') }}</small></span><strong>{{ loc.first.stock }} {{ intelMdtT('pieces').toLowerCase() }}</strong></div>
+            <p v-if="!intelMdtPlan.length" class="mr-intel-hint">{{ intelMdtT('noLocations') }}</p>
+            <p class="mr-intel-hint">{{ intelMdtT('preview') }}</p>
+          </div>
+        </template>
+        <div class="mr-intel-footer">✓ {{ intelMdtT('caution') }}</div>
+      </template>
       <template v-else-if="intelPanel.type==='auditTrace'">
         <div class="mr-intel-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px">
           <button type="button" :class="{active:intelAuditTab==='calculations'}" @click="intelAuditSetTab('calculations')">{{ intelAuditT2('tabCalc') }}</button>
@@ -2278,7 +2379,7 @@
 <script src="js/workers/common.js"></script>
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
-<script src="js/app.js?v=3.21.2-audyt-user-focus-20261109"></script>
+<script src="js/app.js?v=3.21.2-mdt-intelligence-20261109"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
