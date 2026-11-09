@@ -2316,6 +2316,36 @@ watch([()=>geek.result,()=>kpiNv.records,()=>kpiAudit.records,()=>kpiScalanie.re
 
 // MR. BOT visual bridge: reads existing state; never writes report data.
 const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
+// Read-only context for MR. BOT Smart Context; never writes to any module.
+const mrBotHelpState=()=>{
+ const viewName=view.value;
+ let module='hub',source=null,hasResult=false;
+ if(viewName==='kpi'){
+  module='kpi-'+kpiTab.value;
+  const byTab={audit:kpiAudit,scalanie:kpiScalanie,rozkładanie:kpiRozk,nadwevas:kpiNv,roz:kpiRozk,nv:kpiNv};
+  source=byTab[kpiTab.value]||null;
+  hasResult=false; // KPI statistics are computed from loaded records; no separate run is required.
+ }else if(viewName==='mp'&&mpView.value==='audyt'){
+  module=audytTab.value;
+  const byTab={al_audyt:audyt,formatka_59:audyt,godziny_mdt:mdt,stock:stock};
+  source=byTab[audytTab.value]||null;
+  hasResult=audytTab.value==='al_audyt'?!!audyt.result:audytTab.value==='formatka_59'?!!formatka59.result:audytTab.value==='godziny_mdt'?!!mdt.result:audytTab.value==='stock'?!!stock.result:false;
+ }else if(viewName==='mp'){
+  module=mpView.value==='scalanie'?(scalanieTab.value==='konsolidacja'?'konsolidacja':'scalanie'):'mp';
+  source=toteMp;
+  hasResult=module==='konsolidacja'?!!konsolidacja.result:false;
+ }else if(viewName==='rs'){
+  module=rsView.value==='geek'?'audyt-geek':rsView.value==='scalanieGeek'?'scalanie-geek':'rs';
+  source=module==='audyt-geek'?geek:module==='scalanie-geek'?null:toteRs;
+  hasResult=module==='audyt-geek'?!!geek.result:false;
+ }else if(viewName==='przestoje'){
+  module='przestoje';source=przestoje;
+ }else if(viewName==='artltt'||viewName==='kreseczki')module=viewName;
+ const loading=!!source?.loading;
+ const loaded=!!(source?.records?.length||source?.rows?.length||(module==='formatka_59'&&audyt.formatkaRows.length));
+ return {view:viewName,module,stage:source?(loading?'loading':hasResult?'analyzed':loaded?'loaded':'empty'):null,fileName:source?.fileName||''};
+};
+window.__MRBOT_HELP_STATE__=mrBotHelpState;
 const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
 watch([view,rsView,mpView,kpiTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
 window.__MRBOT_CONTEXT__=mrBotContext();

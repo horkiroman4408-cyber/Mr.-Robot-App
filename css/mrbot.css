@@ -324,3 +324,12 @@ html[data-theme="ivory"] #mrbot-suggestions button:hover{background:#e0ede2;colo
 #mrbot-root #mrbot-messages .mrbot-doc-related-link{width:100%;text-align:left;padding:10px 12px;border:1px solid var(--mb-line);border-radius:10px;background:var(--mb-surface);color:var(--mb-accent);cursor:pointer;line-height:1.4;font:inherit;font-size:12px;font-weight:650}
 #mrbot-root #mrbot-messages .mrbot-doc-related-link:hover,#mrbot-root #mrbot-messages .mrbot-doc-related-link:focus-visible{background:var(--mb-bubble)}
 @media(max-width:340px){#mrbot-root .mrbot-doc-feature-copy{flex-wrap:wrap;gap:2px 7px}}
+
+/* MR. BOT Smart Context: small, calm suggestions in the existing help navigator. */
+#mrbot-root .mrbot-smart-context{margin:6px 0 8px;padding:9px 11px;border:1px solid var(--mb-line);border-radius:10px;background:var(--mb-surface)}
+#mrbot-root .mrbot-smart-context h3{margin:0 0 4px;font-size:12px;line-height:1.35}
+#mrbot-root .mrbot-smart-context .mrbot-doc-muted{margin:0;font-size:11px;line-height:1.45}
+#mrbot-root .mrbot-smart-links{margin-bottom:12px}
+#mrbot-root #mrbot-messages .mrbot-smart-links .mrbot-nav-item{min-height:39px;padding:7px 10px;gap:8px}
+#mrbot-root .mrbot-smart-links .mrbot-nav-item .mrbot-doc-emoji{font-size:14px;width:19px}
+#mrbot-root .mrbot-smart-links .mrbot-nav-item .mrbot-doc-listname{font-size:11.5px}

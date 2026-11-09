@@ -143,3 +143,17 @@ if(mp&&Array.isArray(mp.topics)){
  reference('inne','downtime',[{category:'intelligence',topic:'other'}]);
  reference('start','flow',[{category:'openreports',topic:'overview'},{category:'intelligence',topic:'overview'}]);
 })();
+
+/* Smart Context documentation: concise explanation of the contextual, read-only help. */
+(function(){
+ 'use strict';
+ const article=window.MRBOT_DOCS?.find(g=>g.id==='assistant')?.topics?.find(t=>t.id==='knowledge');
+ if(!article)return;
+ const extra={
+ pl:'Smart Context sprawdza otwartą kartę i etap pracy: brak raportu, wczytywanie, gotowy plik lub zakończoną analizę. Podpowiada właściwą instrukcję, Intelligence i OpenReports Bridge bez zmiany danych. Podpowiedzi pojawiają się tylko po otwarciu MR. BOT.',
+ ru:'Smart Context определяет открытую вкладку и этап работы: нет отчёта, загрузка, файл готов или анализ выполнен. Предлагает нужную инструкцию, Intelligence и OpenReports Bridge, не изменяя данные. Подсказки появляются только при открытии MR. BOT.',
+ en:'Smart Context reads the active tab and workflow stage: no report, loading, file ready or analysis complete. It links to the relevant guide, Intelligence and OpenReports Bridge without changing data. Hints appear only when MR. BOT is opened.',
+ uk:'Smart Context визначає відкриту вкладку та етап роботи: немає звіту, завантаження, файл готовий або аналіз завершено. Пропонує відповідну інструкцію, Intelligence і OpenReports Bridge без зміни даних. Підказки з’являються лише під час відкриття MR. BOT.'
+ };
+ for(const lang of ['pl','ru','en','uk'])article.tech[lang]=(article.tech[lang]||'')+'\n\n'+extra[lang];
+})();

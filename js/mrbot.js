@@ -205,6 +205,53 @@ const $=id=>document.getElementById(id),toggle=$('mrbot-toggle'),panel=$('mrbot-
 let open=false,history=[],lastContext='',lastLang='';
 const locale=()=>DATA[window.MRI18N?.language]||DATA.pl;
 function context(){const v=window.__MRBOT_VIEW__?.value||'hub';return ['kpi','rs','mp','inne'].find(x=>v.toLowerCase().includes(x))||(/^kpi/i.test(v)?'kpi':/^tote|^geek|^audytret/i.test(v)?'rs':/^mp/i.test(v)?'mp':/^przestoje|^artltt|^kreseczki/i.test(v)?'inne':'hub');}
+// Smart Context: read-only workflow hints from the currently selected module.
+const SMART_UI={
+ pl:{you:'Jesteś w',empty:'Nie wczytano jeszcze raportu dla tej części.',loading:'Raport jest wczytywany. Poczekaj na zakończenie i sprawdź wynik.',loaded:'Raport wczytany. Uruchom analizę lub wybierz wymagane filtry.',analyzed:'Analiza jest gotowa. Możesz sprawdzić wyniki i ich objaśnienia.',current:'Instrukcja dla tej karty',intel:'Intelligence dla tej karty',bridge:'Pobieranie raportu · Bridge',none:'Wybierz moduł, aby zobaczyć podpowiedzi dopasowane do pracy.'},
+ ru:{you:'Сейчас открыто',empty:'Отчёт для этого раздела ещё не загружен.',loading:'Отчёт загружается. После обработки можно проверить результаты.',loaded:'Отчёт загружен. Запусти анализ или выбери необходимые фильтры.',analyzed:'Анализ выполнен. Можно изучать результаты и их объяснения.',current:'Инструкция по этой вкладке',intel:'Intelligence для этой вкладки',bridge:'Загрузка отчёта · Bridge',none:'Открой модуль, чтобы получить подсказки по текущей задаче.'},
+ en:{you:'You are in',empty:'No report has been loaded for this section yet.',loading:'The report is loading. Check results after it finishes.',loaded:'Report loaded. Run the analysis or choose the required filters.',analyzed:'Analysis ready. Explore results and their explanations.',current:'Guide for this tab',intel:'Intelligence for this tab',bridge:'Get a report · Bridge',none:'Open a module to see relevant guidance.'},
+ uk:{you:'Зараз відкрито',empty:'Звіт для цього розділу ще не завантажено.',loading:'Звіт завантажується. Перевір результат після завершення.',loaded:'Звіт завантажено. Запусти аналіз або вибери потрібні фільтри.',analyzed:'Аналіз готовий. Можна переглянути результати та пояснення.',current:'Інструкція для цієї вкладки',intel:'Intelligence для цієї вкладки',bridge:'Отримати звіт · Bridge',none:'Відкрий модуль, щоб побачити підказки для поточного завдання.'}
+};
+function smartContext(){
+ const raw=window.__MRBOT_CONTEXT__||{};
+ const state=typeof window.__MRBOT_HELP_STATE__==='function'?window.__MRBOT_HELP_STATE__():null;
+ const key=state?.module||context();
+ let doc=null,intel=null,bridge=null,label=key;
+ const map={
+  al_audyt:['mp','audit','al','use','AL_AUDYT'],formatka_59:['mp','audit','formatka','use','FORMATKA_59'],
+  godziny_mdt:['mp','stock','mdt','use','GODZINY MDT'],stock:['mp','stock','other','use','STOCK'],
+  konsolidacja:['mp','scalanie','kons',null,'Konsolidacja'],scalanie:['mp','scalanie','other',null,'Scalanie'],
+  rs:['rs','lookup','other',null,'RS'],
+  'audyt-geek':['ret','input','other',null,'AUDYT GEEK'],'scalanie-geek':['rs','scalanie-geek','other',null,'Scalanie Geek'],przestoje:['inne','downtime','other',null,'Przestoje'],
+  artltt:['inne','artltt',null,null,'ARTLTT'],kreseczki:['inne','barcode',null,null,'Kreseczki'],
+  'kpi-audit':['kpi','rates','other','use','KPI · Audyt'],'kpi-scalanie':['kpi','rates','other','use','KPI · Scalanie'],
+  'kpi-rozkładanie':['kpi','rates','other','use','KPI · Rozkładanie'],'kpi-nadwevas':['kpi','nadwe','other','use','KPI · NADWE/VAS'],'kpi-pracownicy':['kpi','employees',null,null,'KPI · Pracownicy'],'kpi-stats':['kpi','rates',null,null,'KPI · Statistics']
+ };
+ const match=map[key]||(context()==='kpi'?['kpi','source','other','use','KPI Norms']:null);
+ if(match){[doc,intel,bridge, ,label]=match;const vals=match;doc={category:vals[0],topic:vals[1]};intel=vals[2]?{category:'intelligence',topic:vals[2]}:null;bridge=vals[3]?{category:'openreports',topic:vals[3]}:null;}
+ // Only offer linked articles that are actually present in the loaded knowledge base.
+ const present=link=>!!link&&!!window.MRBOT_DOCS?.find(x=>x.id===link.category)?.topics?.some(x=>x.id===link.topic);
+ return {key,label,stage:state?.stage||null,doc:present(doc)?doc:null,intel:present(intel)?intel:null,bridge:present(bridge)?bridge:null};
+}
+let docSmartReturn=null;
+function smartOpenDoc(target){
+ if(!target)return;
+ docSmartReturn=navSection;docHistory=history.slice();readmeMode=true;docReturnStack=[];
+ docCategory=target.category;docTopic=target.topic;renderDocs();
+}
+function smartHints(view){
+ const hint=smartContext(),lang=chatLocale(),words=SMART_UI[lang]||SMART_UI.pl;
+ if(!hint.doc)return;
+ const section=docNode('section','mrbot-doc-article-section mrbot-smart-context');
+ section.append(docNode('h3','',words.you+' · '+hint.label));
+ if(hint.stage)section.append(docNode('p','mrbot-doc-muted',words[hint.stage]||''));
+ view.append(section);
+ const list=docNode('div','mrbot-doc-list mrbot-smart-links');
+ navRow(list,'📖',words.current,'',()=>smartOpenDoc(hint.doc));
+ if(hint.intel)navRow(list,'✧',words.intel,'',()=>smartOpenDoc(hint.intel));
+ if(hint.bridge)navRow(list,'🔌',words.bridge,'',()=>smartOpenDoc(hint.bridge));
+ view.append(list);
+}
 function msg(kind,value){history.push({kind,value});if(history.length>18)history.shift();renderMessages();}
 function renderMessages(){messages.classList.remove('mrbot-doc-active');messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
 const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
@@ -251,6 +298,7 @@ function renderNavigator(){
  const home=()=>navStart('home');
  if(navSection==='home'){
   docHeader(view,'MR. BOT',t.welcome,t.subtitle);
+  smartHints(view);
   navRow(list,'📚',t.docs,t.docsSub,()=>{navSection='docs';docEnter();});
   navRow(list,'🧭',t.guide,t.guideSub,()=>navStart('guide'));
   navRow(list,'💬',t.chat,t.chatSub,()=>navStart('chat'));
@@ -268,6 +316,7 @@ function renderNavigator(){
    (navGuideOptions()[guideCategory]||[]).forEach(([label,key],i)=>navRow(list,String(i+1).padStart(2,'0'),label,'',()=>{guideTopic=key;renderNavigator();}));view.append(list);
   }else{
    docHeader(view,t.guide,t.modules,t.guideSub);
+   smartHints(view);
    const current=context();if(current!=='hub')navRow(list,'📍',t.current+' · '+navGuideLabel(current),'',()=>{guideCategory=current;renderNavigator();});
    for(const [key,icon] of [['hub','🧩'],['kpi','📊'],['rs','📦'],['mp','🛠️'],['inne','⚙️']])navRow(list,icon,navGuideLabel(key),'',()=>{guideCategory=key;renderNavigator();});
    view.append(list);
@@ -350,8 +399,8 @@ function docCurrentCategory(){return docCategories().find(c=>c.id===docCategory)
 function docCurrentTopic(){return docCurrentCategory()?.topics.find(t=>t.id===docTopic);}
 function docNode(tag,cls,content){const e=document.createElement(tag);if(cls)e.className=cls;if(content!=null)e.textContent=content;return e;}
 function docAction(label,fn,cls=''){const b=docNode('button','mrbot-doc-action '+cls,label);b.type='button';b.addEventListener('click',fn);return b;}
-function docLeave(){readmeMode=false;docCategory=null;docTopic=null;docReturnStack=[];history=docHistory;navSection='home';chatMode=false;refresh();}
-function docEnter(){docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;docReturnStack=[];renderDocs();}
+function docLeave(){readmeMode=false;docCategory=null;docTopic=null;docReturnStack=[];history=docHistory;navSection=docSmartReturn||'home';docSmartReturn=null;chatMode=false;refresh();}
+function docEnter(){docSmartReturn=null;docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;docReturnStack=[];renderDocs();}
 function docOpenCategory(id){docReturnStack=[];docCategory=id;docTopic=null;renderDocs();}
 function docOpenTopic(id){docTopic=id;renderDocs();petMood('read',600);}
 function docOpenRelated(categoryId,topicId){
@@ -361,6 +410,7 @@ function docOpenRelated(categoryId,topicId){
  docCategory=categoryId;docTopic=topicId;renderDocs();petMood('read',600);
 }
 function docGoBack(){
+ if(docSmartReturn&&!docReturnStack.length){docLeave();return;}
  if(docReturnStack.length){const origin=docReturnStack.pop();docCategory=origin.category;docTopic=origin.topic;}
  else if(docTopic)docTopic=null;
  else if(docCategory)docCategory=null;
@@ -411,6 +461,7 @@ function renderDocs(){if(!readmeMode)return;
   category.topics.forEach((item,i)=>{const b=docAction('',()=>docOpenTopic(item.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-index',String(i+1).padStart(2,'0')),docNode('span','mrbot-doc-listname',docTitle(item)),docNode('span','mrbot-doc-chevron','›'));list.append(b);});view.append(list);
  }else{
   docHeader(view,'MR. BOT · KNOWLEDGE BASE',t.title,t.intro);
+  const currentHint=smartContext();if(currentHint.doc){const jump=docNode('div','mrbot-doc-list');navRow(jump,'📍',(SMART_UI[lang]||SMART_UI.pl).current+' · '+currentHint.label,'',()=>docOpenRelated(currentHint.doc.category,currentHint.doc.topic));view.append(jump);}
   const featured=docCategories().filter(c=>c.featured);if(featured.length){
    view.append(docNode('h3','mrbot-doc-group-label',t.featured));
    const highlights=docNode('div','mrbot-doc-featured');
@@ -428,7 +479,7 @@ function renderDocs(){if(!readmeMode)return;
  suggestions.append(docAction(docReturnStack.length?t.returnTo:docTopic?t.back:docCategory?t.back:t.exit,docGoBack,'mrbot-doc-footerbtn'));
 }
 function refresh(){
- const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;
+ const l=locale();$('mrbot-context').textContent=l.hint+' · '+(smartContext().doc?smartContext().label:context().toUpperCase());$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;
  if(readmeMode){renderDocs();return;}
  renderNavigator();
 }
@@ -440,7 +491,7 @@ const mascot=toggle.querySelector('.mrbot-mascot');const headerHome=$('mrbot-hea
 const petImage=$('mrbot-pet-image');
 const avatar=new window.MRBotAvatar.Avatar(mascot);petImage.hidden=true;
 window.MRBotVisual={play:(state,ms=2200)=>avatar.play(state,ms),get state(){return avatar.state;},get activeTasks(){return avatar.jobs.size;}};
-window.addEventListener('mrbot:task',e=>avatar.task(e.detail));
+window.addEventListener('mrbot:task',e=>{avatar.task(e.detail);if(open&&!readmeMode&&(navSection==='home'||(navSection==='guide'&&!guideCategory))&&['start','done','error','empty'].includes(e.detail?.phase)){renderNavigator();}});
 for(const d of Object.values(window.__MRBOT_TASKS__||{}))if(d.phase==='start'||d.phase==='progress')avatar.task(d);
 // Context changes do not trigger pointing gestures; keep the current calm pose.
 let petState='idle',petReset=null,petIdleTimer=null,lastSprite='';
