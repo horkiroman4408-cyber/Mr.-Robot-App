@@ -2073,7 +2073,102 @@ function intelAuditOpen(){
  if(!audyt.result||!audyt.rows.length)return;
  const rows=audyt.rows.filter(r=>mpAuditLocationAllowed(r.location));
  intelAuditMetric.value='totalLoc';intelAuditView.value='included';intelAuditInfo.value='';intelAuditScope.value='main';
+ intelAuditSetTab('calculations');
  intelPresent({type:'auditTrace',module:'mp',title:'AL_AUDYT',fileName:audyt.fileName,rows,expected:{...audyt.result},value:audyt.result.totalLoc});
+}
+// AL_AUDYT Intelligence extensions are read-only. They never modify audyt.rows/result.
+const intelAuditTab=ref('calculations');
+const intelAuditAnalysisMode=ref('class');
+const intelAuditGroup=ref('');
+const intelAuditSearch=ref('');
+const intelAuditRecountMode=ref('all');
+const intelAuditProduct=ref(null);
+const intelAuditPage=ref(0);
+const intelAuditT2Data={
+ tabCalc:['Obliczenia','Расчёты','Calculations','Розрахунки'],tabAnal:['Analityka','Аналитика','Analytics','Аналітика'],tabRecount:['Przeliczenia','Пересчёты','Recounts','Перерахунки'],
+ analDesc:['Znajdź kategorie, strefy i konta z odchyleniami.','Ищи закономерности по категориям, зонам и User ID.','Explore patterns across categories, zones and user IDs.','Шукай закономірності за категоріями, зонами та User ID.'],
+ modeClass:['Kategorie','Категории','Categories','Категорії'],modeZone:['Strefy','Зоны','Zones','Зони'],modeUser:['User ID','User ID','User ID','User ID'],
+ tested:['Wiersze','Строки','Rows','Рядки'],errors:['Odchylenia','Расхождения','Discrepancies','Розбіжності'],rate:['Odsetek','Доля','Rate','Частка'],
+ things:['Towary do sprawdzenia','Товары для проверки','Items to review','Товари для перевірки'],
+ search:['Szukaj EAN, nazwy lub lokalizacji','Поиск EAN, названия или локации','Search EAN, product or location','Пошук EAN, назви чи локації'],
+ noRecords:['Brak pozycji dla bieżącego wyboru.','Нет товаров по выбранным условиям.','No items for this selection.','Немає товарів за вибраними умовами.'],
+ noColumns:['Brak dodatkowych kolumn w zapisanych danych. Wczytaj ponownie aktualny plik Excel.','В сохранённых данных нет дополнительных колонок. Загрузи Excel заново.','Saved records lack extra columns. Reload the Excel workbook.','У збережених даних немає додаткових колонок. Завантаж Excel повторно.'],
+ unknown:['Brak danych','Нет данных','Not available','Немає даних'],
+ detail:['Karta towaru','Карточка товара','Item details','Картка товару'],back:['Wróć','Назад','Back','Назад'],
+ history:['Historia przeliczeń','История пересчётов','Count history','Історія перерахунків'],
+ stock:['Stan magazynowy','Складской остаток','Stock quantity','Складський залишок'],counted:['Ilość policzona','Учтённое количество','Counted quantity','Порахована кількість'],
+ discrep:['Różnica','Расхождение','Discrepancy','Розбіжність'],
+ changed:['Zmienne wyniki','Результат менялся','Count values changed','Значення змінювалися'],
+ stable:['Wyniki zgodne','Пересчёты совпали','Counts consistent','Результати збігаються'],
+ noRepeat:['Brak powtórnego liczenia','Повторного пересчёта нет','No repeat count','Немає повторного перерахунку'],
+ missing:['Nie podano','Не указано','Missing','Не вказано'],
+ confirmed:['Powtórnie potwierdzone odchylenie','Повторно подтверждённое расхождение','Repeated discrepancy confirmed','Повторно підтверджена розбіжність'],
+ settled:['Wynik wrócił do stanu','Последний подсчёт совпал с остатком','Final count matches stock','Останній підрахунок збігається із залишком'],
+ divergent:['Kolejne wyniki się różnią; sprawdź przyczynę.','Значения пересчётов отличаются. Проверь причину.','Counts differ; investigate the cause.','Перерахунки різняться; перевір причину.'],
+ repeatSame:['Powtórne liczenia są takie same.','Повторные подсчёты совпадают.','Repeated counts agree.','Повторні підрахунки збігаються.'],
+ unavailable:['Brak historii przeliczeń dla tej pozycji.','История пересчётов отсутствует.','No count history is available.','Історія перерахунків відсутня.'],
+ all:['Wszystkie','Все','All','Усі'],changedOnly:['Zmienne','Менялись','Changed','Змінювалися'],confirmOnly:['Potwierdzone','Подтверждены','Confirmed','Підтверджені'],
+ row:['Wiersz Excel','Строка Excel','Excel row','Рядок Excel'],location:['Lokalizacja','Локация','Location','Локація'],
+ info:['Grupa INFO','Группа INFO','INFO group','Група INFO'],date:['Data inwentaryzacji','Дата инвентаризации','Inventory date','Дата інвентаризації'],
+ dept:['Dział','Отдел','Department','Відділ'],klass:['Klasa','Класс','Class','Клас'],brand:['Marka','Бренд','Brand','Бренд'],
+ selected:['Wybierz grupę, aby zobaczyć konkretne EAN.','Выбери группу, чтобы увидеть конкретные EAN.','Select a group to inspect its EANs.','Вибери групу, щоб переглянути EAN.'],
+ rowCount:['Liczba wpisów','Количество записей','Record count','Кількість записів'],
+ caution:['To obserwacje statystyczne, nie ocena pracownika ani potwierdzenie przyczyny błędu.','Это статистические наблюдения, а не оценка сотрудника или доказательство причины ошибки.','These are statistical patterns, not staff performance judgments or proof of cause.','Це статистичні закономірності, а не оцінка працівника чи доказ причини помилки.'],
+ kept:['Algorytm AL_AUDYT i eksport pozostają bez zmian.','Алгоритм AL_AUDYT и экспорт не изменены.','AL_AUDYT calculations and export are unchanged.','Розрахунки AL_AUDYT та експорт не змінено.'],
+ showing:['Pokazano do 50 pozycji na stronę','До 50 записей на страницу','Up to 50 items per page','До 50 записів на сторінку'],
+ noRisk:['Nie można ustalić fizycznej przyczyny odchylenia na podstawie samego raportu.','Физическую причину расхождения по одному отчёту установить нельзя.','This report alone cannot establish the physical cause of a discrepancy.','Фізичну причину розбіжності за одним звітом визначити неможливо.'],
+ noComparison:['Bez odpowiednich danych brak podstaw do porównania.','Недостаточно данных для сравнения.','Insufficient data for comparison.','Недостатньо даних для порівняння.'],
+ prev:['Poprzednia','Назад','Previous','Назад'],next:['Następna','Далее','Next','Далі'],
+};
+function intelAuditT2(key){uiLanguage.value;return (intelAuditT2Data[key]||[key,key,key,key])[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+const intelAuditRichRows=computed(()=>intelPanel.value?.type==='auditTrace'?intelPanel.value.rows:[]);
+const intelAuditHasRich=computed(()=>intelAuditRichRows.value.some(r=>r.ean||r.description||r.counts?.some(x=>x!==null)));
+function intelAuditIncidentKind(row){const i=String(row.incident||'').toLowerCase().trim();return i==='-'||i===''?'correct':i.includes('shortage')?'shortage':i.includes('surplus')?'surplus':'other';}
+function intelAuditCountArray(row){return Array.isArray(row.counts)?row.counts.filter(x=>x!==null&&Number.isFinite(x)):[];}
+const intelAuditGroupStats=computed(()=>{
+ const groups=new Map(), mode=intelAuditAnalysisMode.value;
+ for(const r of intelAuditRichRows.value){
+  const key=String(mode==='class'?(r.klass||r.dept):mode==='zone'?String(r.location||'').trim().slice(0,3):r.user||'').trim()||intelAuditT2('unknown');
+  let d=groups.get(key);if(!d){d={name:key,total:0,errors:0};groups.set(key,d);}
+  d.total++;if(['shortage','surplus'].includes(intelAuditIncidentKind(r)))d.errors++;
+ }
+ return Array.from(groups.values()).map(d=>({...d,rate:d.total?d.errors/d.total:0})).sort((a,b)=>b.rate-a.rate||b.total-a.total||a.name.localeCompare(b.name)).slice(0,120);
+});
+const intelAuditRecountRows=computed(()=>{
+ return intelAuditRichRows.value.filter(r=>{
+  const c=intelAuditCountArray(r);if(c.length<2)return false;
+  const changed=new Set(c).size>1;
+  if(intelAuditRecountMode.value==='changed')return changed;
+  if(intelAuditRecountMode.value==='confirmed')return !changed && r.stock!==null && c[0]!==r.stock;
+  return true;
+ });
+});
+const intelAuditSelectedRows=computed(()=>{
+ if(intelAuditTab.value==='recounts')return intelAuditRecountRows.value;
+ const key=intelAuditGroup.value;
+ return key?intelAuditRichRows.value.filter(r=>{
+  const value=intelAuditAnalysisMode.value==='class'?(r.klass||r.dept):intelAuditAnalysisMode.value==='zone'?String(r.location||'').trim().slice(0,3):r.user;
+  return (String(value||'').trim()||intelAuditT2('unknown'))===key;
+ }):intelAuditRichRows.value.filter(r=>['shortage','surplus'].includes(intelAuditIncidentKind(r)));
+});
+const intelAuditFilteredProducts=computed(()=>{
+ const q=intelAuditSearch.value.toLocaleLowerCase().trim();
+ return intelAuditSelectedRows.value.filter(r=>!q||[r.ean,r.description,r.location,r.itemCode].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
+});
+const intelAuditTotalPages=computed(()=>Math.max(1,Math.ceil(intelAuditFilteredProducts.value.length/50)));
+const intelAuditVisibleProducts=computed(()=>intelAuditFilteredProducts.value.slice(intelAuditPage.value*50,(intelAuditPage.value+1)*50));
+const intelAuditChosenProduct=computed(()=>intelAuditProduct.value);
+const intelAuditProductRelated=computed(()=>intelAuditProduct.value?.ean?intelAuditRichRows.value.filter(r=>r.ean===intelAuditProduct.value.ean):[]);
+function intelAuditSetTab(tab){intelAuditTab.value=tab;intelAuditProduct.value=null;intelAuditGroup.value='';intelAuditSearch.value='';intelAuditPage.value=0;}
+function intelAuditSetAnalysis(mode){intelAuditAnalysisMode.value=mode;intelAuditGroup.value='';intelAuditPage.value=0;}
+function intelAuditChooseAnalysisGroup(name){intelAuditGroup.value=name;intelAuditPage.value=0;intelAuditSearch.value='';}
+function intelAuditSelectProduct(row){intelAuditProduct.value=row;}
+function intelAuditProductNarrative(row){
+ const counts=intelAuditCountArray(row);if(!counts.length)return intelAuditT2('unavailable');
+ if(counts.length===1)return intelAuditT2('noRepeat');
+ if(new Set(counts).size>1){if(row.stock!==null&&counts[counts.length-1]===row.stock)return intelAuditT2('settled');return intelAuditT2('divergent');}
+ if(row.stock!==null&&counts[0]!==row.stock)return intelAuditT2('confirmed');
+ return intelAuditT2('repeatSame');
 }
 const intelAuditGroups=computed(()=>intelPanel.value?.type==='auditTrace'?(intelPanel.value.expected.infoRows||[]):[]);
 const intelAuditDetail=computed(()=>{
@@ -2199,7 +2294,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

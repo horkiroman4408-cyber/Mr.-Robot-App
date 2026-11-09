@@ -11,6 +11,9 @@ const cLocation=colIdx(headers,['Location']);
 const cItemNo=colIdx(headers,['Item No.','Item No','Item number']);
 const cIncident=colIdx(headers,['Incident']);
 const cInfo=colIdx(headers,['INFO']);
+// Optional source columns for Intelligence only. Existing AL_AUDYT filters and calculations are unchanged.
+const intelCols={ean:colIdx(headers,['Item No.','Item No','EAN']),description:colIdx(headers,['Item Description 2']),itemCode:colIdx(headers,['Item Description']),dept:colIdx(headers,['Dept']),klass:colIdx(headers,['Class']),stock:colIdx(headers,['Stock Quantity']),counted:colIdx(headers,['Counted Quantity']),discrepancy:colIdx(headers,['Discrepancy']),countsNo:colIdx(headers,['No. of Counts']),date:colIdx(headers,['Inventory Date']),user:colIdx(headers,['User ID']),brand:colIdx(headers,['BRAND']),auditList:colIdx(headers,['Audit List No.'])};
+const countCols=[1,2,3,4,5,6].map(n=>colIdx(headers,[n+'st Count',n+'nd Count',n+'rd Count',n+'th Count']));
 const out=[];
 const total=rows.length-hIdx-1;
 let lastReport=0;
@@ -23,7 +26,12 @@ const incidentRaw=String(val(r,cIncident)).trim();
 const infoRaw=String(val(r,cInfo)).trim();
 // Brand-specific MP location filtering is applied in app.js at analysis time.
 if(itemRaw==='-'){continue;}
-out.push({location:locRaw,incident:incidentRaw,info:infoRaw});
+const extra={};
+for(const key of ['ean','description','itemCode','dept','klass','date','user','brand','auditList'])extra[key]=String(val(r,intelCols[key])).trim();
+for(const key of ['stock','counted','discrepancy','countsNo']){const v=val(r,intelCols[key]);extra[key]=(v===''||v==='-')?null:(Number(String(v).replace(',','.'))||0);}
+extra.counts=countCols.map(c=>{const v=val(r,c);if(v===''||v==='-')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null;});
+extra.excelRow=i+1;
+out.push({location:locRaw,incident:incidentRaw,info:infoRaw,...extra});
 const pct=Math.floor((i-hIdx)/total*100);
 if(pct>=lastReport+2){lastReport=pct;self.postMessage({type:'progress',stage:'parse',percent:Math.floor(pct/2)});}
 }
