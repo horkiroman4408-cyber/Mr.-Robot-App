@@ -336,12 +336,12 @@ function chatReply(group,index){
 }
 
 const DOC_UI={
- pl:{title:'Szczegółowa dokumentacja',subtitle:'Poznaj Mr. Robot od środka',home:'Dokumentacja',intro:'Przewodnik po projekcie, modułach i obliczeniach. Wybierz rozdział, aby przejść do szczegółów.',topics:'Tematy w rozdziale',summary:'W skrócie',details:'Jak to działa',source:'W kodzie projektu',back:'Wróć',exit:'Zamknij dokumentację',next:'Następny temat',prev:'Poprzedni temat',articles:'tematów',empty:'Brak opisu tej części.'},
- ru:{title:'Подробная документация',subtitle:'Узнай Mr. Robot изнутри',home:'Документация',intro:'База знаний о проекте, модулях и расчётах. Выбери раздел, чтобы разобраться подробнее.',topics:'Темы раздела',summary:'Главное',details:'Как это устроено',source:'В коде проекта',back:'Назад',exit:'Закрыть документацию',next:'Следующая тема',prev:'Предыдущая тема',articles:'тем',empty:'Описание пока недоступно.'},
- en:{title:'Detailed documentation',subtitle:'Explore Mr. Robot from the inside',home:'Documentation',intro:'A project knowledge base covering modules, data and calculations. Choose a chapter to explore.',topics:'Topics in this chapter',summary:'Overview',details:'How it works',source:'In the source code',back:'Back',exit:'Close documentation',next:'Next topic',prev:'Previous topic',articles:'topics',empty:'No description available.'},
- uk:{title:'Докладна документація',subtitle:'Дізнайтеся, як влаштований Mr. Robot',home:'Документація',intro:'База знань про проєкт, модулі й обчислення. Оберіть розділ для подробиць.',topics:'Теми розділу',summary:'Коротко',details:'Як це працює',source:'У коді проєкту',back:'Назад',exit:'Закрити документацію',next:'Наступна тема',prev:'Попередня тема',articles:'тем',empty:'Опис недоступний.'}
+ pl:{title:'Szczegółowa dokumentacja',subtitle:'Poznaj Mr. Robot od środka',home:'Dokumentacja',intro:'Przewodnik po projekcie, modułach i obliczeniach. Wybierz rozdział, aby przejść do szczegółów.',topics:'Tematy w rozdziale',summary:'W skrócie',details:'Jak to działa',source:'W kodzie projektu',back:'Wróć',exit:'Zamknij dokumentację',next:'Następny temat',prev:'Poprzedni temat',articles:'tematów',empty:'Brak opisu tej części.',related:'Powiązane tematy',more:'Czytaj więcej',moreIntelligence:'Więcej o Intelligence',moreBridge:'Więcej o Bridge',featured:'Polecane przewodniki',modules:'Pozostała dokumentacja',returnTo:'Wróć do poprzedniego tematu'},
+ ru:{title:'Подробная документация',subtitle:'Узнай Mr. Robot изнутри',home:'Документация',intro:'База знаний о проекте, модулях и расчётах. Выбери раздел, чтобы разобраться подробнее.',topics:'Темы раздела',summary:'Главное',details:'Как это устроено',source:'В коде проекта',back:'Назад',exit:'Закрыть документацию',next:'Следующая тема',prev:'Предыдущая тема',articles:'тем',empty:'Описание пока недоступно.',related:'Связанные темы',more:'Подробнее',moreIntelligence:'Подробнее об Intelligence',moreBridge:'Подробнее об Bridge',featured:'Отдельные руководства',modules:'Основная документация',returnTo:'Вернуться к предыдущей теме'},
+ en:{title:'Detailed documentation',subtitle:'Explore Mr. Robot from the inside',home:'Documentation',intro:'A project knowledge base covering modules, data and calculations. Choose a chapter to explore.',topics:'Topics in this chapter',summary:'Overview',details:'How it works',source:'In the source code',back:'Back',exit:'Close documentation',next:'Next topic',prev:'Previous topic',articles:'topics',empty:'No description available.',related:'Related topics',more:'Read more',moreIntelligence:'More about Intelligence',moreBridge:'More about Bridge',featured:'Featured guides',modules:'Main documentation',returnTo:'Return to previous topic'},
+ uk:{title:'Докладна документація',subtitle:'Дізнайтеся, як влаштований Mr. Robot',home:'Документація',intro:'База знань про проєкт, модулі й обчислення. Оберіть розділ для подробиць.',topics:'Теми розділу',summary:'Коротко',details:'Як це працює',source:'У коді проєкту',back:'Назад',exit:'Закрити документацію',next:'Наступна тема',prev:'Попередня тема',articles:'тем',empty:'Опис недоступний.',related:'Пов’язані теми',more:'Докладніше',moreIntelligence:'Докладніше про Intelligence',moreBridge:'Докладніше про Bridge',featured:'Окремі посібники',modules:'Основна документація',returnTo:'Повернутися до попередньої теми'}
 };
-let docCategory=null,docTopic=null,docHistory=[];
+let docCategory=null,docTopic=null,docHistory=[],docReturnStack=[];
 function docLanguage(){return window.MRI18N?.language||'pl';}
 function docText(){return DOC_UI[docLanguage()]||DOC_UI.pl;}
 function docTitle(obj){return obj?.title?.[docLanguage()]||obj?.title?.pl||obj?.title?.en||'';}
@@ -350,17 +350,40 @@ function docCurrentCategory(){return docCategories().find(c=>c.id===docCategory)
 function docCurrentTopic(){return docCurrentCategory()?.topics.find(t=>t.id===docTopic);}
 function docNode(tag,cls,content){const e=document.createElement(tag);if(cls)e.className=cls;if(content!=null)e.textContent=content;return e;}
 function docAction(label,fn,cls=''){const b=docNode('button','mrbot-doc-action '+cls,label);b.type='button';b.addEventListener('click',fn);return b;}
-function docLeave(){readmeMode=false;docCategory=null;docTopic=null;history=docHistory;navSection='home';chatMode=false;refresh();}
-function docEnter(){docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;renderDocs();}
-function docOpenCategory(id){docCategory=id;docTopic=null;renderDocs();}
+function docLeave(){readmeMode=false;docCategory=null;docTopic=null;docReturnStack=[];history=docHistory;navSection='home';chatMode=false;refresh();}
+function docEnter(){docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;docReturnStack=[];renderDocs();}
+function docOpenCategory(id){docReturnStack=[];docCategory=id;docTopic=null;renderDocs();}
 function docOpenTopic(id){docTopic=id;renderDocs();petMood('read',600);}
+function docOpenRelated(categoryId,topicId){
+ const next=docCategories().find(c=>c.id===categoryId);
+ if(!next?.topics?.some(t=>t.id===topicId))return;
+ docReturnStack.push({category:docCategory,topic:docTopic});
+ docCategory=categoryId;docTopic=topicId;renderDocs();petMood('read',600);
+}
+function docGoBack(){
+ if(docReturnStack.length){const origin=docReturnStack.pop();docCategory=origin.category;docTopic=origin.topic;}
+ else if(docTopic)docTopic=null;
+ else if(docCategory)docCategory=null;
+ else{docLeave();return;}
+ renderDocs();
+}
+function docRelated(parent,items){
+ if(!Array.isArray(items)||!items.length)return;
+ const t=docText();const block=docNode('section','mrbot-doc-related');
+ block.append(docNode('h3','',t.related));
+ for(const link of items){const category=docCategories().find(c=>c.id===link.category);const topic=category?.topics.find(x=>x.id===link.topic);if(!topic)continue;
+  const label=(category.id==='intelligence'?t.moreIntelligence:category.id==='openreports'?t.moreBridge:t.more)+': '+docTitle(topic);
+  block.append(docAction(label+'  →',()=>docOpenRelated(category.id,topic.id),'mrbot-doc-related-link'));
+ }
+ if(block.children.length>1)parent.append(block);
+}
 function docHeader(parent,eyebrow,title,subtitle){
  const h=docNode('div','mrbot-doc-heading');h.append(docNode('div','mrbot-doc-eyebrow',eyebrow),docNode('h2','',title));
  if(subtitle)h.append(docNode('p','mrbot-doc-muted',subtitle));parent.append(h);
 }
 function docTrail(parent){const bar=docNode('nav','mrbot-doc-trail');bar.setAttribute('aria-label','Breadcrumb');
- bar.append(docAction(docText().home,()=>{docCategory=null;docTopic=null;renderDocs();}));
- if(docCategory){bar.append(docNode('span','mrbot-doc-separator','/'));const cat=docCurrentCategory();bar.append(docAction(docTitle(cat),()=>{docTopic=null;renderDocs();}));}
+ bar.append(docAction(docText().home,()=>{docReturnStack=[];docCategory=null;docTopic=null;renderDocs();}));
+ if(docCategory){bar.append(docNode('span','mrbot-doc-separator','/'));const cat=docCurrentCategory();bar.append(docAction(docTitle(cat),()=>{docReturnStack=[];docTopic=null;renderDocs();}));}
  if(docTopic){bar.append(docNode('span','mrbot-doc-separator','/'));bar.append(docNode('span','mrbot-doc-current',docTitle(docCurrentTopic())));}
  parent.append(bar);
 }
@@ -377,6 +400,7 @@ function renderDocs(){if(!readmeMode)return;
   const details=topic.tech?.[lang]||topic.tech?.pl;
   if(details){const block=docNode('section','mrbot-doc-article-section');block.append(docNode('h3','',t.details));docParagraph(block,details);view.append(block);}
   if(topic.source){const src=docNode('div','mrbot-doc-source');src.append(docNode('span','',t.source),docNode('code','',topic.source));view.append(src);}
+  docRelated(view,topic.related);
   const index=category.topics.findIndex(x=>x.id===docTopic);const nav=docNode('div','mrbot-doc-bottomnav');
   if(index>0)nav.append(docAction('← '+t.prev,()=>docOpenTopic(category.topics[index-1].id)));
   if(index<category.topics.length-1)nav.append(docAction(t.next+' →',()=>docOpenTopic(category.topics[index+1].id),'primary'));
@@ -387,12 +411,21 @@ function renderDocs(){if(!readmeMode)return;
   category.topics.forEach((item,i)=>{const b=docAction('',()=>docOpenTopic(item.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-index',String(i+1).padStart(2,'0')),docNode('span','mrbot-doc-listname',docTitle(item)),docNode('span','mrbot-doc-chevron','›'));list.append(b);});view.append(list);
  }else{
   docHeader(view,'MR. BOT · KNOWLEDGE BASE',t.title,t.intro);
+  const featured=docCategories().filter(c=>c.featured);if(featured.length){
+   view.append(docNode('h3','mrbot-doc-group-label',t.featured));
+   const highlights=docNode('div','mrbot-doc-featured');
+   for(const c of featured){const card=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-feature');
+    card.append(docNode('span','mrbot-doc-feature-icon',c.emoji));
+    const copy=docNode('span','mrbot-doc-feature-copy');copy.append(docNode('strong','',docTitle(c)),docNode('small','',c.topics.length+' '+t.articles));card.append(copy,docNode('span','mrbot-doc-chevron','›'));highlights.append(card);}
+   view.append(highlights);
+  }
+  view.append(docNode('h3','mrbot-doc-group-label',t.modules));
   const list=docNode('div','mrbot-doc-list');
-  for(const c of docCategories()){const b=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-emoji',c.emoji),docNode('span','mrbot-doc-listname',docTitle(c)),docNode('span','mrbot-doc-count',c.topics.length+' '+t.articles),docNode('span','mrbot-doc-chevron','›'));list.append(b);}
+  for(const c of docCategories().filter(c=>!c.featured)){const b=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-emoji',c.emoji),docNode('span','mrbot-doc-listname',docTitle(c)),docNode('span','mrbot-doc-count',c.topics.length+' '+t.articles),docNode('span','mrbot-doc-chevron','›'));list.append(b);}
   view.append(list);
  }
  messages.append(view);messages.scrollTop=0;
- suggestions.append(docAction(docTopic?t.back:docCategory?t.back:t.exit,()=>{if(docTopic){docTopic=null;renderDocs();}else if(docCategory){docCategory=null;renderDocs();}else docLeave();},'mrbot-doc-footerbtn'));
+ suggestions.append(docAction(docReturnStack.length?t.returnTo:docTopic?t.back:docCategory?t.back:t.exit,docGoBack,'mrbot-doc-footerbtn'));
 }
 function refresh(){
  const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;
