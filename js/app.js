@@ -2089,7 +2089,7 @@ const intelAuditT2Data={
  analDesc:['Znajdź kategorie, strefy i konta z odchyleniami.','Ищи закономерности по категориям, зонам и User ID.','Explore patterns across categories, zones and user IDs.','Шукай закономірності за категоріями, зонами та User ID.'],
  modeClass:['Kategorie','Категории','Categories','Категорії'],modeZone:['Strefy','Зоны','Zones','Зони'],modeUser:['User ID','User ID','User ID','User ID'],
  tested:['Wiersze','Строки','Rows','Рядки'],errors:['Odchylenia','Расхождения','Discrepancies','Розбіжності'],rate:['Odsetek','Доля','Rate','Частка'],
- things:['Towary do sprawdzenia','Товары для проверки','Items to review','Товари для перевірки'],
+ things:['Towary z odchyleniami','Товары с расхождениями','Items with discrepancies','Товари з розбіжностями'],
  search:['Szukaj EAN, nazwy lub lokalizacji','Поиск EAN, названия или локации','Search EAN, product or location','Пошук EAN, назви чи локації'],
  noRecords:['Brak pozycji dla bieżącego wyboru.','Нет товаров по выбранным условиям.','No items for this selection.','Немає товарів за вибраними умовами.'],
  noColumns:['Brak dodatkowych kolumn w zapisanych danych. Wczytaj ponownie aktualny plik Excel.','В сохранённых данных нет дополнительных колонок. Загрузи Excel заново.','Saved records lack extra columns. Reload the Excel workbook.','У збережених даних немає додаткових колонок. Завантаж Excel повторно.'],
@@ -2111,7 +2111,7 @@ const intelAuditT2Data={
  row:['Wiersz Excel','Строка Excel','Excel row','Рядок Excel'],location:['Lokalizacja','Локация','Location','Локація'],
  info:['Grupa INFO','Группа INFO','INFO group','Група INFO'],date:['Data inwentaryzacji','Дата инвентаризации','Inventory date','Дата інвентаризації'],
  dept:['Dział','Отдел','Department','Відділ'],klass:['Klasa','Класс','Class','Клас'],brand:['Marka','Бренд','Brand','Бренд'],
- selected:['Wybierz grupę, aby zobaczyć konkretne EAN.','Выбери группу, чтобы увидеть конкретные EAN.','Select a group to inspect its EANs.','Вибери групу, щоб переглянути EAN.'],
+ selected:['Wybierz grupę, aby zobaczyć tylko wpisy z odchyleniami; wszyscy audytorzy pozostają widoczni.','Выбери группу, чтобы увидеть только расхождения; все аудиторы остаются в таблице.','Select a group to inspect discrepancy records; every auditor stays visible.','Обери групу, щоб переглянути лише розбіжності; усі аудитори залишаються у таблиці.'],
  rowCount:['Liczba wpisów','Количество записей','Record count','Кількість записів'],
  caution:['To obserwacje statystyczne, nie ocena pracownika ani potwierdzenie przyczyny błędu.','Это статистические наблюдения, а не оценка сотрудника или доказательство причины ошибки.','These are statistical patterns, not staff performance judgments or proof of cause.','Це статистичні закономірності, а не оцінка працівника чи доказ причини помилки.'],
  kept:['Algorytm AL_AUDYT i eksport pozostają bez zmian.','Алгоритм AL_AUDYT и экспорт не изменены.','AL_AUDYT calculations and export are unchanged.','Розрахунки AL_AUDYT та експорт не змінено.'],
@@ -2132,7 +2132,7 @@ const intelAuditGroupStats=computed(()=>{
   let d=groups.get(key);if(!d){d={name:key,total:0,errors:0};groups.set(key,d);}
   d.total++;if(['shortage','surplus'].includes(intelAuditIncidentKind(r)))d.errors++;
  }
- return Array.from(groups.values()).map(d=>({...d,rate:d.total?d.errors/d.total:0})).sort((a,b)=>b.rate-a.rate||b.total-a.total||a.name.localeCompare(b.name)).slice(0,120);
+ return Array.from(groups.values()).filter(d=>mode==='user'||d.errors>0).map(d=>({...d,rate:d.total?d.errors/d.total:0})).sort((a,b)=>mode==='user'?(b.total-a.total||b.errors-a.errors||a.name.localeCompare(b.name)):(b.errors-a.errors||b.rate-a.rate||a.name.localeCompare(b.name)));
 });
 const intelAuditRecountRows=computed(()=>{
  return intelAuditRichRows.value.filter(r=>{
@@ -2146,10 +2146,12 @@ const intelAuditRecountRows=computed(()=>{
 const intelAuditSelectedRows=computed(()=>{
  if(intelAuditTab.value==='recounts')return intelAuditRecountRows.value;
  const key=intelAuditGroup.value;
- return key?intelAuditRichRows.value.filter(r=>{
+ return intelAuditRichRows.value.filter(r=>{
+  if(!['shortage','surplus'].includes(intelAuditIncidentKind(r)))return false;
+  if(!key)return true;
   const value=intelAuditAnalysisMode.value==='class'?(r.klass||r.dept):intelAuditAnalysisMode.value==='zone'?String(r.location||'').trim().slice(0,3):r.user;
   return (String(value||'').trim()||intelAuditT2('unknown'))===key;
- }):intelAuditRichRows.value.filter(r=>['shortage','surplus'].includes(intelAuditIncidentKind(r)));
+ });
 });
 const intelAuditFilteredProducts=computed(()=>{
  const q=intelAuditSearch.value.toLocaleLowerCase().trim();
