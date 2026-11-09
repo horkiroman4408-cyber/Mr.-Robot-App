@@ -222,12 +222,17 @@ function smartContext(){
   godziny_mdt:['mp','stock','mdt','use','GODZINY MDT'],stock:['mp','stock','other','use','STOCK'],
   konsolidacja:['mp','scalanie','kons',null,'Konsolidacja'],scalanie:['mp','scalanie','other',null,'Scalanie'],
   rs:['rs','lookup','other',null,'RS'],
+  'rs-tote':['rs','lookup','other',null,'RS · MP → TOTE'],
+  'rs-manual':['rs','lookup','other',null,'RS · EAN → TOTE'],
   'audyt-geek':['ret','input','other',null,'AUDYT GEEK'],'scalanie-geek':['rs','scalanie-geek','other',null,'Scalanie Geek'],przestoje:['inne','downtime','other',null,'Przestoje'],
   artltt:['inne','artltt',null,null,'ARTLTT'],kreseczki:['inne','barcode',null,null,'Kreseczki'],
   'kpi-audit':['kpi','rates','other','use','KPI · Audyt'],'kpi-scalanie':['kpi','rates','other','use','KPI · Scalanie'],
-  'kpi-rozkładanie':['kpi','rates','other','use','KPI · Rozkładanie'],'kpi-nadwevas':['kpi','nadwe','other','use','KPI · NADWE/VAS'],'kpi-pracownicy':['kpi','employees',null,null,'KPI · Pracownicy'],'kpi-stats':['kpi','rates',null,null,'KPI · Statistics']
+  'kpi-rozkładanie':['kpi','rates','other','use','KPI · Rozkładanie'],'kpi-nadwevas':['kpi','nadwe','other','use','KPI · NADWE/VAS'],'kpi-pracownicy':['kpi','employees',null,null,'KPI · Pracownicy'],'kpi-stats':['kpi','rates',null,null,'KPI · Statistics'],
+  mp:['mp','audit',null,null,'MP']
  };
- const match=map[key]||(context()==='kpi'?['kpi','source','other','use','KPI Norms']:null);
+ const statsProcess=key.startsWith('kpi-stats-')?key.slice('kpi-stats-'.length):null;
+ const statsLabel=statsProcess?({'audit':'Audyt','scalanie':'Scalanie','rozkładanie':'Rozkładanie','nadwevas':'NADWE/VAS'}[statsProcess]||statsProcess):null;
+ const match=map[key]||(statsLabel?['kpi','rates',null,null,'KPI · Statistics · '+statsLabel]:null)||(context()==='kpi'?['kpi','source','other','use','KPI Norms']:null);
  if(match){[doc,intel,bridge, ,label]=match;const vals=match;doc={category:vals[0],topic:vals[1]};intel=vals[2]?{category:'intelligence',topic:vals[2]}:null;bridge=vals[3]?{category:'openreports',topic:vals[3]}:null;}
  // Only offer linked articles that are actually present in the loaded knowledge base.
  const present=link=>!!link&&!!window.MRBOT_DOCS?.find(x=>x.id===link.category)?.topics?.some(x=>x.id===link.topic);
@@ -483,6 +488,19 @@ function refresh(){
  if(readmeMode){renderDocs();return;}
  renderNavigator();
 }
+// Context changes must not require closing MR. BOT. Preserve the open article
+// (and its scroll position) if the user is reading detailed documentation.
+function refreshLiveContext(){
+ const l=locale(),hint=smartContext();
+ $('mrbot-context').textContent=l.hint+' · '+(hint.doc?hint.label:context().toUpperCase());
+ if(!open)return;
+ if(readmeMode){
+  // The documentation index has a context shortcut; article views remain intact.
+  if(!docCategory&&!docTopic)renderDocs();
+  return;
+ }
+ if(navSection==='home'||(navSection==='guide'&&!guideCategory&&!guideTopic))renderNavigator();
+}
 
 function resolve(q){const s=q.toLocaleLowerCase().normalize('NFKD');const match=(...parts)=>parts.some(x=>s.includes(x));if(match('kresecz','barcode','code 128','штрих','штрихкод','штрихкод','штрихкод'))return'barcode';if(match('nadwe','vas'))return'nadwe';if(match('kpi','норм','norm','wydajno'))return'kpi';if(match('tote','geek','ret','rs1',' rs','ean'))return'rs';if(match('scalanie','konsolid','formatka','stock','mdt',' mp','локац','lokac'))return'mp';if(match('artltt','przestoj','просто','downtime','inne'))return'inne';if(match('excel','grafik','plik','file','файл','завантаж','загруз'))return'files';if(match('filtr','фильтр','фільтр','target','смен','zmian'))return'filters';if(match('csv','export','eksport','выгруз','експорт','pobier','скача','копир'))return'export';if(match('błąd','error','ошиб','пуст','empty','brak wynik','не работа','не працю'))return'error';if(match('start','zaczą','нача','почат','jak','как','how'))return context()==='hub'?'steps':context();return null;}
 
@@ -491,7 +509,7 @@ const mascot=toggle.querySelector('.mrbot-mascot');const headerHome=$('mrbot-hea
 const petImage=$('mrbot-pet-image');
 const avatar=new window.MRBotAvatar.Avatar(mascot);petImage.hidden=true;
 window.MRBotVisual={play:(state,ms=2200)=>avatar.play(state,ms),get state(){return avatar.state;},get activeTasks(){return avatar.jobs.size;}};
-window.addEventListener('mrbot:task',e=>{avatar.task(e.detail);if(open&&!readmeMode&&(navSection==='home'||(navSection==='guide'&&!guideCategory))&&['start','done','error','empty'].includes(e.detail?.phase)){renderNavigator();}});
+window.addEventListener('mrbot:task',e=>{avatar.task(e.detail);if(['start','done','error','empty'].includes(e.detail?.phase))refreshLiveContext();});
 for(const d of Object.values(window.__MRBOT_TASKS__||{}))if(d.phase==='start'||d.phase==='progress')avatar.task(d);
 // Context changes do not trigger pointing gestures; keep the current calm pose.
 let petState='idle',petReset=null,petIdleTimer=null,lastSprite='';
@@ -526,7 +544,10 @@ root.classList.remove('mrbot-reduced-motion');
 root.addEventListener('pointermove',e=>{const r=mascot.getBoundingClientRect();const x=Math.max(-2.8,Math.min(2.8,(e.clientX-r.left-r.width*.35)/r.width*5));const y=Math.max(-1.7,Math.min(1.7,(e.clientY-r.top-r.height*.5)/r.height*3));avatar.look=[x,y];root.style.setProperty('--mrbot-look-x',x.toFixed(2)+'px');root.style.setProperty('--mrbot-look-y',y.toFixed(2)+'px');});root.addEventListener('pointerleave',()=>{avatar.look=[0,0];root.style.setProperty('--mrbot-look-x','0px');root.style.setProperty('--mrbot-look-y','0px');});
 toggle.addEventListener('click',()=>setOpen(!open));$('mrbot-close').addEventListener('click',()=>setOpen(false));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open)setOpen(false);});
 window.MRI18N?.subscribe?.(()=>refresh());
-window.addEventListener('mrbot-view-change',refresh);
+window.addEventListener('mrbot-view-change',refreshLiveContext);
+// app.js dispatches this for *all* nested views (MP Audit tabs, Scalanie,
+// KPI, RS). The former listener only observed top-level view changes.
+window.addEventListener('mrbot:context',refreshLiveContext);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){petMood('idle');schedulePetIdle();}});avatar.compact=true;refresh();schedulePetIdle();
 try{if(!localStorage.getItem('mrbot-intro-v1')){const tip=$('mrbot-intro');tip.textContent=locale().intro;tip.hidden=false;tip.addEventListener('click',()=>{tip.hidden=true;setOpen(true);});setTimeout(()=>{tip.hidden=true;},7500);localStorage.setItem('mrbot-intro-v1','1');}}catch(e){}
 })();

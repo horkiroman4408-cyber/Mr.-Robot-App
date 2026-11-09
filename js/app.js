@@ -2322,9 +2322,10 @@ const mrBotHelpState=()=>{
  let module='hub',source=null,hasResult=false;
  if(viewName==='kpi'){
   module='kpi-'+kpiTab.value;
-  const byTab={audit:kpiAudit,scalanie:kpiScalanie,rozkładanie:kpiRozk,nadwevas:kpiNv,roz:kpiRozk,nv:kpiNv};
+  const byTab={audit:kpiAudit,scalanie:kpiScalanie,rozkładanie:kpiRozk,nadwevas:kpiNv,roz:kpiRozk,nv:kpiNv,pracownicy:pracownicy};
   source=byTab[kpiTab.value]||null;
   hasResult=false; // KPI statistics are computed from loaded records; no separate run is required.
+  if(kpiTab.value==='stats')module='kpi-stats-'+kpiStatsTab.value;
  }else if(viewName==='mp'&&mpView.value==='audyt'){
   module=audytTab.value;
   const byTab={al_audyt:audyt,formatka_59:audyt,godziny_mdt:mdt,stock:stock};
@@ -2335,7 +2336,7 @@ const mrBotHelpState=()=>{
   source=toteMp;
   hasResult=module==='konsolidacja'?!!konsolidacja.result:false;
  }else if(viewName==='rs'){
-  module=rsView.value==='geek'?'audyt-geek':rsView.value==='scalanieGeek'?'scalanie-geek':'rs';
+  module=rsView.value==='geek'?'audyt-geek':rsView.value==='scalanieGeek'?'scalanie-geek':rsView.value==='manual'?'rs-manual':rsView.value==='tote'?'rs-tote':'rs';
   source=module==='audyt-geek'?geek:module==='scalanie-geek'?null:toteRs;
   hasResult=module==='audyt-geek'?!!geek.result:false;
  }else if(viewName==='przestoje'){
@@ -2346,9 +2347,11 @@ const mrBotHelpState=()=>{
  return {view:viewName,module,stage:source?(loading?'loading':hasResult?'analyzed':loaded?'loaded':'empty'):null,fileName:source?.fileName||''};
 };
 window.__MRBOT_HELP_STATE__=mrBotHelpState;
-const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
-watch([view,rsView,mpView,kpiTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
+const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,kpiStatsTab:kpiStatsTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
+watch([view,rsView,mpView,kpiTab,kpiStatsTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
 window.__MRBOT_CONTEXT__=mrBotContext();
+// Keep the helper's loading/loaded/analyzed hint current without touching data.
+watch(()=>{const info=mrBotHelpState();return info.module+'|'+(info.stage||'');},()=>mrBotEmit('mrbot:context',mrBotContext()));
 window.__MRBOT_TASKS__={};
 for(const [name,st] of Object.entries({kpiAudit,kpiScalanie,kpiRozk,kpiNv,pracownicy,toteMp,toteRs,audyt,geek,mdt,stock,przestoje})){
  let id=null,seq=0,peak=0,priorData=null;
