@@ -161,6 +161,7 @@
      <div class="mr-mgr-meta"><span>🗓 {{ mrRestoreText('added') }}: {{ mrMemoryDate(item.savedAt) }}</span><span v-if="item.size!=null">{{ mrRestoreText('size') }}: {{ mrMemorySize(item.size) }}</span></div>
     </div>
     <div class="mr-mgr-actions">
+     <button v-if="mobileLite && mrMobileCanRestore(item.slot)" class="mr-mobile-restore-button" type="button" @click="mrRestoreOneMobile(item.slot)">{{ mrMobileText('restore') }}</button>
      <span class="mr-memory-status" :class="'mr-memory-'+item.status">{{ mrRestoreStatus(item) }}<span v-if="item.status==='loading' && mrRestorePercent(item.slot)"> {{ mrRestorePercent(item.slot) }}%</span></span>
      <button class="mr-mgr-delete" type="button" :title="mrRestoreText('remove')" :aria-label="mrRestoreText('remove')+' '+item.label" :disabled="item.status==='loading'||item.status==='removing'||(item.slot==='pracownicy'?pracownicy.loading:item.slot==='employeeTraining'?employeeTraining.loading:false)" @click="mrMemoryRemove(item.slot)"><span aria-hidden="true">✕</span><span class="mr-mgr-delete-label">{{ item.status==='removing'?mrRestoreText('removing'):mrRestoreText('remove') }}</span></button>
     </div>
@@ -303,7 +304,7 @@
   <label class="grafik-btn" :class="{primary:!kpiAudit.loaded,disabled:kpiAudit.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnAuditFile" :disabled="kpiAudit.loading"/>
     <span>{{ tr(kpiAudit.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('kpiAudit')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('kpiAudit')">{{ mrMobileText('restore') }}</button>
   <button v-if="(kpiAudit.loaded || kpiAudit.savedAt) && !kpiAudit.loading" class="grafik-btn danger" :title="tr(134)" @click="kpiResetAudit">✕</button>
 </div>
 <div v-if="kpiAudit.loaded" class="glass-strong p-5 space-y-4 float-up">
@@ -356,7 +357,7 @@
   <label class="grafik-btn" :class="{primary:!kpiScalanie.loaded,disabled:kpiScalanie.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnScalanieFile" :disabled="kpiScalanie.loading"/>
     <span>{{ tr(kpiScalanie.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('kpiScalanie')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('kpiScalanie')">{{ mrMobileText('restore') }}</button>
   <button v-if="(kpiScalanie.loaded || kpiScalanie.savedAt) && !kpiScalanie.loading" class="grafik-btn danger" :title="tr(134)" @click="kpiResetScalanie">✕</button>
 </div>
 <div v-if="kpiScalanie.loaded" class="glass-strong p-5 space-y-4 float-up">
@@ -409,7 +410,7 @@
   <label class="grafik-btn" :class="{primary:!kpiRozk.loaded,disabled:kpiRozk.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnRozkFile" :disabled="kpiRozk.loading"/>
     <span>{{ tr(kpiRozk.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('kpiRozk')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('kpiRozk')">{{ mrMobileText('restore') }}</button>
   <button v-if="(kpiRozk.loaded || kpiRozk.savedAt) && !kpiRozk.loading" class="grafik-btn danger" :title="tr(134)" @click="kpiResetRozk">✕</button>
 </div>
 <div v-if="kpiRozk.loaded" class="glass-strong p-5 space-y-4 float-up">
@@ -463,7 +464,7 @@
   <label class="grafik-btn" :class="{primary:!kpiNv.loaded,disabled:kpiNv.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnNvFile" :disabled="kpiNv.loading"/>
     <span>{{ tr(kpiNv.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('kpiNv')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('kpiNv')">{{ mrMobileText('restore') }}</button>
   <button v-if="(kpiNv.loaded || kpiNv.savedAt) && !kpiNv.loading" class="grafik-btn danger" :title="tr(134)" @click="kpiResetNv">✕</button>
 </div>
 <div v-if="kpiNv.loaded" class="glass-strong p-5 space-y-4 float-up">
@@ -621,7 +622,7 @@
         <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
           <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
           <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-        </label>
+        </label> <button v-if="mobileLite && mrMobileCanRestore('toteMp')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('toteMp')">{{ mrMobileText('restore') }}</button>
         <button v-if="(toteMpLoaded || toteMp.savedAt) && !toteMp.loading" class="grafik-btn danger" :title="tr(128)" @click="toteResetMp">✕</button>
         </div>
       </div>
@@ -646,7 +647,7 @@
         <label class="grafik-btn" :class="{primary:!toteRsLoaded,disabled:toteRs.loading}">
           <input type="file" class="hidden" accept=".xlsx,.xls" @change="toteOnRsFile" :disabled="toteRs.loading"/>
           <span>{{ tr(toteRsLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-        </label>
+        </label> <button v-if="mobileLite && mrMobileCanRestore('toteRs')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('toteRs')">{{ mrMobileText('restore') }}</button>
         <button v-if="(toteRsLoaded || toteRs.savedAt) && !toteRs.loading" class="grafik-btn danger" :title="tr(128)" @click="toteResetRs">✕</button>
       </div>
     </div>
@@ -908,6 +909,7 @@
   <button class="grafik-btn danger" :title="tr(337)" @click="geekReset">✕</button>
 </div>
 
+<button v-if="mobileLite && mrMobileCanRestore('geek')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('geek')">{{ mrMobileText('restore') }}</button>
 <div v-if="geek.result" class="space-y-6">
 
 <div class="glass-strong p-6 space-y-4 float-up">
@@ -1074,7 +1076,7 @@
  <div class="mp-scanner-panel mp-scanner-database"><div class="mp-scanner-inline"><strong>{{ eMsg('Baza MP','База MP','MP database','База MP') }}</strong><span :class="toteMpLoaded?'mp-scanner-ready':'mp-scanner-missing'">{{ toteMp.loading ? eMsg('Wczytywanie…','Загрузка…','Loading…','Завантаження…') : toteMpLoaded ? eMsg('Gotowa','Готова','Ready','Готова') : eMsg('Brak danych','Нет данных','No data','Немає даних') }}</span></div>
   <p v-if="toteMpLoaded" class="mp-scanner-muted">{{ toteMp.fileName }} · {{ toteMp.records.length.toLocaleString() }} {{ eMsg('wierszy','строк','rows','рядків') }}</p>
   <p v-else class="mp-scanner-muted">{{ eMsg('Wczytaj raport MP z kolumnami EAN, LOCATION, NO OF ITEMS i TECHNICAL DESCRIPTION.','Загрузи отчёт MP с колонками EAN, LOCATION, NO OF ITEMS и TECHNICAL DESCRIPTION.','Load an MP workbook with EAN, LOCATION, NO OF ITEMS and TECHNICAL DESCRIPTION.','Завантаж звіт MP з EAN, LOCATION, NO OF ITEMS та TECHNICAL DESCRIPTION.') }}</p>
-  <label class="mp-scanner-upload">{{ toteMpLoaded ? eMsg('Zmień bazę MP','Заменить базу MP','Replace MP database','Замінити базу MP') : eMsg('Wczytaj bazę MP','Загрузить базу MP','Load MP database','Завантажити базу MP') }}<input type="file" accept=".xlsx,.xls,.xlsm" :disabled="toteMp.loading" @change="toteOnMpFile($event);$event.target.value=''" /></label>
+  <label class="mp-scanner-upload">{{ toteMpLoaded ? eMsg('Zmień bazę MP','Заменить базу MP','Replace MP database','Замінити базу MP') : eMsg('Wczytaj bazę MP','Загрузить базу MP','Load MP database','Завантажити базу MP') }}<input type="file" accept=".xlsx,.xls,.xlsm" :disabled="toteMp.loading" @change="toteOnMpFile($event);$event.target.value=''" /></label> <button v-if="mobileLite && mrMobileCanRestore('toteMp')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('toteMp')">{{ mrMobileText('restore') }}</button>
  </div>
  <section class="mp-scanner-panel"><h2>{{ eMsg('Znajdź produkt','Найти товар','Find an item','Знайти товар') }}</h2>
   <div class="mp-scanner-search"><input v-model="mpScannerInput" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" enterkeyhint="search" :placeholder="eMsg('Wpisz lub zeskanuj EAN','Введи или отсканируй EAN','Enter or scan EAN','Введи або скануй EAN')" @keyup.enter="mpScannerSearch()" aria-label="EAN"/><button @click="mpScannerSearch()" :disabled="!toteMpLoaded||toteMp.loading||!mpScannerInput.trim()">{{ eMsg('Szukaj','Найти','Find','Знайти') }}</button></div>
@@ -1146,7 +1148,7 @@
   <label class="grafik-btn" :class="{primary:!audyt.loaded,disabled:audyt.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="audytOnFile" :disabled="audyt.loading"/>
     <span>{{ tr(audyt.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('audyt')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('audyt')">{{ mrMobileText('restore') }}</button>
   <button v-if="(audyt.loaded || audyt.savedAt) && !audyt.loading" class="grafik-btn danger" :title="tr(134)" @click="audytReset">✕</button>
 </div>
 <div v-if="audyt.loaded && !audyt.result" class="glass-strong p-7 space-y-5 float-up">
@@ -1271,7 +1273,7 @@
   <label class="grafik-btn" :class="{primary:!mdt.loaded,disabled:mdt.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="mdtOnFile" :disabled="mdt.loading"/>
     <span>{{ tr(mdt.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('mdt')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('mdt')">{{ mrMobileText('restore') }}</button>
   <button v-if="(mdt.loaded || mdt.savedAt) && !mdt.loading" class="grafik-btn danger" :title="tr(134)" @click="mdtReset">✕</button>
 </div>
 <div v-if="mdt.loaded && !mdt.result" class="glass-strong p-7 space-y-5 float-up">
@@ -1352,7 +1354,7 @@
   <label class="grafik-btn" :class="{primary:!stock.loaded,disabled:stock.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="stockOnFile" :disabled="stock.loading"/>
     <span>{{ tr(stock.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('stock')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('stock')">{{ mrMobileText('restore') }}</button>
   <button v-if="(stock.loaded || stock.savedAt) && !stock.loading" class="grafik-btn danger" :title="tr(134)" @click="stockReset">✕</button>
 </div>
 <div v-if="stock.loaded" class="glass-strong p-6 space-y-5 float-up">
@@ -1457,7 +1459,7 @@
     <label class="grafik-btn" :class="{primary:!toteMpLoaded,disabled:toteMp.loading}">
       <input type="file" class="hidden" accept=".xlsx,.xls" data-mr-mp-base-input="true" @change="toteOnMpFile" :disabled="toteMp.loading"/>
       <span>{{ tr(toteMpLoaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-    </label>
+    </label> <button v-if="mobileLite && mrMobileCanRestore('toteMp')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('toteMp')">{{ mrMobileText('restore') }}</button>
     <button v-if="(toteMpLoaded || toteMp.savedAt) && !toteMp.loading" class="grafik-btn danger" :title="tr(128)" @click="toteResetMp">✕</button>
   </div>
 </div>
@@ -1749,7 +1751,7 @@
   <label class="grafik-btn" :class="{primary:!przestoje.loaded,disabled:przestoje.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="przestojeOnFile" :disabled="przestoje.loading"/>
     <span>{{ tr(przestoje.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
-  </label>
+  </label> <button v-if="mobileLite && mrMobileCanRestore('przestoje')" type="button" class="mr-mobile-restore-button" @click.stop="mrRestoreOneMobile('przestoje')">{{ mrMobileText('restore') }}</button>
   <button v-if="(przestoje.loaded || przestoje.savedAt) && !przestoje.loading" class="grafik-btn danger" :title="tr(134)" @click="przestojeReset">✕</button>
 </div>
 <div v-if="przestoje.loaded && przestojeReport" class="glass-strong p-6 space-y-5 float-up">

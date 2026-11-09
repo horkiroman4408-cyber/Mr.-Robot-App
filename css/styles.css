@@ -1824,3 +1824,18 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
     overflow-wrap:anywhere;
   }
 }
+
+/* Manual recovery is available only in the mobile app; no desktop changes. */
+html.mr-mobile-lite .mr-mobile-restore-button{
+ display:inline-flex;align-items:center;justify-content:center;gap:.3rem;
+ max-width:100%;min-height:36px;padding:.4rem .75rem;margin:.2rem .15rem;
+ border:1px solid var(--ios-blue,#0a84ff);border-radius:10px;
+ color:var(--ios-blue,#0a84ff);background:var(--mr-c13,rgba(255,255,255,.8));
+ font:inherit;font-size:.76rem;font-weight:700;line-height:1.2;cursor:pointer;
+}
+html.mr-mobile-lite .mr-mobile-restore-button:focus-visible{outline:2px solid var(--ios-blue,#0a84ff);outline-offset:2px}
+html.mr-mobile-lite .mr-mgr-actions .mr-mobile-restore-button{margin:0;min-height:32px;font-size:.68rem;padding:.34rem .55rem}
+html:is([data-theme="dark"],[data-theme="graphite"]).mr-mobile-lite .mr-mobile-restore-button{
+ background:rgba(10,132,255,.12);color:#83bdff;border-color:rgba(131,189,255,.52)
+}
+html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9f5eb;color:#245f9a;border-color:#80a4c5}

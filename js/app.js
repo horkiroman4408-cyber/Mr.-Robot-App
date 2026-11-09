@@ -1675,11 +1675,18 @@ const mrPending={};
 // up front; the actual XLSX Blob is fetched when its turn comes.
 const mrRestore=reactive({phase:'checking',expanded:false,items:[],runId:0});
 const MR_RESTORE_TEXT={
- pl:{manager:'Menedżer zapisanych plików',added:'Dodano',unknown:'Data niedostępna',size:'Rozmiar',remove:'Usuń',removing:'Usuwanie…',confirmRemove:'Usunąć zapisany plik oraz jego wczytane dane?',cannotRemove:'Nie można usunąć pliku w trakcie przetwarzania.',deleteFailed:'Nie udało się usunąć pliku.',removed:'Plik usunięty',totalSize:'Łączny rozmiar',unknownSize:'Nieznany',note:'Pliki są przechowywane tylko w tej przeglądarce. Usunięcie powoduje też wyczyszczenie danych danego modułu.',total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Na komputerze',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
- ru:{manager:'Менеджер сохранённых файлов',added:'Добавлен',unknown:'Дата неизвестна',size:'Размер',remove:'Удалить',removing:'Удаление…',confirmRemove:'Удалить сохранённый файл и загруженные из него данные?',cannotRemove:'Нельзя удалить файл во время обработки.',deleteFailed:'Не удалось удалить файл.',removed:'Файл удалён',totalSize:'Общий размер',unknownSize:'Неизвестно',note:'Файлы хранятся только в этом браузере. Удаление также очищает данные соответствующего модуля.',total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Загрузите вручную на телефоне',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
- en:{manager:'Saved files manager',added:'Added',unknown:'Date unavailable',size:'Size',remove:'Remove',removing:'Removing…',confirmRemove:'Delete the saved file and its currently loaded data?',cannotRemove:'Cannot remove a file while processing.',deleteFailed:'Could not delete the file.',removed:'File removed',totalSize:'Total size',unknownSize:'Unknown',note:'Files are stored only in this browser. Removing a file also clears its module data.',total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Load manually on mobile',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
- uk:{manager:'Керування збереженими файлами',added:'Додано',unknown:'Дата невідома',size:'Розмір',remove:'Видалити',removing:'Видалення…',confirmRemove:'Видалити збережений файл і завантажені з нього дані?',cannotRemove:'Не можна видалити файл під час обробки.',deleteFailed:'Не вдалося видалити файл.',removed:'Файл видалено',totalSize:'Загальний розмір',unknownSize:'Невідомо',note:'Файли зберігаються тільки в цьому браузері. Видалення також очищає дані відповідного модуля.',total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Завантажте вручну на телефоні',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
+ pl:{manager:'Menedżer zapisanych plików',added:'Dodano',unknown:'Data niedostępna',size:'Rozmiar',remove:'Usuń',removing:'Usuwanie…',confirmRemove:'Usunąć zapisany plik oraz jego wczytane dane?',cannotRemove:'Nie można usunąć pliku w trakcie przetwarzania.',deleteFailed:'Nie udało się usunąć pliku.',removed:'Plik usunięty',totalSize:'Łączny rozmiar',unknownSize:'Nieznany',note:'Pliki są przechowywane tylko w tej przeglądarce. Usunięcie powoduje też wyczyszczenie danych danego modułu.',total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Zapisany · do wczytania',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
+ ru:{manager:'Менеджер сохранённых файлов',added:'Добавлен',unknown:'Дата неизвестна',size:'Размер',remove:'Удалить',removing:'Удаление…',confirmRemove:'Удалить сохранённый файл и загруженные из него данные?',cannotRemove:'Нельзя удалить файл во время обработки.',deleteFailed:'Не удалось удалить файл.',removed:'Файл удалён',totalSize:'Общий размер',unknownSize:'Неизвестно',note:'Файлы хранятся только в этом браузере. Удаление также очищает данные соответствующего модуля.',total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Сохранён · ждёт загрузки',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
+ en:{manager:'Saved files manager',added:'Added',unknown:'Date unavailable',size:'Size',remove:'Remove',removing:'Removing…',confirmRemove:'Delete the saved file and its currently loaded data?',cannotRemove:'Cannot remove a file while processing.',deleteFailed:'Could not delete the file.',removed:'File removed',totalSize:'Total size',unknownSize:'Unknown',note:'Files are stored only in this browser. Removing a file also clears its module data.',total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Saved · not loaded',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
+ uk:{manager:'Керування збереженими файлами',added:'Додано',unknown:'Дата невідома',size:'Розмір',remove:'Видалити',removing:'Видалення…',confirmRemove:'Видалити збережений файл і завантажені з нього дані?',cannotRemove:'Не можна видалити файл під час обробки.',deleteFailed:'Не вдалося видалити файл.',removed:'Файл видалено',totalSize:'Загальний розмір',unknownSize:'Невідомо',note:'Файли зберігаються тільки в цьому браузері. Видалення також очищає дані відповідного модуля.',total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Збережено · очікує',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
 };
+const MR_MOBILE_MANUAL_TEXT={
+ pl:{restore:'Przywróć',restoring:'Przywracanie…',missing:'Brak zapisanego pliku',failed:'Nie udało się przywrócić pliku',busy:'Poczekaj na zakończenie wczytywania',ready:'Plik przywrócony'},
+ ru:{restore:'Восстановить',restoring:'Восстановление…',missing:'Сохранённый файл не найден',failed:'Не удалось восстановить файл',busy:'Дождись окончания загрузки',ready:'Файл восстановлен'},
+ en:{restore:'Restore',restoring:'Restoring…',missing:'Saved file not found',failed:'Could not restore file',busy:'Wait until loading completes',ready:'File restored'},
+ uk:{restore:'Відновити',restoring:'Відновлення…',missing:'Збережений файл не знайдено',failed:'Не вдалося відновити файл',busy:'Дочекайтеся завершення завантаження',ready:'Файл відновлено'}
+};
+function mrMobileText(key){return (MR_MOBILE_MANUAL_TEXT[uiLanguage.value]||MR_MOBILE_MANUAL_TEXT.pl)[key]||key;}
 function mrRestoreText(key){return (MR_RESTORE_TEXT[uiLanguage.value]||MR_RESTORE_TEXT.pl)[key]||key;}
 const mrRestoreStats=computed(()=>{
  const items=mrRestore.items.filter(x=>x.status!=='removed');
@@ -1801,11 +1808,52 @@ function mrRestoreWait(st,limitMs=180000){return new Promise(resolve=>{
  function check(){if(!st.loading){resolve(true);return;}if(Date.now()-started>limitMs){resolve(false);return;}setTimeout(check,120);}
  setTimeout(check,120);
 });}
+// Mobile-only: restore one selected workbook using the same existing loader.
+// No automatic processing on mobile startup; desktop queue is unchanged.
+const mrManualRestore=reactive({active:''});
+const MR_MANUAL_HANDLERS={
+ kpiAudit:()=>kpiOnAuditFile,kpiScalanie:()=>kpiOnScalanieFile,kpiRozk:()=>kpiOnRozkFile,
+ kpiNv:()=>kpiOnNvFile,audyt:()=>audytOnFile,mdt:()=>mdtOnFile,
+ stock:()=>stockOnFile,przestoje:()=>przestojeOnFile,toteMp:()=>toteOnMpFile,
+ toteRs:()=>toteOnRsFile,geek:()=>geekOnFile
+};
+function mrMobileCanRestore(slot){
+ if(!mobileLite||!MR_MANUAL_HANDLERS[slot])return false;
+ const item=mrRestore.items.find(x=>x.slot===slot),state=MR_SLOT_STATE[slot];
+ return !!item&&item.status!=='removed'&&item.status!=='done'&&item.status!=='loading'
+   &&item.status!=='removing'&&!mrManualRestore.active&&!state?.loading;
+}
+async function mrRestoreOneMobile(slot){
+ if(!mrMobileCanRestore(slot))return;
+ const item=mrRestore.items.find(x=>x.slot===slot),state=MR_SLOT_STATE[slot];
+ const handler=MR_MANUAL_HANDLERS[slot]?.();
+ if(!item||!state||!handler)return;
+ const runId=mrRestore.runId;
+ mrManualRestore.active=slot;item.status='loading';
+ try{
+  const record=await mrStoredOne(slot);
+  if(runId!==mrRestore.runId||item.status==='removed')return;
+  if(!record||!record.blob){item.status='missing';showToast(mrMobileText('missing'));return;}
+  const info=mrMetaFromRecord(slot,record);
+  item.name=info.name;item.savedAt=info.savedAt;item.size=info.size;
+  const file=new File([record.blob],record.name,{type:record.type||'',lastModified:record.lastModified||Date.now()});
+  // Keep the original upload path; do not resave the same file in IndexedDB.
+  mrSaved[slot]={name:record.name,savedAt:record.savedAt};
+  state.savedAt=record.savedAt||'';
+  handler({target:{files:[file]},__mrRestore:true});
+  const completed=await mrRestoreWait(state);
+  if(runId!==mrRestore.runId||item.status==='removed')return;
+  if(completed&&state.fileName===file.name&&
+    (Array.isArray(state.records)?state.records.length>0:Array.isArray(state.rows)?state.rows.length>0:!!state.result)){
+    item.status='done';showToast(mrMobileText('ready'));
+  }else{item.status=completed?'error':'paused';showToast(mrMobileText('failed'));}
+ }catch(err){if(runId===mrRestore.runId&&item.status!=='removed')item.status='error';console.warn('Mr. Robot: mobile manual restore failed',slot,err);showToast(mrMobileText('failed'));}
+ finally{if(mrManualRestore.active===slot)mrManualRestore.active='';}
+}
 async function mrRestoreFiles(){
  if(!mrHasIndexedDB()){mrRestore.phase='unavailable';return;}
  const runId=++mrRestore.runId;
  const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile,geek:geekOnFile};
- const permittedMobile=new Set(['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje']);
  let n=0;
  try{
   const [keys,metadata]=await Promise.all([mrStoredKeys(),mrStoredMeta()]);
@@ -1814,7 +1862,7 @@ async function mrRestoreFiles(){
   mrRestore.items=keys.filter(slot=>handlers[slot]&&MR_SLOT_STATE[slot]).map(slot=>({
    slot,label:MR_SLOT_LABELS[slot],name:metadataMap.get(slot)?.name||'',
    savedAt:metadataMap.get(slot)?.savedAt||'',size:metadataMap.get(slot)?.size??null,
-   status:mobileLite&&!permittedMobile.has(slot)?'skipped':'queued'
+   status:mobileLite?'skipped':'queued'
   }));
   mrRestore.phase='running';
   for(const item of mrRestore.items){
@@ -2521,6 +2569,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 
