@@ -1567,3 +1567,106 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
   #rs-drop-mp .grafik-bar.loading .progress-fill::after,
   #rs-drop-rs .grafik-bar.loading .progress-fill::after {animation:none;opacity:.15}
 }
+
+/* Mobile access: existing desktop modules are visible on phones.
+   This section only changes presentation, never computation or export. */
+@media (max-width: 640px) {
+  html.mr-mobile-lite #app .mr-mobile-home-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+  html.mr-mobile-lite #app .mr-mobile-workspace {margin:0 0 16px;}
+  html.mr-mobile-lite #app .mr-mobile-workspace-kicker {font-size:10px;font-weight:800;letter-spacing:.11em;color:var(--mr-c47,#687280);}
+  html.mr-mobile-lite #app .mr-mobile-workspace h2 {font-size:23px;line-height:1.2;font-weight:800;margin:5px 0 5px;letter-spacing:-.035em;}
+  html.mr-mobile-lite #app .mr-mobile-workspace p {font-size:12px;color:var(--mr-c47,#687280);}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card {
+    min-width:0;padding:14px 12px;border-radius:18px;animation:none;transform:none;
+    display:flex;flex-direction:column;gap:7px;overflow:hidden;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .flex.items-start {gap:8px;flex-direction:column;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .app-icon {width:40px;height:40px;min-width:40px;border-radius:12px;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .app-title {font-size:18px;line-height:1.15;overflow-wrap:anywhere;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .app-sub {font-size:10px;line-height:1.25;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .feature-list,
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .tag-row {display:none;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .app-desc {
+    font-size:11px;line-height:1.35;margin:0;display:-webkit-box;
+    -webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .launch-btn {
+    margin-top:auto;width:100%;min-height:36px;padding:6px 5px;font-size:11px;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid .mr-lite-card .app-title {font-size:16px;}
+  @media(max-width:350px){html.mr-mobile-lite #app .mr-mobile-home-grid {grid-template-columns:minmax(0,1fr);}}
+  html.mr-mobile-lite #app .mr-table-card,
+  html.mr-mobile-lite #app .przestoj-table-wrap,
+  html.mr-mobile-lite #app .rs-scalanie-geek-table-wrap {
+    max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  html.mr-mobile-lite #app input,
+  html.mr-mobile-lite #app select,
+  html.mr-mobile-lite #app textarea {font-size: max(16px, 1em);}
+}
+
+/* v3.22.0 | Mobile workspace, phase 2: layout adaptation only.
+   All module computations, workbook formats, results and export handlers remain intact.
+   Limit these rules to touch-sized phone layouts; no changes to desktop themes. */
+@media (max-width: 640px) {
+  html.mr-mobile-lite { width:100%; overflow-x:hidden; -webkit-text-size-adjust:100%; }
+  html.mr-mobile-lite body, html.mr-mobile-lite #app { min-width:0; max-width:100%; overflow-x:clip; }
+  html.mr-mobile-lite #app { padding-bottom:env(safe-area-inset-bottom,0px); }
+  html.mr-mobile-lite #app header[class*="px-6"],
+  html.mr-mobile-lite #app main[class*="px-6"] { padding-left:14px!important; padding-right:14px!important; min-width:0; }
+  html.mr-mobile-lite #app header[class*="pt-8"] { padding-top:16px!important; padding-bottom:12px!important; }
+  html.mr-mobile-lite #app main[class*="pb-"] { padding-bottom:calc(24px + env(safe-area-inset-bottom,0px)); }
+  html.mr-mobile-lite #app h1 { overflow-wrap:anywhere; }
+  html.mr-mobile-lite #app .kpi-header-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; }
+  html.mr-mobile-lite #app .kpi-header-row>.back-to-hub { grid-column:1 / -1; justify-self:start; }
+  html.mr-mobile-lite #app .kpi-header-row>.flex.items-center { grid-column:1 / -1; min-width:0; }
+  html.mr-mobile-lite #app .kpi-header-row>.segment-control { grid-column:1 / -1; grid-row:auto; max-width:100%; width:100%; justify-self:stretch; }
+  html.mr-mobile-lite #app .kpi-header-row>.save-all-btn { grid-column:1 / -1; justify-self:stretch; }
+  html.mr-mobile-lite #app .kpi-roster-grid { grid-template-columns:minmax(0,1fr); gap:10px; }
+  html.mr-mobile-lite #app .kpi-roster-grid > * { min-width:0; }
+  html.mr-mobile-lite #app .segment-control { max-width:100%; overflow-x:auto; overflow-y:hidden; display:flex; flex-wrap:nowrap!important; -webkit-overflow-scrolling:touch; scrollbar-width:thin; scroll-snap-type:x proximity; border-radius:14px; }
+  html.mr-mobile-lite #app .segment-control>.segment-btn { flex:0 0 auto; scroll-snap-align:start; padding:9px 12px; min-height:40px; }
+  html.mr-mobile-lite #app .back-to-hub { min-height:40px; }
+  html.mr-mobile-lite #app .subcard { padding:15px; border-radius:18px; gap:10px; min-width:0; }
+  html.mr-mobile-lite #app .subcard .mp-card-details { max-width:100%; }
+  html.mr-mobile-lite #app .glass-strong { border-radius:20px; }
+  html.mr-mobile-lite #app .glass-strong.p-6, html.mr-mobile-lite #app .glass-strong.p-5 { padding:14px; }
+  html.mr-mobile-lite #app .grafik-bar { min-width:0; max-width:100%; }
+  html.mr-mobile-lite #app .grafik-btn, html.mr-mobile-lite #app .save-all-btn, html.mr-mobile-lite #app .launch-btn { min-height:40px; }
+  html.mr-mobile-lite #app .module-context-badge { width:40px; height:40px; min-width:40px; border-radius:14px; }
+  html.mr-mobile-lite #app .module-context-icon { width:23px; height:23px; }
+  html.mr-mobile-lite #app .flex.items-center.gap-6.flex-wrap { gap:10px; }
+  html.mr-mobile-lite #app .grid.grid-cols-3,
+  html.mr-mobile-lite #app .grid.grid-cols-4,
+  html.mr-mobile-lite #app .grid.grid-cols-5 { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  html.mr-mobile-lite #app .grid > *, html.mr-mobile-lite #app .flex > * { min-width:0; }
+  html.mr-mobile-lite #app .min-w-\[600px\], html.mr-mobile-lite #app .min-w-\[700px\] { min-width:600px; }
+  /* Keep native table layout (especially for KPI/MP/RS); scroll the existing outer wrappers. */
+  html.mr-mobile-lite #app .mr-table-card,
+  html.mr-mobile-lite #app .przestoj-table-wrap,
+  html.mr-mobile-lite #app .rs-scalanie-geek-table-wrap,
+  html.mr-mobile-lite #app [class*="table-wrap"],
+  html.mr-mobile-lite #app [class*="table-scroll"] { max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  html.mr-mobile-lite #app input:not([type="checkbox"]):not([type="radio"]),
+  html.mr-mobile-lite #app textarea, html.mr-mobile-lite #app select { max-width:100%; min-width:0; font-size:16px; }
+  html.mr-mobile-lite #app input[type="file"] { max-width:100%; font-size:13px; }
+  html.mr-mobile-lite #app input[type="checkbox"], html.mr-mobile-lite #app input[type="radio"] { min-width:18px; min-height:18px; }
+  html.mr-mobile-lite #app .settings-page { max-width:100%; padding:14px 12px calc(36px + env(safe-area-inset-bottom,0px)); }
+  html.mr-mobile-lite #app .settings-header { gap:12px; margin-bottom:16px; }
+  html.mr-mobile-lite #app .settings-heading { flex-wrap:wrap; min-width:0; }
+  html.mr-mobile-lite #app .settings-nav { max-width:100%; overflow-x:auto; flex-wrap:nowrap; -webkit-overflow-scrolling:touch; }
+  html.mr-mobile-lite #app .settings-nav a { white-space:nowrap; flex:0 0 auto; }
+  html.mr-mobile-lite #app .settings-preferences { min-width:0; }
+  html.mr-mobile-lite #app .settings-card { min-width:0; }
+  html.mr-mobile-lite #app .mr-bridge-settings { min-width:0; }
+  html.mr-mobile-lite #app .mr-bridge-install-steps { columns:1; }
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card .launch-btn { min-height:42px; }
+  html.mr-mobile-lite #app .mr-mobile-home-grid .app-card { touch-action:manipulation; }
+}
+@media(max-width:350px){
+ html.mr-mobile-lite #app .mr-mobile-home-grid { grid-template-columns:minmax(0,1fr); }
+ html.mr-mobile-lite #app .grid.grid-cols-3, html.mr-mobile-lite #app .grid.grid-cols-4, html.mr-mobile-lite #app .grid.grid-cols-5 { grid-template-columns:minmax(0,1fr); }
+}
+@media(prefers-reduced-motion:reduce) and (max-width:640px){
+ html.mr-mobile-lite #app .subcard { transition:none; }
+}
