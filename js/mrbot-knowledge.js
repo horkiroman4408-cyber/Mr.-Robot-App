@@ -80,3 +80,66 @@ if(mp&&Array.isArray(mp.topics)){
   if(target)target.related=targets.map(([category,topic])=>({category,topic}));
  }
 })();
+
+
+/* Documentation consolidation: single source of truth for Intelligence and Bridge. */
+(function(){
+ 'use strict';
+ const docs=window.MRBOT_DOCS;if(!Array.isArray(docs))return;
+ const find=id=>docs.find(section=>section.id===id);
+ const drop={start:['bridge-overview','bridge-reports','bridge-troubleshoot'],kpi:['bridge-kpi','intelligence-kpi321'],mp:['intelligence-mp321'],inne:['intelligence-przestoje321']};
+ for(const [id,removed] of Object.entries(drop)){
+  const section=find(id);if(section?.topics)section.topics=section.topics.filter(topic=>!removed.includes(topic.id));
+ }
+ // Retain the unrelated barcode shortcut, but move Bridge instructions into its own chapter.
+ const mdt=find('mp')?.topics.find(topic=>topic.id==='stock-mdt-bridge');
+ if(mdt){
+  mdt.basic={pl:'STOCK i GODZINY MDT korzystają z osobnych raportów. Z obu modułów można otworzyć Kreseczki i wrócić do poprzedniej karty.',ru:'STOCK и GODZINY MDT используют разные отчёты. Из обоих модулей можно открыть Kreseczki и вернуться к прежней вкладке.',en:'STOCK and GODZINY MDT use different report inputs. Both provide a shortcut to Kreseczki with a return to the previous tab.',uk:'STOCK і GODZINY MDT працюють з різними звітами. З обох модулів можна перейти до Kreseczki та повернутися назад.'};
+  mdt.tech={pl:'Wczytaj raport przeznaczony dla wybranego modułu i wykonaj analizę. Skrót Kreseczki pozwala przygotować kod kreskowy bez utraty wybranej karty. Instrukcje pobierania raportów znajdziesz w OpenReports Bridge.',ru:'Загрузи отчёт нужного модуля и выполни анализ. Быстрый переход в Kreseczki позволяет создать штрихкод и вернуться в исходную вкладку. Инструкция по загрузке отчётов находится в OpenReports Bridge.',en:'Load the matching report and run the analysis. The Kreseczki shortcut opens barcode generation with a return to the source tab. Report retrieval is documented under OpenReports Bridge.',uk:'Завантаж звіт потрібного модуля й виконай аналіз. Перехід до Kreseczki дозволяє створити штрихкод і повернутися до вкладки. Отримання звітів описане в OpenReports Bridge.'};
+  mdt.related=[{category:'openreports',topic:'use'},{category:'intelligence',topic:'mdt'}];
+ }
+ const bridge=find('openreports');
+ const topic=id=>bridge?.topics?.find(item=>item.id===id);
+ // Keep report-specific information previously split across Getting Started and KPI.
+ const reports=topic('use');if(reports){
+  const variants={
+   pl:'Obsługiwane raporty: MP: ECM_AI_Audit (AL_AUDYT / FORMATKA_59), ECM_STOCK_Items_after_receiving (GODZINY MDT), ECM_PICK_Lacks_during_picking (STOCK), ECM_STOCK_MP_and_on_the_floor (Baza MP/RS). KPI: Audit_ECM_KPI, Pick_ECM_KPI (Scalanie, Pick type = Pick Scal), Storage_RSORT_ECM_KPI, NADWE_VAS_ECM_KPI. Dla KPI ustaw daty From / To i czas; moduły mają osobne parametry. Właściwy plik trafia do odpowiedniego modułu.',
+   ru:'Поддерживаемые отчёты: MP: ECM_AI_Audit (AL_AUDYT / FORMATKA_59), ECM_STOCK_Items_after_receiving (GODZINY MDT), ECM_PICK_Lacks_during_picking (STOCK), ECM_STOCK_MP_and_on_the_floor (Baza MP/RS). KPI: Audit_ECM_KPI, Pick_ECM_KPI (Scalanie, Pick type = Pick Scal), Storage_RSORT_ECM_KPI, NADWE_VAS_ECM_KPI. Для KPI укажи даты From / To и время; отдельные отчёты имеют свои параметры. Файл должен попадать в соответствующий модуль.',
+   en:'Supported reports: MP: ECM_AI_Audit (AL_AUDYT / FORMATKA_59), ECM_STOCK_Items_after_receiving (GODZINY MDT), ECM_PICK_Lacks_during_picking (STOCK), ECM_STOCK_MP_and_on_the_floor (shared MP/RS base). KPI: Audit_ECM_KPI, Pick_ECM_KPI (Scalanie, Pick type = Pick Scal), Storage_RSORT_ECM_KPI, NADWE_VAS_ECM_KPI. KPI report requests require From / To dates and times; individual reports have their own parameters. Each workbook must be delivered to its matching module.',
+   uk:'Підтримувані звіти: MP: ECM_AI_Audit (AL_AUDYT / FORMATKA_59), ECM_STOCK_Items_after_receiving (GODZINY MDT), ECM_PICK_Lacks_during_picking (STOCK), ECM_STOCK_MP_and_on_the_floor (база MP/RS). KPI: Audit_ECM_KPI, Pick_ECM_KPI (Scalanie, Pick type = Pick Scal), Storage_RSORT_ECM_KPI, NADWE_VAS_ECM_KPI. Для KPI вкажи дати From / To і час; звіти мають власні параметри. Кожен файл має потрапляти до відповідного модуля.'};
+  for(const lang of ['pl','ru','en','uk'])reports.tech[lang]+='\n\n'+variants[lang];
+ }
+ const install=topic('install');if(install){
+  const steps={
+   pl:'Rozpakuj ZIP rozszerzenia w stałym folderze, otwórz edge://extensions lub chrome://extensions, włącz tryb dewelopera i użyj „Załaduj rozpakowane”. Następnie odśwież Mr. Robot.',
+   ru:'Распакуй ZIP расширения в постоянную папку. Открой edge://extensions или chrome://extensions, включи режим разработчика и выбери «Загрузить распакованное». Затем обнови Mr. Robot.',
+   en:'Unpack the extension ZIP into a permanent folder. Visit edge://extensions or chrome://extensions, enable Developer mode and choose Load unpacked, then refresh Mr. Robot.',
+   uk:'Розпакуй ZIP розширення до постійної папки. Відкрий edge://extensions або chrome://extensions, увімкни режим розробника та обери «Завантажити розпаковане». Потім онови Mr. Robot.'};
+  for(const lang of ['pl','ru','en','uk'])install.tech[lang]+='\n\n'+steps[lang];
+ }
+ const trouble=topic('troubleshoot');if(trouble){
+  const steps={
+   pl:'Po zmianie rozszerzenia przeładuj je na stronie zarządzania dodatkami i odśwież kartę aplikacji. Przy automatycznym imporcie udziel dostępu do Downloads/MrRobot/OpenReports. Numerowane kopie (1), (2) muszą nadal odpowiadać wybranemu raportowi.',
+   ru:'После изменения расширения перезагрузи его на странице управления расширениями и обнови приложение. Для автоимпорта предоставь доступ к Downloads/MrRobot/OpenReports. Копии файлов с (1), (2) должны соответствовать выбранному типу отчёта.',
+   en:'After updating the extension, reload it on the extensions page and refresh the app. For automatic import, authorize Downloads/MrRobot/OpenReports. Numbered copies such as (1) and (2) must still match the selected report.',
+   uk:'Після зміни розширення перезавантаж його на сторінці керування та онови застосунок. Для автоімпорту надай доступ до Downloads/MrRobot/OpenReports. Копії з (1), (2) також мають відповідати обраному звіту.'};
+  for(const lang of ['pl','ru','en','uk'])trouble.tech[lang]+='\n\n'+steps[lang];
+ }
+ const intelligence=find('intelligence');const other=intelligence?.topics.find(item=>item.id==='other');if(other){
+  const extra={
+   pl:'Po wybraniu ITEMS PER HOUR pokazane są login, proces, ilość, czas, norma i odchylenie; zaokrąglony czas nie służy do ponownego liczenia wydajności. Przestoje: liczba przerw, pary wpisów, suma, maksimum, średnia i ustawiony próg 8–300 minut.',
+   ru:'При выборе ITEMS PER HOUR отображаются LOGIN, процесс, количество, время, норма и отклонение; производительность не пересчитывается из округлённого времени. Przestoje: число простоев, пары записей, сумма, максимум, среднее и порог 8–300 минут.',
+   en:'Selecting ITEMS PER HOUR shows login, process, items, time, threshold and deviation; performance is not recalculated from rounded time. Przestoje: downtime count, entry pairs, total, maximum, average and the selected 8–300 minute threshold.',
+   uk:'При виборі ITEMS PER HOUR показано LOGIN, процес, кількість, час, норму й відхилення; продуктивність не перераховується за округленим часом. Przestoje: кількість простоїв, пари записів, сума, максимум, середнє й поріг 8–300 хвилин.'};
+  for(const lang of ['pl','ru','en','uk'])other.tech[lang]+='\n\n'+extra[lang];
+ }
+ // Keep concise contextual pointers, no stand-alone duplicate chapters in module menus.
+ const reference=(group,id,targets)=>{const entry=find(group)?.topics.find(item=>item.id===id);if(entry){const old=entry.related||[];entry.related=[...old,...targets].filter((x,i,a)=>a.findIndex(y=>y.category===x.category&&y.topic===x.topic)===i);}};
+ reference('kpi','source',[{category:'openreports',topic:'use'}]);
+ reference('kpi','rates',[{category:'intelligence',topic:'other'}]);
+ reference('mp','audit',[{category:'intelligence',topic:'al'},{category:'intelligence',topic:'formatka'},{category:'openreports',topic:'use'}]);
+ reference('mp','stock',[{category:'intelligence',topic:'mdt'},{category:'openreports',topic:'use'}]);
+ reference('mp','scalanie',[{category:'intelligence',topic:'kons'}]);
+ reference('inne','downtime',[{category:'intelligence',topic:'other'}]);
+ reference('start','flow',[{category:'openreports',topic:'overview'},{category:'intelligence',topic:'overview'}]);
+})();

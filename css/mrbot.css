@@ -312,15 +312,15 @@ html[data-theme="ivory"] #mrbot-suggestions button:hover{background:#e0ede2;colo
 
 /* Dedicated knowledge-base chapters (theme tokens reused from MR. BOT). */
 #mrbot-root .mrbot-doc-group-label{font-size:10px;letter-spacing:.055em;text-transform:uppercase;color:var(--mb-muted);font-weight:750;margin:14px 0 8px}
-#mrbot-root .mrbot-doc-featured{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:17px}
-#mrbot-root #mrbot-messages .mrbot-doc-feature{display:flex;align-items:flex-start;gap:8px;min-width:0;text-align:left;background:var(--mb-surface);border:1px solid var(--mb-line);border-radius:12px;padding:13px 10px;color:var(--mb-text);cursor:pointer;font:inherit;min-height:94px}
+#mrbot-root .mrbot-doc-featured{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+#mrbot-root #mrbot-messages .mrbot-doc-feature{display:flex;align-items:center;gap:9px;min-width:0;text-align:left;background:var(--mb-surface);border:1px solid var(--mb-line);border-radius:10px;padding:9px 11px;color:var(--mb-text);cursor:pointer;font:inherit;min-height:44px}
 #mrbot-root #mrbot-messages .mrbot-doc-feature:hover,#mrbot-root #mrbot-messages .mrbot-doc-feature:focus-visible{background:var(--mb-bubble);border-color:var(--mb-accent)}
-#mrbot-root .mrbot-doc-feature-icon{font-size:21px;line-height:1.2;flex:none}
-#mrbot-root .mrbot-doc-feature-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
-#mrbot-root .mrbot-doc-feature-copy strong{font-size:12px;line-height:1.4;overflow-wrap:anywhere}
-#mrbot-root .mrbot-doc-feature-copy small{font-size:10px;color:var(--mb-muted)}
+#mrbot-root .mrbot-doc-feature-icon{font-size:17px;line-height:1;flex:none}
+#mrbot-root .mrbot-doc-feature-copy{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;min-width:0;flex:1}
+#mrbot-root .mrbot-doc-feature-copy strong{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-feature-copy small{font-size:10px;color:var(--mb-muted);white-space:nowrap}
 #mrbot-root .mrbot-doc-related{display:flex;flex-direction:column;gap:8px;margin:14px 0;border-top:1px solid var(--mb-line);padding-top:14px}
 #mrbot-root .mrbot-doc-related h3{font-size:12px;font-weight:750;margin:0 0 3px}
 #mrbot-root #mrbot-messages .mrbot-doc-related-link{width:100%;text-align:left;padding:10px 12px;border:1px solid var(--mb-line);border-radius:10px;background:var(--mb-surface);color:var(--mb-accent);cursor:pointer;line-height:1.4;font:inherit;font-size:12px;font-weight:650}
 #mrbot-root #mrbot-messages .mrbot-doc-related-link:hover,#mrbot-root #mrbot-messages .mrbot-doc-related-link:focus-visible{background:var(--mb-bubble)}
-@media(max-width:340px){#mrbot-root .mrbot-doc-featured{grid-template-columns:1fr}#mrbot-root #mrbot-messages .mrbot-doc-feature{min-height:68px}}
+@media(max-width:340px){#mrbot-root .mrbot-doc-feature-copy{flex-wrap:wrap;gap:2px 7px}}
