@@ -79,12 +79,6 @@ You never re-download or re-install anything manually. Updates arrive like this:
 
 The update is applied only when you click — an in-progress report is never interrupted. On the first launch, new users get a short welcome. After subsequent version updates, a one-time summary appears with a button to the full **What’s new** history. The ✨ badge still marks unread changelog entries.
 
-### Recent releases
-
-**v3.21.2:** Konsolidacja Intelligence adds EAN action priorities, near-threshold candidates and percentage scenario checks. Large EAN result sorting is faster. Other warehouse calculations and Bridge v0.3.14 remain unchanged.
-
-**v3.21.0:** MR. BOT Intelligence now explains KPI Audyt/Scalanie/Rozkładanie and MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja and Przestoje summaries. Existing AUDYT GEEK and NADWE/VAS explanations remain available. MR. BOT instructions updated in four app languages. Business logic and exports unchanged. Bridge stays at v0.3.14.
-
 ---
 
 ## 🔥 Why it exists

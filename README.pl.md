@@ -79,12 +79,6 @@ Niczego nie trzeba pobierać ani reinstalować ręcznie. Aktualizacje przychodz�
 
 Aktualizacja włącza się tylko po Twoim kliknięciu — raport w pracy nigdy nie zostanie przerwany. Nowy użytkownik widzi krótkie powitanie przy pierwszym uruchomieniu. Po następnych aktualizacjach pojawia się jednorazowe podsumowanie z przejściem do pełnej historii **„Co nowego”**. Znaczek ✨ nadal oznacza nieprzeczytane wpisy.
 
-### Ostatnie wydania
-
-**v3.21.2:** Intelligence w Konsolidacja: priorytety EAN, kandydaci blisko progu oraz scenariusze procentowe. Przyspieszono sortowanie dużych wyników. Inne obliczenia i Bridge v0.3.14 bez zmian.
-
-**v3.21.0:** MR. BOT Intelligence wyjaśnia teraz KPI Audyt/Scalanie/Rozkładanie oraz podsumowania MP Audyt, FORMATKA_59, GODZINY MDT, STOCK, Konsolidacja i Przestoje. Funkcje AUDYT GEEK i NADWE/VAS pozostają dostępne. Instrukcje bota zaktualizowano w czterech językach. Obliczenia i eksport bez zmian. Bridge: v0.3.14.
-
 ---
 
 ## 🔥 Dlaczego to powstało
