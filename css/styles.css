@@ -1761,3 +1761,66 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
     opacity:.88;
   }
 }
+
+/* v3.22.0 · MP Scanner mobile text contrast across all four themes.
+   Palette variables --mr-c6 and --mr-c8 are surface/border tokens in dark themes,
+   never valid text colours. Keep this limited to the scanner on mobile. */
+@media (max-width: 640px) {
+  html.mr-mobile-lite .mp-scanner-header,
+  html.mr-mobile-lite .mp-scanner-page {
+    color: var(--ios-text, #172033);
+  }
+  html.mr-mobile-lite .mp-scanner-panel,
+  html.mr-mobile-lite .mp-scanner-panel h2,
+  html.mr-mobile-lite .mp-scanner-panel h3,
+  html.mr-mobile-lite .mp-scanner-panel strong,
+  html.mr-mobile-lite .mp-scanner-location button,
+  html.mr-mobile-lite .mp-scanner-heading h1,
+  html.mr-mobile-lite .mp-mobile-scanner-entry-body strong {
+    color: var(--ios-text, #172033);
+  }
+  html.mr-mobile-lite .mp-scanner-heading span:not(.mp-scanner-symbol),
+  html.mr-mobile-lite .mp-mobile-scanner-entry-body small,
+  html.mr-mobile-lite .mp-scanner-muted,
+  html.mr-mobile-lite .mp-scanner-snapshot,
+  html.mr-mobile-lite .mp-scanner-description span,
+  html.mr-mobile-lite .mp-scanner-stats span,
+  html.mr-mobile-lite .mp-scanner-missing {
+    color: var(--mr-control-text, #526071);
+    opacity: 1;
+  }
+  html.mr-mobile-lite .mp-scanner-search input {
+    color: var(--ios-text, #172033);
+    background: var(--mr-control-bg, #fff);
+    border-color: var(--mr-control-border, #cbd5e1);
+    caret-color: var(--ios-text, #172033);
+  }
+  html.mr-mobile-lite .mp-scanner-search input::placeholder {
+    color: var(--mr-control-text, #526071);
+    opacity: .85;
+  }
+  html.mr-mobile-lite .mp-scanner-upload,
+  html.mr-mobile-lite .mp-scanner-stats > div {
+    color: var(--ios-text, #172033);
+  }
+  html.mr-mobile-lite .mp-scanner-copy {color: var(--ios-blue, #2563eb);}
+  html.mr-mobile-lite .mp-scanner-ready {color: var(--ios-green, #16854e);}
+  html.mr-mobile-lite .mp-scanner-camera .mp-scanner-stop {color: #fff;}
+  /* Ensure the global footer isn't covered by the floating assistant/changelog. */
+  html.mr-mobile-lite #app .app-footer {
+    padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Mobile hub: its compact four-card content should not stretch to the viewport
+   and strand the footer. This selector is restricted to the mobile home view. */
+@media (max-width: 640px) {
+  html.mr-mobile-lite #app:has(.mr-mobile-workspace) {min-height:0;}
+  html.mr-mobile-lite #app:has(.mr-mobile-workspace) > main {flex:0 0 auto;}
+  html.mr-mobile-lite #app:has(.mr-mobile-workspace) .app-footer {
+    padding-top:14px;
+    padding-bottom:calc(110px + env(safe-area-inset-bottom,0px));
+    max-width:100%;
+    overflow-wrap:anywhere;
+  }
+}
