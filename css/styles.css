@@ -1670,3 +1670,50 @@ html[data-theme="ivory"] .module-context-badge.amber{--ctx-gradient:linear-gradi
 @media(prefers-reduced-motion:reduce) and (max-width:640px){
  html.mr-mobile-lite #app .subcard { transition:none; }
 }
+
+/* v3.22.0: four calm mobile launchers. Scoped to the phone shell only.
+   Keep desktop cards, motion, calculations and nested module layouts untouched. */
+@media (max-width:640px) {
+  html.mr-mobile-lite #app .mr-mobile-home-grid {gap:12px;align-items:stretch;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] {
+    min-height:146px;height:auto;padding:15px 13px 38px;
+    gap:0;border-radius:20px;position:relative;
+    animation:none!important;transition:none!important;transform:none!important;
+    -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] > .flex.items-start {
+    flex-direction:column;align-items:flex-start;gap:10px;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .app-icon {
+    width:42px;height:42px;min-width:42px;border-radius:13px;
+    animation:none!important;transition:none!important;transform:none!important;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .app-icon svg {
+    animation:none!important;transition:none!important;transform:none!important;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]:hover,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]:active,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]:hover .app-icon,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]:active .app-icon {
+    animation:none!important;transform:none!important;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]::before {
+    opacity:0!important;transition:none!important;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .app-title {
+    font-size:17px;line-height:1.16;font-weight:800;letter-spacing:-.025em;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .app-sub {
+    font-size:11px;line-height:1.35;margin-top:5px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .app-desc,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .tag-row,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .feature-list,
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app] .launch-btn {display:none!important;}
+  html.mr-mobile-lite #app .mr-mobile-home-grid > .app-card[data-app]::after {
+    content:'↗';position:absolute;bottom:11px;right:14px;
+    font-size:20px;font-weight:500;line-height:1;color:var(--mr-c47,#687280);
+    opacity:.8;pointer-events:none;
+  }
+}
