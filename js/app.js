@@ -764,6 +764,100 @@ const toteSearched=ref(false);
 const toteStatsMp=ref({rows:0,uniqueEan:0,singleBinEan:0,reservedEan:0,totalQty:0,locationTypeBreakdown:[],abcBreakdown:[]});
 const toteStatsRs=ref({rows:0,uniqueEan:0,plainToteRows:0,x2x2ToteRows:0,plainToteBins:0,x2x2ToteBins:0,multiToteEan:0,multiToteBins:0,totalQty:0});
 const toteMpLoaded=computed(()=>toteMp.records.length>0);
+
+// Mobile-only EAN lookup in the already parsed MP workbook. It does not change MP filters or exports.
+const mpScannerInput=ref('');
+const mpScannerLookup=ref('');
+const mpScannerCameraOpen=ref(false);
+const mpScannerCameraBusy=ref(false);
+const mpScannerError=ref('');
+let mpScannerInstance=null;
+let mpScannerRequest=0;
+let mpScannerLibraryPromise=null;
+function mpScannerCopy(text){
+ if(navigator.clipboard?.writeText)navigator.clipboard.writeText(String(text)).catch(()=>{});
+}
+function mpScannerSearch(value){
+ const code=String(value==null?mpScannerInput.value:value).trim().replace(/\s+/g,'');
+ mpScannerInput.value=code;
+ mpScannerLookup.value=code;
+}
+const mpScannerResult=computed(()=>{
+ const ean=mpScannerLookup.value;
+ if(!ean||!toteMp.records.length)return null;
+ const places=new Map(),descriptions=new Set();let total=0,rows=0;
+ for(const r of toteMp.records){
+  if(String(r.ean||'').trim()!==ean)continue;
+  rows++;
+  const qty=Number(r.qty);
+  const pieces=Number.isFinite(qty)?qty:0;
+  total+=pieces;
+  const loc=String(r.location||'').trim()||'—';
+  places.set(loc,(places.get(loc)||0)+pieces);
+  const desc=String(r.technicalDescription||'').trim();if(desc)descriptions.add(desc);
+ }
+ if(!rows)return {ean,found:false,descriptions:[],locations:[],total:0,rows:0};
+ const locations=[...places].map(([location,qty])=>({location,qty})).sort((a,b)=>b.qty-a.qty||a.location.localeCompare(b.location));
+ return {ean,found:true,descriptions:[...descriptions],locations,total,rows};
+});
+function mpScannerLoadScript(url){return new Promise((resolve,reject)=>{
+ const tag=document.createElement('script');tag.src=url;tag.async=true;
+ tag.onload=()=>window.Html5Qrcode?resolve():reject(new Error('Scanner library unavailable'));
+ tag.onerror=()=>{tag.remove();reject(new Error('Scanner library network error'));};
+ document.head.appendChild(tag);
+});}
+async function mpScannerLibrary(){
+ if(window.Html5Qrcode)return;
+ if(!mpScannerLibraryPromise){
+  mpScannerLibraryPromise=mpScannerLoadScript('https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js')
+   .catch(()=>mpScannerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'))
+   .catch(error=>{mpScannerLibraryPromise=null;throw error;});
+ }
+ await mpScannerLibraryPromise;
+}
+async function mpScannerStop(){
+ ++mpScannerRequest;
+ mpScannerCameraOpen.value=false;
+ const scanner=mpScannerInstance;mpScannerInstance=null;
+ if(scanner){try{await scanner.stop();}catch(error){console.warn('MP Scanner stop',error);}
+  try{scanner.clear();}catch(_e){}
+ }
+ mpScannerCameraBusy.value=false;
+}
+async function mpScannerStart(){
+ if(!mobileLite||mpScannerCameraBusy.value||mpScannerCameraOpen.value)return;
+ mpScannerError.value='';
+ const request=++mpScannerRequest;
+ mpScannerCameraBusy.value=true;
+ try{
+  if(!window.isSecureContext)throw new Error('HTTPS_REQUIRED');
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('CAMERA_UNSUPPORTED');
+  await mpScannerLibrary();
+  if(request!==mpScannerRequest||view.value!=='mp'||mpView.value!=='scanner')return;
+  mpScannerCameraOpen.value=true;
+  await Vue.nextTick();
+  if(request!==mpScannerRequest)return;
+  const formats=window.Html5QrcodeSupportedFormats;
+  const scanner=new window.Html5Qrcode('mp-scanner-viewport',{formatsToSupport:formats?[formats.EAN_13,formats.EAN_8,formats.CODE_128,formats.UPC_A]:undefined,verbose:false});
+  mpScannerInstance=scanner;
+  let read=false;
+  await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:125}},text=>{
+   if(read||request!==mpScannerRequest)return;
+   const value=String(text||'').trim().replace(/\s+/g,'');
+   if(!value)return;
+   read=true;mpScannerSearch(value);void mpScannerStop();
+  },()=>{});
+  if(request!==mpScannerRequest){try{await scanner.stop();}catch(_e){}try{scanner.clear();}catch(_e){}}
+ }catch(error){
+  if(request===mpScannerRequest){
+   const key=String(error?.message||error||'');
+   mpScannerError.value=key==='HTTPS_REQUIRED'?'https':key==='CAMERA_UNSUPPORTED'?'unsupported':/NotAllowed|Permission|denied/i.test(key)?'permission':'unavailable';
+   await mpScannerStop();
+  }
+ }finally{if(request===mpScannerRequest)mpScannerCameraBusy.value=false;}
+}
+watch([view,mpView],([current,tab])=>{if(current!=='mp'||tab!=='scanner'){if(mpScannerCameraOpen.value||mpScannerInstance||mpScannerCameraBusy.value)void mpScannerStop();}});
+
 const toteRsLoaded=computed(()=>toteRs.records.length>0);
 const toteRsPopToteByEan=computed(()=>{const map=new Map();for(const r of toteRs.records){if(!isPopTote(r.shelfType))continue;if(!r.shelfBin)continue;if(!map.has(r.ean))map.set(r.ean,[]);map.get(r.ean).push(r);}return map;});
 const toteRsMultiToteShelfBins=computed(()=>{const toteToEans=new Map();for(const r of toteRs.records){if(!isPopTote(r.shelfType))continue;if(!r.shelfBin)continue;if(!toteToEans.has(r.shelfBin))toteToEans.set(r.shelfBin,new Set());toteToEans.get(r.shelfBin).add(r.ean);}const set=new Set();for(const[bin,eans]of toteToEans)if(eans.size>1)set.add(bin);return set;});
@@ -2412,6 +2506,7 @@ kpiOnScalanieFile,kpiOnScalanieDrop,kpiResetScalanie,kpiExportScalanie,
 kpiOnRozkFile,kpiOnRozkDrop,kpiResetRozk,kpiExportRozk,
 kpiOnNvFile,kpiOnNvDrop,kpiResetNv,kpiExportNv,kpiNvColorFor,kpiNvCellStyle,
 kpiAnyLoaded,kpiCanGlobalExport,kpiExportGlobalXlsx,
+mpScannerInput,mpScannerLookup,mpScannerResult,mpScannerCameraOpen,mpScannerCameraBusy,mpScannerError,mpScannerSearch,mpScannerCopy,mpScannerStart,mpScannerStop,
 toteStatsOpen,toteMp,toteRs,toteOptions,toteFilters,toteResults,toteStats,toteSearched,toteCanSearch,
 toteStatsMp,toteStatsRs,toteMpLoaded,toteRsLoaded,
 toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,

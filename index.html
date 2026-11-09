@@ -94,7 +94,7 @@
     </section>
   </div>
 </transition>
-<header class="px-6 pt-14 pb-6 max-w-6xl w-full mx-auto text-center">
+<header class="px-6 pt-14 pb-6 max-w-6xl w-full mx-auto text-center mr-home-desktop-hero">
 <div class="flex justify-center mb-6 float-up"><div class="w-24 h-24 rounded-[30px] flex items-center justify-center robot-glow neutral" style="background:linear-gradient(135deg,#64748b 0%,#334155 50%,#1e293b 100%);"><svg viewBox="0 0 48 48" class="w-14 h-14" fill="none" xmlns="http://www.w3.org/2000/svg"><line x1="24" y1="6" x2="24" y2="11" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><circle cx="24" cy="5" r="2" fill="#fff"/><rect x="11" y="11" width="26" height="22" rx="7" fill="#fff"/><circle cx="19" cy="21" r="2.3" fill="#475569"/><circle cx="29" cy="21" r="2.3" fill="#475569"/><path d="M18 26.5 Q24 30.5 30 26.5" stroke="#475569" stroke-width="1.8" stroke-linecap="round" fill="none"/><rect x="6" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="38" y="19" width="4" height="6" rx="2" fill="#fff"/><rect x="16" y="35" width="16" height="8" rx="3" fill="#fff" opacity="0.9"/></svg></div></div>
 <h1 class="text-[44px] sm:text-[52px] font-extrabold tracking-tight leading-none float-up gradient-text-neutral" style="animation-delay:.05s">Mr. Robot</h1>
 <p class="text-[15px] font-semibold text-slate-600 tracking-tight mt-3 float-up" style="animation-delay:.1s">{{ tr(32) }} <span class="text-slate-800 font-bold">{{ tr(33) }}</span> · LPP</p>
@@ -132,7 +132,7 @@
 <div class="tag-row"><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">{{ tr(99) }}</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">ARTLTT</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">Kreseczki</span></div>
 <div class="feature-list"><div class="feature-item"><span class="ico">📉</span><span>{{ tr(783) }}</span></div><div class="feature-item"><span class="ico">📦</span><span>{{ tr(784) }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ tr(785) }}</span></div><div class="feature-item"><span class="ico">✨</span><span>{{ tr(786) }}</span></div><div class="feature-item"><span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg></span><span>{{ tr("Generuj kody kreskowe Code 128 i drukuj je bezpośrednio z aplikacji.") }}</span></div></div>
 <button class="launch-btn" style="background:linear-gradient(180deg,#fbbf24 0%,#d97706 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(245,158,11,.35);">{{ tr(108) }} <span class="arrow">→</span></button>
-</div><p class="app-desc">Code 128</p><button class="launch-btn">{{ tr(58) }} →</button></div>
+</div></div>
 <div v-if="mrMemoryItems.length || mrRestore.phase==='checking'" id="mr-memory-manager" class="mr-saved-bar float-up mr-memory-panel">
  <div class="mr-memory-head">
   <div class="mr-mgr-title"><span class="mr-mgr-icon" aria-hidden="true">💾</span><div><strong>{{ tr(109).replace('💾 ', '') }}</strong><small>{{ mrRestoreText('manager') }}</small></div></div>
@@ -1056,9 +1056,46 @@
 </div>
 <button class="subcard-btn" style="background:linear-gradient(180deg,#c084fc 0%,#9333ea 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(168,85,247,.35);">{{ tr(236) }} <span class="arrow">→</span></button>
 </div>
+<div v-if="mobileLite" class="mp-mobile-scanner-entry" @click="mpView='scanner'" role="button" tabindex="0" @keydown.enter="mpView='scanner'">
+ <span class="mp-mobile-scanner-entry-icon" aria-hidden="true">▥</span>
+ <span class="mp-mobile-scanner-entry-body"><strong>MP Scanner</strong><small>{{ eMsg('Skanuj EAN i sprawdzaj lokalizacje oraz stany z bazy MP','Сканируй EAN, смотри товар, локации и остатки по базе MP','Scan EAN to find items, locations and quantities in the MP database','Скануй EAN: товар, локації та залишки з бази MP') }}</small></span>
+ <span aria-hidden="true">›</span>
+</div>
 </div>
 </main>
 <footer class="app-footer"><span class="divider"></span><span class="sig">© 2026 <b>Mr. Robot</b> · Made by Raman Horki · LPP</span><span class="divider"></span></footer>
+</template>
+
+
+
+<template v-else-if="mpView === 'scanner' && mobileLite">
+<header class="mp-scanner-header"><button class="back-to-hub" @click="mpScannerStop();mpView='cards'">← {{ eMsg('MP · narzędzia','MP · инструменты','MP · tools','MP · інструменти') }}</button><div class="mp-scanner-heading"><span class="mp-scanner-symbol" aria-hidden="true">▥</span><div><span>MP · MOBILE</span><h1>MP Scanner</h1></div></div></header>
+<main class="mp-scanner-page">
+ <div class="mp-scanner-panel mp-scanner-database"><div class="mp-scanner-inline"><strong>{{ eMsg('Baza MP','База MP','MP database','База MP') }}</strong><span :class="toteMpLoaded?'mp-scanner-ready':'mp-scanner-missing'">{{ toteMp.loading ? eMsg('Wczytywanie…','Загрузка…','Loading…','Завантаження…') : toteMpLoaded ? eMsg('Gotowa','Готова','Ready','Готова') : eMsg('Brak danych','Нет данных','No data','Немає даних') }}</span></div>
+  <p v-if="toteMpLoaded" class="mp-scanner-muted">{{ toteMp.fileName }} · {{ toteMp.records.length.toLocaleString() }} {{ eMsg('wierszy','строк','rows','рядків') }}</p>
+  <p v-else class="mp-scanner-muted">{{ eMsg('Wczytaj raport MP z kolumnami EAN, LOCATION, NO OF ITEMS i TECHNICAL DESCRIPTION.','Загрузи отчёт MP с колонками EAN, LOCATION, NO OF ITEMS и TECHNICAL DESCRIPTION.','Load an MP workbook with EAN, LOCATION, NO OF ITEMS and TECHNICAL DESCRIPTION.','Завантаж звіт MP з EAN, LOCATION, NO OF ITEMS та TECHNICAL DESCRIPTION.') }}</p>
+  <label class="mp-scanner-upload">{{ toteMpLoaded ? eMsg('Zmień bazę MP','Заменить базу MP','Replace MP database','Замінити базу MP') : eMsg('Wczytaj bazę MP','Загрузить базу MP','Load MP database','Завантажити базу MP') }}<input type="file" accept=".xlsx,.xls,.xlsm" :disabled="toteMp.loading" @change="toteOnMpFile($event);$event.target.value=''" /></label>
+ </div>
+ <section class="mp-scanner-panel"><h2>{{ eMsg('Znajdź produkt','Найти товар','Find an item','Знайти товар') }}</h2>
+  <div class="mp-scanner-search"><input v-model="mpScannerInput" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off" enterkeyhint="search" :placeholder="eMsg('Wpisz lub zeskanuj EAN','Введи или отсканируй EAN','Enter or scan EAN','Введи або скануй EAN')" @keyup.enter="mpScannerSearch()" aria-label="EAN"/><button @click="mpScannerSearch()" :disabled="!toteMpLoaded||toteMp.loading||!mpScannerInput.trim()">{{ eMsg('Szukaj','Найти','Find','Знайти') }}</button></div>
+  <button v-if="!mpScannerCameraOpen" class="mp-scanner-camera-btn" @click="mpScannerStart" :disabled="mpScannerCameraBusy"><span aria-hidden="true">▥</span> {{ mpScannerCameraBusy?eMsg('Uruchamianie kamery…','Запуск камеры…','Starting camera…','Запуск камери…'):eMsg('Skanuj aparatem','Сканировать камерой','Scan with camera','Сканувати камерою') }}</button>
+  <div v-if="mpScannerCameraOpen" class="mp-scanner-camera"><div id="mp-scanner-viewport"></div><button class="mp-scanner-stop" @click="mpScannerStop">{{ eMsg('Zamknij kamerę','Закрыть камеру','Close camera','Закрити камеру') }}</button></div>
+  <p v-if="mpScannerError" class="mp-scanner-error">{{ mpScannerError==='https'?eMsg('Kamera wymaga HTTPS.','Камера требует HTTPS.','Camera requires HTTPS.','Камера потребує HTTPS.'):mpScannerError==='permission'?eMsg('Zezwól na używanie aparatu w ustawieniach przeglądarki.','Разреши доступ к камере в настройках браузера.','Allow camera access in browser settings.','Дозволь доступ до камери в налаштуваннях браузера.'):eMsg('Nie udało się uruchomić skanera. Sprawdź połączenie internetowe i uprawnienia aparatu. Możesz wpisać EAN ręcznie.','Не удалось открыть сканер. Проверь интернет и доступ к камере. EAN можно ввести вручную.','Scanner could not start. Check internet and camera permissions, or enter EAN manually.','Не вдалося відкрити сканер. Перевір інтернет і дозвіл на камеру або введи EAN вручну.') }}</p>
+ </section>
+ <section v-if="mpScannerResult" class="mp-scanner-panel mp-scanner-results" aria-live="polite">
+  <div class="mp-scanner-inline"><h2>EAN · {{ mpScannerResult.ean }}</h2><button class="mp-scanner-copy" @click="mpScannerCopy(mpScannerResult.ean)">{{ eMsg('Kopiuj','Копировать','Copy','Копіювати') }}</button></div>
+  <template v-if="!toteMpLoaded"><p class="mp-scanner-muted">{{ eMsg('Najpierw wczytaj bazę MP.','Сначала загрузи базу MP.','Load the MP database first.','Спочатку завантаж базу MP.') }}</p></template>
+  <template v-else-if="!mpScannerResult.found"><p class="mp-scanner-notfound">{{ eMsg('Nie znaleziono EAN w załadowanej bazie MP.','EAN не найден в загруженной базе MP.','EAN not found in the loaded MP database.','EAN не знайдено у завантаженій базі MP.') }}</p></template>
+  <template v-else>
+   <div class="mp-scanner-description"><span>TECHNICAL DESCRIPTION</span><strong v-for="(d,i) in mpScannerResult.descriptions" :key="i">{{ d }}</strong><em v-if="!mpScannerResult.descriptions.length">{{ eMsg('Brak opisu w raporcie','Нет описания в отчёте','No description in report','Немає опису у звіті') }}</em></div>
+   <div class="mp-scanner-stats"><div><span>{{ eMsg('Łącznie sztuk','Всего штук','Total items','Усього штук') }}</span><strong>{{ mpScannerResult.total.toLocaleString() }}</strong></div><div><span>{{ eMsg('Lokalizacje','Локации','Locations','Локації') }}</span><strong>{{ mpScannerResult.locations.length }}</strong></div></div>
+   <h3>{{ eMsg('Lokalizacje MP','Локации MP','MP locations','Локації MP') }}</h3>
+   <div class="mp-scanner-locations"><div v-for="loc in mpScannerResult.locations" :key="loc.location" class="mp-scanner-location"><button :title="eMsg('Kopiuj lokalizację','Копировать локацию','Copy location','Копіювати локацію')" @click="mpScannerCopy(loc.location)">{{ loc.location }} <span aria-hidden="true">⧉</span></button><strong>{{ loc.qty.toLocaleString() }}</strong></div></div>
+   <p class="mp-scanner-muted">{{ eMsg('Ilości z NO OF ITEMS, zsumowane według lokalizacji.','Количество из NO OF ITEMS, суммировано по локациям.','Quantities from NO OF ITEMS, grouped by location.','Кількість із NO OF ITEMS, підсумована за локаціями.') }}</p>
+  </template>
+ </section>
+ <p class="mp-scanner-snapshot">{{ eMsg('Dane z wczytanego raportu MP, nie stan magazynu na żywo.','Данные из загруженного отчёта MP, не остатки в реальном времени.','Data from the loaded MP report, not live inventory.','Дані із завантаженого звіту MP, а не залишки в реальному часі.') }}</p>
+</main>
 </template>
 
 <template v-else-if="mpView === 'audyt'">
