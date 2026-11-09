@@ -2273,12 +2273,12 @@ const intelMdtLocations=computed(()=>{
 });
 const intelMdtSelectedLocation=computed(()=>intelMdtData.value?.locations.find(x=>x.id===intelMdtLocation.value)||null);
 function intelMdtChooseLocation(loc){intelMdtLocation.value=intelMdtLocation.value===loc?'':loc;}
-const intelMdtResume=ref('');
-watch(employeeProfile,(next,previous)=>{if(!next&&previous&&intelMdtResume.value&&mdt.result){const id=intelMdtResume.value;intelMdtResume.value='';Vue.nextTick(()=>{intelMdtOpen();intelMdtShowOperator(id);});}});
+// Keep the MDT Intelligence panel mounted while its shared KPI employee card is open.
+// Closing the card simply reveals the original panel, including its scroll and expanded location.
 function intelMdtShowEmployee(id){
  const person=pracownicyKpiLookup(id);
  if(!person&&!employeeArchiveEntries(id).length&&!employeeTrainingByPd.value.has(eKey(id))){showToast(intelMdtT('noKpi'));return;}
- intelMdtResume.value=intelMdtOperator.value;intelClose();employeeOpen(id);
+ employeeOpen(id);
 }
 function intelOpenOverview(kind){
  const viewBuilder=window.MRIntelligence.buildOverview;
@@ -2311,7 +2311,7 @@ const intelFilteredRows=computed(()=>{
 const intelPageCount=computed(()=>Math.max(1,Math.ceil(intelFilteredRows.value.length/intelPageSize)));
 const intelVisibleRows=computed(()=>intelFilteredRows.value.slice(intelPage.value*intelPageSize,(intelPage.value+1)*intelPageSize));
 function intelSelectRows(filter){intelRowsMode.value=filter;intelPage.value=0;}
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value)intelClose();});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value){if(intelPanel.value.type==='mdtExplore'&&employeeProfile.value){employeeClose();return;}intelClose();}});
 watch([()=>geek.result,()=>kpiNv.records,()=>kpiAudit.records,()=>kpiScalanie.records,()=>kpiRozk.records,()=>mdt.result,()=>stock.rows,()=>audyt.result,()=>formatka59.result,()=>konsolidacja.result,()=>przestoje.rows],()=>intelClose());
 
 // MR. BOT visual bridge: reads existing state; never writes report data.

@@ -1998,7 +1998,7 @@
 
 <!-- MR. BOT Intelligence · native template stays invisible until Vue compiles it -->
 <template v-if="intelPanel">
-<div class="mr-intel-overlay" @click.self="intelClose">
+<div class="mr-intel-overlay" :style="employeeProfile && intelPanel.type==='mdtExplore' ? {zIndex:200} : null" @click.self="intelClose">
   <section class="mr-intel-dialog" :data-intel-module="intelPanel.module" role="dialog" aria-modal="true" aria-labelledby="mr-intel-heading" @click.stop>
     <header class="mr-intel-head">
       <div class="mr-intel-head-icon" aria-hidden="true">✧</div>
@@ -2418,7 +2418,7 @@
 <script src="js/workers/common.js"></script>
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
-<script src="js/app.js?v=3.21.2-mdt-ui-20261109"></script>
+<script src="js/app.js?v=3.21.2-mdt-nav-20261109"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
