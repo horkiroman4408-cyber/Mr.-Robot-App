@@ -1874,7 +1874,7 @@ html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9
 @media(max-width:580px){.mr-stock-kpis{gap:6px}.mr-stock-kpis>div{padding:10px}.mr-stock-kpis strong{font-size:21px}.mr-stock-breakdown{grid-template-columns:minmax(65px,.8fr) repeat(2,minmax(0,1.2fr))}.mr-stock-tabs button{flex:1 1 auto}}
 
 
-/* v3.23.1 · STOCK Intelligence: compact repeat cards and stable chevrons. */
+/* v3.23.0 · STOCK Intelligence: compact repeat cards and stable chevrons. */
 .mr-stock-intel .mr-stock-reset{display:inline-flex;margin:3px 0 0;padding:3px 0;border:0;background:none;color:var(--intel-accent,#2563eb);font-size:12px;font-weight:650;text-align:left;cursor:pointer;align-self:flex-start}
 .mr-stock-intel .mr-stock-reset:hover{text-decoration:underline}
 .mr-stock-repeat-head{transition:background-color .16s ease}

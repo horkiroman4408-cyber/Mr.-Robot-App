@@ -1,4 +1,4 @@
-/* Mr. Robot 3.23.1 · STOCK Intelligence: read-only analysis of recorded closure events. */
+/* Mr. Robot 3.23.0 · STOCK Intelligence: read-only analysis of recorded closure events. */
 (function(root){
 'use strict';
 const labels={
