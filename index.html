@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.23.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.23.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -1823,7 +1823,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.23.0">v3.23.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.23.1">v3.23.1</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1989,7 +1989,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.23.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.23.1</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -2125,6 +2125,7 @@
             <h3>⎇ {{ stockIntelT('scope') }}</h3>
             <div class="mr-intel-filters"><button type="button" :class="{active:stockIntelScope==='all'}" @click="stockIntelScope='all'">{{ stockIntelT('allFile') }}</button><button type="button" :class="{active:stockIntelScope==='selected'}" @click="stockIntelScope='selected'">{{ stockIntelT('periods') }}</button></div>
             <p v-if="stockIntelScope==='selected'&&!stock.selectedPeriods.size" class="mr-intel-hint">{{ stockIntelT('noPeriods') }}</p>
+            <button type="button" class="mr-stock-reset" @click="stockIntelResetPreferences()">{{ stockIntelT('resetPrefs') }}</button>
             <h3 style="margin-top:14px">{{ stockIntelT('mpArea') }}</h3>
             <div class="mr-intel-filters"><button v-for="m in ['ALL','MP1','MP2','MP3','OTHER']" :key="m" type="button" :class="{active:stockIntelMp===m}" @click="stockIntelMp=m;stockIntelExpanded=''">{{ m==='ALL'?stockIntelT('all'):m==='OTHER'?stockIntelT('other'):m }}</button></div>
             <div class="mr-stock-toggles">
@@ -2166,17 +2167,19 @@
               <p v-if="!stockIntelVisibleRepeats.length" class="mr-intel-hint">{{ stockIntelT('noRows') }}</p>
               <div v-for="r in stockIntelVisibleRepeats" :key="r.loc" class="mr-stock-repeat">
                 <button type="button" class="mr-stock-repeat-head" :aria-expanded="stockIntelExpanded===r.loc" @click="stockIntelExpanded=stockIntelExpanded===r.loc?'':r.loc">
-                  <span><strong>{{ r.loc }}</strong><small>{{ r.eanCount>1?stockIntelT('differentEan'):stockIntelT('sameEan') }} · {{ stockIntelT('operators') }}: {{ r.operators }}</small></span>
-                  <span class="mr-stock-count">{{ r.count }} × <span aria-hidden="true">{{ stockIntelExpanded===r.loc?'⌃':'⌄' }}</span></span>
+                  <span class="mr-stock-repeat-details"><strong>{{ r.loc }}</strong><small>{{ r.eanCount>1?stockIntelT('differentEan'):stockIntelT('sameEan') }} · {{ stockIntelT('operators') }}: {{ r.operators }}</small></span>
+                  <span class="mr-stock-repeat-actions"><span class="mr-stock-count">{{ r.count }}×</span><span class="mr-stock-chevron" :class="{'is-open':stockIntelExpanded===r.loc}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></span>
                 </button>
                 <div v-if="stockIntelExpanded===r.loc" class="mr-stock-history">
                   <h3>{{ stockIntelT('history') }}</h3>
-                  <div v-for="(event,ei) in r.events" :key="ei" class="mr-stock-history-row">
-                    <span>{{ event.time||((event.date||'')+' '+(event.hour||'')+':00') }}</span>
-                    <strong>{{ event.ean||'—' }}</strong>
-                    <span>{{ event.item||'—' }}</span>
-                    <span>{{ event.who||'—' }} · {{ stockIntelT('quantity') }}: {{ event.qty??'—' }}</span>
-                    <small v-if="event.lack!==undefined||event.deficiency!==undefined">LACK: {{ event.lack??'—' }} · DEFICIENCY: {{ event.deficiency??'—' }} <template v-if="event.komnam">· {{ event.komnam }}</template></small>
+                  <div class="mr-stock-timeline">
+                    <div v-for="(event,ei) in r.events" :key="ei" class="mr-stock-history-row">
+                      <div class="mr-stock-history-meta"><time>{{ event.time||((event.date||'')+' '+(event.hour||'')+':00') }}</time><span class="mr-stock-history-qty">{{ stockIntelT('quantity') }}: {{ event.qty??'—' }}</span></div>
+                      <strong class="mr-stock-history-ean">{{ event.ean||'—' }}</strong>
+                      <span class="mr-stock-history-item">{{ event.item||'—' }}</span>
+                      <span>{{ event.who||'—' }}</span>
+                      <small v-if="event.lack!==undefined||event.deficiency!==undefined">LACK: {{ event.lack??'—' }} · DEFICIENCY: {{ event.deficiency??'—' }} <template v-if="event.komnam">· {{ event.komnam }}</template></small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2528,7 +2531,7 @@
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
 <script src="js/stock-intelligence.js"></script>
-<script src="js/app.js?v=3.23.0-stock-intelligence-20261110"></script>
+<script src="js/app.js?v=3.23.1-stock-prefs-repeat-ui-20261110"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>

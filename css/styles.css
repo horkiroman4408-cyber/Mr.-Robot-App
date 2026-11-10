@@ -1872,3 +1872,26 @@ html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9
 .mr-stock-history-row span:last-of-type,.mr-stock-history-row small{opacity:.8}
 .mr-stock-intel button:focus-visible,.mr-stock-intel input:focus-visible{outline:2px solid var(--intel-accent,#9333ea);outline-offset:2px}
 @media(max-width:580px){.mr-stock-kpis{gap:6px}.mr-stock-kpis>div{padding:10px}.mr-stock-kpis strong{font-size:21px}.mr-stock-breakdown{grid-template-columns:minmax(65px,.8fr) repeat(2,minmax(0,1.2fr))}.mr-stock-tabs button{flex:1 1 auto}}
+
+
+/* v3.23.1 · STOCK Intelligence: compact repeat cards and stable chevrons. */
+.mr-stock-intel .mr-stock-reset{display:inline-flex;margin:3px 0 0;padding:3px 0;border:0;background:none;color:var(--intel-accent,#2563eb);font-size:12px;font-weight:650;text-align:left;cursor:pointer;align-self:flex-start}
+.mr-stock-intel .mr-stock-reset:hover{text-decoration:underline}
+.mr-stock-repeat-head{transition:background-color .16s ease}
+.mr-stock-repeat-head:hover{background:var(--intel-surface-hover,var(--intel-surface))}
+.mr-stock-repeat-details{display:grid;gap:5px;min-width:0}
+.mr-stock-repeat-actions{display:inline-flex;align-items:center;gap:12px;flex:0 0 auto}
+.mr-stock-repeat .mr-stock-count{font-size:13px;min-width:26px;text-align:right;white-space:nowrap;color:var(--intel-text)}
+.mr-stock-chevron{display:grid;place-items:center;width:30px;height:30px;flex:0 0 30px;border-radius:50%;border:1px solid var(--intel-border);color:var(--intel-text);background:var(--intel-surface);opacity:.88}
+.mr-stock-chevron svg{display:block;transition:transform .2s cubic-bezier(.2,.8,.2,1);transform:rotate(0deg)}
+.mr-stock-chevron.is-open svg{transform:rotate(180deg)}
+.mr-stock-timeline{margin-left:7px;border-left:1px solid var(--intel-border)}
+.mr-stock-timeline .mr-stock-history-row{position:relative;margin-left:0;padding:11px 0 12px 18px;border-bottom:0;gap:5px}
+.mr-stock-timeline .mr-stock-history-row:not(:last-child){border-bottom:1px solid var(--intel-border)}
+.mr-stock-timeline .mr-stock-history-row::before{content:"";position:absolute;top:16px;left:-4px;width:7px;height:7px;border-radius:50%;background:var(--intel-accent,#2563eb);box-shadow:0 0 0 3px var(--intel-surface)}
+.mr-stock-history-meta{display:flex;justify-content:space-between;align-items:baseline;gap:9px;flex-wrap:wrap;font-size:11px;color:var(--intel-text)}
+.mr-stock-history-qty{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mr-stock-history-ean{font-size:12px;overflow-wrap:anywhere}
+.mr-stock-history-item{font-weight:550}
+@media(prefers-reduced-motion:reduce){.mr-stock-chevron svg,.mr-stock-repeat-head{transition:none}}
+@media(max-width:580px){.mr-stock-repeat-head{padding:12px 11px}.mr-stock-repeat-actions{gap:7px}.mr-stock-history{padding:11px}.mr-stock-timeline .mr-stock-history-row{padding-right:0}}

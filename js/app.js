@@ -2423,11 +2423,40 @@ function intelMdtShowEmployee(id){
  employeeOpen(id);
 }
 // STOCK Intelligence v3.23: independent, read-only view of the loaded closure events.
-const stockIntelTab=ref('summary');
-const stockIntelScope=ref('all');
-const stockIntelMp=ref('ALL');
-const stockIntelExcludeP=ref(true);
-const stockIntelExcludeS=ref(true);
+// Only STOCK Intelligence preferences are persisted; selected hours belong to the current workbook.
+const MR_STOCK_INTEL_PREFS_KEY='mr.stock.intelligence.preferences.v1';
+function stockIntelStoredPreferences(){
+ try{
+  const raw=localStorage.getItem(MR_STOCK_INTEL_PREFS_KEY);
+  const x=raw?JSON.parse(raw):null;
+  if(!x||typeof x!=='object')return {};
+  return {
+   tab:['summary','repeats'].includes(x.tab)?x.tab:'summary',
+   scope:['selected','all'].includes(x.scope)?x.scope:'selected',
+   mp:['ALL','MP1','MP2','MP3','OTHER'].includes(x.mp)?x.mp:'ALL',
+   excludeP:typeof x.excludeP==='boolean'?x.excludeP:true,
+   excludeS:typeof x.excludeS==='boolean'?x.excludeS:true
+  };
+ }catch(_e){return {};}
+}
+const stockIntelPrefs=stockIntelStoredPreferences();
+const stockIntelTab=ref(stockIntelPrefs.tab||'summary');
+const stockIntelScope=ref(stockIntelPrefs.scope||'selected');
+const stockIntelMp=ref(stockIntelPrefs.mp||'ALL');
+const stockIntelExcludeP=ref(stockIntelPrefs.excludeP??true);
+const stockIntelExcludeS=ref(stockIntelPrefs.excludeS??true);
+watch([stockIntelTab,stockIntelScope,stockIntelMp,stockIntelExcludeP,stockIntelExcludeS],()=>{
+ try{localStorage.setItem(MR_STOCK_INTEL_PREFS_KEY,JSON.stringify({
+  tab:stockIntelTab.value,scope:stockIntelScope.value,mp:stockIntelMp.value,
+  excludeP:stockIntelExcludeP.value,excludeS:stockIntelExcludeS.value
+ }));}catch(_e){/* Storage can be unavailable in private mode. */}
+});
+function stockIntelResetPreferences(){
+ stockIntelTab.value='summary';stockIntelScope.value='selected';stockIntelMp.value='ALL';
+ stockIntelExcludeP.value=true;stockIntelExcludeS.value=true;
+ stockIntelSearch.value='';stockIntelExpanded.value='';
+ try{localStorage.removeItem(MR_STOCK_INTEL_PREFS_KEY);}catch(_e){}
+}
 const stockIntelSearch=ref('');
 const stockIntelExpanded=ref('');
 const stockIntelT=key=>window.MRStockIntelligence.t(uiLanguage.value,key);
@@ -2442,8 +2471,7 @@ const stockIntelVisibleRepeats=computed(()=>{
 });
 function stockIntelOpen(){
  if(!stock.rows.length)return;
- stockIntelTab.value='summary';stockIntelScope.value='all';stockIntelMp.value='ALL';
- stockIntelExcludeP.value=true;stockIntelExcludeS.value=true;stockIntelSearch.value='';stockIntelExpanded.value='';
+ stockIntelSearch.value='';stockIntelExpanded.value='';
  intelPresent({type:'stockExplore',module:'mp',title:'STOCK',fileName:stock.fileName});
 }
 function intelOpenOverview(kind){
@@ -2548,7 +2576,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{stockIntelTab,stockIntelScope,stockIntelMp,stockIntelExcludeP,stockIntelExcludeS,stockIntelSearch,stockIntelExpanded,stockIntelT,stockIntelData,stockIntelVisibleRepeats,intelMdtTab,intelMdtProfileTab,intelMdtOperator,intelMdtLocation,intelMdtFilter,intelMdtQuery,intelMdtSort,intelMdtData,intelMdtT,intelMdtOpen,intelMdtShowOperator,intelMdtBack,intelMdtCurrentOperator,intelMdtOperators,intelMdtLocations,intelMdtSelectedLocation,intelMdtChooseLocation,intelMdtShowEmployee,intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{stockIntelResetPreferences,stockIntelTab,stockIntelScope,stockIntelMp,stockIntelExcludeP,stockIntelExcludeS,stockIntelSearch,stockIntelExpanded,stockIntelT,stockIntelData,stockIntelVisibleRepeats,intelMdtTab,intelMdtProfileTab,intelMdtOperator,intelMdtLocation,intelMdtFilter,intelMdtQuery,intelMdtSort,intelMdtData,intelMdtT,intelMdtOpen,intelMdtShowOperator,intelMdtBack,intelMdtCurrentOperator,intelMdtOperators,intelMdtLocations,intelMdtSelectedLocation,intelMdtChooseLocation,intelMdtShowEmployee,intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

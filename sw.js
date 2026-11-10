@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.23.0-stock-intelligence-20261110';
+const CACHE_REVISION = 'v3.23.1-stock-prefs-repeat-ui-20261110';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -46,7 +46,7 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/stock-intelligence.js',
-  'js/app.js?v=3.23.0-stock-intelligence-20261110',
+  'js/app.js?v=3.23.1-stock-prefs-repeat-ui-20261110',
   'js/bridge-setup.js',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',

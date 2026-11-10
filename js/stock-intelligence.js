@@ -1,9 +1,9 @@
-/* Mr. Robot 3.23.0 · STOCK Intelligence: read-only analysis of recorded closure events. */
+/* Mr. Robot 3.23.1 · STOCK Intelligence: read-only analysis of recorded closure events. */
 (function(root){
 'use strict';
 const labels={
  title:['Analiza zamkniętych lokalizacji','Анализ закрытых локаций','Closed-location analysis','Аналіз закритих локацій'],
- summary:['Przegląd zamknięć','Обзор закрытий','Closure overview','Огляд закриттів'],repeats:['Powtórzenia','Повторы','Repeats','Повтори'],
+ summary:['Przegląd zamknięć','Обзор закрытий','Closure overview','Огляд закриттів'],resetPrefs:['Przywróć domyślne ustawienia','Сбросить настройки','Reset preferences','Скинути налаштування'],repeats:['Powtórzenia','Повторы','Repeats','Повтори'],
  scope:['Zakres analizy','Период анализа','Analysis scope','Період аналізу'],allFile:['Cały plik','Весь файл','Entire file','Увесь файл'],periods:['Wybrane godziny STOCK','Выбранные часы STOCK','Selected STOCK hours','Вибрані години STOCK'],
  noPeriods:['Wybierz godziny w module STOCK, aby przeanalizować ten zakres.','Выбери часы в STOCK, чтобы анализировать этот период.','Select hours in STOCK first to analyze that period.','Спочатку обери години в STOCK для аналізу цього періоду.'],
  mpArea:['Obszar lokalizacji','Область локаций','Location area','Зона локацій'],other:['Pozostałe','Остальные','Other','Інші'],all:['Wszystkie MP','Все MP','All MP','Усі MP'],
