@@ -2422,15 +2422,36 @@ function intelMdtShowEmployee(id){
  if(!person&&!employeeArchiveEntries(id).length&&!employeeTrainingByPd.value.has(eKey(id))){showToast(intelMdtT('noKpi'));return;}
  employeeOpen(id);
 }
+// STOCK Intelligence v3.23: independent, read-only view of the loaded closure events.
+const stockIntelTab=ref('summary');
+const stockIntelScope=ref('all');
+const stockIntelMp=ref('ALL');
+const stockIntelExcludeP=ref(true);
+const stockIntelExcludeS=ref(true);
+const stockIntelSearch=ref('');
+const stockIntelExpanded=ref('');
+const stockIntelT=key=>window.MRStockIntelligence.t(uiLanguage.value,key);
+const stockIntelData=computed(()=>window.MRStockIntelligence.analyze(stock.rows,{
+ scope:stockIntelScope.value,periods:stock.selectedPeriods,mp:stockIntelMp.value,
+ excludeP:stockIntelExcludeP.value,excludeS:stockIntelExcludeS.value
+}));
+const stockIntelVisibleRepeats=computed(()=>{
+ const q=stockIntelSearch.value.trim().toUpperCase();
+ const entries=stockIntelData.value.repeats;
+ return (q?entries.filter(e=>e.loc.includes(q)||e.events.some(r=>r.ean.includes(q))):entries).slice(0,150);
+});
+function stockIntelOpen(){
+ if(!stock.rows.length)return;
+ stockIntelTab.value='summary';stockIntelScope.value='all';stockIntelMp.value='ALL';
+ stockIntelExcludeP.value=true;stockIntelExcludeS.value=true;stockIntelSearch.value='';stockIntelExpanded.value='';
+ intelPresent({type:'stockExplore',module:'mp',title:'STOCK',fileName:stock.fileName});
+}
 function intelOpenOverview(kind){
  const viewBuilder=window.MRIntelligence.buildOverview;
  const item=(label,value)=>({label:window.MRIntelligence.t(uiLanguage.value,label),value});
  let details=null;
  if(kind==='mdt'&&mdt.result){intelMdtOpen();return;}
- if(kind==='stock'&&stock.rows.length){
-   details=viewBuilder('mp','STOCK',stockStats.value.filtered,stock.fileName,'stockSummaryRule',[
-     item('Wiersze w pliku',stockStats.value.total),item('Po filtrach',stockStats.value.filtered),
-     item('Okresy',stockPeriods.value.length)],[]);
+ if(kind==='stock'&&stock.rows.length){stockIntelOpen();return;
  }else if(kind==='przestoje'&&przestojeReport.value){const r=przestojeReport.value;
    details=viewBuilder('ui','Analiza Przestojów',r.incidents.length,przestoje.fileName,'downtimeSummaryRule',[
      item('Wykryte przerwy',r.incidents.length),item('Wszystkie pary',r.pairsCount),item('Suma [min]',Number(r.totalMin.toFixed(2))),
@@ -2527,7 +2548,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelMdtTab,intelMdtProfileTab,intelMdtOperator,intelMdtLocation,intelMdtFilter,intelMdtQuery,intelMdtSort,intelMdtData,intelMdtT,intelMdtOpen,intelMdtShowOperator,intelMdtBack,intelMdtCurrentOperator,intelMdtOperators,intelMdtLocations,intelMdtSelectedLocation,intelMdtChooseLocation,intelMdtShowEmployee,intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{stockIntelTab,stockIntelScope,stockIntelMp,stockIntelExcludeP,stockIntelExcludeS,stockIntelSearch,stockIntelExpanded,stockIntelT,stockIntelData,stockIntelVisibleRepeats,intelMdtTab,intelMdtProfileTab,intelMdtOperator,intelMdtLocation,intelMdtFilter,intelMdtQuery,intelMdtSort,intelMdtData,intelMdtT,intelMdtOpen,intelMdtShowOperator,intelMdtBack,intelMdtCurrentOperator,intelMdtOperators,intelMdtLocations,intelMdtSelectedLocation,intelMdtChooseLocation,intelMdtShowEmployee,intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,

@@ -157,3 +157,23 @@ if(mp&&Array.isArray(mp.topics)){
  };
  for(const lang of ['pl','ru','en','uk'])article.tech[lang]=(article.tech[lang]||'')+'\n\n'+extra[lang];
 })();
+
+/* 3.23.0 · STOCK Intelligence guide; keep original STOCK article intact. */
+(function(){
+ 'use strict';
+ const docs=window.MRBOT_DOCS;if(!Array.isArray(docs))return;
+ const chapter=docs.find(g=>g.id==='intelligence');if(!chapter||!Array.isArray(chapter.topics))return;
+ if(!chapter.topics.some(t=>t.id==='stock'))chapter.topics.push({
+  id:'stock',
+  title:{pl:'STOCK · zamknięcia i powtórzenia',ru:'STOCK · закрытия и повторы',en:'STOCK · closures and repeats',uk:'STOCK · закриття і повтори'},
+  basic:{pl:'Dwie zakładki Intelligence: Przegląd zamknięć według MP1/MP2/MP3 oraz powtarzające się zamknięcia tych samych lokalizacji.',ru:'Две вкладки Intelligence: обзор закрытий по MP1/MP2/MP3 и повторные закрытия тех же локаций.',en:'Two Intelligence tabs: closure overview by MP1/MP2/MP3 and repeated closures of the same location.',uk:'Дві вкладки Intelligence: огляд закриттів за MP1/MP2/MP3 та повторні закриття тих самих локацій.'},
+  tech:{
+   pl:'W MP → Audyt → STOCK wczytaj ECM_PICK_Lacks_during_picking i otwórz ✧ Intelligence przy wyborze okresów. Przegląd zamknięć liczy osobno wiersze (zdarzenia) oraz unikatowe lokalizacje dla MP1, MP2, MP3 i pozostałych. Wybierz cały plik lub godziny zaznaczone w standardowym STOCK. Przełącz niezależnie wykluczenia loginów PKECOM i rozpoczynających się od S. Liczniki wykluczeń uwzględniają wybrane godziny i obszar MP. W Powtórzeniach widzisz lokalizacje z co najmniej dwoma zdarzeniami, ten sam/różne EAN i historię TIME, LOGIN, QUANTITY, LACK, DEFICIENCY, KOMNAM. Powtórzenie nie dowodzi błędu operatora ani fizycznej obecności towaru. Inteligencja nie modyfikuje standardowego generowania listy, filtrów audytu ani eksportu.',
+   ru:'Открой MP → Audyt → STOCK, загрузи ECM_PICK_Lacks_during_picking и нажми ✧ Intelligence рядом с выбором часов. «Обзор закрытий» отдельно считает строки (события) и уникальные локации для MP1, MP2, MP3 и остальных. Можно анализировать весь файл или выбранные часы STOCK, независимо исключать PKECOM и логины на S. Счётчики исключений учитывают выбранные часы и область MP. Во вкладке «Повторы» показаны локации с двумя или более закрытиями, одинаковые/разные EAN и история TIME, LOGIN, QUANTITY, LACK, DEFICIENCY, KOMNAM. Повтор не доказывает ошибку сотрудника или наличие товара при аудите. Стандартные фильтры STOCK, список для проверки и экспорт не изменяются.',
+   en:'Open MP → Audyt → STOCK, load ECM_PICK_Lacks_during_picking, and select ✧ Intelligence next to hour selection. Closure overview distinguishes event rows from unique locations for MP1, MP2, MP3 and other locations. Analyze the entire workbook or the hours selected in STOCK; toggle PKECOM and S-login exclusions independently. Exclusion counts reflect the selected hours and MP area. Repeats shows locations with two or more closure events, same/different EANs and event history: TIME, LOGIN, QUANTITY, LACK, DEFICIENCY, KOMNAM. Repeat closures are not proof of an operator mistake or physical stock. Normal STOCK filtering, audit lists and exports are unchanged.',
+   uk:'Відкрий MP → Audyt → STOCK, завантаж ECM_PICK_Lacks_during_picking та натисни ✧ Intelligence біля вибору годин. «Огляд закриттів» окремо підраховує події та унікальні локації MP1, MP2, MP3 й інших. Обери весь файл або вибрані години STOCK; перемикай виключення PKECOM і логінів на S незалежно. Лічильники виключень враховують вибрані години та область MP. «Повтори» показують локації з двома чи більше закриттями, однакові/різні EAN та історію TIME, LOGIN, QUANTITY, LACK, DEFICIENCY, KOMNAM. Повтор не доводить помилку працівника або наявність товару. Стандартні фільтри, списки та експорт STOCK не змінюються.'
+  },source:'js/stock-intelligence.js; js/workers/stock.js; js/app.js'
+ });
+ const stock=docs.find(g=>g.id==='mp')?.topics?.find(t=>t.id==='stock');
+ if(stock){stock.related=[...(stock.related||[]).filter(x=>!(x.category==='intelligence'&&x.topic==='stock')),{category:'intelligence',topic:'stock'}];}
+})();
