@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.22.0-blue)
+![version](https://img.shields.io/badge/version-3.23.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -199,6 +199,7 @@ A new RS tool that uses the already-loaded **Baza RS** (no second import). It gr
 - **FORMATKA_59** — quality control format with its own metrics.
 - **GODZINY_MDT** — MDT analysis, shelf 1/1, location lists.
 - **STOCK** — location reports grouped by receiving hours.
+  - **STOCK Intelligence (v3.23):** Closure overview counts events and unique locations across MP1/MP2/MP3 and other locations; optional PKECOM/S login exclusions and entire-file or selected-hour scope. The Repeats tab reveals repeated location closures, EANs, operators, quantities, and event history. This is read-only; normal STOCK processing and exports are unchanged.
 - **Scalanie** — filter locations by shelf, ABC, SKU range.
 - **Konsolidacja** — find small locations worth consolidating; detailed EAN cards also display TECHNICAL DESCRIPTION from the loaded MP file.
 
@@ -247,6 +248,7 @@ Mr.-Robot-App/
 ├── js/
 │   ├── app.js              # ★ main application code (UI + logic)
 │   ├── changelog.js        # ★ "What's new" history
+│   ├── stock-intelligence.js  # STOCK read-only analysis: closures / repeats
 │   ├── i18n.js             # translations (PL / RU / EN / UK)
 │   ├── theme.js            # light / dark theme
 │   ├── data/shifts.js      # AB/CD shift lists

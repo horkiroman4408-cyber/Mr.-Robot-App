@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.22.0-blue)
+![версия](https://img.shields.io/badge/version-3.23.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -199,6 +199,7 @@ KPI Аудит (`Audit_ECM_KPI`) и KPI Scalanie (`Pick_ECM_KPI`) доступн
 - **FORMATKA_59** — формат контроля качества со своими метриками.
 - **GODZINY_MDT** — анализ MDT, полки 1/1, списки локаций.
 - **STOCK** — отчёты по локациям, сгруппированные по часам приёмки.
+  - **STOCK Intelligence (v3.23):** обзор закрытий считает события и уникальные локации по MP1/MP2/MP3 и остальным, с независимыми фильтрами PKECOM/S и выбором всего файла либо выбранных часов. «Повторы» показывают многократные закрытия, EAN, операторов, количество и хронологию. Анализ не меняет расчёты и экспорт STOCK.
 - **Scalanie** — фильтрация локаций по типу полки, ABC, диапазону SKU.
 - **Konsolidacja** — поиск мелких локаций, которые стоит консолидировать; в подробных карточках EAN отображается TECHNICAL DESCRIPTION из загруженной базы MP.
 
@@ -247,6 +248,7 @@ Mr.-Robot-App/
 ├── js/
 │   ├── app.js              # ★ основной код приложения (интерфейс + логика)
 │   ├── changelog.js        # ★ история изменений «Co nowego»
+│   ├── stock-intelligence.js  # STOCK Intelligence: обзор / повторы
 │   ├── i18n.js             # переводы (PL / RU / EN / UK)
 │   ├── theme.js            # светлая / тёмная тема
 │   ├── data/shifts.js      # списки смен AB/CD

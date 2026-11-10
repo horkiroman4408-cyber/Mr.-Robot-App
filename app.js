@@ -764,6 +764,100 @@ const toteSearched=ref(false);
 const toteStatsMp=ref({rows:0,uniqueEan:0,singleBinEan:0,reservedEan:0,totalQty:0,locationTypeBreakdown:[],abcBreakdown:[]});
 const toteStatsRs=ref({rows:0,uniqueEan:0,plainToteRows:0,x2x2ToteRows:0,plainToteBins:0,x2x2ToteBins:0,multiToteEan:0,multiToteBins:0,totalQty:0});
 const toteMpLoaded=computed(()=>toteMp.records.length>0);
+
+// Mobile-only EAN lookup in the already parsed MP workbook. It does not change MP filters or exports.
+const mpScannerInput=ref('');
+const mpScannerLookup=ref('');
+const mpScannerCameraOpen=ref(false);
+const mpScannerCameraBusy=ref(false);
+const mpScannerError=ref('');
+let mpScannerInstance=null;
+let mpScannerRequest=0;
+let mpScannerLibraryPromise=null;
+function mpScannerCopy(text){
+ if(navigator.clipboard?.writeText)navigator.clipboard.writeText(String(text)).catch(()=>{});
+}
+function mpScannerSearch(value){
+ const code=String(value==null?mpScannerInput.value:value).trim().replace(/\s+/g,'');
+ mpScannerInput.value=code;
+ mpScannerLookup.value=code;
+}
+const mpScannerResult=computed(()=>{
+ const ean=mpScannerLookup.value;
+ if(!ean||!toteMp.records.length)return null;
+ const places=new Map(),descriptions=new Set();let total=0,rows=0;
+ for(const r of toteMp.records){
+  if(String(r.ean||'').trim()!==ean)continue;
+  rows++;
+  const qty=Number(r.qty);
+  const pieces=Number.isFinite(qty)?qty:0;
+  total+=pieces;
+  const loc=String(r.location||'').trim()||'—';
+  places.set(loc,(places.get(loc)||0)+pieces);
+  const desc=String(r.technicalDescription||'').trim();if(desc)descriptions.add(desc);
+ }
+ if(!rows)return {ean,found:false,descriptions:[],locations:[],total:0,rows:0};
+ const locations=[...places].map(([location,qty])=>({location,qty})).sort((a,b)=>b.qty-a.qty||a.location.localeCompare(b.location));
+ return {ean,found:true,descriptions:[...descriptions],locations,total,rows};
+});
+function mpScannerLoadScript(url){return new Promise((resolve,reject)=>{
+ const tag=document.createElement('script');tag.src=url;tag.async=true;
+ tag.onload=()=>window.Html5Qrcode?resolve():reject(new Error('Scanner library unavailable'));
+ tag.onerror=()=>{tag.remove();reject(new Error('Scanner library network error'));};
+ document.head.appendChild(tag);
+});}
+async function mpScannerLibrary(){
+ if(window.Html5Qrcode)return;
+ if(!mpScannerLibraryPromise){
+  mpScannerLibraryPromise=mpScannerLoadScript('https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js')
+   .catch(()=>mpScannerLoadScript('https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'))
+   .catch(error=>{mpScannerLibraryPromise=null;throw error;});
+ }
+ await mpScannerLibraryPromise;
+}
+async function mpScannerStop(){
+ ++mpScannerRequest;
+ mpScannerCameraOpen.value=false;
+ const scanner=mpScannerInstance;mpScannerInstance=null;
+ if(scanner){try{await scanner.stop();}catch(error){console.warn('MP Scanner stop',error);}
+  try{scanner.clear();}catch(_e){}
+ }
+ mpScannerCameraBusy.value=false;
+}
+async function mpScannerStart(){
+ if(!mobileLite||mpScannerCameraBusy.value||mpScannerCameraOpen.value)return;
+ mpScannerError.value='';
+ const request=++mpScannerRequest;
+ mpScannerCameraBusy.value=true;
+ try{
+  if(!window.isSecureContext)throw new Error('HTTPS_REQUIRED');
+  if(!navigator.mediaDevices?.getUserMedia)throw new Error('CAMERA_UNSUPPORTED');
+  await mpScannerLibrary();
+  if(request!==mpScannerRequest||view.value!=='mp'||mpView.value!=='scanner')return;
+  mpScannerCameraOpen.value=true;
+  await Vue.nextTick();
+  if(request!==mpScannerRequest)return;
+  const formats=window.Html5QrcodeSupportedFormats;
+  const scanner=new window.Html5Qrcode('mp-scanner-viewport',{formatsToSupport:formats?[formats.EAN_13,formats.EAN_8,formats.CODE_128,formats.UPC_A]:undefined,verbose:false});
+  mpScannerInstance=scanner;
+  let read=false;
+  await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:125}},text=>{
+   if(read||request!==mpScannerRequest)return;
+   const value=String(text||'').trim().replace(/\s+/g,'');
+   if(!value)return;
+   read=true;mpScannerSearch(value);void mpScannerStop();
+  },()=>{});
+  if(request!==mpScannerRequest){try{await scanner.stop();}catch(_e){}try{scanner.clear();}catch(_e){}}
+ }catch(error){
+  if(request===mpScannerRequest){
+   const key=String(error?.message||error||'');
+   mpScannerError.value=key==='HTTPS_REQUIRED'?'https':key==='CAMERA_UNSUPPORTED'?'unsupported':/NotAllowed|Permission|denied/i.test(key)?'permission':'unavailable';
+   await mpScannerStop();
+  }
+ }finally{if(request===mpScannerRequest)mpScannerCameraBusy.value=false;}
+}
+watch([view,mpView],([current,tab])=>{if(current!=='mp'||tab!=='scanner'){if(mpScannerCameraOpen.value||mpScannerInstance||mpScannerCameraBusy.value)void mpScannerStop();}});
+
 const toteRsLoaded=computed(()=>toteRs.records.length>0);
 const toteRsPopToteByEan=computed(()=>{const map=new Map();for(const r of toteRs.records){if(!isPopTote(r.shelfType))continue;if(!r.shelfBin)continue;if(!map.has(r.ean))map.set(r.ean,[]);map.get(r.ean).push(r);}return map;});
 const toteRsMultiToteShelfBins=computed(()=>{const toteToEans=new Map();for(const r of toteRs.records){if(!isPopTote(r.shelfType))continue;if(!r.shelfBin)continue;if(!toteToEans.has(r.shelfBin))toteToEans.set(r.shelfBin,new Set());toteToEans.get(r.shelfBin).add(r.ean);}const set=new Set();for(const[bin,eans]of toteToEans)if(eans.size>1)set.add(bin);return set;});
@@ -1581,11 +1675,18 @@ const mrPending={};
 // up front; the actual XLSX Blob is fetched when its turn comes.
 const mrRestore=reactive({phase:'checking',expanded:false,items:[],runId:0});
 const MR_RESTORE_TEXT={
- pl:{manager:'Menedżer zapisanych plików',added:'Dodano',unknown:'Data niedostępna',size:'Rozmiar',remove:'Usuń',removing:'Usuwanie…',confirmRemove:'Usunąć zapisany plik oraz jego wczytane dane?',cannotRemove:'Nie można usunąć pliku w trakcie przetwarzania.',deleteFailed:'Nie udało się usunąć pliku.',removed:'Plik usunięty',totalSize:'Łączny rozmiar',unknownSize:'Nieznany',note:'Pliki są przechowywane tylko w tej przeglądarce. Usunięcie powoduje też wyczyszczenie danych danego modułu.',total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Na komputerze',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
- ru:{manager:'Менеджер сохранённых файлов',added:'Добавлен',unknown:'Дата неизвестна',size:'Размер',remove:'Удалить',removing:'Удаление…',confirmRemove:'Удалить сохранённый файл и загруженные из него данные?',cannotRemove:'Нельзя удалить файл во время обработки.',deleteFailed:'Не удалось удалить файл.',removed:'Файл удалён',totalSize:'Общий размер',unknownSize:'Неизвестно',note:'Файлы хранятся только в этом браузере. Удаление также очищает данные соответствующего модуля.',total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Только на компьютере',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
- en:{manager:'Saved files manager',added:'Added',unknown:'Date unavailable',size:'Size',remove:'Remove',removing:'Removing…',confirmRemove:'Delete the saved file and its currently loaded data?',cannotRemove:'Cannot remove a file while processing.',deleteFailed:'Could not delete the file.',removed:'File removed',totalSize:'Total size',unknownSize:'Unknown',note:'Files are stored only in this browser. Removing a file also clears its module data.',total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Desktop only',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
- uk:{manager:'Керування збереженими файлами',added:'Додано',unknown:'Дата невідома',size:'Розмір',remove:'Видалити',removing:'Видалення…',confirmRemove:'Видалити збережений файл і завантажені з нього дані?',cannotRemove:'Не можна видалити файл під час обробки.',deleteFailed:'Не вдалося видалити файл.',removed:'Файл видалено',totalSize:'Загальний розмір',unknownSize:'Невідомо',note:'Файли зберігаються тільки в цьому браузері. Видалення також очищає дані відповідного модуля.',total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Лише на комп’ютері',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
+ pl:{manager:'Menedżer zapisanych plików',added:'Dodano',unknown:'Data niedostępna',size:'Rozmiar',remove:'Usuń',removing:'Usuwanie…',confirmRemove:'Usunąć zapisany plik oraz jego wczytane dane?',cannotRemove:'Nie można usunąć pliku w trakcie przetwarzania.',deleteFailed:'Nie udało się usunąć pliku.',removed:'Plik usunięty',totalSize:'Łączny rozmiar',unknownSize:'Nieznany',note:'Pliki są przechowywane tylko w tej przeglądarce. Usunięcie powoduje też wyczyszczenie danych danego modułu.',total:'Zapisane',ready:'Gotowe',waiting:'W kolejce',active:'Wczytywanie',failed:'Błąd',skipped:'Zapisany · do wczytania',paused:'Wstrzymane',details:'Szczegóły',hide:'Ukryj',reading:'Sprawdzanie zapisanych plików…',allDone:'Wszystkie obsłużone',notFound:'Brak pliku',progress:'Postęp przywracania'},
+ ru:{manager:'Менеджер сохранённых файлов',added:'Добавлен',unknown:'Дата неизвестна',size:'Размер',remove:'Удалить',removing:'Удаление…',confirmRemove:'Удалить сохранённый файл и загруженные из него данные?',cannotRemove:'Нельзя удалить файл во время обработки.',deleteFailed:'Не удалось удалить файл.',removed:'Файл удалён',totalSize:'Общий размер',unknownSize:'Неизвестно',note:'Файлы хранятся только в этом браузере. Удаление также очищает данные соответствующего модуля.',total:'Сохранено',ready:'Готово',waiting:'В очереди',active:'Загрузка',failed:'Ошибка',skipped:'Сохранён · ждёт загрузки',paused:'Остановлено',details:'Подробнее',hide:'Скрыть',reading:'Проверяем сохранённые файлы…',allDone:'Обработка завершена',notFound:'Файл отсутствует',progress:'Восстановление файлов'},
+ en:{manager:'Saved files manager',added:'Added',unknown:'Date unavailable',size:'Size',remove:'Remove',removing:'Removing…',confirmRemove:'Delete the saved file and its currently loaded data?',cannotRemove:'Cannot remove a file while processing.',deleteFailed:'Could not delete the file.',removed:'File removed',totalSize:'Total size',unknownSize:'Unknown',note:'Files are stored only in this browser. Removing a file also clears its module data.',total:'Saved',ready:'Ready',waiting:'Queued',active:'Loading',failed:'Error',skipped:'Saved · not loaded',paused:'Paused',details:'Details',hide:'Hide',reading:'Checking saved files…',allDone:'All processed',notFound:'File unavailable',progress:'File restore progress'},
+ uk:{manager:'Керування збереженими файлами',added:'Додано',unknown:'Дата невідома',size:'Розмір',remove:'Видалити',removing:'Видалення…',confirmRemove:'Видалити збережений файл і завантажені з нього дані?',cannotRemove:'Не можна видалити файл під час обробки.',deleteFailed:'Не вдалося видалити файл.',removed:'Файл видалено',totalSize:'Загальний розмір',unknownSize:'Невідомо',note:'Файли зберігаються тільки в цьому браузері. Видалення також очищає дані відповідного модуля.',total:'Збережено',ready:'Готово',waiting:'У черзі',active:'Завантаження',failed:'Помилка',skipped:'Збережено · очікує',paused:'Зупинено',details:'Докладніше',hide:'Сховати',reading:'Перевіряємо збережені файли…',allDone:'Обробку завершено',notFound:'Файл відсутній',progress:'Відновлення файлів'}
 };
+const MR_MOBILE_MANUAL_TEXT={
+ pl:{restore:'Przywróć',restoring:'Przywracanie…',missing:'Brak zapisanego pliku',failed:'Nie udało się przywrócić pliku',busy:'Poczekaj na zakończenie wczytywania',ready:'Plik przywrócony'},
+ ru:{restore:'Восстановить',restoring:'Восстановление…',missing:'Сохранённый файл не найден',failed:'Не удалось восстановить файл',busy:'Дождись окончания загрузки',ready:'Файл восстановлен'},
+ en:{restore:'Restore',restoring:'Restoring…',missing:'Saved file not found',failed:'Could not restore file',busy:'Wait until loading completes',ready:'File restored'},
+ uk:{restore:'Відновити',restoring:'Відновлення…',missing:'Збережений файл не знайдено',failed:'Не вдалося відновити файл',busy:'Дочекайтеся завершення завантаження',ready:'Файл відновлено'}
+};
+function mrMobileText(key){return (MR_MOBILE_MANUAL_TEXT[uiLanguage.value]||MR_MOBILE_MANUAL_TEXT.pl)[key]||key;}
 function mrRestoreText(key){return (MR_RESTORE_TEXT[uiLanguage.value]||MR_RESTORE_TEXT.pl)[key]||key;}
 const mrRestoreStats=computed(()=>{
  const items=mrRestore.items.filter(x=>x.status!=='removed');
@@ -1707,11 +1808,52 @@ function mrRestoreWait(st,limitMs=180000){return new Promise(resolve=>{
  function check(){if(!st.loading){resolve(true);return;}if(Date.now()-started>limitMs){resolve(false);return;}setTimeout(check,120);}
  setTimeout(check,120);
 });}
+// Mobile-only: restore one selected workbook using the same existing loader.
+// No automatic processing on mobile startup; desktop queue is unchanged.
+const mrManualRestore=reactive({active:''});
+const MR_MANUAL_HANDLERS={
+ kpiAudit:()=>kpiOnAuditFile,kpiScalanie:()=>kpiOnScalanieFile,kpiRozk:()=>kpiOnRozkFile,
+ kpiNv:()=>kpiOnNvFile,audyt:()=>audytOnFile,mdt:()=>mdtOnFile,
+ stock:()=>stockOnFile,przestoje:()=>przestojeOnFile,toteMp:()=>toteOnMpFile,
+ toteRs:()=>toteOnRsFile,geek:()=>geekOnFile
+};
+function mrMobileCanRestore(slot){
+ if(!mobileLite||!MR_MANUAL_HANDLERS[slot])return false;
+ const item=mrRestore.items.find(x=>x.slot===slot),state=MR_SLOT_STATE[slot];
+ return !!item&&item.status!=='removed'&&item.status!=='done'&&item.status!=='loading'
+   &&item.status!=='removing'&&!mrManualRestore.active&&!state?.loading;
+}
+async function mrRestoreOneMobile(slot){
+ if(!mrMobileCanRestore(slot))return;
+ const item=mrRestore.items.find(x=>x.slot===slot),state=MR_SLOT_STATE[slot];
+ const handler=MR_MANUAL_HANDLERS[slot]?.();
+ if(!item||!state||!handler)return;
+ const runId=mrRestore.runId;
+ mrManualRestore.active=slot;item.status='loading';
+ try{
+  const record=await mrStoredOne(slot);
+  if(runId!==mrRestore.runId||item.status==='removed')return;
+  if(!record||!record.blob){item.status='missing';showToast(mrMobileText('missing'));return;}
+  const info=mrMetaFromRecord(slot,record);
+  item.name=info.name;item.savedAt=info.savedAt;item.size=info.size;
+  const file=new File([record.blob],record.name,{type:record.type||'',lastModified:record.lastModified||Date.now()});
+  // Keep the original upload path; do not resave the same file in IndexedDB.
+  mrSaved[slot]={name:record.name,savedAt:record.savedAt};
+  state.savedAt=record.savedAt||'';
+  handler({target:{files:[file]},__mrRestore:true});
+  const completed=await mrRestoreWait(state);
+  if(runId!==mrRestore.runId||item.status==='removed')return;
+  if(completed&&state.fileName===file.name&&
+    (Array.isArray(state.records)?state.records.length>0:Array.isArray(state.rows)?state.rows.length>0:!!state.result)){
+    item.status='done';showToast(mrMobileText('ready'));
+  }else{item.status=completed?'error':'paused';showToast(mrMobileText('failed'));}
+ }catch(err){if(runId===mrRestore.runId&&item.status!=='removed')item.status='error';console.warn('Mr. Robot: mobile manual restore failed',slot,err);showToast(mrMobileText('failed'));}
+ finally{if(mrManualRestore.active===slot)mrManualRestore.active='';}
+}
 async function mrRestoreFiles(){
  if(!mrHasIndexedDB()){mrRestore.phase='unavailable';return;}
  const runId=++mrRestore.runId;
  const handlers={kpiAudit:kpiOnAuditFile,kpiScalanie:kpiOnScalanieFile,kpiRozk:kpiOnRozkFile,kpiNv:kpiOnNvFile,audyt:audytOnFile,mdt:mdtOnFile,stock:stockOnFile,przestoje:przestojeOnFile,toteMp:toteOnMpFile,toteRs:toteOnRsFile,geek:geekOnFile};
- const permittedMobile=new Set(['kpiAudit','kpiScalanie','kpiRozk','kpiNv','przestoje']);
  let n=0;
  try{
   const [keys,metadata]=await Promise.all([mrStoredKeys(),mrStoredMeta()]);
@@ -1720,7 +1862,7 @@ async function mrRestoreFiles(){
   mrRestore.items=keys.filter(slot=>handlers[slot]&&MR_SLOT_STATE[slot]).map(slot=>({
    slot,label:MR_SLOT_LABELS[slot],name:metadataMap.get(slot)?.name||'',
    savedAt:metadataMap.get(slot)?.savedAt||'',size:metadataMap.get(slot)?.size??null,
-   status:mobileLite&&!permittedMobile.has(slot)?'skipped':'queued'
+   status:mobileLite?'skipped':'queued'
   }));
   mrRestore.phase='running';
   for(const item of mrRestore.items){
@@ -1966,18 +2108,350 @@ function intelOpenKpi(kind,record){
  details.procesFilter=(mod.selectedProcesy||[]).map(attrLabel).join(', ');
  intelPresent(details);
 }
+
+// FORMATKA_59 Intelligence: read-only explanation of the existing calculation.
+// It intentionally reproduces the exact source-row rules without modifying FORMATKA_59.
+const intelFmtMetric=ref('lokalizacjeUnikatowe');
+const INTEL_FMT_TEXT={
+ pl:{title:'Skąd pochodzą liczby?',intro:'Śledzenie obliczeń FORMATKA_59 na podstawie wierszy MP2 z ECM_AI_Audit.',selection:'Który wynik wyjaśnić?',rule:'Zasada obliczania',formula:'Obliczenie',included:'Wiersze uwzględnione',rows:'Wiersze źródłowe',location:'Lokalizacja',incident:'Incident (L)',input:'Wartość źródłowa',contribution:'Wkład do wyniku',empty:'Brak pasujących wierszy',limit:'Pokazano pierwsze 60 pasujących wierszy. Suma obejmuje wszystkie.',match:'Wynik zgodny z bieżącym raportem',mismatch:'Uwaga: wynik nie zgadza się z raportem',noExcelRows:'Parser nie przechowuje numerów wierszy Excela: lokalizacja identyfikuje wpis.',source:'Źródło: ECM_AI_Audit · tylko MP2',all:'Wszystkie wiersze MP2',counted:'Suma kolumny J (Counted Qty) dla wszystkich MP2.',unique:'Suma kolumny I (Unique Qty) dla wszystkich MP2. Nazwa nie oznacza liczby różnych SKU.',correct:'Suma kolumny I tylko dla wierszy, gdzie Incident = "-".',incidentQty:'Suma kolumny I tylko dla wierszy, gdzie Incident = "Incident".',shortage:'Wartość bezwzględna sumy kolumny K (Diff Qty) dla wierszy z Incident = "Shortage". Najpierw sumowane są wartości ze znakami.',surplus:'Suma kolumny K (Diff Qty) dla wierszy z Incident = "Surplus" (bez wartości bezwzględnej).',checked:'Liczba wierszy MP2, nie liczba unikalnych lokalizacji.',locations:'Liczba różnych niepustych nazw lokalizacji w wierszach MP2.',errors:'Liczba wierszy oznaczonych "Shortage" lub "Surplus". To nie musi być liczba różnych lokalizacji.',locShort:'Liczba wierszy z Incident = "Shortage".',locSurp:'Liczba wierszy z Incident = "Surplus".',total:'Niedobór (wartość bezwzględna sumy K dla Shortage) + nadwyżka (suma K dla Surplus).',warning:'Wyniki liczone są dokładnie według warunków modułu. Różnica ilości sztuk i liczby wierszy jest zamierzona.'},
+ ru:{title:'Откуда берутся цифры?',intro:'Разбор расчётов FORMATKA_59 по строкам MP2 из ECM_AI_Audit.',selection:'Какой показатель объяснить?',rule:'Правило расчёта',formula:'Расчёт',included:'Учтено строк',rows:'Исходные строки',location:'Локация',incident:'Incident (L)',input:'Значение источника',contribution:'Вклад в результат',empty:'Нет подходящих строк',limit:'Показаны первые 60 подходящих строк. Итог учитывает все строки.',match:'Совпадает с текущим отчётом',mismatch:'Внимание: не совпадает с отчётом',noExcelRows:'Парсер не сохраняет номера строк Excel: запись определяется локацией.',source:'Источник: ECM_AI_Audit · только MP2',all:'Все строки MP2',counted:'Сумма колонки J (Counted Qty) по всем строкам MP2.',unique:'Сумма колонки I (Unique Qty) по всем строкам MP2. Это не число уникальных SKU.',correct:'Сумма колонки I только для строк с Incident = "-".',incidentQty:'Сумма колонки I только для строк с Incident = "Incident".',shortage:'Модуль складывает значения колонки K (Diff Qty) по строкам Incident = "Shortage", затем берёт модуль общей суммы. Не сумма модулей по строкам.',surplus:'Сумма колонки K (Diff Qty) для строк Incident = "Surplus" без модуля.',checked:'Количество строк MP2, а не уникальных локаций.',locations:'Количество разных непустых названий локаций в строках MP2.',errors:'Количество строк с Incident = "Shortage" или "Surplus". Это не обязательно количество уникальных локаций.',locShort:'Количество строк с Incident = "Shortage".',locSurp:'Количество строк с Incident = "Surplus".',total:'Недостача (модуль суммы K для Shortage) + излишки (сумма K для Surplus).',warning:'Это точные правила модуля. Количество штук и количество строк означают разные вещи.'},
+ en:{title:'Where do the numbers come from?',intro:'FORMATKA_59 calculations traced to MP2 source records in ECM_AI_Audit.',selection:'Which result should be explained?',rule:'Calculation rule',formula:'Calculation',included:'Rows included',rows:'Source records',location:'Location',incident:'Incident (L)',input:'Source value',contribution:'Contribution',empty:'No matching rows',limit:'First 60 matching records shown. Totals use every record.',match:'Matches the current report',mismatch:'Warning: does not match the report',noExcelRows:'The parser does not retain Excel row numbers: locations identify records.',source:'Source: ECM_AI_Audit · MP2 only',all:'All MP2 records',counted:'Sum of column J (Counted Qty) across all MP2 records.',unique:'Sum of column I (Unique Qty) across all MP2 records. This is not a distinct-SKU count.',correct:'Sum of column I where Incident = "-" only.',incidentQty:'Sum of column I where Incident = "Incident" only.',shortage:'Absolute value of the signed sum of column K (Diff Qty) for Incident = "Shortage". Absolute value is applied after summing.',surplus:'Signed sum of column K (Diff Qty) for Incident = "Surplus".',checked:'Count of MP2 records, not unique locations.',locations:'Count of distinct non-empty location identifiers across MP2 records.',errors:'Count of rows where Incident = "Shortage" or "Surplus", not necessarily unique locations.',locShort:'Count of records with Incident = "Shortage".',locSurp:'Count of records with Incident = "Surplus".',total:'Shortage (absolute signed K sum) plus surplus (signed K sum).',warning:'These are the module’s exact rules. Piece quantities and record counts are different measures.'},
+ uk:{title:'Звідки беруться цифри?',intro:'Пояснення розрахунків FORMATKA_59 за рядками MP2 з ECM_AI_Audit.',selection:'Який показник пояснити?',rule:'Правило розрахунку',formula:'Розрахунок',included:'Враховано рядків',rows:'Вихідні рядки',location:'Локація',incident:'Incident (L)',input:'Вихідне значення',contribution:'Внесок у результат',empty:'Немає відповідних рядків',limit:'Показано перші 60 рядків. Підсумок враховує всі.',match:'Збігається з поточним звітом',mismatch:'Увага: не збігається зі звітом',noExcelRows:'Парсер не зберігає номери рядків Excel: записи ідентифікуються локаціями.',source:'Джерело: ECM_AI_Audit · лише MP2',all:'Усі рядки MP2',counted:'Сума колонки J (Counted Qty) для всіх MP2.',unique:'Сума колонки I (Unique Qty) для всіх MP2. Це не число унікальних SKU.',correct:'Сума колонки I лише для рядків Incident = "-".',incidentQty:'Сума колонки I лише для рядків Incident = "Incident".',shortage:'Модуль підсумовує значення колонки K (Diff Qty) для Incident = "Shortage" та бере модуль загальної суми.',surplus:'Сума колонки K (Diff Qty) для Incident = "Surplus" без модуля.',checked:'Кількість рядків MP2, а не унікальних локацій.',locations:'Кількість різних непорожніх назв локацій у MP2.',errors:'Кількість рядків із Incident = "Shortage" або "Surplus", не обов’язково унікальних локацій.',locShort:'Кількість рядків із Incident = "Shortage".',locSurp:'Кількість рядків із Incident = "Surplus".',total:'Нестача (модуль суми K для Shortage) + надлишки (сума K для Surplus).',warning:'Це точні правила модуля. Кількість штук і кількість рядків — різні величини.'}
+};
+function intelFmtT(key){uiLanguage.value;return (INTEL_FMT_TEXT[uiLanguage.value]||INTEL_FMT_TEXT.pl)[key]||key;}
+const INTEL_FMT_METRICS=[
+ {key:'sumaZliczonychSztuk',label:['Suma zliczonych sztuk','Всего пересчитано штук','Total counted pieces','Усього перераховано штук'],rule:'counted',field:'countedQty',mode:'sum'},
+ {key:'sztukiBezPowtorzen',label:['Unikalne sztuki','Уникальные штуки','Unique pieces','Унікальні штуки'],rule:'unique',field:'uniqueQty',mode:'sum'},
+ {key:'qtyMinus',label:['Poprawne (−)','Корректные (−)','Correct (−)','Коректні (−)'],rule:'correct',field:'uniqueQty',incident:'-',mode:'sum'},
+ {key:'qtyIncident',label:['Incident','Инцидент','Incident','Інцидент'],rule:'incidentQty',field:'uniqueQty',incident:'Incident',mode:'sum'},
+ {key:'brak',label:['Niedobór','Недостача','Shortage','Нестача'],rule:'shortage',field:'diffQty',incident:'Shortage',mode:'absSum'},
+ {key:'nadwyzka',label:['Nadwyżka','Излишки','Surplus','Надлишки'],rule:'surplus',field:'diffQty',incident:'Surplus',mode:'sum'},
+ {key:'zliczoneLokalizacje',label:['Zliczone lokalizacje','Пересчитанные локации','Counted locations','Перераховані локації'],rule:'checked',mode:'count'},
+ {key:'lokalizacjeUnikatowe',label:['Unikatowe lokalizacje','Уникальные локации','Unique locations','Унікальні локації'],rule:'locations',mode:'unique'},
+ {key:'locShortage',label:['Lokalizacje z brakami','Локации с недостачами','Shortage locations','Локації з нестачею'],rule:'locShort',incident:'Shortage',mode:'count'},
+ {key:'locSurplus',label:['Lokalizacje z nadwyżkami','Локации с излишками','Surplus locations','Локації з надлишком'],rule:'locSurp',incident:'Surplus',mode:'count'},
+ {key:'niezgodnosc',label:['Niezgodności','Расхождения','Discrepancies','Розбіжності'],rule:'errors',incidents:['Shortage','Surplus'],mode:'count'},
+ {key:'razem',label:['Razem','Итого','Total','Разом'],rule:'total',incidents:['Shortage','Surplus'],mode:'combined'}
+];
+function intelFmtLabel(x){uiLanguage.value;return x.label[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+function intelFmtOpen(){
+ if(!formatka59.result||!audyt.formatkaRows?.length)return;
+ const rows=audyt.formatkaRows.filter(r=>String(r.location||'').trim().substring(0,3)==='MP2');
+ // Keep a view of the actual parser records, not a second invocation of analysis.
+ intelFmtMetric.value='lokalizacjeUnikatowe';
+ intelPresent({type:'formatkaTrace',module:'mp',title:'FORMATKA_59',fileName:audyt.fileName,rows,expected:{...formatka59.result},value:formatka59.result.lokalizacjeUnikatowe});
+}
+const intelFmtDetails=computed(()=>{
+ if(intelPanel.value?.type!=='formatkaTrace')return null;
+ const metric=INTEL_FMT_METRICS.find(x=>x.key===intelFmtMetric.value)||INTEL_FMT_METRICS[0];
+ const all=intelPanel.value.rows;
+ const selected=metric.incident?all.filter(r=>String(r.incident||'').trim()===metric.incident):metric.incidents?all.filter(r=>metric.incidents.includes(String(r.incident||'').trim())):all;
+ let result=0,parts=[],calculation='';
+ if(metric.mode==='unique'){
+  const seen=new Set();
+  for(const row of selected){const loc=String(row.location||'').trim();if(!loc||seen.has(loc))continue;seen.add(loc);parts.push({row,value:1,source:loc});}
+  result=seen.size;calculation=String(result);
+ }else if(metric.mode==='combined'){
+  let shortage=0,surplus=0;
+  for(const row of selected){const inc=String(row.incident||'').trim(),v=Number(row.diffQty)||0;if(inc==='Shortage')shortage+=v;else if(inc==='Surplus')surplus+=v;parts.push({row,value:v,source:'K'});}
+  result=Math.abs(shortage)+surplus;calculation='|'+shortage+'| + '+surplus+' = '+result;
+ }else{
+  parts=selected.map(row=>({row,value:metric.field?(Number(row[metric.field])||0):1,source:metric.field==='uniqueQty'?'I':metric.field==='countedQty'?'J':metric.field==='diffQty'?'K':'—'}));
+  result=parts.reduce((total,x)=>total+x.value,0);
+  if(metric.mode==='absSum'){calculation='|'+result+'| = '+Math.abs(result);result=Math.abs(result);}
+ }
+ const current=intelPanel.value.expected[metric.key];
+ return {metric,result,current,matching:Math.abs(result-current)<0.00001,count:selected.length,calculation,parts:parts.slice(0,60)};
+});
+
+
+// AL_AUDYT Intelligence: trace the existing calculation without changing source or report.
+// The two row populations are deliberately distinct: headline totals and the INFO table.
+const intelAuditMetric=ref('totalLoc');
+const intelAuditInfo=ref('');
+const intelAuditView=ref('included');
+const intelAuditScope=ref('main');
+const INTEL_AUDIT_TEXT={
+ pl:{total:'Total = poprawne + shortage + surplus. Inne wartości Incident są pomijane.',error:'Błędne = shortage + surplus; wiersze poprawne i inne statusy są pomijane.',heading:'Jak powstał wynik?',summaryTab:'Podsumowanie',infoTab:'Tabela INFO',groupHint:'Wybierz grupę INFO, aby zobaczyć jej wiersze i sposób obliczenia.',overall:'Wszystkie grupy',groupClick:'Analizuj grupę',desc:'Śledzenie zasad i wierszy źródłowych AL_AUDYT.',choose:'Wybierz wskaźnik',source:'Plik źródłowy',rule:'Zasada wyliczenia',included:'Uwzględnione',excluded:'Pominięte',all:'Wszystkie',rows:'Wiersze źródłowe',loc:'Lokalizacja',incident:'Incident',info:'INFO',reason:'Powód',result:'Obliczono',report:'W raporcie',same:'Wynik zgodny z raportem',different:'Wynik niezgodny z raportem',limit:'Lista ograniczona do 60 wierszy; suma obejmuje wszystkie.',none:'Brak wierszy w tym widoku.',noExcel:'Numery wierszy Excela nie są zachowywane przez parser; podano lokalizację.',group:'Grupa INFO',groupAll:'Wszystkie grupy',numerator:'Błędy',denominator:'Mianownik',invalid:'Status nieuwzględniony w podsumowaniu',other:'Inna kategoria',correct:'Wiersz poprawny (Incident pusty lub „-”).',short:'Wiersz zawierający „shortage”.',surp:'Wiersz zawierający „surplus” (bez shortage).',both:'Wiersz zawierający shortage; ten status ma pierwszeństwo.',notCorrect:'Status nie jest pusty ani „-”.',notShort:'Status bez „shortage”.',notSurp:'Status bez „surplus” lub ma pierwszeństwo shortage.',notTotal:'Status nie kwalifikuje się do żadnej z trzech kategorii.',notErr:'Wiersz poprawny albo pomijany.',infoInclude:'Niepuste INFO inne niż dokładnie „INFO”.',infoExclude:'INFO puste lub dokładnie „INFO”.',groupExclude:'Inna grupa INFO.',infoShort:'INFO wypełnione i status shortage.',infoSurp:'INFO wypełnione i status surplus (bez shortage).',infoTotal:'Każdy wiersz z kwalifikującym się INFO, niezależnie od Incident.',pct:'Odsetek = (Shortage + Surplus) / Total; Total nie obejmuje pozostałych statusów.',infoPct:'Odsetek INFO = (Shortage + Surplus) / wiersze w danej grupie INFO.',warning:'Wskaźniki główne i tabela INFO mają różne zasady kwalifikacji. Wiersz pominięty w Total może wystąpić w INFO.',filter:'Aktualny filtr lokalizacji / marki jest używany bez zmian.'},
+ ru:{total:'Total = корректные + shortage + surplus. Другие значения Incident не учитываются.',error:'Ошибки = shortage + surplus. Корректные и прочие статусы исключаются.',heading:'Откуда взялся результат?',summaryTab:'Общая сводка',infoTab:'Таблица INFO',groupHint:'Выбери группу INFO, чтобы увидеть её исходные строки и расчёт.',overall:'Все группы',groupClick:'Разобрать группу',desc:'Подробный разбор расчётов и исходных строк AL_AUDYT.',choose:'Выбери показатель',source:'Исходный файл',rule:'Правило расчёта',included:'Учтены',excluded:'Исключены',all:'Все',rows:'Исходные строки',loc:'Локация',incident:'Incident',info:'INFO',reason:'Причина',result:'Пересчитано',report:'В отчёте',same:'Совпадает с отчётом',different:'Расхождение с отчётом',limit:'Показаны первые 60 строк; итог учитывает все.',none:'Нет строк в этой категории.',noExcel:'Парсер не сохраняет номера строк Excel; для ориентира указана локация.',group:'Группа INFO',groupAll:'Все группы',numerator:'Ошибки',denominator:'Знаменатель',invalid:'Статус не входит в итог',other:'Другая категория',correct:'Строка корректна: Incident пустой или «-».',short:'Статус содержит shortage.',surp:'Статус содержит surplus и не содержит shortage.',both:'Статус содержит shortage: у него приоритет.',notCorrect:'Incident не пустой и не «-».',notShort:'В статусе нет shortage.',notSurp:'В статусе нет surplus либо сработал shortage.',notTotal:'Incident не подходит ни под один из трёх статусов.',notErr:'Корректная или исключённая строка.',infoInclude:'Непустой INFO, который не равен точно «INFO».',infoExclude:'INFO пустой или точно «INFO».',groupExclude:'Другая группа INFO.',infoShort:'INFO заполнен, статус shortage.',infoSurp:'INFO заполнен, статус surplus (без shortage).',infoTotal:'Любая строка с подходящим INFO, независимо от Incident.',pct:'Процент ошибок = (Shortage + Surplus) / Total; другие статусы не входят в Total.',infoPct:'Процент в INFO = (Shortage + Surplus) / количество строк данной группы INFO.',warning:'Общие итоги и таблица INFO учитывают строки по разным правилам. Исключённая из Total строка может попасть в INFO.',filter:'Существующий фильтр локаций и бренда применяется без изменений.'},
+ en:{total:'Total = correct + shortage + surplus; other Incident statuses are excluded.',error:'Errors = shortage + surplus; correct and other statuses are excluded.',heading:'How was this calculated?',summaryTab:'Summary',infoTab:'INFO table',groupHint:'Select an INFO group to trace its source rows and calculation.',overall:'All groups',groupClick:'Inspect group',desc:'Trace AL_AUDYT metrics back to their source rows and rules.',choose:'Choose a metric',source:'Source workbook',rule:'Calculation rule',included:'Included',excluded:'Excluded',all:'All',rows:'Source rows',loc:'Location',incident:'Incident',info:'INFO',reason:'Reason',result:'Recalculated',report:'In report',same:'Matches current report',different:'Does not match report',limit:'First 60 records shown; totals include all rows.',none:'No records in this view.',noExcel:'Excel row numbers are not retained by the parser; locations identify entries.',group:'INFO group',groupAll:'All groups',numerator:'Errors',denominator:'Denominator',invalid:'Unrecognized status excluded from totals',other:'Other category',correct:'Correct: Incident is blank or a dash.',short:'Incident contains shortage.',surp:'Incident contains surplus, without shortage.',both:'Shortage takes precedence in status classification.',notCorrect:'Incident is neither blank nor a dash.',notShort:'Incident does not contain shortage.',notSurp:'Incident has no surplus, or shortage took precedence.',notTotal:'Incident does not match any of the three counted categories.',notErr:'Correct or excluded record.',infoInclude:'Nonblank INFO other than the literal INFO.',infoExclude:'INFO is blank or exactly INFO.',groupExclude:'Another INFO group.',infoShort:'Eligible INFO with shortage status.',infoSurp:'Eligible INFO with surplus status (without shortage).',infoTotal:'Every row with eligible INFO, regardless of incident.',pct:'Error rate = (Shortage + Surplus) / Total; other statuses are excluded from Total.',infoPct:'INFO error rate = (Shortage + Surplus) / source rows for this INFO group.',warning:'Headline totals and the INFO table use different inclusion rules. A row excluded from Total may still appear under INFO.',filter:'The existing location and brand filter is applied unchanged.'},
+ uk:{total:'Total = правильні + shortage + surplus; інші статуси Incident не враховуються.',error:'Помилки = shortage + surplus; правильні та інші статуси виключаються.',heading:'Звідки взявся результат?',summaryTab:'Загальний підсумок',infoTab:'Таблиця INFO',groupHint:'Оберіть групу INFO, щоб переглянути вихідні рядки та розрахунок.',overall:'Усі групи',groupClick:'Розібрати групу',desc:'Пояснення показників AL_AUDYT за вихідними рядками та правилами.',choose:'Оберіть показник',source:'Вихідний файл',rule:'Правило розрахунку',included:'Враховано',excluded:'Виключено',all:'Усі',rows:'Вихідні рядки',loc:'Локація',incident:'Incident',info:'INFO',reason:'Причина',result:'Перераховано',report:'У звіті',same:'Збігається зі звітом',different:'Не збігається зі звітом',limit:'Перші 60 рядків; сума враховує всі.',none:'Немає рядків у цій категорії.',noExcel:'Парсер не зберігає номери рядків Excel; записи визначаються локаціями.',group:'Група INFO',groupAll:'Усі групи',numerator:'Помилки',denominator:'Знаменник',invalid:'Статус не враховано в підсумку',other:'Інша категорія',correct:'Правильно: Incident порожній або «-».',short:'Incident містить shortage.',surp:'Incident містить surplus без shortage.',both:'Shortage має пріоритет у класифікації.',notCorrect:'Incident не порожній та не «-».',notShort:'Incident не містить shortage.',notSurp:'Incident без surplus або спрацював shortage.',notTotal:'Incident не належить до трьох категорій.',notErr:'Правильний або виключений рядок.',infoInclude:'Непорожнє INFO, не рівне точно «INFO».',infoExclude:'INFO порожнє або точно «INFO».',groupExclude:'Інша група INFO.',infoShort:'INFO заповнене та статус shortage.',infoSurp:'INFO заповнене та статус surplus без shortage.',infoTotal:'Кожний рядок з відповідним INFO незалежно від Incident.',pct:'Частка помилок = (Shortage + Surplus) / Total; інші статуси виключені.',infoPct:'Частка INFO = (Shortage + Surplus) / кількість рядків відповідної групи.',warning:'Загальні результати та INFO мають різні правила включення. Виключений з Total рядок може бути в INFO.',filter:'Фільтр локацій та бренду залишається без змін.'}
+};
+function intelAuditT(key){uiLanguage.value;return (INTEL_AUDIT_TEXT[uiLanguage.value]||INTEL_AUDIT_TEXT.pl)[key]||key;}
+const INTEL_AUDIT_METRICS=[
+ {key:'totalLoc',label:['Total lokacje','Всего локаций','Total locations','Усього локацій'],rule:'total'},
+ {key:'correctLoc',label:['Poprawne','Корректные','Correct','Коректні'],rule:'correct'},
+ {key:'shortage',label:['Braki','Недостачи','Shortage','Нестачі'],rule:'short'},
+ {key:'surplus',label:['Nadwyżki','Излишки','Surplus','Надлишки'],rule:'surp'},
+ {key:'errorLoc',label:['Błędne','Ошибки','Errors','Помилки'],rule:'error'},
+ {key:'odsetek',label:['Odsetek błędnych','Процент ошибок','Error rate','Частка помилок'],rule:'pct'},
+ {key:'infoTotal',label:['INFO · Total','INFO · Всего','INFO · Total','INFO · Усього'],rule:'infoTotal'},
+ {key:'infoShortage',label:['INFO · Shortage','INFO · Недостача','INFO · Shortage','INFO · Нестача'],rule:'infoShort'},
+ {key:'infoSurplus',label:['INFO · Surplus','INFO · Излишки','INFO · Surplus','INFO · Надлишки'],rule:'infoSurp'},
+ {key:'infoPercent',label:['INFO · Odsetek','INFO · Процент','INFO · Percentage','INFO · Частка'],rule:'infoPct'}
+];
+function intelAuditLabel(item){uiLanguage.value;return item.label[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+const intelAuditVisibleMetrics=computed(()=>INTEL_AUDIT_METRICS.filter(m=>intelAuditScope.value==='info'?m.key.startsWith('info'):!m.key.startsWith('info')));
+function intelAuditSetScope(scope){
+ intelAuditScope.value=scope;
+ intelAuditMetric.value=scope==='info'?'infoPercent':'totalLoc';
+ intelAuditInfo.value='';intelAuditView.value='included';
+}
+function intelAuditChooseGroup(name){
+ intelAuditScope.value='info';intelAuditInfo.value=name;intelAuditMetric.value='infoPercent';intelAuditView.value='included';
+}
+function intelAuditMetricValue(metric){
+ const result=intelPanel.value?.type==='auditTrace'?intelPanel.value.expected:null;
+ if(!result)return '—';
+ const group=intelAuditInfo.value?(result.infoRows||[]).find(x=>x.name===intelAuditInfo.value):null;
+ const values={totalLoc:result.totalLoc,correctLoc:result.correctLoc,shortage:result.shortage,surplus:result.surplus,errorLoc:result.errorLoc,odsetek:result.odsetek,
+ infoTotal:group?.total??result.totalAll,infoShortage:group?.shortage??result.totalShort,infoSurplus:group?.surplus??result.totalSurp,
+ infoPercent:group?.odsetek??(result.totalAll?(result.totalShort+result.totalSurp)/result.totalAll:0)};
+ const n=Number(values[metric.key]??0);
+ return (metric.key==='odsetek'||metric.key==='infoPercent')?(n*100).toFixed(1)+'%':n.toLocaleString('pl-PL');
+}
+
+function intelAuditOpen(){
+ if(!audyt.result||!audyt.rows.length)return;
+ const rows=audyt.rows.filter(r=>mpAuditLocationAllowed(r.location));
+ intelAuditMetric.value='totalLoc';intelAuditView.value='included';intelAuditInfo.value='';intelAuditScope.value='main';
+ intelAuditSetTab('calculations');
+ intelPresent({type:'auditTrace',module:'mp',title:'AL_AUDYT',fileName:audyt.fileName,rows,expected:{...audyt.result},value:audyt.result.totalLoc});
+}
+// AL_AUDYT Intelligence extensions are read-only. They never modify audyt.rows/result.
+const intelAuditTab=ref('calculations');
+const intelAuditAnalysisMode=ref('class');
+const intelAuditGroup=ref('');
+const intelAuditSearch=ref('');
+const intelAuditRecountMode=ref('all');
+const intelAuditProduct=ref(null);
+const intelAuditPage=ref(0);
+const intelAuditT2Data={
+ tabCalc:['Obliczenia','Расчёты','Calculations','Розрахунки'],tabAnal:['Analityka','Аналитика','Analytics','Аналітика'],tabRecount:['Przeliczenia','Пересчёты','Recounts','Перерахунки'],
+ analDesc:['Znajdź kategorie, strefy i konta z odchyleniami.','Ищи закономерности по категориям, зонам и User ID.','Explore patterns across categories, zones and user IDs.','Шукай закономірності за категоріями, зонами та User ID.'],
+ modeClass:['Kategorie','Категории','Categories','Категорії'],modeZone:['Strefy','Зоны','Zones','Зони'],modeUser:['User ID','User ID','User ID','User ID'],
+ tested:['Wiersze','Строки','Rows','Рядки'],errors:['Odchylenia','Расхождения','Discrepancies','Розбіжності'],rate:['Odsetek','Доля','Rate','Частка'],
+ things:['Towary z odchyleniami','Товары с расхождениями','Items with discrepancies','Товари з розбіжностями'],
+ search:['Szukaj EAN, nazwy lub lokalizacji','Поиск EAN, названия или локации','Search EAN, product or location','Пошук EAN, назви чи локації'],
+ noRecords:['Brak pozycji dla bieżącego wyboru.','Нет товаров по выбранным условиям.','No items for this selection.','Немає товарів за вибраними умовами.'],
+ noColumns:['Brak dodatkowych kolumn w zapisanych danych. Wczytaj ponownie aktualny plik Excel.','В сохранённых данных нет дополнительных колонок. Загрузи Excel заново.','Saved records lack extra columns. Reload the Excel workbook.','У збережених даних немає додаткових колонок. Завантаж Excel повторно.'],
+ unknown:['Brak danych','Нет данных','Not available','Немає даних'],
+ detail:['Karta towaru','Карточка товара','Item details','Картка товару'],back:['Wróć','Назад','Back','Назад'],
+ history:['Historia przeliczeń','История пересчётов','Count history','Історія перерахунків'],
+ stock:['Stan magazynowy','Складской остаток','Stock quantity','Складський залишок'],counted:['Ilość policzona','Учтённое количество','Counted quantity','Порахована кількість'],
+ discrep:['Różnica','Расхождение','Discrepancy','Розбіжність'],
+ changed:['Zmienne wyniki','Результат менялся','Count values changed','Значення змінювалися'],
+ stable:['Wyniki zgodne','Пересчёты совпали','Counts consistent','Результати збігаються'],
+ noRepeat:['Brak powtórnego liczenia','Повторного пересчёта нет','No repeat count','Немає повторного перерахунку'],
+ missing:['Nie podano','Не указано','Missing','Не вказано'],
+ confirmed:['Powtórnie potwierdzone odchylenie','Повторно подтверждённое расхождение','Repeated discrepancy confirmed','Повторно підтверджена розбіжність'],
+ settled:['Wynik wrócił do stanu','Последний подсчёт совпал с остатком','Final count matches stock','Останній підрахунок збігається із залишком'],
+ divergent:['Kolejne wyniki się różnią; sprawdź przyczynę.','Значения пересчётов отличаются. Проверь причину.','Counts differ; investigate the cause.','Перерахунки різняться; перевір причину.'],
+ repeatSame:['Powtórne liczenia są takie same.','Повторные подсчёты совпадают.','Repeated counts agree.','Повторні підрахунки збігаються.'],
+ unavailable:['Brak historii przeliczeń dla tej pozycji.','История пересчётов отсутствует.','No count history is available.','Історія перерахунків відсутня.'],
+ all:['Wszystkie','Все','All','Усі'],changedOnly:['Zmienne','Менялись','Changed','Змінювалися'],confirmOnly:['Potwierdzone','Подтверждены','Confirmed','Підтверджені'],
+ row:['Wiersz Excel','Строка Excel','Excel row','Рядок Excel'],location:['Lokalizacja','Локация','Location','Локація'],
+ info:['Grupa INFO','Группа INFO','INFO group','Група INFO'],date:['Data inwentaryzacji','Дата инвентаризации','Inventory date','Дата інвентаризації'],
+ dept:['Dział','Отдел','Department','Відділ'],klass:['Klasa','Класс','Class','Клас'],brand:['Marka','Бренд','Brand','Бренд'],
+ selected:['Wybierz grupę, aby zobaczyć tylko wpisy z odchyleniami; wszyscy audytorzy pozostają widoczni.','Выбери группу, чтобы увидеть только расхождения; все аудиторы остаются в таблице.','Select a group to inspect discrepancy records; every auditor stays visible.','Обери групу, щоб переглянути лише розбіжності; усі аудитори залишаються у таблиці.'],
+ rowCount:['Liczba wpisów','Количество записей','Record count','Кількість записів'],
+ caution:['To obserwacje statystyczne, nie ocena pracownika ani potwierdzenie przyczyny błędu.','Это статистические наблюдения, а не оценка сотрудника или доказательство причины ошибки.','These are statistical patterns, not staff performance judgments or proof of cause.','Це статистичні закономірності, а не оцінка працівника чи доказ причини помилки.'],
+ kept:['Algorytm AL_AUDYT i eksport pozostają bez zmian.','Алгоритм AL_AUDYT и экспорт не изменены.','AL_AUDYT calculations and export are unchanged.','Розрахунки AL_AUDYT та експорт не змінено.'],
+ showing:['Pokazano do 50 pozycji na stronę','До 50 записей на страницу','Up to 50 items per page','До 50 записів на сторінку'],
+ noRisk:['Nie można ustalić fizycznej przyczyny odchylenia na podstawie samego raportu.','Физическую причину расхождения по одному отчёту установить нельзя.','This report alone cannot establish the physical cause of a discrepancy.','Фізичну причину розбіжності за одним звітом визначити неможливо.'],
+ noComparison:['Bez odpowiednich danych brak podstaw do porównania.','Недостаточно данных для сравнения.','Insufficient data for comparison.','Недостатньо даних для порівняння.'],
+ prev:['Poprzednia','Назад','Previous','Назад'],next:['Następna','Далее','Next','Далі'],
+};
+function intelAuditT2(key){uiLanguage.value;return (intelAuditT2Data[key]||[key,key,key,key])[({pl:0,ru:1,en:2,uk:3})[uiLanguage.value]??0];}
+const intelAuditRichRows=computed(()=>intelPanel.value?.type==='auditTrace'?intelPanel.value.rows:[]);
+const intelAuditHasRich=computed(()=>intelAuditRichRows.value.some(r=>r.ean||r.description||r.counts?.some(x=>x!==null)));
+function intelAuditIncidentKind(row){const i=String(row.incident||'').toLowerCase().trim();return i==='-'||i===''?'correct':i.includes('shortage')?'shortage':i.includes('surplus')?'surplus':'other';}
+function intelAuditCountArray(row){return Array.isArray(row.counts)?row.counts.filter(x=>x!==null&&Number.isFinite(x)):[];}
+const intelAuditGroupStats=computed(()=>{
+ const groups=new Map(), mode=intelAuditAnalysisMode.value;
+ for(const r of intelAuditRichRows.value){
+  const key=String(mode==='class'?(r.klass||r.dept):mode==='zone'?String(r.location||'').trim().slice(0,3):r.user||'').trim()||intelAuditT2('unknown');
+  let d=groups.get(key);if(!d){d={name:key,total:0,errors:0};groups.set(key,d);}
+  d.total++;if(['shortage','surplus'].includes(intelAuditIncidentKind(r)))d.errors++;
+ }
+ return Array.from(groups.values()).filter(d=>mode==='user'||d.errors>0).map(d=>({...d,rate:d.total?d.errors/d.total:0})).sort((a,b)=>mode==='user'?(b.total-a.total||b.errors-a.errors||a.name.localeCompare(b.name)):(b.errors-a.errors||b.rate-a.rate||a.name.localeCompare(b.name)));
+});
+const intelAuditRecountRows=computed(()=>{
+ return intelAuditRichRows.value.filter(r=>{
+  const c=intelAuditCountArray(r);if(c.length<2)return false;
+  const changed=new Set(c).size>1;
+  if(intelAuditRecountMode.value==='changed')return changed;
+  if(intelAuditRecountMode.value==='confirmed')return !changed && r.stock!==null && c[0]!==r.stock;
+  return true;
+ });
+});
+const intelAuditSelectedRows=computed(()=>{
+ if(intelAuditTab.value==='recounts')return intelAuditRecountRows.value;
+ const key=intelAuditGroup.value;
+ return intelAuditRichRows.value.filter(r=>{
+  if(!['shortage','surplus'].includes(intelAuditIncidentKind(r)))return false;
+  if(!key)return true;
+  const value=intelAuditAnalysisMode.value==='class'?(r.klass||r.dept):intelAuditAnalysisMode.value==='zone'?String(r.location||'').trim().slice(0,3):r.user;
+  return (String(value||'').trim()||intelAuditT2('unknown'))===key;
+ });
+});
+const intelAuditFilteredProducts=computed(()=>{
+ const q=intelAuditSearch.value.toLocaleLowerCase().trim();
+ return intelAuditSelectedRows.value.filter(r=>!q||[r.ean,r.description,r.location,r.itemCode].some(v=>String(v||'').toLocaleLowerCase().includes(q)));
+});
+const intelAuditTotalPages=computed(()=>Math.max(1,Math.ceil(intelAuditFilteredProducts.value.length/50)));
+const intelAuditVisibleProducts=computed(()=>intelAuditFilteredProducts.value.slice(intelAuditPage.value*50,(intelAuditPage.value+1)*50));
+const intelAuditChosenProduct=computed(()=>intelAuditProduct.value);
+const intelAuditProductRelated=computed(()=>intelAuditProduct.value?.ean?intelAuditRichRows.value.filter(r=>r.ean===intelAuditProduct.value.ean):[]);
+function intelAuditSetTab(tab){intelAuditTab.value=tab;intelAuditProduct.value=null;intelAuditGroup.value='';intelAuditSearch.value='';intelAuditPage.value=0;}
+function intelAuditSetAnalysis(mode){intelAuditAnalysisMode.value=mode;intelAuditGroup.value='';intelAuditPage.value=0;}
+function intelAuditChooseAnalysisGroup(name){intelAuditGroup.value=name;intelAuditPage.value=0;intelAuditSearch.value='';}
+function intelAuditSelectProduct(row){intelAuditProduct.value=row;}
+function intelAuditProductNarrative(row){
+ const counts=intelAuditCountArray(row);if(!counts.length)return intelAuditT2('unavailable');
+ if(counts.length===1)return intelAuditT2('noRepeat');
+ if(new Set(counts).size>1){if(row.stock!==null&&counts[counts.length-1]===row.stock)return intelAuditT2('settled');return intelAuditT2('divergent');}
+ if(row.stock!==null&&counts[0]!==row.stock)return intelAuditT2('confirmed');
+ return intelAuditT2('repeatSame');
+}
+const intelAuditGroups=computed(()=>intelPanel.value?.type==='auditTrace'?(intelPanel.value.expected.infoRows||[]):[]);
+const intelAuditDetail=computed(()=>{
+ if(intelPanel.value?.type!=='auditTrace')return null;
+ const metric=intelAuditMetric.value;
+ const infoMode=metric.startsWith('info');
+ const group=intelAuditInfo.value;
+ const rows=intelPanel.value.rows;
+ let included=0,excluded=0, numerator=0,denominator=0,selectedCount=0;
+ const preview=[];let shownIn=0,shownOut=0;
+ // Preserve AL_AUDYT status order exactly: correct, shortage, surplus, then unrecognized.
+ for(const row of rows){
+  const inc=String(row.incident||'').toLowerCase().trim();
+  const info=String(row.info||'').trim();
+  const category=(inc==='-'||inc==='')?'correct':inc.includes('shortage')?'shortage':inc.includes('surplus')?'surplus':'other';
+  const infoEligible=info!==''&&info!=='INFO';
+  const inGroup=infoEligible&&(!group||info===group);
+  let ok=false,reason='notTotal';
+  if(infoMode){
+   const categoryOK=metric==='infoTotal'||metric==='infoPercent'||(metric==='infoShortage'&&category==='shortage')||(metric==='infoSurplus'&&category==='surplus');
+   ok=inGroup&&categoryOK;
+   reason=!infoEligible?'infoExclude':!inGroup?'groupExclude':ok?(metric==='infoTotal'||metric==='infoPercent'?'infoTotal':category==='shortage'?'infoShort':'infoSurp'):'other';
+   // The denominator includes every eligible row from the chosen INFO scope.
+   if(inGroup){denominator++;if(category==='shortage'||category==='surplus')numerator++;}
+  }else{
+   ok=metric==='totalLoc'?category!=='other':metric==='correctLoc'?category==='correct':metric==='shortage'?category==='shortage':metric==='surplus'?category==='surplus':metric==='errorLoc'||metric==='odsetek'?(category==='shortage'||category==='surplus'):false;
+   reason=ok?category==='correct'?'correct':category==='shortage'?'short':'surp':category==='other'?'notTotal':metric==='correctLoc'?'notCorrect':metric==='shortage'?'notShort':metric==='surplus'?'notSurp':'notErr';
+   if(category!=='other')denominator++;
+   if(category==='shortage'||category==='surplus')numerator++;
+  }
+  if(ok)included++;else excluded++;
+  if(ok?shownIn<60:shownOut<60){preview.push({loc:row.location||'—',incident:row.incident||'—',info:row.info||'—',ok,reason});if(ok)shownIn++;else shownOut++;}
+ }
+ const e=intelPanel.value.expected;
+ const infoRow=group?(e.infoRows||[]).find(x=>x.name===group):null;
+ let computed=included,expected=0;
+ if(metric==='odsetek'){computed=denominator?numerator/denominator:0;expected=e.odsetek;}
+ else if(metric==='infoPercent'){computed=denominator?numerator/denominator:0;expected=infoRow?.odsetek??(e.totalAll?(e.totalShort+e.totalSurp)/e.totalAll:0);}
+ else if(metric==='infoTotal')expected=infoRow?.total??e.totalAll;
+ else if(metric==='infoShortage')expected=infoRow?.shortage??e.totalShort;
+ else if(metric==='infoSurplus')expected=infoRow?.surplus??e.totalSurp;
+ else expected=e[metric]??0;
+ return {computed,expected,matched:Math.abs(computed-expected)<1e-9,included,excluded,numerator,denominator,preview,percent:metric==='odsetek'||metric==='infoPercent',infoMode,rule:INTEL_AUDIT_METRICS.find(x=>x.key===metric)?.rule||'total'};
+});
+const intelAuditRows=computed(()=>{
+ const d=intelAuditDetail.value;if(!d)return [];
+ const mode=intelAuditView.value;
+ return d.preview.filter(x=>mode==='all'||x.ok===(mode==='included')).slice(0,60);
+});
+
+// GODZINY MDT Intelligence: read-only interpretation of source placements.
+// The existing GODZINY MDT calculation, filtering, ordering and CSV remain untouched.
+const INTEL_MDT_TEXT={
+ pl:{operators:'Operatorzy',locations:'Lokalizacje',plan:'Plan kontroli',overview:'Przegląd',placements:'Rozłożenia',insights:'Obserwacje',operator:'Operator',operatorList:'Operatorzy w raporcie',details:'Profil rozłożeń',employee:'Karta pracownika KPI',noEmployee:'Wczytaj grafik pracowników KPI, aby zobaczyć kartę osoby.',records:'Wpisy rozłożenia',unique:'Różne lokalizacje',pieces:'Rozłożone sztuki',candidates:'Kandydaci 1/1',qualified:'Zgodne z algorytmem 1/1',available:'Dostępne po etapie 2',all:'Wszystkie',one:'1/1',other:'Pozostałe',ambiguous:'Więcej operatorów',stock:'Aktualny STOCK',placed:'Rozłożone',source:'Wiersze Excela',product:'Towar',reason:'Wyjaśnienie',return:'Wróć do operatorów',search:'Szukaj operatora / lokalizacji / towaru',sort:'Sortuj',qtySort:'Według liczby sztuk',locSort:'Według lokalizacji',countSort:'Według liczby lokalizacji 1/1',allRows:'Wszystkie wpisy operatora',onlyOne:'Jeden operator w raporcie',multi:'Różni operatorzy',matched:'Ilości pierwszego zachowanego wpisu są równe (E = K).',notMatched:'Ilości pierwszego zachowanego wpisu różnią się (E ≠ K).',multiple:'W lokalizacji występują wpisy różnych operatorów. Wynik algorytmu 1/1 nie potwierdza sam w sobie jednego operatora.',single:'W dostępnych wpisach lokalizacji występuje jeden operator.',excluded:'Lokalizacja spełnia E = K, ale nie przeszła drugiego etapu (SPD / PKecom).',repeats:'Powtórzone wpisy tej lokalizacji',first:'Pierwszy zachowany wpis',filtered:'Nie wszystkie wpisy przechodzą filtr TSU / lokalizacji.',noLocations:'Brak pasujących lokalizacji.',noOperators:'Nie znaleziono operatorów.',select:'Wybierz operatora, aby zobaczyć profil.',proposal:'Proponowana lista do kontroli',balanced:'Różni operatorzy',largest:'Największe ilości',ambiguousPlan:'Wiele wpisów',sample:'Liczba lokalizacji',preview:'To propozycja do analizy. Nie zmienia wybranych lokalizacji ani eksportu CSV.',planHint:'Wyłącznie lokalizacje dostępne w etapie 2; przydział do operatora nie dowodzi, że nikt inny nie dotykał towaru.',allCand:'Kandydaci algorytmu',confirmed:'Z jednym operatorem',caution:'Wnioski dotyczą wyłącznie wpisów w załadowanym raporcie, nie oceny jakości pracy osoby.',sumNote:'Suma MDT liczona jest przed usuwaniem powtórzeń; STOCK po ich usunięciu.',total:'Lokalizacje',close:'Zamknij profil',open:'Zobacz profil rozłożeń',noKpi:'Brak karty w załadowanej bazie pracowników.'},
+ ru:{operators:'Операторы',locations:'Локации',plan:'План проверки',overview:'Обзор',placements:'Размещения',insights:'Наблюдения',operator:'Оператор',operatorList:'Операторы в отчёте',details:'Профиль размещений',employee:'Карточка сотрудника KPI',noEmployee:'Загрузи график сотрудников KPI, чтобы открыть карточку человека.',records:'Записей размещения',unique:'Уникальных локаций',pieces:'Размещено штук',candidates:'Кандидатов 1/1',qualified:'По алгоритму 1/1',available:'Доступно после этапа 2',all:'Все',one:'1/1',other:'Остальные',ambiguous:'Несколько операторов',stock:'Актуальный STOCK',placed:'Размещено',source:'Строки Excel',product:'Товар',reason:'Объяснение',return:'К операторам',search:'Поиск оператора / локации / товара',sort:'Сортировка',qtySort:'По количеству штук',locSort:'По локации',countSort:'По числу локаций 1/1',allRows:'Все записи оператора',onlyOne:'Один оператор в отчёте',multi:'Разные операторы',matched:'У первой сохранённой записи количества совпадают (E = K).',notMatched:'У первой сохранённой записи количества различаются (E ≠ K).',multiple:'В этой локации есть записи разных операторов. Сам по себе результат алгоритма 1/1 не подтверждает единственного оператора.',single:'В доступных записях этой локации фигурирует один оператор.',excluded:'Условие E = K выполнено, но второй этап исключил локацию (SPD / PKecom).',repeats:'Повторные записи локации',first:'Первая сохранённая запись',filtered:'Не все записи прошли фильтр TSU / локации.',noLocations:'Нет подходящих локаций.',noOperators:'Операторы не найдены.',select:'Нажми на оператора, чтобы открыть его профиль.',proposal:'Предложение для физической проверки',balanced:'Разные операторы',largest:'Больше товара',ambiguousPlan:'Повторные записи',sample:'Число локаций',preview:'Это аналитическое предложение. Оно не меняет выбор локаций и экспорт CSV.',planHint:'Только локации второго этапа. Оператор по отчёту не означает, что никто другой никогда не работал с локацией.',allCand:'Кандидаты алгоритма',confirmed:'С одним оператором',caution:'Выводы ограничены данными загруженного отчёта и не являются оценкой качества работы сотрудника.',sumNote:'Сумма MDT считается до удаления повторов, а STOCK после него.',total:'Локаций',close:'Закрыть профиль',open:'Открыть профиль размещений',noKpi:'Карточка не найдена в загруженной базе KPI.'},
+ en:{operators:'Operators',locations:'Locations',plan:'Check plan',overview:'Overview',placements:'Placements',insights:'Insights',operator:'Operator',operatorList:'Operators in report',details:'Placement profile',employee:'KPI employee card',noEmployee:'Load the KPI employee roster to open a person’s card.',records:'Placement records',unique:'Distinct locations',pieces:'Pieces placed',candidates:'1/1 candidates',qualified:'Algorithm 1/1',available:'Available after stage 2',all:'All',one:'1/1',other:'Other',ambiguous:'Multiple operators',stock:'Current STOCK',placed:'Placed',source:'Excel rows',product:'Product',reason:'Explanation',return:'Back to operators',search:'Search operator / location / item',sort:'Sort',qtySort:'By pieces',locSort:'By location',countSort:'By 1/1 locations',allRows:'All operator records',onlyOne:'One operator in report',multi:'Different operators',matched:'The first retained record has equal quantities (E = K).',notMatched:'The first retained record has different quantities (E ≠ K).',multiple:'Multiple operators have entries for this location. Algorithmic 1/1 alone does not prove one operator.',single:'Only one operator appears in the available location entries.',excluded:'E = K matches but stage 2 excluded the location (SPD / PKecom).',repeats:'Repeated location entries',first:'First retained entry',filtered:'Some entries did not pass the TSU / location filter.',noLocations:'No matching locations.',noOperators:'No operators found.',select:'Select an operator to open their profile.',proposal:'Suggested physical check list',balanced:'Different operators',largest:'More pieces',ambiguousPlan:'Repeated entries',sample:'Number of locations',preview:'Analytical suggestion only. It does not change selection or CSV export.',planHint:'Only locations available after stage 2. An operator in this report does not mean nobody else has ever handled the location.',allCand:'Algorithm candidates',confirmed:'With one operator',caution:'Findings reflect only the uploaded report; they are not a staff performance score.',sumNote:'MDT total is calculated before deduplication; STOCK after.',total:'Locations',close:'Close profile',open:'Open placement profile',noKpi:'No employee card in the loaded KPI roster.'},
+ uk:{operators:'Оператори',locations:'Локації',plan:'План перевірки',overview:'Огляд',placements:'Розміщення',insights:'Спостереження',operator:'Оператор',operatorList:'Оператори у звіті',details:'Профіль розміщень',employee:'Картка працівника KPI',noEmployee:'Завантаж графік працівників KPI для відкриття картки.',records:'Записів розміщення',unique:'Унікальних локацій',pieces:'Розміщено штук',candidates:'Кандидатів 1/1',qualified:'За алгоритмом 1/1',available:'Доступно після етапу 2',all:'Усі',one:'1/1',other:'Інші',ambiguous:'Кілька операторів',stock:'Актуальний STOCK',placed:'Розміщено',source:'Рядки Excel',product:'Товар',reason:'Пояснення',return:'До операторів',search:'Пошук оператора / локації / товару',sort:'Сортування',qtySort:'За кількістю штук',locSort:'За локацією',countSort:'За кількістю локацій 1/1',allRows:'Усі записи оператора',onlyOne:'Один оператор у звіті',multi:'Різні оператори',matched:'У першому збереженому записі кількості збігаються (E = K).',notMatched:'У першому збереженому записі кількості різні (E ≠ K).',multiple:'Для цієї локації є записи різних операторів. Сам алгоритм 1/1 не підтверджує одного оператора.',single:'У доступних записах локації є лише один оператор.',excluded:'E = K, але другий етап виключив локацію (SPD / PKecom).',repeats:'Повторні записи локації',first:'Перший збережений запис',filtered:'Не всі записи пройшли фільтр TSU / локації.',noLocations:'Немає відповідних локацій.',noOperators:'Операторів не знайдено.',select:'Натисни на оператора, щоб переглянути профіль.',proposal:'Пропозиція для фізичної перевірки',balanced:'Різні оператори',largest:'Більше товару',ambiguousPlan:'Повторні записи',sample:'Кількість локацій',preview:'Лише аналітична пропозиція. Не змінює вибір і експорт CSV.',planHint:'Лише локації другого етапу. Оператор у звіті не означає, що ніхто інший ніколи не працював із локацією.',allCand:'Кандидати алгоритму',confirmed:'З одним оператором',caution:'Висновки стосуються лише завантаженого звіту і не є оцінкою якості роботи.',sumNote:'MDT підсумовується до видалення повторів, STOCK після.',total:'Локації',close:'Закрити профіль',open:'Відкрити профіль розміщень',noKpi:'Картку не знайдено в завантаженій базі KPI.'}
+};
+function intelMdtT(key){uiLanguage.value;return (INTEL_MDT_TEXT[uiLanguage.value]||INTEL_MDT_TEXT.pl)[key]||key;}
+const intelMdtTab=ref('operators'),intelMdtProfileTab=ref('overview'),intelMdtOperator=ref(''),intelMdtLocation=ref(''),intelMdtFilter=ref('all'),intelMdtQuery=ref(''),intelMdtSort=ref('loc');
+const intelMdtData=ref(null);
+function intelMdtBuild(){
+ const grouped=new Map();let ignored=0,kept=0;
+ for(let i=2;i<mdt.rows.length;i++){
+  const r=mdt.rows[i];if(!r||r.every(c=>c===''||c===null||c===undefined))continue;
+  const loc=String(r[1]||'').trim(),tsu=String(r[3]||'').trim();
+  if(!mpAuditLocationAllowed(loc)||tsu.startsWith('1')){ignored++;continue;}
+  kept++;
+  if(!grouped.has(loc))grouped.set(loc,{id:loc,entries:[]});
+  grouped.get(loc).entries.push({login:String(r[0]||'').trim(),qty:mdtNum(r[4]),stock:mdtNum(r[10]),ean:String(r[5]||'').trim(),description:String(r[7]||'').trim(),tsu,excelRow:i+1});
+ }
+ const allowed=new Set((mdt.etap2?.rows||[]).map(r=>String(r[1]||'').trim()));
+ const all=[],ops=new Map();
+ for(const entry of grouped.values()){
+  const first=entry.entries[0],operators=[...new Set(entry.entries.map(r=>r.login).filter(Boolean))];
+  entry.first=first;entry.operators=operators;entry.one=first.qty===first.stock;
+  entry.available=entry.one&&allowed.has(entry.id);entry.single=operators.length===1;
+  entry.totalQty=entry.entries.reduce((sum,r)=>sum+r.qty,0);
+  entry.hasMixedQuantities=entry.entries.some(r=>r.qty!==first.qty||r.stock!==first.stock);
+  all.push(entry);
+  for(const login of operators){
+   if(!ops.has(login))ops.set(login,{id:login,records:0,units:0,locations:[],one:0,available:0,single:0});
+   const o=ops.get(login);const own=entry.entries.filter(r=>r.login===login);
+   o.records+=own.length;o.units+=own.reduce((sum,r)=>sum+r.qty,0);o.locations.push(entry);
+   if(entry.one)o.one++;if(entry.available)o.available++;if(entry.one&&entry.single)o.single++;
+  }
+ }
+ return {locations:all,operators:[...ops.values()],sourceRows:mdt.rows.length-2,kept,ignored};
+}
+function intelMdtOpen(){if(!mdt.result||!mdt.etap2)return;intelMdtData.value=intelMdtBuild();intelMdtTab.value='operators';intelMdtOperator.value='';intelMdtLocation.value='';intelMdtFilter.value='all';intelMdtQuery.value='';intelMdtSort.value='loc';intelPanel.value={type:'mdtExplore',module:'mp',title:'GODZINY MDT',fileName:mdt.fileName};intelPage.value=0;}
+function intelMdtShowOperator(id){intelMdtOperator.value=id;intelMdtProfileTab.value='overview';intelMdtFilter.value='all';intelMdtLocation.value='';intelMdtQuery.value='';}
+function intelMdtBack(){intelMdtOperator.value='';intelMdtQuery.value='';intelMdtLocation.value='';}
+const intelMdtCurrentOperator=computed(()=>intelMdtData.value?.operators.find(x=>x.id===intelMdtOperator.value)||null);
+const intelMdtOperators=computed(()=>{const q=intelMdtQuery.value.trim().toLowerCase();return [...(intelMdtData.value?.operators||[])].filter(x=>!q||x.id.toLowerCase().includes(q)).sort((a,b)=>b.one-a.one||b.records-a.records||a.id.localeCompare(b.id));});
+const intelMdtLocations=computed(()=>{
+ const data=intelMdtData.value; if(!data)return[];
+ const origin=intelMdtOperator.value?(intelMdtCurrentOperator.value?.locations||[]):data.locations;
+ const q=intelMdtQuery.value.trim().toLowerCase();
+ return origin.filter(x=>(intelMdtFilter.value==='all'||(intelMdtFilter.value==='one'&&x.one)||(intelMdtFilter.value==='other'&&!x.one)||(intelMdtFilter.value==='ambiguous'&&!x.single))&&(!q||[x.id,...x.entries.flatMap(e=>[e.ean,e.description,e.login])].join(' ').toLowerCase().includes(q))).sort((a,b)=>intelMdtSort.value==='qty'?b.totalQty-a.totalQty:a.id.localeCompare(b.id));
+});
+const intelMdtSelectedLocation=computed(()=>intelMdtData.value?.locations.find(x=>x.id===intelMdtLocation.value)||null);
+function intelMdtChooseLocation(loc){intelMdtLocation.value=intelMdtLocation.value===loc?'':loc;}
+// Keep the MDT Intelligence panel mounted while its shared KPI employee card is open.
+// Closing the card simply reveals the original panel, including its scroll and expanded location.
+function intelMdtShowEmployee(id){
+ const person=pracownicyKpiLookup(id);
+ if(!person&&!employeeArchiveEntries(id).length&&!employeeTrainingByPd.value.has(eKey(id))){showToast(intelMdtT('noKpi'));return;}
+ employeeOpen(id);
+}
+// STOCK Intelligence v3.23: independent, read-only view of the loaded closure events.
+const stockIntelTab=ref('summary');
+const stockIntelScope=ref('all');
+const stockIntelMp=ref('ALL');
+const stockIntelExcludeP=ref(true);
+const stockIntelExcludeS=ref(true);
+const stockIntelSearch=ref('');
+const stockIntelExpanded=ref('');
+const stockIntelT=key=>window.MRStockIntelligence.t(uiLanguage.value,key);
+const stockIntelData=computed(()=>window.MRStockIntelligence.analyze(stock.rows,{
+ scope:stockIntelScope.value,periods:stock.selectedPeriods,mp:stockIntelMp.value,
+ excludeP:stockIntelExcludeP.value,excludeS:stockIntelExcludeS.value
+}));
+const stockIntelVisibleRepeats=computed(()=>{
+ const q=stockIntelSearch.value.trim().toUpperCase();
+ const entries=stockIntelData.value.repeats;
+ return (q?entries.filter(e=>e.loc.includes(q)||e.events.some(r=>r.ean.includes(q))):entries).slice(0,150);
+});
+function stockIntelOpen(){
+ if(!stock.rows.length)return;
+ stockIntelTab.value='summary';stockIntelScope.value='all';stockIntelMp.value='ALL';
+ stockIntelExcludeP.value=true;stockIntelExcludeS.value=true;stockIntelSearch.value='';stockIntelExpanded.value='';
+ intelPresent({type:'stockExplore',module:'mp',title:'STOCK',fileName:stock.fileName});
+}
 function intelOpenOverview(kind){
  const viewBuilder=window.MRIntelligence.buildOverview;
  const item=(label,value)=>({label:window.MRIntelligence.t(uiLanguage.value,label),value});
  let details=null;
- if(kind==='mdt'&&mdt.result){const r=mdt.result;
-   details=viewBuilder('mp','GODZINY MDT',r.sumaPolek,mdt.fileName,'mdtSummaryRule',[
-     item('Suma półek',r.sumaPolek),item('Suma MDT',r.sumaMDT),item('Suma STOCK',r.sumaStock),item('Półki 1/1',r.polki11),item('Sztuki 1/1',r.szt11)],
-     [item('MP',Array.from(mpLocationPrefixes.value||[]).join(', ')||'—')]);
- }else if(kind==='stock'&&stock.rows.length){
-   details=viewBuilder('mp','STOCK',stockStats.value.filtered,stock.fileName,'stockSummaryRule',[
-     item('Wiersze w pliku',stockStats.value.total),item('Po filtrach',stockStats.value.filtered),
-     item('Okresy',stockPeriods.value.length)],[]);
+ if(kind==='mdt'&&mdt.result){intelMdtOpen();return;}
+ if(kind==='stock'&&stock.rows.length){stockIntelOpen();return;
  }else if(kind==='przestoje'&&przestojeReport.value){const r=przestojeReport.value;
    details=viewBuilder('ui','Analiza Przestojów',r.incidents.length,przestoje.fileName,'downtimeSummaryRule',[
      item('Wykryte przerwy',r.incidents.length),item('Wszystkie pary',r.pairsCount),item('Suma [min]',Number(r.totalMin.toFixed(2))),
@@ -1985,14 +2459,8 @@ function intelOpenOverview(kind){
      [item('Próg [min]',przestoje.minMin),item('Maksimum [min]',300)]);
  }else if(kind==='konsolidacja'&&konsolidacja.result){
    intelConsOpen();return;
- }else if(kind==='audyt'&&audyt.result){const r=audyt.result;
-   details=viewBuilder('mp','MP Audyt',r.totalLoc,audyt.fileName,'audytSummaryRule',[
-     item('Lokacje',r.totalLoc),item('Poprawne',r.correctLoc),item('Braki',r.shortage),
-     item('Nadwyżki',r.surplus),item('Błędne',r.errorLoc)],[]);
- }else if(kind==='formatka'&&formatka59.result){const r=formatka59.result;
-   details=viewBuilder('mp','FORMATKA_59',r.lokalizacjeUnikatowe,audyt.fileName,'formatkaSummaryRule',[
-     item('Unikatowe lokalizacje',r.lokalizacjeUnikatowe),item('Braki',r.brak),
-     item('Nadwyżki',r.nadwyzka),item('Niezgodności',r.niezgodnosc)],[]);
+ }else if(kind==='audyt'&&audyt.result){intelAuditOpen();return;
+ }else if(kind==='formatka'&&formatka59.result){intelFmtOpen();return;
  }
  intelPresent(details);
 }
@@ -2006,14 +2474,47 @@ const intelFilteredRows=computed(()=>{
 const intelPageCount=computed(()=>Math.max(1,Math.ceil(intelFilteredRows.value.length/intelPageSize)));
 const intelVisibleRows=computed(()=>intelFilteredRows.value.slice(intelPage.value*intelPageSize,(intelPage.value+1)*intelPageSize));
 function intelSelectRows(filter){intelRowsMode.value=filter;intelPage.value=0;}
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value)intelClose();});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'&&intelPanel.value){if(intelPanel.value.type==='mdtExplore'&&employeeProfile.value){employeeClose();return;}intelClose();}});
 watch([()=>geek.result,()=>kpiNv.records,()=>kpiAudit.records,()=>kpiScalanie.records,()=>kpiRozk.records,()=>mdt.result,()=>stock.rows,()=>audyt.result,()=>formatka59.result,()=>konsolidacja.result,()=>przestoje.rows],()=>intelClose());
 
 // MR. BOT visual bridge: reads existing state; never writes report data.
 const mrBotEmit=(type,detail)=>{try{window.dispatchEvent(new CustomEvent(type,{detail}));}catch(e){/* visual diagnostics must not interrupt work */}};
-const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
-watch([view,rsView,mpView,kpiTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
+// Read-only context for MR. BOT Smart Context; never writes to any module.
+const mrBotHelpState=()=>{
+ const viewName=view.value;
+ let module='hub',source=null,hasResult=false;
+ if(viewName==='kpi'){
+  module='kpi-'+kpiTab.value;
+  const byTab={audit:kpiAudit,scalanie:kpiScalanie,rozkładanie:kpiRozk,nadwevas:kpiNv,roz:kpiRozk,nv:kpiNv,pracownicy:pracownicy};
+  source=byTab[kpiTab.value]||null;
+  hasResult=false; // KPI statistics are computed from loaded records; no separate run is required.
+  if(kpiTab.value==='stats')module='kpi-stats-'+kpiStatsTab.value;
+ }else if(viewName==='mp'&&mpView.value==='audyt'){
+  module=audytTab.value;
+  const byTab={al_audyt:audyt,formatka_59:audyt,godziny_mdt:mdt,stock:stock};
+  source=byTab[audytTab.value]||null;
+  hasResult=audytTab.value==='al_audyt'?!!audyt.result:audytTab.value==='formatka_59'?!!formatka59.result:audytTab.value==='godziny_mdt'?!!mdt.result:audytTab.value==='stock'?!!stock.result:false;
+ }else if(viewName==='mp'){
+  module=mpView.value==='scalanie'?(scalanieTab.value==='konsolidacja'?'konsolidacja':'scalanie'):'mp';
+  source=toteMp;
+  hasResult=module==='konsolidacja'?!!konsolidacja.result:false;
+ }else if(viewName==='rs'){
+  module=rsView.value==='geek'?'audyt-geek':rsView.value==='scalanieGeek'?'scalanie-geek':rsView.value==='manual'?'rs-manual':rsView.value==='tote'?'rs-tote':'rs';
+  source=module==='audyt-geek'?geek:module==='scalanie-geek'?null:toteRs;
+  hasResult=module==='audyt-geek'?!!geek.result:false;
+ }else if(viewName==='przestoje'){
+  module='przestoje';source=przestoje;
+ }else if(viewName==='artltt'||viewName==='kreseczki')module=viewName;
+ const loading=!!source?.loading;
+ const loaded=!!(source?.records?.length||source?.rows?.length||(module==='formatka_59'&&audyt.formatkaRows.length));
+ return {view:viewName,module,stage:source?(loading?'loading':hasResult?'analyzed':loaded?'loaded':'empty'):null,fileName:source?.fileName||''};
+};
+window.__MRBOT_HELP_STATE__=mrBotHelpState;
+const mrBotContext=()=>({view:view.value,rsView:rsView.value,mpView:mpView.value,kpiTab:kpiTab.value,kpiStatsTab:kpiStatsTab.value,audytTab:audytTab.value,scalanieTab:scalanieTab.value});
+watch([view,rsView,mpView,kpiTab,kpiStatsTab,audytTab,scalanieTab],()=>{window.__MRBOT_CONTEXT__=mrBotContext();mrBotEmit('mrbot:context',window.__MRBOT_CONTEXT__);});
 window.__MRBOT_CONTEXT__=mrBotContext();
+// Keep the helper's loading/loaded/analyzed hint current without touching data.
+watch(()=>{const info=mrBotHelpState();return info.module+'|'+(info.stage||'');},()=>mrBotEmit('mrbot:context',mrBotContext()));
 window.__MRBOT_TASKS__={};
 for(const [name,st] of Object.entries({kpiAudit,kpiScalanie,kpiRozk,kpiNv,pracownicy,toteMp,toteRs,audyt,geek,mdt,stock,przestoje})){
  let id=null,seq=0,peak=0,priorData=null;
@@ -2047,7 +2548,7 @@ for(const [getter,setter,state] of [
 // Staggered restoration (above) keeps XLSX parsing off the critical startup path.
 requestAnimationFrame(()=>requestAnimationFrame(()=>{void mrRestoreFiles();}));
 
-return{intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
+return{stockIntelTab,stockIntelScope,stockIntelMp,stockIntelExcludeP,stockIntelExcludeS,stockIntelSearch,stockIntelExpanded,stockIntelT,stockIntelData,stockIntelVisibleRepeats,intelMdtTab,intelMdtProfileTab,intelMdtOperator,intelMdtLocation,intelMdtFilter,intelMdtQuery,intelMdtSort,intelMdtData,intelMdtT,intelMdtOpen,intelMdtShowOperator,intelMdtBack,intelMdtCurrentOperator,intelMdtOperators,intelMdtLocations,intelMdtSelectedLocation,intelMdtChooseLocation,intelMdtShowEmployee,intelAuditTab,intelAuditAnalysisMode,intelAuditGroup,intelAuditSearch,intelAuditRecountMode,intelAuditProduct,intelAuditPage,intelAuditT2,intelAuditHasRich,intelAuditGroupStats,intelAuditRecountRows,intelAuditFilteredProducts,intelAuditTotalPages,intelAuditVisibleProducts,intelAuditChosenProduct,intelAuditProductRelated,intelAuditCountArray,intelAuditProductNarrative,intelAuditSetTab,intelAuditSetAnalysis,intelAuditChooseAnalysisGroup,intelAuditSelectProduct,intelConsLoading,intelConsTab,intelConsScenario,intelConsMin,intelConsExpanded,intelConsNear,intelConsNearPercent,intelConsFragmented,intelConsBalanced,intelConsClusters,intelConsAlternative,intelConsConcentration,intelConsSimulation,intelConsT,INTEL_FMT_METRICS,intelFmtMetric,intelFmtT,intelFmtLabel,intelFmtDetails,intelAuditMetric,intelAuditInfo,intelAuditView,intelAuditScope,intelAuditVisibleMetrics,INTEL_AUDIT_METRICS,intelAuditLabel,intelAuditMetricValue,intelAuditSetScope,intelAuditChooseGroup,intelAuditT,intelAuditGroups,intelAuditDetail,intelAuditRows,intelPanel,intelT,intelClose,intelOpenKpi,intelOpenOverview,intelOpenRet,intelOpenGeekT1,intelOpenNv,intelRowsMode,intelPage,intelPageCount,intelVisibleRows,intelSelectRows,intelPageSize,mrIntel:window.MRIntelligence,mobileLite,uiLanguage,uiLanguages,currentTheme,tr,setLanguage,setTheme,openSettings,openBridgeSettings,closeSettings,goFromSettings,openSettingsMemory,view,toast,showToast,startupPanel,introT,introWelcomeFeatures,startupChanges,introChangeLabel,introChangeSummary,dismissStartup,openStartupChangelog,latestChangelog,kpiMedal:medal,changelogAll,moduleLabels,isChangelogEntryNew,hasUnreadChangelog,unreadChangelogCount,
 rsView,mpView,mpLocationPrefixes,MP_LOCATION_PREFIXES,mpToggleLocationPrefix,scalanieState,SCALANIE_SHELF_OPTIONS,SCALANIE_ABC_OPTIONS,scalanieNeedEan,scalanieCanRun,scalanieRun,scalanieVisibleResults,scalanieDescriptionActiveCount,scalanieDescriptionVariants,scalanieDescriptionSelectAll,scalanieDescriptionToggle,scalaniePreVariants,scalaniePreSelectAll,scalaniePreToggle,scalaniePreExclude,scalaniePreRemove,scalaniePreClear,scalanieManualToggle,scalanieManualToggleAll,scalanieDescriptionExclude,scalanieDescriptionUndo,scalanieDescriptionClear,scalanieExportCSV,scalanieCopyClipboard,scalanieReset,
 scalanieTab,konsolidacja,konsolidacjaRun,konsolidacjaReset,konsolidacjaClearResult,konsolidacjaCopyEan,konsolidacjaToggle,konsolidacjaSelCount,konsolidacjaIsAllSel,konsolidacjaSelAll,konsolidacjaCopyCard,
 kpiTab,kpiStatsTab,kpiTopCountNorm,kpiTopCountItems,kpiAudit,kpiScalanie,kpiRozk,kpiNv,
@@ -2074,6 +2575,7 @@ kpiOnScalanieFile,kpiOnScalanieDrop,kpiResetScalanie,kpiExportScalanie,
 kpiOnRozkFile,kpiOnRozkDrop,kpiResetRozk,kpiExportRozk,
 kpiOnNvFile,kpiOnNvDrop,kpiResetNv,kpiExportNv,kpiNvColorFor,kpiNvCellStyle,
 kpiAnyLoaded,kpiCanGlobalExport,kpiExportGlobalXlsx,
+mpScannerInput,mpScannerLookup,mpScannerResult,mpScannerCameraOpen,mpScannerCameraBusy,mpScannerError,mpScannerSearch,mpScannerCopy,mpScannerStart,mpScannerStop,
 toteStatsOpen,toteMp,toteRs,toteOptions,toteFilters,toteResults,toteStats,toteSearched,toteCanSearch,
 toteStatsMp,toteStatsRs,toteMpLoaded,toteRsLoaded,
 toteOnMpFile,toteOnRsFile,toteOnMpDrop,toteOnRsDrop,toteResetMp,toteResetRs,
@@ -2088,6 +2590,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

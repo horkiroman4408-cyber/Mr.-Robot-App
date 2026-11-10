@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.22.0-mobile-manual-restore-20261109';
+const CACHE_REVISION = 'v3.23.0-stock-intelligence-20261110';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -36,7 +36,7 @@ const PRECACHE_URLS = [
   'js/changelog.js',
   'js/workers/kpi.js',
   'js/workers/tote.js',
-  'js/workers/audyt.js',
+  'js/workers/audyt.js?v=3.22.0-audyt-intel-detail-20261108',
   'js/workers/mdt.js',
   'js/workers/stock.js',
   'js/workers/przestoje.js',
@@ -45,7 +45,8 @@ const PRECACHE_URLS = [
   'js/workers/common.js',
   'js/code128.js',
   'js/mrbot-intelligence.js',
-  'js/app.js?v=3.22.0-mdt-nav-20261109',
+  'js/stock-intelligence.js',
+  'js/app.js?v=3.23.0-stock-intelligence-20261110',
   'js/bridge-setup.js',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',

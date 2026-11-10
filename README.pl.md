@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.22.0-blue)
+![wersja](https://img.shields.io/badge/version-3.23.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -199,6 +199,7 @@ Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Gru
 - **FORMATKA_59** — format kontroli jakości z własnymi metrykami.
 - **GODZINY_MDT** — analiza MDT, półki 1/1, listy lokalizacji.
 - **STOCK** — raporty lokalizacji pogrupowane po godzinach przyjęcia.
+  - **STOCK Intelligence (v3.23):** Przegląd zamknięć zlicza zdarzenia i unikatowe lokalizacje w MP1/MP2/MP3 oraz pozostałych, z filtrami PKECOM/S i zakresem całego pliku lub wybranych godzin. Powtórzenia prezentują lokalizacje zamykane wielokrotnie oraz historię EAN, operatorów i ilości. Analiza jest tylko do odczytu, bez zmiany logiki i eksportu STOCK.
 - **Scalanie** — filtrowanie lokalizacji po typie półki, ABC, zakresie SKU.
 - **Konsolidacja** — znajdowanie małych lokalizacji wartych konsolidacji; szczegółowe karty EAN pokazują również TECHNICAL DESCRIPTION z wczytanej bazy MP.
 
@@ -247,6 +248,7 @@ Mr.-Robot-App/
 ├── js/
 │   ├── app.js              # ★ główny kod aplikacji (UI + logika)
 │   ├── changelog.js        # ★ historia zmian „Co nowego”
+│   ├── stock-intelligence.js  # STOCK Intelligence: przegląd / powtórzenia
 │   ├── i18n.js             # tłumaczenia (PL / RU / EN / UK)
 │   ├── theme.js            # jasny / ciemny motyw
 │   ├── data/shifts.js      # listy zmian AB/CD

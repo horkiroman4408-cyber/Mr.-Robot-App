@@ -34,7 +34,12 @@ class Avatar{
  p[k+'x']=sx+Math.cos(a)*d;p[k+'y']=sy+Math.sin(a)*d;
  }
  return p;}
- tick(now){this.frame=0;if(document.hidden)return;if(this.mobile&&this.lastRender&&now-this.lastRender<42){this.frame=requestAnimationFrame(this.tick);return;}this.lastRender=now;const dt=this.last?Math.min((now-this.last)/1000,.05):1/60;this.last=now;if(this.until&&now>this.until){this.until=0;this.play(this.jobs.size?'work':'idle');}const reduced=this.motion.matches,t=reduced?0:(now-this.since)/1000;const goal=this.target(t);if(!this.pose||reduced)this.pose={...goal};else{const a=1-Math.exp(-dt*11);for(const k in goal)this.pose[k]+=(goal[k]-this.pose[k])*a;}this.draw(this.pose,reduced?0:now/1000);if(!reduced)this.frame=requestAnimationFrame(this.tick);}
+ tick(now){this.frame=0;if(document.hidden)return;// Limit Canvas work without changing gestures or their wall-clock timing.
+// Mobile: ~24 fps; desktop: ~30 fps. During heavy Excel operations: ~20 fps.
+const tasks=window.__MRBOT_TASKS__;
+const busy=tasks&&Object.values(tasks).some(v=>v&&['start','progress'].includes(v.phase));
+const minFrameMs=busy?50:(this.mobile?42:33);
+if(this.lastRender&&now-this.lastRender<minFrameMs){this.frame=requestAnimationFrame(this.tick);return;}this.lastRender=now;const dt=this.last?Math.min((now-this.last)/1000,.05):1/60;this.last=now;if(this.until&&now>this.until){this.until=0;this.play(this.jobs.size?'work':'idle');}const reduced=this.motion.matches,t=reduced?0:(now-this.since)/1000;const goal=this.target(t);if(!this.pose||reduced)this.pose={...goal};else{const a=1-Math.exp(-dt*11);for(const k in goal)this.pose[k]+=(goal[k]-this.pose[k])*a;}this.draw(this.pose,reduced?0:now/1000);if(!reduced)this.frame=requestAnimationFrame(this.tick);}
  eyeOpenness(now){
  if(this.state==='sleep')return .04;
  if(this.motion.matches)return 1;
@@ -159,7 +164,7 @@ mkons:'MP → Konsolidacja ищет EAN, распределённые по не�
 alaudyt:'MP → AL_AUDYT.\n1. Загрузи отчёт AL_AUDYT из OR.\n2. Запусти обработку.\n3. Используй подготовленные показатели для odprawa и operacyjne.\n4. Проверь данные о списках с наибольшим количеством ошибок.',
 formatka:'MP → FORMATKA_59.\n1. Открой инструмент.\n2. Загрузи предназначенный для него отчёт.\n3. Получи подготовленные значения для файла Audyt2024.\n4. Перенеси или скопируй их в соответствующие поля рабочего шаблона.',
 mdt:'MP → GODZINY_MDT.\n1. Загрузи исходный отчёт.\n2. Получи данные для файла GODZINY MDT.\n3. Выбери локации для аудита автоматически либо вручную.\n4. Проверь список перед переносом.',
-stock:'MP → STOCK.\n1. Загрузи отчёт из OR.\n2. Выбери доступные параметры и часы.\n3. Сформируй списки для STOCK.\n4. Проверь итог перед использованием.',
+stock:'MP → STOCK.\n1. Загрузи отчёт из OR.\n2. Выбери доступные параметры и часы.\n3. Сформируй списки для STOCK.\n4. Проверь итог перед использованием.\n✧ Intelligence 3.23: «Обзор закрытий» считает события и уникальные локации MP1/MP2/MP3 с фильтрами PKECOM/S; «Повторы» показывает повторные закрытия с историей EAN, времени и LOGIN. Обычный STOCK не меняется.',
 csv:'Для CSV из MP → Scalanie сначала проверь список и отметь нужные локации. Экспортируй результат и проверь файл перед загрузкой в WMS. Не загружай непроверенные данные автоматически.',
 downtime:'Inne → Analiza_Przestojów.\n1. Загрузи соответствующий отчёт активности.\n2. Выбери порог времени простоя в диапазоне 8–300 минут.\n3. Запусти анализ.\n4. Изучи найденные интервалы по операторам. Результат служит поводом для проверки, а не автоматическим выводом о причинах простоя.',
 artltt:'Inne → ARTLTT.\n1. Вставь список названий товаров.\n2. Задай количества и типы локаций.\n3. Сформируй CSV.\n4. Проверь данные перед использованием в WMS. Например, можно задать разные количества для L/L+ и S.',
@@ -182,7 +187,7 @@ mkons:'MP → Konsolidacja.\n1. Wgraj stock MP.\n2. Ustaw próg procentowy i min
 alaudyt:'MP → AL_AUDYT.\n1. Wgraj raport AL_AUDYT z OR.\n2. Uruchom analizę.\n3. Wykorzystaj dane na odprawę i operacyjne.\n4. Sprawdź listy z największą liczbą błędów.',
 formatka:'MP → FORMATKA_59.\n1. Wgraj odpowiedni raport.\n2. Odbierz przygotowane dane do Audyt2024.\n3. Skopiuj je do właściwych pól szablonu.',
 mdt:'MP → GODZINY_MDT.\n1. Wgraj raport.\n2. Przygotuj dane do pliku GODZINY MDT.\n3. Wybierz lokalizacje automatycznie lub ręcznie.\n4. Sprawdź listę.',
-stock:'MP → STOCK.\n1. Wgraj raport OR.\n2. Ustaw dostępne godziny i filtry.\n3. Wygeneruj listy STOCK.\n4. Sprawdź wynik.',
+stock:'MP → STOCK.\n1. Wgraj raport OR.\n2. Ustaw dostępne godziny i filtry.\n3. Wygeneruj listy STOCK.\n4. Sprawdź wynik.\n✧ Intelligence 3.23: Przegląd zamknięć pokazuje zdarzenia i unikatowe lokalizacje MP1/MP2/MP3 z filtrami PKECOM/S; Powtórzenia to historia zamykania z EAN, TIME i LOGIN. Zwykły STOCK bez zmian.',
 csv:'W MP → Scalanie zaznacz potrzebne lokalizacje, wyeksportuj CSV i sprawdź zawartość przed użyciem w WMS.',
 downtime:'Inne → Analiza_Przestojów.\n1. Wgraj raport.\n2. Ustaw próg 8–300 minut.\n3. Uruchom analizę.\n4. Zweryfikuj znalezione przestoje operatorów. Wynik wymaga interpretacji.',
 artltt:'Inne → ARTLTT.\n1. Wklej nazwy towarów.\n2. Ustaw ilości i typy lokalizacji.\n3. Wygeneruj CSV.\n4. Sprawdź plik przed użyciem w WMS.',
@@ -190,8 +195,8 @@ artltt:'Inne → ARTLTT.\n1. Wklej nazwy towarów.\n2. Ustaw ilości i typy loka
 }
 };
 const FALLBACK_DETAIL={
-en:{grafik:'Upload Grafik.xlsx in KPI to associate logins with firma, grupa and autobus (1=A, 2=B). Then upload the relevant OR process report.',kfilters:'Use login, company, group, shift and target filters. Clear filters if no results appear.',targets:'Set the target within the selected KPI process and review the recalculated results.',kaudyt:'KPI → Audyt: upload the OR Audyt report, review performance, targets and statistics.',kscalanie:'KPI → Scalanie: upload the process report and review operator performance. This is different from MP → Scalanie.',kroz:'KPI → Rozkładanie: upload the process report and filter by department, group and shift.',tote:'RS: upload MP/RS inventory sources, enter an EAN and inspect matching TOTE and locations.',ean:'RS: upload MP/RS sources, enter EAN values and inspect the matches.',geek:'AUDYT GEEK: upload Stocktake order and inspect shortage, surplus and defect summaries.',ret:'AUDYT RET: select the mode in AUDYT GEEK, upload Stocktake order and review the extended table. Errors require nonempty Exception reason.',rsfiles:'EAN/TOTE: Inventory balance and MP_on_the_floor. AUDYT GEEK / RET: Stocktake order.',mscalanie:'MP → Scalanie: upload source data, analyze, select locations, copy or export CSV for WMS.',mkons:'MP → Konsolidacja: set a percentage threshold and minimum number of locations to identify stock consolidation candidates.',alaudyt:'AL_AUDYT: upload the OR report and review prepared operational summaries.',formatka:'FORMATKA_59: upload its source report and prepare values for Audyt2024.',mdt:'GODZINY_MDT: prepare data and choose audit locations automatically or manually.',stock:'STOCK: upload OR data, select hours and generate lists.',csv:'Select and verify locations before exporting CSV for WMS.',downtime:'Analyze operator downtime using a configurable threshold of 8–300 minutes; verify results.',artltt:'Paste product names, choose quantities and location types, then generate and verify CSV.',},
-uk:{grafik:'У KPI завантаж Grafik.xlsx із колонками login, firma, grupa, autobus (1=A, 2=B), потім звіт OR.',kfilters:'Фільтруй за логіном, компанією, групою, зміною та нормою. Якщо результат порожній, скинь фільтри.',targets:'Встанови норму для потрібного KPI-процесу та перевір перерахунок.',kaudyt:'KPI → Audyt: завантаж звіт OR та перевір показники, норми й статистику.',kscalanie:'KPI → Scalanie: завантаж звіт і перевір продуктивність. Це не MP → Scalanie.',kroz:'KPI → Rozkładanie: завантаж звіт, фільтруй за відділом, групою та зміною.',tote:'RS: завантаж бази MP/RS, введи EAN і перевір TOTE та локації.',ean:'RS: завантаж бази, введи EAN і перевір результати.',geek:'AUDYT GEEK: завантаж Stocktake order і перевір shortage, surplus та дефекти.',ret:'AUDYT RET: вибери режим, завантаж Stocktake order та перевір таблицю. Для класифікації помилки Exception reason має бути заповнений.',rsfiles:'EAN/TOTE: Inventory balance та MP_on_the_floor. AUDYT GEEK / RET: Stocktake order.',mscalanie:'MP → Scalanie: завантаж дані, виконай аналіз, обери локації та експортуй CSV.',mkons:'MP → Konsolidacja: встанови відсотковий поріг і мінімум локацій для пошуку залишків.',alaudyt:'AL_AUDYT: завантаж звіт OR і переглянь операційні підсумки.',formatka:'FORMATKA_59: підготуй значення для Audyt2024.',mdt:'GODZINY_MDT: підготуй дані та обери локації для аудиту.',stock:'STOCK: завантаж звіт, обери години й сформуй списки.',csv:'Перед експортом CSV для WMS обери та перевір локації.',downtime:'Аналізуй простої за порогом 8–300 хвилин і перевіряй результати.',artltt:'Встав назви товарів, задай кількість і типи локацій, сформуй CSV.',}
+en:{grafik:'Upload Grafik.xlsx in KPI to associate logins with firma, grupa and autobus (1=A, 2=B). Then upload the relevant OR process report.',kfilters:'Use login, company, group, shift and target filters. Clear filters if no results appear.',targets:'Set the target within the selected KPI process and review the recalculated results.',kaudyt:'KPI → Audyt: upload the OR Audyt report, review performance, targets and statistics.',kscalanie:'KPI → Scalanie: upload the process report and review operator performance. This is different from MP → Scalanie.',kroz:'KPI → Rozkładanie: upload the process report and filter by department, group and shift.',tote:'RS: upload MP/RS inventory sources, enter an EAN and inspect matching TOTE and locations.',ean:'RS: upload MP/RS sources, enter EAN values and inspect the matches.',geek:'AUDYT GEEK: upload Stocktake order and inspect shortage, surplus and defect summaries.',ret:'AUDYT RET: select the mode in AUDYT GEEK, upload Stocktake order and review the extended table. Errors require nonempty Exception reason.',rsfiles:'EAN/TOTE: Inventory balance and MP_on_the_floor. AUDYT GEEK / RET: Stocktake order.',mscalanie:'MP → Scalanie: upload source data, analyze, select locations, copy or export CSV for WMS.',mkons:'MP → Konsolidacja: set a percentage threshold and minimum number of locations to identify stock consolidation candidates.',alaudyt:'AL_AUDYT: upload the OR report and review prepared operational summaries.',formatka:'FORMATKA_59: upload its source report and prepare values for Audyt2024.',mdt:'GODZINY_MDT: prepare data and choose audit locations automatically or manually.',stock:'STOCK: upload OR data, select hours and generate lists. Intelligence 3.23 adds Closure overview (MP1/MP2/MP3 event and unique-location counts, PKECOM/S filters) and Repeats (location closure history with EAN, TIME and LOGIN). Existing STOCK calculations are unchanged.',csv:'Select and verify locations before exporting CSV for WMS.',downtime:'Analyze operator downtime using a configurable threshold of 8–300 minutes; verify results.',artltt:'Paste product names, choose quantities and location types, then generate and verify CSV.',},
+uk:{grafik:'У KPI завантаж Grafik.xlsx із колонками login, firma, grupa, autobus (1=A, 2=B), потім звіт OR.',kfilters:'Фільтруй за логіном, компанією, групою, зміною та нормою. Якщо результат порожній, скинь фільтри.',targets:'Встанови норму для потрібного KPI-процесу та перевір перерахунок.',kaudyt:'KPI → Audyt: завантаж звіт OR та перевір показники, норми й статистику.',kscalanie:'KPI → Scalanie: завантаж звіт і перевір продуктивність. Це не MP → Scalanie.',kroz:'KPI → Rozkładanie: завантаж звіт, фільтруй за відділом, групою та зміною.',tote:'RS: завантаж бази MP/RS, введи EAN і перевір TOTE та локації.',ean:'RS: завантаж бази, введи EAN і перевір результати.',geek:'AUDYT GEEK: завантаж Stocktake order і перевір shortage, surplus та дефекти.',ret:'AUDYT RET: вибери режим, завантаж Stocktake order та перевір таблицю. Для класифікації помилки Exception reason має бути заповнений.',rsfiles:'EAN/TOTE: Inventory balance та MP_on_the_floor. AUDYT GEEK / RET: Stocktake order.',mscalanie:'MP → Scalanie: завантаж дані, виконай аналіз, обери локації та експортуй CSV.',mkons:'MP → Konsolidacja: встанови відсотковий поріг і мінімум локацій для пошуку залишків.',alaudyt:'AL_AUDYT: завантаж звіт OR і переглянь операційні підсумки.',formatka:'FORMATKA_59: підготуй значення для Audyt2024.',mdt:'GODZINY_MDT: підготуй дані та обери локації для аудиту.',stock:'STOCK: завантаж звіт, обери години й сформуй списки. Intelligence 3.23: «Огляд закриттів» за MP1/MP2/MP3 із фільтрами PKECOM/S, «Повтори» з історією EAN, TIME та LOGIN. Стандартні розрахунки STOCK без змін.',csv:'Перед експортом CSV для WMS обери та перевір локації.',downtime:'Аналізуй простої за порогом 8–300 хвилин і перевіряй результати.',artltt:'Встав назви товарів, задай кількість і типи локацій, сформуй CSV.',}
 };
 
 const root=document.createElement('div');root.id='mrbot-root';root.innerHTML=`<button id="mrbot-toggle" type="button" aria-expanded="false" aria-controls="mrbot-panel" title="MR. BOT"><span class="mrbot-mascot" aria-hidden="true"><img id="mrbot-pet-image" src="assets/mrbot-pet/head-idle.webp" alt="" draggable="false"></span><span class="mrbot-toggle-label">MR. BOT</span></button><section id="mrbot-panel" hidden role="dialog" aria-label="MR. BOT"><header class="mrbot-header"><span id="mrbot-header-home" aria-hidden="true"></span><span><strong>MR. BOT</strong><small id="mrbot-context"></small></span><button id="mrbot-close" type="button" aria-label="Close">×</button></header><div id="mrbot-messages" aria-live="polite"></div><div id="mrbot-suggestions"></div><footer id="mrbot-privacy"></footer></section><div id="mrbot-intro" hidden></div>`;
@@ -200,6 +205,58 @@ const $=id=>document.getElementById(id),toggle=$('mrbot-toggle'),panel=$('mrbot-
 let open=false,history=[],lastContext='',lastLang='';
 const locale=()=>DATA[window.MRI18N?.language]||DATA.pl;
 function context(){const v=window.__MRBOT_VIEW__?.value||'hub';return ['kpi','rs','mp','inne'].find(x=>v.toLowerCase().includes(x))||(/^kpi/i.test(v)?'kpi':/^tote|^geek|^audytret/i.test(v)?'rs':/^mp/i.test(v)?'mp':/^przestoje|^artltt|^kreseczki/i.test(v)?'inne':'hub');}
+// Smart Context: read-only workflow hints from the currently selected module.
+const SMART_UI={
+ pl:{you:'Jesteś w',empty:'Nie wczytano jeszcze raportu dla tej części.',loading:'Raport jest wczytywany. Poczekaj na zakończenie i sprawdź wynik.',loaded:'Raport wczytany. Uruchom analizę lub wybierz wymagane filtry.',analyzed:'Analiza jest gotowa. Możesz sprawdzić wyniki i ich objaśnienia.',current:'Instrukcja dla tej karty',intel:'Intelligence dla tej karty',bridge:'Pobieranie raportu · Bridge',none:'Wybierz moduł, aby zobaczyć podpowiedzi dopasowane do pracy.'},
+ ru:{you:'Сейчас открыто',empty:'Отчёт для этого раздела ещё не загружен.',loading:'Отчёт загружается. После обработки можно проверить результаты.',loaded:'Отчёт загружен. Запусти анализ или выбери необходимые фильтры.',analyzed:'Анализ выполнен. Можно изучать результаты и их объяснения.',current:'Инструкция по этой вкладке',intel:'Intelligence для этой вкладки',bridge:'Загрузка отчёта · Bridge',none:'Открой модуль, чтобы получить подсказки по текущей задаче.'},
+ en:{you:'You are in',empty:'No report has been loaded for this section yet.',loading:'The report is loading. Check results after it finishes.',loaded:'Report loaded. Run the analysis or choose the required filters.',analyzed:'Analysis ready. Explore results and their explanations.',current:'Guide for this tab',intel:'Intelligence for this tab',bridge:'Get a report · Bridge',none:'Open a module to see relevant guidance.'},
+ uk:{you:'Зараз відкрито',empty:'Звіт для цього розділу ще не завантажено.',loading:'Звіт завантажується. Перевір результат після завершення.',loaded:'Звіт завантажено. Запусти аналіз або вибери потрібні фільтри.',analyzed:'Аналіз готовий. Можна переглянути результати та пояснення.',current:'Інструкція для цієї вкладки',intel:'Intelligence для цієї вкладки',bridge:'Отримати звіт · Bridge',none:'Відкрий модуль, щоб побачити підказки для поточного завдання.'}
+};
+function smartContext(){
+ const raw=window.__MRBOT_CONTEXT__||{};
+ const state=typeof window.__MRBOT_HELP_STATE__==='function'?window.__MRBOT_HELP_STATE__():null;
+ const key=state?.module||context();
+ let doc=null,intel=null,bridge=null,label=key;
+ const map={
+  al_audyt:['mp','audit','al','use','AL_AUDYT'],formatka_59:['mp','audit','formatka','use','FORMATKA_59'],
+  godziny_mdt:['mp','stock','mdt','use','GODZINY MDT'],stock:['mp','stock','stock','use','STOCK'],
+  konsolidacja:['mp','scalanie','kons',null,'Konsolidacja'],scalanie:['mp','scalanie','other',null,'Scalanie'],
+  rs:['rs','lookup','other',null,'RS'],
+  'rs-tote':['rs','lookup','other',null,'RS · MP → TOTE'],
+  'rs-manual':['rs','lookup','other',null,'RS · EAN → TOTE'],
+  'audyt-geek':['ret','input','other',null,'AUDYT GEEK'],'scalanie-geek':['rs','scalanie-geek','other',null,'Scalanie Geek'],przestoje:['inne','downtime','other',null,'Przestoje'],
+  artltt:['inne','artltt',null,null,'ARTLTT'],kreseczki:['inne','barcode',null,null,'Kreseczki'],
+  'kpi-audit':['kpi','rates','other','use','KPI · Audyt'],'kpi-scalanie':['kpi','rates','other','use','KPI · Scalanie'],
+  'kpi-rozkładanie':['kpi','rates','other','use','KPI · Rozkładanie'],'kpi-nadwevas':['kpi','nadwe','other','use','KPI · NADWE/VAS'],'kpi-pracownicy':['kpi','employees',null,null,'KPI · Pracownicy'],'kpi-stats':['kpi','rates',null,null,'KPI · Statistics'],
+  mp:['mp','audit',null,null,'MP']
+ };
+ const statsProcess=key.startsWith('kpi-stats-')?key.slice('kpi-stats-'.length):null;
+ const statsLabel=statsProcess?({'audit':'Audyt','scalanie':'Scalanie','rozkładanie':'Rozkładanie','nadwevas':'NADWE/VAS'}[statsProcess]||statsProcess):null;
+ const match=map[key]||(statsLabel?['kpi','rates',null,null,'KPI · Statistics · '+statsLabel]:null)||(context()==='kpi'?['kpi','source','other','use','KPI Norms']:null);
+ if(match){[doc,intel,bridge, ,label]=match;const vals=match;doc={category:vals[0],topic:vals[1]};intel=vals[2]?{category:'intelligence',topic:vals[2]}:null;bridge=vals[3]?{category:'openreports',topic:vals[3]}:null;}
+ // Only offer linked articles that are actually present in the loaded knowledge base.
+ const present=link=>!!link&&!!window.MRBOT_DOCS?.find(x=>x.id===link.category)?.topics?.some(x=>x.id===link.topic);
+ return {key,label,stage:state?.stage||null,doc:present(doc)?doc:null,intel:present(intel)?intel:null,bridge:present(bridge)?bridge:null};
+}
+let docSmartReturn=null;
+function smartOpenDoc(target){
+ if(!target)return;
+ docSmartReturn=navSection;docHistory=history.slice();readmeMode=true;docReturnStack=[];
+ docCategory=target.category;docTopic=target.topic;renderDocs();
+}
+function smartHints(view){
+ const hint=smartContext(),lang=chatLocale(),words=SMART_UI[lang]||SMART_UI.pl;
+ if(!hint.doc)return;
+ const section=docNode('section','mrbot-doc-article-section mrbot-smart-context');
+ section.append(docNode('h3','',words.you+' · '+hint.label));
+ if(hint.stage)section.append(docNode('p','mrbot-doc-muted',words[hint.stage]||''));
+ view.append(section);
+ const list=docNode('div','mrbot-doc-list mrbot-smart-links');
+ navRow(list,'📖',words.current,'',()=>smartOpenDoc(hint.doc));
+ if(hint.intel)navRow(list,'✧',words.intel,'',()=>smartOpenDoc(hint.intel));
+ if(hint.bridge)navRow(list,'🔌',words.bridge,'',()=>smartOpenDoc(hint.bridge));
+ view.append(list);
+}
 function msg(kind,value){history.push({kind,value});if(history.length>18)history.shift();renderMessages();}
 function renderMessages(){messages.classList.remove('mrbot-doc-active');messages.replaceChildren();for(const m of history){const div=document.createElement('div');div.className='mrbot-message '+m.kind;div.textContent=m.value;messages.appendChild(div);}messages.scrollTop=messages.scrollHeight;}
 const UI={ru:{knowledge:'📚 Подробная документация',back:'← К разделам',next:'Далее →',prev:'← Назад',source:'Источник: README проекта',menu:'Выбери тему ниже'},pl:{knowledge:'📚 Szczegółowa dokumentacja',back:'← Do modułów',next:'Dalej →',prev:'← Wstecz',source:'Źródło: README projektu',menu:'Wybierz temat poniżej'},en:{knowledge:'📚 Detailed documentation',back:'← Modules',next:'Next →',prev:'← Back',source:'Source: project README',menu:'Choose a topic below'},uk:{knowledge:'📚 Документація',back:'← До модулів',next:'Далі →',prev:'← Назад',source:'Джерело: README проєкту',menu:'Обери тему нижче'}};
@@ -214,13 +271,87 @@ const CHAT_UI={ru:{start:'💬 Поболтать',guide:'📚 Инструкц�
 function chatLocale(){return window.MRI18N?.language||'pl';}
 function chatText(){return CHAT_UI[chatLocale()]||CHAT_UI.pl;}
 function chatButton(label,fn,cls=''){const b=document.createElement('button');b.type='button';b.textContent=label;if(cls)b.className=cls;b.addEventListener('click',fn);suggestions.appendChild(b);return b;}
-function renderChat(){
- suggestions.replaceChildren();const t=chatText(),lang=chatLocale(),groups=window.MRBOT_DIALOGUES||[];
- chatButton(t.guide,()=>{chatMode=false;chatCategory=null;if(chatTimer)clearTimeout(chatTimer);refresh();},'mrbot-kb-trigger');
- if(!chatCategory){chatButton(t.choose,()=>{},'mrbot-chat-caption').disabled=true;groups.forEach(g=>chatButton(g.emoji+' '+(g.title[lang]||g.title.en),()=>{chatCategory=g.id;renderChat();}));}
- else{const group=groups.find(g=>g.id===chatCategory);chatButton(t.back,()=>{chatCategory=null;renderChat();});if(group)group.items.forEach((it,i)=>chatButton(it.q[lang]||it.q.en,()=>chatReply(group,i)));}
- const note=document.createElement('div');note.className='mrbot-chat-note';note.textContent=t.note;suggestions.appendChild(note);
+// Unified compact navigator. The documentation engine below stays untouched.
+const NAV_UI={
+ pl:{home:'MR. BOT',subtitle:'Twój przewodnik po Mr. Robot',welcome:'Co chcesz dzisiaj sprawdzić?',docs:'Szczegółowa dokumentacja',docsSub:'Poznaj projekt, dane i obliczenia',guide:'Pomoc z modułami',guideSub:'Krótkie instrukcje i rozwiązania',chat:'Porozmawiaj z MR. BOT',chatSub:'Pytania, rozmowy i odpowiedzi offline',modules:'Wybierz obszar',topics:'Wybierz zagadnienie',question:'Pytanie',answer:'Odpowiedź MR. BOT',back:'Wstecz',main:'Menu główne',other:'Inna odpowiedź',offline:'Rozmowy są zapisane w aplikacji i działają offline',general:'Częste problemy',current:'Aktualny moduł',help:'Pomoc i wskazówki',chooseChat:'Wybierz temat rozmowy'},
+ ru:{home:'MR. BOT',subtitle:'Твой проводник по Mr. Robot',welcome:'С чего начнём?',docs:'Подробная документация',docsSub:'Устройство проекта, данные и расчёты',guide:'Помощь по модулям',guideSub:'Короткие инструкции и решения',chat:'Поговорить с MR. BOT',chatSub:'Вопросы и офлайн-диалоги',modules:'Выбери раздел',topics:'Выбери вопрос',question:'Вопрос',answer:'Ответ MR. BOT',back:'Назад',main:'Главное меню',other:'Другой ответ',offline:'Диалоги встроены в приложение и работают офлайн',general:'Частые проблемы',current:'Текущий модуль',help:'Помощь и подсказки',chooseChat:'Выбери тему разговора'},
+ en:{home:'MR. BOT',subtitle:'Your guide to Mr. Robot',welcome:'What would you like to explore?',docs:'Detailed documentation',docsSub:'Explore the project, data and calculations',guide:'Module help',guideSub:'Short instructions and solutions',chat:'Chat with MR. BOT',chatSub:'Questions and offline conversations',modules:'Choose an area',topics:'Choose a question',question:'Question',answer:'MR. BOT replies',back:'Back',main:'Main menu',other:'Another reply',offline:'Conversations are built in and work offline',general:'Common problems',current:'Current module',help:'Help and tips',chooseChat:'Choose a conversation topic'},
+ uk:{home:'MR. BOT',subtitle:'Твій провідник по Mr. Robot',welcome:'З чого почнемо?',docs:'Докладна документація',docsSub:'Проєкт, дані та розрахунки',guide:'Допомога з модулями',guideSub:'Короткі інструкції та рішення',chat:'Поговорити з MR. BOT',chatSub:'Запитання й офлайн-діалоги',modules:'Оберіть розділ',topics:'Оберіть питання',question:'Запитання',answer:'Відповідь MR. BOT',back:'Назад',main:'Головне меню',other:'Інша відповідь',offline:'Діалоги вбудовані в застосунок і працюють офлайн',general:'Поширені проблеми',current:'Поточний модуль',help:'Допомога й підказки',chooseChat:'Оберіть тему розмови'}
+};
+let navSection='home',guideCategory=null,guideTopic=null,chatQuestion=null,chatAnswer='';
+const navT=()=>NAV_UI[chatLocale()]||NAV_UI.pl;
+function navRow(parent,icon,title,description,fn){
+ const b=docAction('',fn,'mrbot-doc-listitem mrbot-nav-item');
+ b.append(docNode('span','mrbot-doc-emoji',icon));
+ const body=docNode('span','mrbot-nav-itembody');body.append(docNode('span','mrbot-doc-listname',title));
+ if(description)body.append(docNode('span','mrbot-nav-description',description));
+ b.append(body,docNode('span','mrbot-doc-chevron','›'));parent.append(b);return b;
 }
+function navStart(section){navSection=section;guideCategory=null;guideTopic=null;chatCategory=null;chatQuestion=null;chatMode=section==='chat';renderNavigator();}
+function navFooter(t,back){suggestions.replaceChildren();suggestions.append(docAction('← '+t.back,back,'mrbot-doc-footerbtn'));}
+function navView(){messages.classList.add('mrbot-doc-active');messages.replaceChildren();suggestions.replaceChildren();return docNode('div','mrbot-doc-view mrbot-nav-view');}
+function navFinish(view){messages.append(view);messages.scrollTop=0;}
+
+// Short, practical troubleshooting articles. Kept separate from module guides and detailed documentation.
+const MRBOT_FAQ={"pl":{"items":[["Plik Excel nie wczytuje się","faq_0"],["Brak wyników po analizie","faq_1"],["Wynik różni się od Excela","faq_2"],["Filtr ukrywa wszystkie dane","faq_3"],["Eksport lub kopiowanie nie działa","faq_4"],["Nie widzę nowej wersji aplikacji","faq_5"],["Raporty MP i RS dają inne dane","faq_6"],["AUDYT RET pokazuje dziwne liczby","faq_7"],["Gdzie znajdę zapisane pliki i ich daty?","faq_8"],["Dlaczego Excel jest w kolejce lub „Na komputerze”?","faq_9"],["Jak usunąć jeden zapisany Excel?","faq_10"]],"answers":{"faq_0":"Sprawdź, czy plik jest raportem przeznaczonym dla wybranego modułu, a nie innym eksportem o podobnej nazwie.\n1. Otwórz plik i sprawdź, czy zawiera dane oraz nagłówki kolumn.\n2. Wróć do właściwego narzędzia i wybierz plik jeszcze raz.\n3. Jeśli to możliwe, pobierz świeży raport z systemu źródłowego.\n4. Jeśli komunikat wskazuje brakującą kolumnę, porównaj strukturę z wymaganiami modułu.","faq_1":"Najpierw sprawdź, czy wczytany raport zawiera rekordy dla wybranego procesu i okresu.\n1. Wyczyść filtry i uruchom analizę ponownie.\n2. Sprawdź datę, zmianę, operatora i grupę.\n3. Zweryfikuj, czy wybrano właściwy plik dla modułu.\n4. Jeśli dane nadal są puste, otwórz raport i sprawdź, czy szukane rekordy w ogóle w nim występują.","faq_2":"Różnica nie musi oznaczać błędu. Porównaj dokładnie zakres danych i metodę liczenia.\n1. Sprawdź, czy raporty pochodzą z tego samego momentu.\n2. Wyczyść filtry albo ustaw identyczne w obu miejscach.\n3. Ustal, czy wskaźnik liczy wiersze, unikalne wartości czy sumę ilości.\n4. Dla jednej lokalizacji lub operatora przelicz kilka wierszy ręcznie.\n5. Szczegółowy algorytm znajdziesz w Szczegółowa dokumentacja.","faq_3":"Często przyczyną jest połączenie kilku zbyt wąskich filtrów.\n1. Usuń wszystkie filtry.\n2. Włączaj je pojedynczo, obserwując moment zniknięcia wyników.\n3. Przy KPI sprawdź zgodność loginów z Grafik.xlsx.\n4. Zweryfikuj wybraną zmianę, proces i grupę.","faq_4":"Najpierw upewnij się, że tabela zawiera wynik do wyeksportowania.\n1. Uruchom analizę i sprawdź widoczne rekordy.\n2. Spróbuj ponownie kliknąć właściwy przycisk eksportu lub kopiowania.\n3. Sprawdź, czy przeglądarka nie zablokowała pobierania lub dostępu do schowka.\n4. Otwórz pobrany plik i skontroluj format przed wykorzystaniem w WMS.","faq_5":"Mr. Robot działa jako PWA, dlatego urządzenie może chwilowo pokazywać zasoby zapisane w pamięci podręcznej.\n1. Połącz urządzenie z internetem.\n2. Zamknij aplikację całkowicie i otwórz ją ponownie.\n3. Odśwież stronę GitHub Pages i sprawdź numer wersji.\n4. Jeśli aktualizacja nadal nie jest widoczna, upewnij się, że opublikowano wszystkie nowe pliki, a nie tylko sw.js.","faq_6":"Raporty mogą opisywać różne zakresy stanów lub momenty eksportu.\n1. Sprawdź nazwę oraz datę każdego źródła.\n2. Upewnij się, że narzędzie otrzymało odpowiednią bazę MP albo RS.\n3. Porównuj te same SKU/EAN i lokalizacje.\n4. Nie łącz wyników z różnych momentów bez sprawdzenia aktualności danych.","faq_7":"W Tryb RET różne wskaźniki mają różne warunki.\n1. Sprawdź wybrane grupy i operatorów.\n2. PRZEGRÓDKI PRZELICZONE: liczą się unikalne Shelf bin z Stocktake qty > 0.\n3. POMIESZANYCH SZT.: sumowane są dodatnie Stocktake qty tylko w wierszach z wypełnionym Exception reason.\n4. Jeśli nadal masz wątpliwości, porównaj kilka wierszy w Szczegółowa dokumentacja → Audyt Geek / RET.","faq_8":"Na stronie głównej pod modułami otwórz „Zapisane w przeglądarce” → „Szczegóły”. Zobaczysz moduł, nazwę, datę zapisu, rozmiar (jeśli jest znany) i status każdego pliku. Ponowne wczytanie do tego samego modułu odświeża datę zapisu. Stare pliki mogą nie mieć daty.","faq_9":"Przy uruchamianiu pliki są odtwarzane pojedynczo, żeby nie przeciążyć urządzenia. „W kolejce” oznacza oczekiwanie, „Wczytywanie” — aktualną pracę, „Gotowe” — ukończone wczytanie. „Na komputerze” to zapis pominięty w trybie mobilnym, nie usunięty. Jeśli status pokazuje błąd lub wstrzymanie, sprawdź plik i załaduj go ponownie w module.","faq_10":"Strona główna → „Zapisane w przeglądarce” → „Szczegóły” → „Usuń” przy danym pliku → potwierdź. Usuniesz również dane wczytane do tego modułu, ale pozostałe zapisy zostaną. Nie można usuwać pliku podczas jego przetwarzania. „Wyczyść pamięć” usuwa wszystkie zapisane pliki. Nie da się tego cofnąć."}},"ru":{"items":[["Excel не загружается","faq_0"],["После анализа пусто","faq_1"],["Цифры не сходятся с Excel","faq_2"],["Фильтры скрыли все строки","faq_3"],["Не скачивается или не копируется","faq_4"],["Не появилось обновление","faq_5"],["MP и RS показывают разное","faq_6"],["Странные цифры в AUDYT RET","faq_7"],["Где посмотреть сохранённые Excel и их даты?","faq_8"],["Почему Excel в очереди или доступен только на компьютере?","faq_9"],["Как удалить один сохранённый Excel?","faq_10"]],"answers":{"faq_0":"Убедись, что загружаешь отчёт для нужного модуля, а не похожий файл из другого инструмента.\n1. Открой Excel и проверь, что в нём есть строки данных и заголовки.\n2. В приложении выбери правильный модуль и загрузи файл заново.\n3. По возможности выгрузи свежий отчёт из исходной системы.\n4. Если приложение сообщает об отсутствующей колонке, сверь структуру файла с требованиями модуля.","faq_1":"Пустая таблица не всегда означает ошибку обработки.\n1. Сбрось фильтры и повтори анализ.\n2. Проверь даты, смену, группу и оператора.\n3. Убедись, что загрузил отчёт нужного процесса.\n4. Открой исходный Excel и проверь, есть ли там искомые строки.","faq_2":"Для начала убедись, что сравниваются одинаковые данные.\n1. Проверь время формирования обоих отчётов.\n2. Сравни фильтры и период.\n3. Уточни, что считает показатель: строки, уникальные значения или сумму количества.\n4. Возьми один SKU или одну локацию и пересчитай вручную.\n5. Точный алгоритм ищи в «Подробной документации».","faq_3":"Часто несколько фильтров вместе оставляют ноль совпадений.\n1. Очисти все фильтры.\n2. Включай их по одному, пока не найдёшь ограничение.\n3. Для KPI проверь совпадение логинов с Grafik.xlsx.\n4. Перепроверь смену, процесс и группу.","faq_4":"Сначала проверь, что анализ вообще дал результат.\n1. Убедись, что таблица не пустая.\n2. Повтори экспорт или копирование.\n3. Проверь разрешение на загрузки и доступ к буферу обмена в браузере.\n4. Открой готовый файл и проверь его перед использованием в WMS.","faq_5":"Mr. Robot работает как PWA, поэтому устройство может показывать старые сохранённые файлы.\n1. Подключись к интернету.\n2. Полностью закрой и снова открой приложение.\n3. Обнови страницу GitHub Pages и проверь номер версии.\n4. Если ничего не изменилось, проверь, что в GitHub заменены все файлы обновления, а не только sw.js.","faq_6":"Разные отчёты могут содержать разные состояния склада и быть выгружены в разное время.\n1. Сверь названия и даты файлов.\n2. Проверь, что в модуль загружена именно требуемая база MP или RS.\n3. Сравни одинаковые SKU/EAN и локации.\n4. Не смешивай выгрузки разных периодов без проверки.","faq_7":"У разных показателей RET разные условия подсчёта.\n1. Проверь выбранные группы и операторов.\n2. PRZEGRÓDKI PRZELICZONE: уникальные Shelf bin, у которых Stocktake qty > 0.\n3. POMIESZANYCH SZT.: сумма положительных Stocktake qty по строкам с заполненным Exception reason.\n4. Разбор на примерах ищи в «Подробная документация» → Audyt Geek / RET.","faq_8":"На главной под модулями открой «Сохранено в браузере» → «Подробнее». Увидишь модуль, имя файла, дату сохранения, размер (если известен) и статус. Если повторно загрузить файл в тот же модуль, дата сохранения обновится. У старых файлов дата может отсутствовать.","faq_9":"При запуске файлы восстанавливаются по одному, чтобы снизить нагрузку. «В очереди» — ждёт, «Загрузка» — обрабатывается, «Готово» — восстановлен. «Только на компьютере» означает, что файл сохранён, но пропущен мобильным режимом, а не удалён. Если видишь ошибку или остановку, проверь и повторно загрузи файл через его модуль.","faq_10":"Главная → «Сохранено в браузере» → «Подробнее» → «Удалить» возле нужного файла → подтверждение. Данные соответствующего модуля тоже очистятся, остальные файлы останутся. Во время обработки удалить файл нельзя. «Очистить память» удаляет сразу все сохранённые Excel. Действие необратимо."}},"en":{"items":[["Excel file will not load","faq_0"],["Analysis shows no results","faq_1"],["Numbers differ from Excel","faq_2"],["Filters hide all rows","faq_3"],["Export or copy fails","faq_4"],["The update is not visible","faq_5"],["MP and RS reports disagree","faq_6"],["AUDYT RET values look wrong","faq_7"],["Where are my saved Excel files and dates?","faq_8"],["Why is a workbook queued or desktop-only?","faq_9"],["How do I remove a single saved Excel file?","faq_10"]],"answers":{"faq_0":"Check that the report belongs to the selected module, rather than a similarly named export.\n1. Open the workbook and confirm it contains data and column headers.\n2. Choose the correct tool and reload the file.\n3. If possible, export a fresh report.\n4. If a column is reported missing, compare the headers with the module requirements.","faq_1":"An empty result may come from the source data or filters.\n1. Clear all filters and run the analysis again.\n2. Check date, shift, group and operator.\n3. Confirm you loaded the correct process report.\n4. Inspect the workbook for the rows you expected to find.","faq_2":"Make sure you are comparing the same scope and calculation method.\n1. Compare report export timestamps.\n2. Match periods and filters.\n3. Check whether the metric counts rows, unique values or quantities.\n4. Recalculate a small sample by SKU or location.\n5. See Detailed documentation for the calculation rules.","faq_3":"Combined filters can leave no matching records.\n1. Clear every filter.\n2. Apply filters one at a time.\n3. For KPI, check that logins match Grafik.xlsx.\n4. Verify the selected shift, process and group.","faq_4":"First verify that there are results to export.\n1. Run the analysis and inspect the table.\n2. Try the export or copy control again.\n3. Check browser download and clipboard permissions.\n4. Open the exported file and verify it before using it in WMS.","faq_5":"The PWA may temporarily display previously cached files.\n1. Connect to the internet.\n2. Fully close and reopen the app.\n3. Refresh the GitHub Pages site and check its version.\n4. Confirm every updated file was deployed, not only sw.js.","faq_6":"Reports may represent different inventories or export times.\n1. Check each file name and timestamp.\n2. Load the appropriate MP or RS source in the correct tool.\n3. Compare the same SKU/EAN and bin locations.\n4. Do not combine exports from different periods without verification.","faq_7":"RET metrics use different inclusion rules.\n1. Check selected groups and operators.\n2. PRZEGRÓDKI PRZELICZONE counts unique Shelf bin values with Stocktake qty > 0.\n3. POMIESZANYCH SZT. sums positive Stocktake qty where Exception reason is filled.\n4. See Detailed documentation → Audyt Geek / RET for examples.","faq_8":"On Home, below the modules, open “Saved in browser” → “Details”. You will see each file’s module, name, saved date, size (if available) and status. Importing a file into the same module again updates its saved date. Older entries may have no date.","faq_9":"At startup, workbooks are restored one at a time to reduce load. “Queued” means waiting, “Loading” means processing and “Ready” means restored. “Desktop only” means the saved workbook is skipped on mobile, not deleted. If you see Error or Paused, check the workbook and reload it in its module.","faq_10":"Home → “Saved in browser” → “Details” → “Remove” beside the file → confirm. This also clears the loaded data for that module, but other files remain. Removal is disabled during processing. “Clear memory” removes every saved file. There is no undo."}},"uk":{"items":[["Excel не завантажується","faq_0"],["Після аналізу немає результатів","faq_1"],["Числа не збігаються з Excel","faq_2"],["Фільтри приховали всі рядки","faq_3"],["Експорт або копіювання не працює","faq_4"],["Оновлення не з’явилось","faq_5"],["Звіти MP і RS відрізняються","faq_6"],["Дивні показники в AUDYT RET","faq_7"],["Де переглянути збережені Excel та їхні дати?","faq_8"],["Чому Excel у черзі або лише на комп’ютері?","faq_9"],["Як видалити один збережений Excel?","faq_10"]],"answers":{"faq_0":"Перевір, чи файл призначений для обраного модуля, а не для іншого інструмента.\n1. Відкрий Excel і перевір наявність рядків та заголовків.\n2. Обери правильний модуль і завантаж файл повторно.\n3. За можливості отримай свіжий звіт.\n4. Якщо бракує колонки, порівняй структуру з вимогами модуля.","faq_1":"Порожня таблиця може бути наслідком фільтрів або вихідних даних.\n1. Скинь усі фільтри й повтори аналіз.\n2. Перевір дату, зміну, групу й оператора.\n3. Переконайся, що це звіт потрібного процесу.\n4. Відкрий Excel і перевір, чи є там потрібні рядки.","faq_2":"Спочатку звір дані, які порівнюєш.\n1. Перевір час формування звітів.\n2. Зістав період і фільтри.\n3. Уточни, чи показник рахує рядки, унікальні значення або суму кількостей.\n4. Перерахуй невеликий приклад за SKU або локацією.\n5. Алгоритми є в «Докладній документації».","faq_3":"Декілька фільтрів можуть не залишити жодного збігу.\n1. Очисть усі фільтри.\n2. Додавай їх по одному.\n3. Для KPI перевір відповідність логінів у Grafik.xlsx.\n4. Звір зміну, процес і групу.","faq_4":"Спочатку переконайся, що є результати для експорту.\n1. Перевір таблицю після аналізу.\n2. Повтори дію експорту чи копіювання.\n3. Перевір дозволи браузера на завантаження й буфер обміну.\n4. Відкрий створений файл і перевір його перед роботою у WMS.","faq_5":"PWA може тимчасово показувати файли з кешу.\n1. Підключись до інтернету.\n2. Повністю закрий і відкрий застосунок.\n3. Онови сторінку GitHub Pages і перевір номер версії.\n4. Переконайся, що завантажені всі оновлені файли, а не лише sw.js.","faq_6":"Звіти можуть відображати різні стани або час експорту.\n1. Перевір назви та дати файлів.\n2. Завантаж у модуль потрібну базу MP чи RS.\n3. Порівнюй однакові SKU/EAN та локації.\n4. Не змішуй дані з різних періодів без перевірки.","faq_7":"У показників RET різні правила розрахунку.\n1. Перевір обрані групи й операторів.\n2. PRZEGRÓDKI PRZELICZONE: унікальні Shelf bin зі Stocktake qty > 0.\n3. POMIESZANYCH SZT.: сума додатних Stocktake qty за рядками із заповненим Exception reason.\n4. Приклади є в «Докладній документації» → Audyt Geek / RET.","faq_8":"На головній під модулями відкрий «Збережено в браузері» → «Докладніше». Побачиш модуль, назву файлу, дату збереження, розмір (якщо відомий) і статус. Повторне завантаження до того самого модуля оновлює дату. Старі записи можуть не мати дати.","faq_9":"Під час запуску файли відновлюються по одному, щоб зменшити навантаження. «У черзі» означає очікування, «Завантаження» — обробку, «Готово» — завершене відновлення. «Лише на комп’ютері» означає, що файл пропущено в мобільному режимі, а не видалено. У разі помилки чи зупинки перевір і повторно завантаж файл у модулі.","faq_10":"Головна → «Збережено в браузері» → «Докладніше» → «Видалити» біля файлу → підтвердь. Це очистить також дані відповідного модуля, а інші файли залишаться. Під час обробки видалення недоступне. «Очистити пам’ять» видаляє всі збережені файли. Дію не можна скасувати."}}};
+function navGuideOptions(){const l=chatLocale();const source=GUIDE[l]||GUIDE.pl;return {...source,hub:(MRBOT_FAQ[l]||MRBOT_FAQ.pl).items};}
+function navGuideLabel(key){return {hub:navT().general,kpi:'KPI Norms',rs:'RS · Audyt Geek',mp:'MP',inne:'Inne'}[key]||key;}
+function navGuideAnswer(key){const l=chatLocale();const faq=(MRBOT_FAQ[l]||MRBOT_FAQ.pl).answers[key];if(faq)return faq;const x=(DETAIL[l]||FALLBACK_DETAIL[l]||DETAIL.pl)[key];return x||(DATA[l]||DATA.pl)[key]||(DATA[l]||DATA.pl).unknown;}
+function renderNavigator(){
+ if(readmeMode){renderDocs();return;}
+ const t=navT(),view=navView(),list=docNode('div','mrbot-doc-list');
+ const home=()=>navStart('home');
+ if(navSection==='home'){
+  docHeader(view,'MR. BOT',t.welcome,t.subtitle);
+  smartHints(view);
+  navRow(list,'📚',t.docs,t.docsSub,()=>{navSection='docs';docEnter();});
+  navRow(list,'🧭',t.guide,t.guideSub,()=>navStart('guide'));
+  navRow(list,'💬',t.chat,t.chatSub,()=>navStart('chat'));
+  view.append(list);
+ }else if(navSection==='guide'){
+  const back=()=>{if(guideTopic){guideTopic=null;renderNavigator();}else if(guideCategory){guideCategory=null;renderNavigator();}else home();};
+  docTrailMini(view,t,back);
+  if(guideTopic){
+   const options=navGuideOptions()[guideCategory]||[];const pair=options.find(x=>x[1]===guideTopic);
+   docHeader(view,navGuideLabel(guideCategory),pair?.[0]||guideTopic);
+   const sec=docNode('section','mrbot-doc-article-section');sec.append(docNode('h3','',t.help));docParagraph(sec,navGuideAnswer(guideTopic));view.append(sec);
+   petMood('read',650);
+  }else if(guideCategory){
+   docHeader(view,t.guide,navGuideLabel(guideCategory),t.topics);
+   (navGuideOptions()[guideCategory]||[]).forEach(([label,key],i)=>navRow(list,String(i+1).padStart(2,'0'),label,'',()=>{guideTopic=key;renderNavigator();}));view.append(list);
+  }else{
+   docHeader(view,t.guide,t.modules,t.guideSub);
+   smartHints(view);
+   const current=context();if(current!=='hub')navRow(list,'📍',t.current+' · '+navGuideLabel(current),'',()=>{guideCategory=current;renderNavigator();});
+   for(const [key,icon] of [['hub','🧩'],['kpi','📊'],['rs','📦'],['mp','🛠️'],['inne','⚙️']])navRow(list,icon,navGuideLabel(key),'',()=>{guideCategory=key;renderNavigator();});
+   view.append(list);
+  }
+  navFinish(view);navFooter(t,back);return;
+ }else if(navSection==='chat'){
+  const lang=chatLocale(),groups=(window.MRBOT_DIALOGUES||[]).filter(g=>g.id!=='help');
+  const back=()=>{if(chatQuestion!==null){chatQuestion=null;chatAnswer='';renderNavigator();}else if(chatCategory){chatCategory=null;renderNavigator();}else home();};
+  docTrailMini(view,t,back);
+  const group=groups.find(g=>g.id===chatCategory);
+  if(chatQuestion!==null&&group){
+   const item=group.items[chatQuestion];
+   docHeader(view,group.emoji+' '+(group.title[lang]||group.title.en),t.answer);
+   const q=docNode('section','mrbot-doc-article-section');q.append(docNode('h3','',t.question));docParagraph(q,item.q[lang]||item.q.en);view.append(q);
+   const a=docNode('section','mrbot-doc-article-section');a.append(docNode('h3','',t.answer));docParagraph(a,chatAnswer);view.append(a);
+   const more=docAction('↻ '+t.other,()=>{chatAnswer=chooseChatReply(group,chatQuestion,lang);petMood('success',800);renderNavigator();},'mrbot-nav-more');view.append(more);
+  }else if(group){
+   docHeader(view,t.chat,group.emoji+' '+(group.title[lang]||group.title.en),t.topics);
+   group.items.forEach((item,i)=>navRow(list,String(i+1).padStart(2,'0'),item.q[lang]||item.q.en,'',()=>{chatQuestion=i;chatAnswer=chooseChatReply(group,i,lang);petMood('think',500);renderNavigator();}));view.append(list);
+  }else{
+   docHeader(view,t.chat,t.chooseChat,t.chatSub);
+   groups.forEach(g=>navRow(list,g.emoji,g.title[lang]||g.title.en,'',()=>{chatCategory=g.id;renderNavigator();}));view.append(list);
+  }
+  view.append(docNode('p','mrbot-nav-note',t.offline));
+  navFinish(view);navFooter(t,back);return;
+ }
+ navFinish(view);
+}
+function docTrailMini(view,t,back){const bar=docNode('nav','mrbot-doc-trail');bar.append(docAction(t.main,()=>navStart('home')));bar.append(docNode('span','mrbot-doc-separator','/'));bar.append(docNode('span','mrbot-doc-current',navSection==='guide'?t.guide:t.chat));view.append(bar);}
+function renderChat(){renderNavigator();}
 
 function chooseChatReply(group,index,lang){
  const it=group.items[index],answers=it.a[lang]||it.a.en||[];
@@ -259,12 +390,12 @@ function chatReply(group,index){
 }
 
 const DOC_UI={
- pl:{title:'Szczegółowa dokumentacja',subtitle:'Poznaj Mr. Robot od środka',home:'Dokumentacja',intro:'Przewodnik po projekcie, modułach i obliczeniach. Wybierz rozdział, aby przejść do szczegółów.',topics:'Tematy w rozdziale',summary:'W skrócie',details:'Jak to działa',source:'W kodzie projektu',back:'Wróć',exit:'Zamknij dokumentację',next:'Następny temat',prev:'Poprzedni temat',articles:'tematów',empty:'Brak opisu tej części.'},
- ru:{title:'Подробная документация',subtitle:'Узнай Mr. Robot изнутри',home:'Документация',intro:'База знаний о проекте, модулях и расчётах. Выбери раздел, чтобы разобраться подробнее.',topics:'Темы раздела',summary:'Главное',details:'Как это устроено',source:'В коде проекта',back:'Назад',exit:'Закрыть документацию',next:'Следующая тема',prev:'Предыдущая тема',articles:'тем',empty:'Описание пока недоступно.'},
- en:{title:'Detailed documentation',subtitle:'Explore Mr. Robot from the inside',home:'Documentation',intro:'A project knowledge base covering modules, data and calculations. Choose a chapter to explore.',topics:'Topics in this chapter',summary:'Overview',details:'How it works',source:'In the source code',back:'Back',exit:'Close documentation',next:'Next topic',prev:'Previous topic',articles:'topics',empty:'No description available.'},
- uk:{title:'Докладна документація',subtitle:'Дізнайтеся, як влаштований Mr. Robot',home:'Документація',intro:'База знань про проєкт, модулі й обчислення. Оберіть розділ для подробиць.',topics:'Теми розділу',summary:'Коротко',details:'Як це працює',source:'У коді проєкту',back:'Назад',exit:'Закрити документацію',next:'Наступна тема',prev:'Попередня тема',articles:'тем',empty:'Опис недоступний.'}
+ pl:{title:'Szczegółowa dokumentacja',subtitle:'Poznaj Mr. Robot od środka',home:'Dokumentacja',intro:'Przewodnik po projekcie, modułach i obliczeniach. Wybierz rozdział, aby przejść do szczegółów.',topics:'Tematy w rozdziale',summary:'W skrócie',details:'Jak to działa',source:'W kodzie projektu',back:'Wróć',exit:'Zamknij dokumentację',next:'Następny temat',prev:'Poprzedni temat',articles:'tematów',empty:'Brak opisu tej części.',related:'Powiązane tematy',more:'Czytaj więcej',moreIntelligence:'Więcej o Intelligence',moreBridge:'Więcej o Bridge',featured:'Polecane przewodniki',modules:'Pozostała dokumentacja',returnTo:'Wróć do poprzedniego tematu'},
+ ru:{title:'Подробная документация',subtitle:'Узнай Mr. Robot изнутри',home:'Документация',intro:'База знаний о проекте, модулях и расчётах. Выбери раздел, чтобы разобраться подробнее.',topics:'Темы раздела',summary:'Главное',details:'Как это устроено',source:'В коде проекта',back:'Назад',exit:'Закрыть документацию',next:'Следующая тема',prev:'Предыдущая тема',articles:'тем',empty:'Описание пока недоступно.',related:'Связанные темы',more:'Подробнее',moreIntelligence:'Подробнее об Intelligence',moreBridge:'Подробнее об Bridge',featured:'Отдельные руководства',modules:'Основная документация',returnTo:'Вернуться к предыдущей теме'},
+ en:{title:'Detailed documentation',subtitle:'Explore Mr. Robot from the inside',home:'Documentation',intro:'A project knowledge base covering modules, data and calculations. Choose a chapter to explore.',topics:'Topics in this chapter',summary:'Overview',details:'How it works',source:'In the source code',back:'Back',exit:'Close documentation',next:'Next topic',prev:'Previous topic',articles:'topics',empty:'No description available.',related:'Related topics',more:'Read more',moreIntelligence:'More about Intelligence',moreBridge:'More about Bridge',featured:'Featured guides',modules:'Main documentation',returnTo:'Return to previous topic'},
+ uk:{title:'Докладна документація',subtitle:'Дізнайтеся, як влаштований Mr. Robot',home:'Документація',intro:'База знань про проєкт, модулі й обчислення. Оберіть розділ для подробиць.',topics:'Теми розділу',summary:'Коротко',details:'Як це працює',source:'У коді проєкту',back:'Назад',exit:'Закрити документацію',next:'Наступна тема',prev:'Попередня тема',articles:'тем',empty:'Опис недоступний.',related:'Пов’язані теми',more:'Докладніше',moreIntelligence:'Докладніше про Intelligence',moreBridge:'Докладніше про Bridge',featured:'Окремі посібники',modules:'Основна документація',returnTo:'Повернутися до попередньої теми'}
 };
-let docCategory=null,docTopic=null,docHistory=[];
+let docCategory=null,docTopic=null,docHistory=[],docReturnStack=[];
 function docLanguage(){return window.MRI18N?.language||'pl';}
 function docText(){return DOC_UI[docLanguage()]||DOC_UI.pl;}
 function docTitle(obj){return obj?.title?.[docLanguage()]||obj?.title?.pl||obj?.title?.en||'';}
@@ -273,17 +404,41 @@ function docCurrentCategory(){return docCategories().find(c=>c.id===docCategory)
 function docCurrentTopic(){return docCurrentCategory()?.topics.find(t=>t.id===docTopic);}
 function docNode(tag,cls,content){const e=document.createElement(tag);if(cls)e.className=cls;if(content!=null)e.textContent=content;return e;}
 function docAction(label,fn,cls=''){const b=docNode('button','mrbot-doc-action '+cls,label);b.type='button';b.addEventListener('click',fn);return b;}
-function docLeave(){readmeMode=false;docCategory=null;docTopic=null;history=docHistory;renderMessages();refresh();}
-function docEnter(){docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;renderDocs();}
-function docOpenCategory(id){docCategory=id;docTopic=null;renderDocs();}
+function docLeave(){readmeMode=false;docCategory=null;docTopic=null;docReturnStack=[];history=docHistory;navSection=docSmartReturn||'home';docSmartReturn=null;chatMode=false;refresh();}
+function docEnter(){docSmartReturn=null;docHistory=history.slice();readmeMode=true;docCategory=null;docTopic=null;docReturnStack=[];renderDocs();}
+function docOpenCategory(id){docReturnStack=[];docCategory=id;docTopic=null;renderDocs();}
 function docOpenTopic(id){docTopic=id;renderDocs();petMood('read',600);}
+function docOpenRelated(categoryId,topicId){
+ const next=docCategories().find(c=>c.id===categoryId);
+ if(!next?.topics?.some(t=>t.id===topicId))return;
+ docReturnStack.push({category:docCategory,topic:docTopic});
+ docCategory=categoryId;docTopic=topicId;renderDocs();petMood('read',600);
+}
+function docGoBack(){
+ if(docSmartReturn&&!docReturnStack.length){docLeave();return;}
+ if(docReturnStack.length){const origin=docReturnStack.pop();docCategory=origin.category;docTopic=origin.topic;}
+ else if(docTopic)docTopic=null;
+ else if(docCategory)docCategory=null;
+ else{docLeave();return;}
+ renderDocs();
+}
+function docRelated(parent,items){
+ if(!Array.isArray(items)||!items.length)return;
+ const t=docText();const block=docNode('section','mrbot-doc-related');
+ block.append(docNode('h3','',t.related));
+ for(const link of items){const category=docCategories().find(c=>c.id===link.category);const topic=category?.topics.find(x=>x.id===link.topic);if(!topic)continue;
+  const label=(category.id==='intelligence'?t.moreIntelligence:category.id==='openreports'?t.moreBridge:t.more)+': '+docTitle(topic);
+  block.append(docAction(label+'  →',()=>docOpenRelated(category.id,topic.id),'mrbot-doc-related-link'));
+ }
+ if(block.children.length>1)parent.append(block);
+}
 function docHeader(parent,eyebrow,title,subtitle){
  const h=docNode('div','mrbot-doc-heading');h.append(docNode('div','mrbot-doc-eyebrow',eyebrow),docNode('h2','',title));
  if(subtitle)h.append(docNode('p','mrbot-doc-muted',subtitle));parent.append(h);
 }
 function docTrail(parent){const bar=docNode('nav','mrbot-doc-trail');bar.setAttribute('aria-label','Breadcrumb');
- bar.append(docAction(docText().home,()=>{docCategory=null;docTopic=null;renderDocs();}));
- if(docCategory){bar.append(docNode('span','mrbot-doc-separator','/'));const cat=docCurrentCategory();bar.append(docAction(docTitle(cat),()=>{docTopic=null;renderDocs();}));}
+ bar.append(docAction(docText().home,()=>{docReturnStack=[];docCategory=null;docTopic=null;renderDocs();}));
+ if(docCategory){bar.append(docNode('span','mrbot-doc-separator','/'));const cat=docCurrentCategory();bar.append(docAction(docTitle(cat),()=>{docReturnStack=[];docTopic=null;renderDocs();}));}
  if(docTopic){bar.append(docNode('span','mrbot-doc-separator','/'));bar.append(docNode('span','mrbot-doc-current',docTitle(docCurrentTopic())));}
  parent.append(bar);
 }
@@ -300,6 +455,7 @@ function renderDocs(){if(!readmeMode)return;
   const details=topic.tech?.[lang]||topic.tech?.pl;
   if(details){const block=docNode('section','mrbot-doc-article-section');block.append(docNode('h3','',t.details));docParagraph(block,details);view.append(block);}
   if(topic.source){const src=docNode('div','mrbot-doc-source');src.append(docNode('span','',t.source),docNode('code','',topic.source));view.append(src);}
+  docRelated(view,topic.related);
   const index=category.topics.findIndex(x=>x.id===docTopic);const nav=docNode('div','mrbot-doc-bottomnav');
   if(index>0)nav.append(docAction('← '+t.prev,()=>docOpenTopic(category.topics[index-1].id)));
   if(index<category.topics.length-1)nav.append(docAction(t.next+' →',()=>docOpenTopic(category.topics[index+1].id),'primary'));
@@ -310,20 +466,42 @@ function renderDocs(){if(!readmeMode)return;
   category.topics.forEach((item,i)=>{const b=docAction('',()=>docOpenTopic(item.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-index',String(i+1).padStart(2,'0')),docNode('span','mrbot-doc-listname',docTitle(item)),docNode('span','mrbot-doc-chevron','›'));list.append(b);});view.append(list);
  }else{
   docHeader(view,'MR. BOT · KNOWLEDGE BASE',t.title,t.intro);
+  const currentHint=smartContext();if(currentHint.doc){const jump=docNode('div','mrbot-doc-list');navRow(jump,'📍',(SMART_UI[lang]||SMART_UI.pl).current+' · '+currentHint.label,'',()=>docOpenRelated(currentHint.doc.category,currentHint.doc.topic));view.append(jump);}
+  const featured=docCategories().filter(c=>c.featured);if(featured.length){
+   view.append(docNode('h3','mrbot-doc-group-label',t.featured));
+   const highlights=docNode('div','mrbot-doc-featured');
+   for(const c of featured){const card=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-feature');
+    card.append(docNode('span','mrbot-doc-feature-icon',c.emoji));
+    const copy=docNode('span','mrbot-doc-feature-copy');copy.append(docNode('strong','',docTitle(c)),docNode('small','',c.topics.length+' '+t.articles));card.append(copy,docNode('span','mrbot-doc-chevron','›'));highlights.append(card);}
+   view.append(highlights);
+  }
+  view.append(docNode('h3','mrbot-doc-group-label',t.modules));
   const list=docNode('div','mrbot-doc-list');
-  for(const c of docCategories()){const b=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-emoji',c.emoji),docNode('span','mrbot-doc-listname',docTitle(c)),docNode('span','mrbot-doc-count',c.topics.length+' '+t.articles),docNode('span','mrbot-doc-chevron','›'));list.append(b);}
+  for(const c of docCategories().filter(c=>!c.featured)){const b=docAction('',()=>docOpenCategory(c.id),'mrbot-doc-listitem');b.append(docNode('span','mrbot-doc-emoji',c.emoji),docNode('span','mrbot-doc-listname',docTitle(c)),docNode('span','mrbot-doc-count',c.topics.length+' '+t.articles),docNode('span','mrbot-doc-chevron','›'));list.append(b);}
   view.append(list);
  }
  messages.append(view);messages.scrollTop=0;
- suggestions.append(docAction(docTopic?t.back:docCategory?t.back:t.exit,()=>{if(docTopic){docTopic=null;renderDocs();}else if(docCategory){docCategory=null;renderDocs();}else docLeave();},'mrbot-doc-footerbtn'));
+ suggestions.append(docAction(docReturnStack.length?t.returnTo:docTopic?t.back:docCategory?t.back:t.exit,docGoBack,'mrbot-doc-footerbtn'));
 }
-function refresh(){if(chatMode){renderChat();return;}const l=locale();$('mrbot-context').textContent=l.hint+' · '+context().toUpperCase();$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;suggestions.replaceChildren();
+function refresh(){
+ const l=locale();$('mrbot-context').textContent=l.hint+' · '+(smartContext().doc?smartContext().label:context().toUpperCase());$('mrbot-close').title=l.close;$('mrbot-privacy').textContent=l.privacy;toggle.title=l.open;
  if(readmeMode){renderDocs();return;}
- chatButton(chatText().start,()=>{chatMode=true;readmeMode=false;chatCategory=null;msg('bot',chatText().intro);renderChat();},'mrbot-chat-entry');
- for(const [label,key] of suggestionsFor()){const b=document.createElement('button');b.type='button';b.textContent=label;b.addEventListener('click',()=>answer(label,key));suggestions.appendChild(b);}
- const b=document.createElement('button');b.type='button';b.className='mrbot-kb-trigger';b.textContent=ui().knowledge;b.addEventListener('click',docEnter);suggestions.appendChild(b);
- if(lastLang!==window.MRI18N?.language){lastLang=window.MRI18N?.language;if(!history.length)msg('bot',l.hello);}
+ renderNavigator();
 }
+// Context changes must not require closing MR. BOT. Preserve the open article
+// (and its scroll position) if the user is reading detailed documentation.
+function refreshLiveContext(){
+ const l=locale(),hint=smartContext();
+ $('mrbot-context').textContent=l.hint+' · '+(hint.doc?hint.label:context().toUpperCase());
+ if(!open)return;
+ if(readmeMode){
+  // The documentation index has a context shortcut; article views remain intact.
+  if(!docCategory&&!docTopic)renderDocs();
+  return;
+ }
+ if(navSection==='home'||(navSection==='guide'&&!guideCategory&&!guideTopic))renderNavigator();
+}
+
 function resolve(q){const s=q.toLocaleLowerCase().normalize('NFKD');const match=(...parts)=>parts.some(x=>s.includes(x));if(match('kresecz','barcode','code 128','штрих','штрихкод','штрихкод','штрихкод'))return'barcode';if(match('nadwe','vas'))return'nadwe';if(match('kpi','норм','norm','wydajno'))return'kpi';if(match('tote','geek','ret','rs1',' rs','ean'))return'rs';if(match('scalanie','konsolid','formatka','stock','mdt',' mp','локац','lokac'))return'mp';if(match('artltt','przestoj','просто','downtime','inne'))return'inne';if(match('excel','grafik','plik','file','файл','завантаж','загруз'))return'files';if(match('filtr','фильтр','фільтр','target','смен','zmian'))return'filters';if(match('csv','export','eksport','выгруз','експорт','pobier','скача','копир'))return'export';if(match('błąd','error','ошиб','пуст','empty','brak wynik','не работа','не працю'))return'error';if(match('start','zaczą','нача','почат','jak','как','how'))return context()==='hub'?'steps':context();return null;}
 
 function answer(q,selectedKey){const l=locale();msg('user',q);root.classList.remove('mrbot-happy','mrbot-curious');root.classList.add('mrbot-thinking');petMood('think');setTimeout(()=>{root.classList.remove('mrbot-thinking');const key=selectedKey||resolve(q);const lang=window.MRI18N?.language||'pl';const detail=(DETAIL[lang]||FALLBACK_DETAIL[lang]||DETAIL.pl)[key];root.classList.add(key?'mrbot-happy':'mrbot-curious');petMood(key?'success':'confused',1600);msg('bot',detail||(key?l[key]:l.unknown));setTimeout(()=>root.classList.remove('mrbot-happy','mrbot-curious'),1800);},240);}
@@ -331,7 +509,7 @@ const mascot=toggle.querySelector('.mrbot-mascot');const headerHome=$('mrbot-hea
 const petImage=$('mrbot-pet-image');
 const avatar=new window.MRBotAvatar.Avatar(mascot);petImage.hidden=true;
 window.MRBotVisual={play:(state,ms=2200)=>avatar.play(state,ms),get state(){return avatar.state;},get activeTasks(){return avatar.jobs.size;}};
-window.addEventListener('mrbot:task',e=>avatar.task(e.detail));
+window.addEventListener('mrbot:task',e=>{avatar.task(e.detail);if(['start','done','error','empty'].includes(e.detail?.phase))refreshLiveContext();});
 for(const d of Object.values(window.__MRBOT_TASKS__||{}))if(d.phase==='start'||d.phase==='progress')avatar.task(d);
 // Context changes do not trigger pointing gestures; keep the current calm pose.
 let petState='idle',petReset=null,petIdleTimer=null,lastSprite='';
@@ -366,7 +544,10 @@ root.classList.remove('mrbot-reduced-motion');
 root.addEventListener('pointermove',e=>{const r=mascot.getBoundingClientRect();const x=Math.max(-2.8,Math.min(2.8,(e.clientX-r.left-r.width*.35)/r.width*5));const y=Math.max(-1.7,Math.min(1.7,(e.clientY-r.top-r.height*.5)/r.height*3));avatar.look=[x,y];root.style.setProperty('--mrbot-look-x',x.toFixed(2)+'px');root.style.setProperty('--mrbot-look-y',y.toFixed(2)+'px');});root.addEventListener('pointerleave',()=>{avatar.look=[0,0];root.style.setProperty('--mrbot-look-x','0px');root.style.setProperty('--mrbot-look-y','0px');});
 toggle.addEventListener('click',()=>setOpen(!open));$('mrbot-close').addEventListener('click',()=>setOpen(false));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&open)setOpen(false);});
 window.MRI18N?.subscribe?.(()=>refresh());
-window.addEventListener('mrbot-view-change',refresh);
+window.addEventListener('mrbot-view-change',refreshLiveContext);
+// app.js dispatches this for *all* nested views (MP Audit tabs, Scalanie,
+// KPI, RS). The former listener only observed top-level view changes.
+window.addEventListener('mrbot:context',refreshLiveContext);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){petMood('idle');schedulePetIdle();}});avatar.compact=true;refresh();schedulePetIdle();
 try{if(!localStorage.getItem('mrbot-intro-v1')){const tip=$('mrbot-intro');tip.textContent=locale().intro;tip.hidden=false;tip.addEventListener('click',()=>{tip.hidden=true;setOpen(true);});setTimeout(()=>{tip.hidden=true;},7500);localStorage.setItem('mrbot-intro-v1','1');}}catch(e){}
 })();
