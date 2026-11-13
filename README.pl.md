@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.23.0-blue)
+![wersja](https://img.shields.io/badge/version-3.24.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -224,6 +224,10 @@ Nowy moduł RS korzysta z już wczytanej **Bazy RS**, bez ponownego importu. Gru
 Karta Hub wyróżnia **Przestoje · ARTLTT · Kreseczki**, a ekran Inne oznacza te trzy narzędzia jako aktywne. Generator jest integralną częścią aplikacji.
 
 ---
+
+### Obsada · obsada procesów (v3.24.0)
+
+Nowy moduł **Obsada** w menu głównym. Wczytaj `Grafik procesowy (godziny).xlsx` i sprawdź STAN na całą zmianę, historię miesięcy i Intelligence na podstawie zapisanych godzin. Plik jest przetwarzany lokalnie. Synchronizacja OneDrive/Power BI **nie jest jeszcze zaimplementowana**. Puste przyszłe godziny nie oznaczają nieobecności.
 
 ## ⚙️ Jak to działa od środka
 

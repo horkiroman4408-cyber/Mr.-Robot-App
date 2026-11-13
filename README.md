@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.23.0-blue)
+![version](https://img.shields.io/badge/version-3.24.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -224,6 +224,10 @@ A new RS tool that uses the already-loaded **Baza RS** (no second import). It gr
 The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists all three as active. Its barcode generator is part of the same visual interface, not an external website.
 
 ---
+
+### Obsada · process staffing (v3.24.0)
+
+Use **Obsada** from the main menu. Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
 
 ## ⚙️ How it's built (Under the Hood)
 

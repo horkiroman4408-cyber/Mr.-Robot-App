@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.23.0-blue)
+![версия](https://img.shields.io/badge/version-3.24.0-blue)
 [![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -224,6 +224,10 @@ KPI Аудит (`Audit_ECM_KPI`) и KPI Scalanie (`Pick_ECM_KPI`) доступн
 Карточка Hub выделяет **Przestoje · ARTLTT · Kreseczki**, а на экране Inne все три инструмента отмечены как активные. Генератор штрихкодов встроен в интерфейс приложения.
 
 ---
+
+### Obsada · расстановка по процессам (v3.24.0)
+
+Новый модуль **Obsada** в главном меню. Загрузи `Grafik procesowy (godziny).xlsx` для просмотра STAN по часам, истории по месяцам и Intelligence по учтённым часам. Файл обрабатывается локально. Автосинхронизация OneDrive/Power BI **пока не реализована**. Пустые будущие интервалы не означают отсутствия сотрудника.
 
 ## ⚙️ Как оно устроено (под капотом)
 
