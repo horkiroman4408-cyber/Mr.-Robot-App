@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.24.0-obsada-stan-2">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.24.0-obsada-roster-20261113">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -212,9 +212,21 @@
   </section>
   <section class="obs-surface obs-today-results" v-if="obsada.selected">
   <div class="obs-headline"><div><h2 class="obs-section-title">{{ eMsg('Obsada według procesów','Расстановка по процессам','Staffing by process','Розподіл за процесами') }} · {{ obsada.selected.label }}</h2><p class="obs-quiet">{{ eMsg('Liczby ze zbiorczej tabeli STAN, loginy z przydziałów powyżej','Числа из сводки STAN, сотрудники из верхней таблицы','Counts from STAN summary; workers from the assignments above','Числа зі зведення STAN, працівники з розподілу вище') }}</p></div><span class="obs-pill">{{ eMsg('Procesy','Процессы','Processes','Процеси') }}: {{ obsada.processes.length }}</span></div>
-  <div class="obs-today-stats"><div class="obs-today-stat"><strong>{{ obsada.totalPeople }}</strong><small>{{ eMsg('Przydziały pracowników','Назначения сотрудников','Employee assignments','Призначення працівників') }}</small></div><div class="obs-today-stat"><strong>{{ obsada.officialTotal==null?obsada.summaryCount:obsada.officialTotal }}</strong><small>{{ eMsg('SUMA z arkusza','ИТОГО из таблицы','Sheet SUMA total','Підсумок з аркуша') }}</small></div><div class="obs-today-stat"><strong>{{ obsada.processes.length }}</strong><small>{{ eMsg('Aktywne procesy','Активные процессы','Active processes','Активні процеси') }}</small></div></div>
+  <div class="obs-today-stats">
+   <div class="obs-today-stat"><span class="obs-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span><strong>{{ obsada.totalPeople }}</strong><small>{{ eMsg('Pracownicy w wybranej godzinie','Сотрудники в выбранный час','Employees in selected hour','Працівники у вибрану годину') }}</small></div>
+   <div class="obs-today-stat"><span class="obs-stat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span><strong>{{ obsada.processes.length }}</strong><small>{{ eMsg('Aktywne procesy','Активные процессы','Active processes','Активні процеси') }}</small></div>
+  </div>
+  <div v-if="obsada.officialTotal!=null && obsada.officialTotal!==obsada.totalPeople" class="obs-headcount-note" role="status">{{ eMsg('Uwaga: suma z tabeli STAN','Внимание: сумма из таблицы STAN','Note: total in STAN summary','Увага: підсумок таблиці STAN') }}: <b>{{ obsada.officialTotal }}</b> · {{ eMsg('przydziały','назначения','assignments','призначення') }}: <b>{{ obsada.totalPeople }}</b></div>
   <p v-if="!obsada.processes.length" class="obs-quiet">{{ eMsg('Brak przypisanych procesów w tym przedziale.','Нет назначений в этом интервале.','No assignments in this time slot.','Немає призначень у цьому інтервалі.') }}</p>
-  <div class="obs-process-grid"><details v-for="(item,i) in obsada.processes" :key="item.name+i" class="obs-process"><summary><span class="obs-process-name">{{ item.name }}</span><span class="obs-process-side"><b>{{ item.count }}</b><span class="obs-process-chevron" aria-hidden="true">⌄</span></span></summary><div class="obs-process-members"><div class="obs-process-caption">{{ eMsg('Pracownicy przypisani do procesu','Сотрудники на этом процессе','Employees assigned to this process','Працівники на цьому процесі') }} · {{ item.people }}</div><div class="obs-members"><span v-for="(person,j) in obsada.chosenPeople(item.name)" :key="j" class="obs-member">{{ person.login }}</span><span v-if="!item.people" class="obs-quiet">{{ eMsg('Brak identyfikatorów w tabeli przydziałów','Нет сотрудников в таблице назначений','No workers listed in assignments','Немає працівників у розподілі') }}</span></div></div></details></div>
+  <div class="obs-process-roster">
+   <article v-for="(item,i) in obsada.processes" :key="item.name" class="obs-roster-card" :style="{'--obs-order':Math.min(i,10)}">
+    <div class="obs-roster-heading"><h3>{{ item.name }}</h3><span class="obs-roster-count" :aria-label="eMsg('Osoby','Сотрудники','People','Працівники')+': '+item.count">{{ item.count }}</span></div>
+    <div class="obs-roster-people" v-if="obsada.chosenPeople(item.name).length">
+     <button v-for="(person,j) in obsada.chosenPeople(item.name)" :key="person.login+'-'+j" type="button" class="obs-person-button" @click="employeeOpen(person.login)" :title="eMsg('Otwórz profil KPI','Открыть профиль KPI','Open KPI profile','Відкрити профіль KPI')+': '+person.login"><span class="obs-person-avatar" aria-hidden="true">{{ String(person.login).slice(0,1).toUpperCase() }}</span><span class="obs-person-id">{{ person.login }}</span><span class="obs-person-link" aria-hidden="true">↗</span></button>
+    </div>
+    <p v-else class="obs-roster-missing">{{ eMsg('Brak identyfikatorów w tabeli przydziałów','Нет сотрудников в таблице назначений','No workers in the assignment table','Немає працівників у таблиці розподілу') }}</p>
+   </article>
+  </div>
  </section>
  </template>
  <section v-else class="obs-surface"><div class="obs-headline"><h2 class="obs-section-title">{{ obsada.state.tab==='history'?eMsg('Historia procesów','История процессов','Process history','Історія процесів'):eMsg('Intelligence · analiza godzin','Intelligence · анализ часов','Intelligence · hour analysis','Intelligence · аналіз годин') }}</h2><span class="obs-pill">{{ eMsg('Dane z XLSX','Данные XLSX','XLSX data','Дані XLSX') }}</span></div>
@@ -2584,9 +2596,9 @@
 <script src="js/code128.js"></script>
 <script src="js/mrbot-intelligence.js"></script>
 <script src="js/stock-intelligence.js"></script>
-<script src="js/obsada.js?v=3.24.0-obsada-stan-2"></script>
-<script src="js/obsada-module.js?v=3.24.0-obsada-stan-2"></script>
-<script src="js/app.js?v=3.24.0-obsada-stan-2"></script>
+<script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
+<script src="js/obsada-module.js?v=3.24.0-obsada-roster-20261113"></script>
+<script src="js/app.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
