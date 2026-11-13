@@ -17,7 +17,7 @@ test('Obsada module badge uses the existing animated module badge classes',()=>{
  assert.match(html,/class="module-context-icon"/);
 });
 test('Obsada card has themed flow section but does not render invented statistics',()=>{
- assert.match(html,/class="obs-hub-flow"/);
+ assert.match(html,/class="obsada-wide-features"/);
  assert.match(css,/\.obs-flow-track/);
  assert.ok(!html.includes('href="obsada.html"'));
 });

@@ -123,3 +123,26 @@ html[data-theme="ivory"] #app .obsada-module .obs-interval.active{background:rgb
 #app .obsada-module .obs-uploader-icon,#app .obsada-module .obs-empty-icon{background:var(--module-soft);color:var(--module-accent)}
 #app .obsada-module .obs-track div{background:linear-gradient(90deg,#d78b96,var(--module-accent))}
 #app .obsada-module :is(.obs-upload:focus-within,button:focus-visible,select:focus-visible){outline-color:var(--module-accent)}
+
+/* STAN: compact process summary and employee roster, scoped to Obsada. */
+#app .obsada-module .obs-today-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0 19px}
+#app .obsada-module .obs-today-stat{padding:16px 18px;background:var(--module-soft);border:1px solid var(--module-border);border-radius:16px;display:flex;flex-direction:column;gap:4px}
+#app .obsada-module .obs-today-stat strong{font-size:clamp(22px,2.2vw,30px);font-weight:800;letter-spacing:-.045em;line-height:1.1}
+#app .obsada-module .obs-today-stat small{font-size:11px;color:var(--obs-muted)}
+#app .obsada-module .obs-process-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:start}
+#app .obsada-module .obs-process-grid .obs-process{margin:0;background:var(--obs-surface);transition:transform .26s cubic-bezier(.2,.7,.3,1),border-color .22s,box-shadow .22s}
+#app .obsada-module .obs-process-grid .obs-process:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(25,25,35,.06)}
+#app .obsada-module .obs-process-grid .obs-process[open]{grid-row:span 2;border-color:var(--module-border)}
+#app .obsada-module .obs-process-grid .obs-process summary{min-height:57px;font-size:13px;gap:10px}
+#app .obsada-module .obs-process-name{min-width:0;overflow-wrap:anywhere;line-height:1.3}
+#app .obsada-module .obs-process-side{display:flex;align-items:center;gap:10px;flex:none}
+#app .obsada-module .obs-process-chevron{color:var(--module-accent);font-size:20px;font-weight:400;transition:transform .22s}
+#app .obsada-module .obs-process[open] .obs-process-chevron{transform:rotate(180deg)}
+#app .obsada-module .obs-process-caption{font-size:11px;color:var(--obs-muted);padding:2px 15px 11px}
+#app .obsada-module .obs-process-members .obs-members{padding-top:0}
+#app .obsada-module .obs-surface{animation:obs-section-enter .34s cubic-bezier(.22,.72,.3,1) both}
+#app .obsada-module .obs-process-grid .obs-process{animation:obs-section-enter .32s cubic-bezier(.22,.72,.3,1) both}
+#app .obsada-module .obs-process-grid .obs-process:nth-child(2n){animation-delay:.035s}
+@keyframes obs-section-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:680px){#app .obsada-module .obs-process-grid{grid-template-columns:1fr}#app .obsada-module .obs-today-stat{padding:12px}#app .obsada-module .obs-today-stat small{font-size:10px}}
+@media(prefers-reduced-motion:reduce){#app .obsada-module .obs-surface,#app .obsada-module .obs-process-grid .obs-process{animation:none!important;transform:none!important}}

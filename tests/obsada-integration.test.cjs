@@ -9,7 +9,7 @@ test('Obsada is a first-class SPA view, not a separate page',()=>{
  const html=get('index.html');
  assert.match(html,/view === 'obsada'/);
  assert.match(html,/@click="view = 'obsada'"/);
- assert.match(html,/src="js\/obsada-module\.js"/);
+ assert.match(html,/src="js\/obsada-module\.js(?:\?[^"]+)?"/);
  assert.doesNotMatch(html,/href="obsada\.html"/);
  assert.ok(!fs.existsSync(path.join(dir,'obsada.html')));
  assert.ok(!fs.existsSync(path.join(dir,'css/obsada.css')));
@@ -21,5 +21,5 @@ test('Obsada imports and Vue wiring are isolated from other modules',()=>{
  const html=get('index.html');
  for(const view of ['kpi','rs','mp','inne','settings','changelog'])assert.ok(html.includes(`view === '${view}'`),view);
  const sw=get('sw.js');
- for(const f of ['css/obsada-module.css','js/obsada.js','js/obsada-module.js'])assert.ok(sw.includes(`'${f}'`),f);
+ for(const f of ['css/obsada-module.css','js/obsada.js','js/obsada-module.js'])assert.ok(sw.includes(`'${f}`),f);
 });
