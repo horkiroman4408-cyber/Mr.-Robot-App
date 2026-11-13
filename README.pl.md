@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![wersja](https://img.shields.io/badge/version-3.24.0-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.14-0d9488)](#-openreports-bridge)
+[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.22-0d9488)](#-openreports-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -132,11 +132,11 @@ Raporty trafiają do `Downloads/MrRobot/OpenReports`. Gdy aplikacja o to poprosi
 
 STOCK: ECM_PICK_Lacks_during_picking, jeden dzień, źródło WMS ECM PODKARPACIE Prod.
 
-**Baza MP (Bridge v0.3.14):** raport `ECM_STOCK_MP_and_on_the_floor` pozwala wybrać MP/MP1/MP2/MP3 oraz markę; do OpenReports trafia odpowiednio MP%/MP1%/MP2%/MP3%. Pobrany XLSX zasila wspólną bazę MP dla Scalanie/Konsolidacja i RS.
+**Baza MP (Bridge v0.3.22):** raport `ECM_STOCK_MP_and_on_the_floor` pozwala wybrać MP/MP1/MP2/MP3 oraz markę; do OpenReports trafia odpowiednio MP%/MP1%/MP2%/MP3%. Pobrany XLSX zasila wspólną bazę MP dla Scalanie/Konsolidacja i RS.
 
 KPI Audyt (`Audit_ECM_KPI`) i KPI Scalanie (`Pick_ECM_KPI`) są dostępne przez Bridge z osobnymi zakresami dat i automatycznym `Pick Scal`.
 
-**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.14.zip`](downloads/OpenReports-Bridge-v0.3.14.zip).
+**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.22.zip`](downloads/OpenReports-Bridge-v0.3.22.zip).
 
 ---
 

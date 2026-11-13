@@ -39,6 +39,79 @@ async function openSettingsMemory(){
 
 
 const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
+
+// SharePoint Bridge: only explicit refresh, downloads through Excel Online.
+// Browser security requires a one-time folder grant to read the downloaded workbook.
+const obsadaBridge=reactive({busy:false,error:'',message:'',connected:false,sourceConfigured:false});
+const SP_FOLDER_DB='mrrobot-obsada-sharepoint-folder';
+function spFolderDatabase(){return new Promise((resolve,reject)=>{const req=indexedDB.open(SP_FOLDER_DB,1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
+let spCachedFolder=null;
+async function spFolderGet(){const db=await spFolderDatabase();try{return await new Promise((resolve,reject)=>{const req=db.transaction('handles').objectStore('handles').get('downloadFolder');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}finally{db.close();}}
+async function spFolderPut(handle){spCachedFolder=handle;const db=await spFolderDatabase();try{await new Promise((resolve,reject)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put(handle,'downloadFolder');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
+spFolderGet().then(handle=>{spCachedFolder=handle;}).catch(()=>{});
+function spAskBridge(type,timeout=15000){
+ const nonce='sp-'+Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
+ return new Promise((resolve,reject)=>{
+  let timer;const cleanup=()=>{clearTimeout(timer);window.removeEventListener('message',answer);};
+  function answer(ev){if(ev.source!==window||ev.origin!==location.origin||ev.data?.type!==type+'_RESULT'||ev.data.nonce!==nonce)return;cleanup();resolve(ev.data.result);}
+  window.addEventListener('message',answer);
+  timer=setTimeout(()=>{cleanup();reject(new Error('BRIDGE_NOT_RESPONDING'));},timeout);
+  window.postMessage({type,nonce},location.origin);
+ });
+}
+async function obsadaBridgeCheck(){
+ try{const r=await spAskBridge('MR_SP_SOURCE_STATUS');obsadaBridge.connected=!!r?.ok;obsadaBridge.sourceConfigured=!!r?.configured;}
+ catch(_){obsadaBridge.connected=false;obsadaBridge.sourceConfigured=false;}
+}
+async function obsadaBridgeRefresh(){
+ if(obsadaBridge.busy||obsada.state.loading)return;
+ if(!obsadaBridge.connected){obsadaBridge.error='BRIDGE_NOT_CONNECTED';return;}
+ if(!obsadaBridge.sourceConfigured){obsadaBridge.error='SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE';return;}
+ obsadaBridge.busy=true;obsadaBridge.error='';obsadaBridge.message='';
+ try{
+  // Request the folder in the click call stack, before awaiting the extension.
+  let handle=spCachedFolder;
+  if(!handle){
+   if(typeof window.showDirectoryPicker!=='function')throw Error('FOLDER_ACCESS_UNSUPPORTED');
+   handle=await window.showDirectoryPicker({id:'mrrobot-sharepoint',mode:'read'});
+   if(handle.name.toLowerCase()!=='sharepoint')throw Error('WYBIERZ_FOLDER_MRROBOT_SHAREPOINT');
+   await spFolderPut(handle);
+  }
+  if(handle.queryPermission && await handle.queryPermission({mode:'read'})!=='granted'){
+   if(!handle.requestPermission||await handle.requestPermission({mode:'read'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
+  }
+  const source=await spAskBridge('MR_SP_SOURCE_STATUS');
+  obsadaBridge.connected=!!source?.ok;obsadaBridge.sourceConfigured=!!source?.configured;
+  if(!source?.ok)throw Error('BRIDGE_NOT_CONNECTED');
+  if(!source.configured)throw Error('SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE');
+  const start=await spAskBridge('MR_SP_JOB_START',80000);
+  if(!start?.ok)throw Error(start?.detail||start?.error||'DOWNLOAD_NOT_STARTED');
+  obsadaBridge.message='Pobieranie XLSX…';
+  let done=false;let started=0;
+  for(let i=0;i<120;i++){
+   await new Promise(r=>setTimeout(r,1000));
+   const r=await spAskBridge('MR_SP_JOB_STATUS');
+   if(!r?.ok)throw Error(r?.error||'DOWNLOAD_STATUS_FAILED');
+   const job=r.job||{};
+   if(job.state==='failed'||job.state==='manual_required')throw Error(job.error||'DOWNLOAD_FAILED');
+   if(job.state==='complete'){done=true;started=Number(job.started||0);break;}
+  }
+  if(!done)throw Error('DOWNLOAD_TIMEOUT');
+  const fileHandle=await handle.getFileHandle('Grafik procesowy (godziny).xlsx');
+  const file=await fileHandle.getFile();
+  if(started&&file.lastModified<started-2500)throw Error('STALE_DOWNLOAD_NOT_REPLACED');
+  if(file.size<4||file.size>80*1024*1024)throw Error('INVALID_FILE_SIZE');
+  const bytes=new Uint8Array(await file.slice(0,4).arrayBuffer());
+  if(bytes[0]!==80||bytes[1]!==75||bytes[2]!==3||bytes[3]!==4)throw Error('NOT_XLSX');
+  const ok=await obsada.loadFile(file,{keepSelection:true});
+  if(!ok)throw Error(obsada.state.error||'INVALID_STAN');
+  obsadaBridge.message='SharePoint · dane zaktualizowane';
+ }catch(e){obsadaBridge.error=String(e?.message||e).slice(0,160);}
+ finally{obsadaBridge.busy=false;}
+}
+document.addEventListener('mr-openreports-bridge-ready',()=>obsadaBridgeCheck());
+setTimeout(obsadaBridgeCheck,900);
+
 const view=ref('hub');const toast=ref('');const mobileLite=!!window.MR_MOBILE_LITE;
 // Visual-only marker for theme-specific module accents; it does not affect application logic.
 watch(view,active=>{const host=document.getElementById('app');if(host)host.dataset.activeModule=active;},{immediate:true});
@@ -2621,6 +2694,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

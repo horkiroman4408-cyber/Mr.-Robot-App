@@ -2,6 +2,38 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.22",
+      "date": "2026-11-13",
+      "title": {
+        "pl": "SharePoint: ręczne odświeżanie Obsada",
+        "ru": "SharePoint: ручное обновление Obsada",
+        "en": "SharePoint: manual Obsada refresh",
+        "uk": "SharePoint: ручне оновлення Obsada"
+      },
+      "changes": {
+        "pl": [
+          "Zapisanie, zamiana i usunięcie linku SharePoint do grafiku procesowego.",
+          "Pobieranie aktualnego XLSX przez Excel Online do Downloads/MrRobot/SharePoint i odczyt przez Obsada po zgodzie użytkownika.",
+          "Rozdzielenie komunikatów SharePoint i OpenReports; bez harmonogramu pobierania."
+        ],
+        "ru": [
+          "Сохранение, замена и удаление ссылки SharePoint.",
+          "Загрузка XLSX через Excel Online в Downloads/MrRobot/SharePoint и чтение из Obsada с разрешения пользователя.",
+          "Раздельные сообщения SharePoint/OpenReports; без фонового расписания."
+        ],
+        "en": [
+          "Save, replace, and remove the SharePoint workbook link.",
+          "Download XLSX from Excel Online to Downloads/MrRobot/SharePoint; Obsada reads it after user grants folder access.",
+          "Independent SharePoint/OpenReports messages; no scheduled downloads."
+        ],
+        "uk": [
+          "Збереження, заміна й видалення посилання SharePoint.",
+          "Завантаження XLSX через Excel Online до Downloads/MrRobot/SharePoint та читання Obsada з дозволу користувача.",
+          "Окремі повідомлення SharePoint і OpenReports; без фонового розкладу."
+        ]
+      }
+    },
+    {
       "version": "0.3.14",
       "date": "2026-11-08",
       "title": {
