@@ -6,11 +6,12 @@ const base=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(base,'css/obsada-module.css'),'utf8');
 const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
-test('STAN today shows exactly two dashboard metrics',()=>{
+test('STAN today shows two primary dashboard metrics and optional outside metric',()=>{
  const start=html.indexOf('<section class="obs-surface obs-today-results"');
  const end=html.indexOf('</template>',start);
  const block=html.slice(start,end);
  assert.equal((block.match(/class="obs-today-stat"/g)||[]).length,2);
+ assert.match(block,/obsada.otherPeopleCount/);
  assert.match(block,/obsada\.totalPeople/);
  assert.match(block,/obsada\.processes\.length/);
  assert.doesNotMatch(block,/SUMA z arkusza/);
@@ -27,7 +28,7 @@ test('layout adapts to narrow screens and respects reduced motion',()=>{
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
 test('service worker and HTML use matching asset revision',()=>{
- const version='3.24.0-obsada-roster-20261113';
+ const version='3.24.0-obsada-poza-avatars-20261113';
  assert.match(html,new RegExp('obsada-module\\.css\\?v='+version));
  assert.match(sw,new RegExp('obsada-module\\.css\\?v='+version));
  assert.match(sw,new RegExp('CACHE_REVISION = .v'+version));

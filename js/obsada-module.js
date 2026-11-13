@@ -5,10 +5,31 @@ root.createMrObsada=function({reactive,computed,markRaw}){
  const state=reactive({fileName:'',loadedAt:'',savedAt:'',loading:false,error:'',model:null,tab:'today',interval:'',source:'main',month:'',employee:'',process:''});
  const intervals=computed(()=>state.model?.intervals||[]);
  const selected=computed(()=>intervals.value.find(x=>x.key===state.interval)||intervals.value[0]||null);
+ // Non-production assignments in STAN are kept separate from operational processes.
+ // Normalize Polish diacritics and whitespace without altering source labels.
+ function outsideKey(value){
+  const normalized=String(value||'').replace(/[Łł]/g,c=>c==='Ł'?'L':'l').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().replace(/\s+/g,' ').toUpperCase();
+  if(normalized==='N/N')return 'N/N';
+  if(normalized==='INNE DZIALY')return 'INNE DZIALY';
+  if(normalized==='W DOMU')return 'W DOMU';
+  return '';
+ }
+ const otherAssignments=computed(()=>{
+  const result={'N/N':[],'INNE DZIALY':[],'W DOMU':[]};
+  for(const person of selected.value?.people||[]){const key=outsideKey(person.process);if(key)result[key].push(person);}
+  return Object.entries(result).filter(([,people])=>people.length).map(([name,people])=>({name,people,count:people.length}));
+ });
+ const otherPeopleCount=computed(()=>otherAssignments.value.reduce((n,g)=>n+g.count,0));
+ const processAssignmentsCount=computed(()=>(selected.value?.people.length||0)-otherPeopleCount.value);
+ function personInitials(name){
+  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
+  return parts.length>=2 && parts.some(x=>/[\p{L}]/u.test(x)) && parts.every(x=>/[\p{L}]/u.test(x))
+   ? (parts[0][0]+parts[parts.length-1][0]).toLocaleUpperCase():'';
+ }
  const processes=computed(()=>{
   if(!selected.value)return [];
   const iv=selected.value, names=new Set([...Object.keys(iv.officialSummary||{}),...Object.keys(iv.summary)]);
-  return [...names].map(name=>({name,count:Object.prototype.hasOwnProperty.call(iv.officialSummary||{},name)?iv.officialSummary[name]:iv.summary[name],people:iv.summary[name]||0}))
+  return [...names].filter(name=>!outsideKey(name)).map(name=>({name,count:Object.prototype.hasOwnProperty.call(iv.officialSummary||{},name)?iv.officialSummary[name]:iv.summary[name],people:iv.summary[name]||0}))
    .filter(x=>x.count>0||x.people>0).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
  });
  const totalPeople=computed(()=>selected.value?.people.length||0);
@@ -50,6 +71,6 @@ root.createMrObsada=function({reactive,computed,markRaw}){
  async function onFile(event){const file=event?.target?.files?.[0];await loadFile(file);if(event?.target)event.target.value='';}
  function onDrop(event){event.preventDefault();loadFile(event.dataTransfer?.files?.[0]);}
  function reset(){state.model=null;state.fileName='';state.loadedAt='';state.savedAt='';state.error='';state.interval='';state.tab='today';}
- return {state,intervals,selected,processes,totalPeople,officialTotal,summaryCount,history,months,employees,processOptions,report,maxHours,tableRows,nowInterval,chosenPeople,formatLoaded,formatHours,percent,onFile,onDrop,loadFile,setPersist,reset};
+ return {state,intervals,selected,processes,totalPeople,officialTotal,summaryCount,otherAssignments,otherPeopleCount,processAssignmentsCount,personInitials,history,months,employees,processOptions,report,maxHours,tableRows,nowInterval,chosenPeople,formatLoaded,formatHours,percent,onFile,onDrop,loadFile,setPersist,reset};
 };
 })(typeof window!=='undefined'?window:globalThis);
