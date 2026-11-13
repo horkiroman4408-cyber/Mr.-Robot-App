@@ -141,7 +141,6 @@ html[data-theme="ivory"] #app .obsada-module .obs-interval.active{background:rgb
 #app .obsada-module .obs-person-button{max-width:100%;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:3px 8px 3px 4px;background:var(--mr-c104,rgba(186,76,96,.07));color:var(--obs-text);border:1px solid var(--obs-border);border-radius:10px;cursor:pointer;text-align:left;font:650 11px/1.3 ui-monospace,SFMono-Regular,Consolas,monospace;transition:background .18s ease,border-color .18s ease,transform .18s ease}
 #app .obsada-module .obs-person-avatar{width:24px;height:24px;flex:none;border-radius:7px;background:var(--module-soft);color:var(--module-accent);display:grid;place-items:center;font:800 11px/1 sans-serif}
 #app .obsada-module .obs-person-id{overflow-wrap:anywhere;min-width:0}
-#app .obsada-module .obs-person-link{color:var(--module-accent);font-size:12px}
 #app .obsada-module .obs-roster-missing{font-size:11px;line-height:1.45;color:var(--obs-muted);margin:0}
 @media(hover:hover){#app .obsada-module .obs-roster-card:hover{transform:translateY(-2px);border-color:var(--module-border);box-shadow:0 8px 20px rgba(0,0,0,.045)}#app .obsada-module .obs-person-button:hover{border-color:var(--module-accent);background:var(--module-soft);transform:translateY(-1px)}#app .obsada-module .obs-today-stat:hover{transform:translateY(-2px);box-shadow:0 5px 16px rgba(0,0,0,.04)}}
 #app .obsada-module .obs-person-button:focus-visible{outline:2px solid var(--module-accent);outline-offset:2px}

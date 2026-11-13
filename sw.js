@@ -17,14 +17,14 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.24.0-obsada-poza-avatars-20261113';
+const CACHE_REVISION = 'v3.24.0-obsada-roster-hover-20261113';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
 const PRECACHE_URLS = [
-  'css/obsada-module.css?v=3.24.0-obsada-poza-avatars-20261113',
+  'css/obsada-module.css?v=3.24.0-obsada-roster-hover-20261113',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
-  'js/obsada-module.js?v=3.24.0-obsada-poza-avatars-20261113',
+  'js/obsada-module.js?v=3.24.0-obsada-roster-hover-20261113',
   './',
   'index.html',
   'css/styles.css',

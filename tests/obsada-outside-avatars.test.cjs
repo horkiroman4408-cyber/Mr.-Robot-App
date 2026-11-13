@@ -41,7 +41,7 @@ test('Third KPI appears conditionally and all workers retain shared profile acti
  assert.doesNotMatch(html,/String\(person.login\)\.slice\(0,1\)/);
 });
 test('Cache references and responsive design reflect new code',()=>{
- const rev='3.24.0-obsada-poza-avatars-20261113';
+ const rev='3.24.0-obsada-roster-hover-20261113';
  for(const name of ['obsada-module.css','obsada-module.js']){
   assert.ok(html.includes(name+'?v='+rev));assert.ok(sw.includes(name+'?v='+rev));
  }
