@@ -101,14 +101,6 @@
 <p class="text-[13px] text-slate-500 mt-2 max-w-xl mx-auto float-up" style="animation-delay:.15s">{{ tr(35) }}</p>
 </header>
 <main class="flex-1 px-6 pb-10 max-w-6xl w-full mx-auto"><div v-if="mobileLite" class="mr-mobile-workspace"><span class="mr-mobile-workspace-kicker">MR. ROBOT · MOBILE</span><h2>{{ eMsg('Panel roboczy','Рабочее пространство','Workspace','Робочий простір') }}</h2><p>{{ eMsg('Twoje narzędzia zawsze pod ręką','Твои инструменты всегда под рукой','Your tools at your fingertips','Твої інструменти завжди поруч') }}</p></div><div class="grid grid-cols-1 md:grid-cols-2 gap-6 mr-mobile-home-grid">
-<div class="app-card float-up" data-app="obsada" style="--accent-soft:rgba(83,110,139,.13);animation-delay:.17s" @click="view = 'obsada'">
-<div class="flex items-start gap-5"><div class="app-icon" ><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11M15 9v11M6 13h1M12 13h1M18 13h1"/></svg></div><div class="flex-1 min-w-0"><div class="app-title" >Obsada</div><div class="app-sub">{{ eMsg('Obsada procesów','Расстановка процессов','Process staffing','Розподіл процесів') }}</div></div></div>
-<p class="app-desc">{{ eMsg('Aktualny STAN, historia procesów i analiza godzin pracy.','Актуальный STAN, история процессов и анализ часов работы.','Current STAN, process history and work-hour analysis.','Актуальний STAN, історія процесів і аналіз годин роботи.') }}</p>
-<div class="tag-row"><span class="tag">STAN</span><span class="tag">Historia</span><span class="tag">Intelligence</span></div>
-<div class="feature-list"><div class="feature-item"><span class="ico">🕒</span><span>{{ eMsg('Obsada w wybranym przedziale godzin','Расстановка в выбранном интервале','Staffing in selected time slots','Розподіл у вибраному інтервалі') }}</span></div><div class="feature-item"><span class="ico">👥</span><span>{{ eMsg('Pracownicy według procesu','Сотрудники по процессам','People grouped by process','Працівники за процесами') }}</span></div><div class="feature-item"><span class="ico">📅</span><span>{{ eMsg('Historia z miesięcznych arkuszy','История из месячных листов','History from monthly sheets','Історія з місячних аркушів') }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ eMsg('Analiza zapisanych godzin','Анализ записанных часов','Analysis of recorded hours','Аналіз записаних годин') }}</span></div></div>
-<div class="obs-hub-flow" aria-hidden="true"><div class="obs-flow-head">{{ eMsg('JEDEN PLIK · TRZY WIDOKI','ОДИН ФАЙЛ · ТРИ РАЗДЕЛА','ONE FILE · THREE VIEWS','ОДИН ФАЙЛ · ТРИ РОЗДІЛИ') }}</div><div class="obs-flow-track"><span><i></i>STAN</span><b>›</b><span><i></i>{{ eMsg('Historia','История','History','Історія') }}</span><b>›</b><span><i></i>Intelligence</span></div></div>
-<button class="launch-btn" >{{ eMsg('Otwórz Obsada','Открыть Obsada','Open Obsada','Відкрити Obsada') }} <span class="arrow">→</span></button>
-</div>
 
 <div class="app-card float-up" data-app="kpi" style="--accent-soft:rgba(10,132,255,.14);animation-delay:.2s" @click="view = 'kpi'">
 <div class="flex items-start gap-5"><div class="app-icon bg-gradient-to-br from-[#5ac8fa] via-[#0a84ff] to-[#0066cc]"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1" fill="#fff" stroke="none"/><rect x="12" y="8" width="3" height="10" rx="1" fill="#fff" stroke="none"/><rect x="17" y="5" width="3" height="13" rx="1" fill="#fff" stroke="none"/></svg></div><div class="flex-1 min-w-0"><div class="app-title gradient-text">KPI Norms</div><div class="app-sub">{{ tr(759) }}</div></div></div>
@@ -140,7 +132,23 @@
 <div class="tag-row"><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">{{ tr(99) }}</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">ARTLTT</span><span class="tag" style="background:var(--mr-c157,rgba(245,158,11,.12));color:var(--mr-c20,#b45309);">Kreseczki</span></div>
 <div class="feature-list"><div class="feature-item"><span class="ico">📉</span><span>{{ tr(783) }}</span></div><div class="feature-item"><span class="ico">📦</span><span>{{ tr(784) }}</span></div><div class="feature-item"><span class="ico">📊</span><span>{{ tr(785) }}</span></div><div class="feature-item"><span class="ico">✨</span><span>{{ tr(786) }}</span></div><div class="feature-item"><span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" style="display:block;flex-shrink:0"><path d="M3 4v16M6 4v16M10 4v16M12 4v16M16 4v16M19 4v16M21 4v16"/></svg></span><span>{{ tr("Generuj kody kreskowe Code 128 i drukuj je bezpośrednio z aplikacji.") }}</span></div></div>
 <button class="launch-btn" style="background:linear-gradient(180deg,#fbbf24 0%,#d97706 100%);box-shadow:0 1px 0 var(--mr-c10,rgba(255,255,255,.4)) inset,0 8px 20px rgba(245,158,11,.35);">{{ tr(108) }} <span class="arrow">→</span></button>
-</div></div>
+</div>
+<div class="app-card float-up obsada-wide" data-app="obsada" style="--accent-soft:rgba(83,110,139,.13);animation-delay:.52s" @click="view = 'obsada'">
+  <div class="obsada-wide-intro">
+    <div class="flex items-center gap-4">
+      <div class="app-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11M15 9v11M6 13h1M12 13h1M18 13h1"/></svg></div>
+      <div class="min-w-0"><div class="app-title">Obsada</div><div class="app-sub">{{ eMsg('Obsada procesów','Расстановка процессов','Process staffing','Розподіл процесів') }}</div></div>
+    </div>
+    <p class="app-desc">{{ eMsg('Aktualny STAN, historia procesów i analiza godzin pracy.','Актуальный STAN, история процессов и анализ часов работы.','Current STAN, process history and work-hour analysis.','Актуальний STAN, історія процесів і аналіз годин роботи.') }}</p>
+  </div>
+  <div class="obsada-wide-features">
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">◷</span><div><b>STAN</b><small>{{ eMsg('Obsada według godzin','Расстановка по часам','Staffing by hour','Розподіл за годинами') }}</small></div></div>
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><div><b>{{ eMsg('Historia','История','History','Історія') }}</b><small>{{ eMsg('Procesy pracowników','Процессы сотрудников','Employee processes','Процеси працівників') }}</small></div></div>
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▥</span><div><b>Intelligence</b><small>{{ eMsg('Analiza godzin','Анализ часов','Hours analysis','Аналіз годин') }}</small></div></div>
+  </div>
+  <div class="obsada-wide-action"><button type="button" class="launch-btn">{{ eMsg('Otwórz Obsada','Открыть Obsada','Open Obsada','Відкрити Obsada') }} <span class="arrow">→</span></button></div>
+</div>
+</div>
 <div v-if="mrMemoryItems.length || mrRestore.phase==='checking'" id="mr-memory-manager" class="mr-saved-bar float-up mr-memory-panel">
  <div class="mr-memory-head">
   <div class="mr-mgr-title"><span class="mr-mgr-icon" aria-hidden="true">💾</span><div><strong>{{ tr(109).replace('💾 ', '') }}</strong><small>{{ mrRestoreText('manager') }}</small></div></div>
