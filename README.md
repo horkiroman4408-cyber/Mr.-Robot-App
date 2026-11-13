@@ -227,7 +227,7 @@ The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists a
 
 ### Obsada · process staffing (v3.24.0)
 
-Use **Obsada** from the main menu. Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
+Open **Obsada** within the main Mr. Robot app (no separate page). Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
 
 ## ⚙️ How it's built (Under the Hood)
 
@@ -249,8 +249,11 @@ A few decisions that make it fast and maintainable:
 Mr.-Robot-App/
 ├── index.html              # page skeleton + app markup (Vue templates)
 ├── css/styles.css          # all styles
+├── css/obsada-module.css # Obsada scoped SPA styles
 ├── js/
 │   ├── app.js              # ★ main application code (UI + logic)
+│   ├── obsada.js           # Obsada XLSX parser
+│   ├── obsada-module.js    # Obsada Vue module
 │   ├── changelog.js        # ★ "What's new" history
 │   ├── stock-intelligence.js  # STOCK read-only analysis: closures / repeats
 │   ├── i18n.js             # translations (PL / RU / EN / UK)
