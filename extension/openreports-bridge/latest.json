@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "version": "0.3.22",
+  "version": "0.3.23",
   "minCompatibleVersion": "0.2.8",
-  "download": "downloads/OpenReports-Bridge-v0.3.22.zip",
+  "download": "downloads/OpenReports-Bridge-v0.3.23.zip",
   "changelog": "extension/openreports-bridge/history.json"
 }

@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.24.0-theme-fix-20261113">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.24.0-sp-compact-20261113">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -201,11 +201,25 @@
 <main class="px-6 pb-12 max-w-6xl mx-auto w-full space-y-5">
  <section class="obs-surface obs-uploader" @dragover.prevent @drop.prevent="obsada.onDrop($event)">
   <div class="obs-uploader-main"><span class="obs-uploader-icon" aria-hidden="true">📄</span><div style="min-width:0"><div v-if="obsada.state.fileName" class="obs-filename" :title="obsada.state.fileName">{{ obsada.state.fileName }}</div><div v-else class="obs-filename">Grafik procesowy (godziny).xlsx</div><div class="obs-quiet"><template v-if="obsada.state.loadedAt">{{ eMsg('Wczytano','Загружен','Loaded','Завантажено') }}: {{ obsada.formatLoaded(uiLanguage) }}</template><template v-else>{{ eMsg('Wczytaj plik, aby zobaczyć dane','Загрузи файл для просмотра','Load a file to view data','Завантажте файл для перегляду') }}</template></div><div class="obs-quiet"><span v-if="obsada.state.savedAt">{{ eMsg('Zapisany w pamięci przeglądarki · ','Сохранён в браузере · ','Saved in browser · ','Збережено в браузері · ') }}</span>{{ eMsg('Plik przetwarzany lokalnie. SharePoint przez Bridge.','Файл обрабатывается локально. SharePoint через Bridge.','Processed locally. SharePoint via Bridge.','Файл обробляється локально. SharePoint через Bridge.') }}</div></div></div>
-  <div class="obs-quiet" style="margin:6px 0 0 4px" v-if="obsadaBridge.connected && obsadaBridge.sourceConfigured">{{ eMsg('Pierwsze odświeżenie: wskaż folder Downloads/MrRobot/SharePoint.','Первое обновление: выбери папку Downloads/MrRobot/SharePoint.','First refresh: select Downloads/MrRobot/SharePoint.','Перше оновлення: вибери папку Downloads/MrRobot/SharePoint.') }}</div>
-  <div class="obs-quiet" style="margin:6px 0 0 4px" v-if="obsadaBridge.connected">{{ obsadaBridge.sourceConfigured?eMsg('SharePoint · źródło zapisane w Bridge','SharePoint · ссылка сохранена в Bridge','SharePoint · source saved in Bridge','SharePoint · джерело збережено в Bridge'):eMsg('Zapisz link SharePoint w Bridge','Сохрани ссылку в Bridge','Save SharePoint link in Bridge','Збережи посилання у Bridge') }}</div>
-  <div class="obs-bridge-actions"><button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsada.state.loading" @click="obsadaBridgeRefresh"><span aria-hidden="true">↻</span> {{ obsadaBridge.busy?eMsg('Aktualizowanie…','Обновление…','Refreshing…','Оновлення…'):eMsg('Odśwież dane','Обновить данные','Refresh data','Оновити дані') }}</button><label class="obs-upload"><span>{{ obsada.state.loading?eMsg('Wczytywanie…','Загрузка…','Loading…','Завантаження…'):obsada.state.model?eMsg('Zmień plik','Сменить файл','Change file','Змінити файл'):eMsg('Wczytaj XLSX','Загрузить XLSX','Load XLSX','Завантажити XLSX') }}</span><input type="file" accept=".xlsx,.xls" :disabled="obsada.state.loading" @change="obsada.onFile($event)" :aria-label="eMsg('Wczytaj plik XLSX','Загрузить файл XLSX','Load XLSX file','Завантажити XLSX')"></label></div>
+  <div class="obs-bridge-compact">
+   <div class="obs-bridge-status">
+    <span class="obs-bridge-dot" :class="{ready:obsadaBridge.connected&&obsadaBridge.sourceConfigured}" aria-hidden="true"></span>
+    <span>{{ obsadaBridge.connected?(obsadaBridge.sourceConfigured?eMsg('SharePoint · źródło zapisane','SharePoint · ссылка сохранена','SharePoint · source saved','SharePoint · джерело збережено'):eMsg('SharePoint · skonfiguruj źródło','SharePoint · настрой источник','SharePoint · set up source','SharePoint · налаштуйте джерело')):eMsg('Bridge · brak połączenia','Bridge · нет подключения','Bridge · disconnected','Bridge · немає з’єднання') }}</span>
+    <span v-if="obsadaBridge.folderName" class="obs-bridge-folder-label" :title="'Downloads/MrRobot/SharePoint'"><span aria-hidden="true">✓</span> {{ eMsg('Folder wybrany','Папка выбрана','Folder selected','Папку вибрано') }}</span>
+   </div>
+   <div class="obs-bridge-actions">
+    <button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsadaBridge.setupBusy || obsada.state.loading" @click="obsadaBridgeRefresh"><span aria-hidden="true">↻</span> {{ obsadaBridge.busy?eMsg('Aktualizowanie…','Обновление…','Refreshing…','Оновлення…'):eMsg('Odśwież dane','Обновить данные','Refresh data','Оновити дані') }}</button>
+    <button type="button" class="obs-bridge-config-btn" :aria-expanded="obsadaBridge.editing" :disabled="obsadaBridge.busy" @click="obsadaBridge.editing=!obsadaBridge.editing;obsadaBridge.error=''" :aria-label="eMsg('Ustaw źródło SharePoint','Настроить источник SharePoint','Configure SharePoint source','Налаштувати джерело SharePoint')" :title="eMsg('Ustawienia SharePoint','Настройки SharePoint','SharePoint settings','Налаштування SharePoint')">⚙</button>
+    <label class="obs-upload"><span>{{ obsada.state.loading?eMsg('Wczytywanie…','Загрузка…','Loading…','Завантаження…'):obsada.state.model?eMsg('Zmień plik','Сменить файл','Change file','Змінити файл'):eMsg('Wczytaj XLSX','Загрузить XLSX','Load XLSX','Завантажити XLSX') }}</span><input type="file" accept=".xlsx,.xls" :disabled="obsada.state.loading" @change="obsada.onFile($event)" :aria-label="eMsg('Wczytaj plik XLSX','Загрузить файл XLSX','Load XLSX file','Завантажити XLSX')"></label>
+   </div>
+   <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config">
+    <label class="obs-bridge-input-label" for="obs-sharepoint-link">{{ eMsg('Link SharePoint','Ссылка SharePoint','SharePoint link','Посилання SharePoint') }}</label>
+    <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.setupBusy || !obsadaBridge.link" @click="obsadaBridgeSaveSource">{{ obsadaBridge.sourceConfigured?eMsg('Zmień','Заменить','Replace','Замінити'):eMsg('Zapisz','Сохранить','Save','Зберегти') }}</button></div>
+    <div class="obs-bridge-config-footer"><button type="button" class="obs-bridge-small-btn" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Вибрати папку') }}</button><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" :disabled="obsadaBridge.setupBusy" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
+   </div>
+  </div>
  </section>
-  <div v-if="obsadaBridge.error" class="obs-warning" role="alert">SharePoint Bridge: {{ obsadaBridge.error }} · {{ eMsg('Otwórz rozszerzenie i zapisz źródło.','Открой расширение и сохрани источник.','Open extension and save the source link.','Відкрий розширення і збережи посилання.') }}</div>
+  <div v-if="obsadaBridge.error" class="obs-warning" role="alert">{{ obsadaBridge.error }}</div>
   <div v-if="obsadaBridge.message" class="obs-bridge-ok" role="status">{{ obsadaBridge.message }}</div>
  <div v-if="obsada.state.error" class="obs-warning" role="alert">{{ obsada.state.error }}</div>
  <div v-if="obsada.state.model && obsada.state.model.issues.length" class="obs-warning"><strong>{{ eMsg('Uwagi do danych','Замечания к данным','Data warnings','Зауваження до даних') }}</strong><ul><li v-for="(issue,i) in obsada.state.model.issues" :key="i">{{ issue }}</li></ul></div>
@@ -2617,7 +2631,7 @@
 <script src="js/stock-intelligence.js"></script>
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
-<script src="js/app.js?v=3.24.0-sp-manual-20261113"></script>
+<script src="js/app.js?v=3.24.0-sp-compact-20261113"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>

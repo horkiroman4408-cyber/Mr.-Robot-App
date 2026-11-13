@@ -182,3 +182,37 @@ html[data-theme="ivory"] #app .obsada-module {--obs-muted:#75695d;}
 #app .obsada-module .obs-today-stat-other strong {color:var(--obs-text)!important;}
 #app .obsada-module .obs-today-stat-other {color:var(--obs-text);}
 html:is([data-theme="dark"],[data-theme="graphite"]) #app .obsada-module .obs-outside-section {border-color:var(--obs-border);}
+
+/* Obsada hub: legible descriptions across all four themes.
+   Hub feature subtitles must not inherit --mr-c12 (too dark on dark surfaces).
+   Scoped to Obsada's three homepage feature tiles only. */
+html[data-theme="light"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#64565e;}
+html[data-theme="dark"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#e3c6ce;}
+html[data-theme="graphite"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#e2c4ce;}
+html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d5557;}
+#app .app-card[data-app="obsada"] .obsada-wide-feature small{
+  color:var(--obs-hub-caption,#705c64)!important;
+  opacity:1!important;
+  visibility:visible;
+}
+
+/* Compact SharePoint setup, isolated to Obsada. Theme-aware, mobile-safe. */
+.obsada-module .obs-bridge-compact{display:flex;align-items:center;gap:9px;flex-wrap:wrap;flex:1;min-width:230px}
+.obsada-module .obs-bridge-status{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;font-size:11px;color:inherit;opacity:.78}
+.obsada-module .obs-bridge-dot{width:7px;height:7px;border-radius:50%;background:#9ca3af;flex:none}
+.obsada-module .obs-bridge-dot.ready{background:#2ea871}
+.obsada-module .obs-bridge-folder-label{color:var(--obs-muted,var(--mr-c12,#718096));opacity:.88}
+.obsada-module .obs-bridge-config-btn,.obsada-module .obs-bridge-small-btn{border:1px solid var(--obs-border,var(--mr-c105,#dce2ea));border-radius:10px;background:var(--obs-surface,var(--mr-c21,#fff));color:inherit;padding:9px 11px;cursor:pointer;font-size:12px;font-weight:650}
+.obsada-module .obs-bridge-config-btn{min-width:38px;font-size:16px;line-height:1.1}
+.obsada-module .obs-bridge-config-btn:hover,.obsada-module .obs-bridge-small-btn:hover{border-color:var(--obs-accent,#bd5066)}
+.obsada-module .obs-bridge-small-btn.primary{background:var(--obs-accent,#b94c62);border-color:transparent;color:white}
+.obsada-module .obs-bridge-config{width:100%;border-top:1px solid var(--obs-border,var(--mr-c105,#dce2ea));padding-top:10px;display:grid;gap:7px}
+.obsada-module .obs-bridge-input-label{font-size:11px;font-weight:650;color:inherit;opacity:.78}
+.obsada-module .obs-bridge-input-line{display:flex;gap:7px;min-width:0}
+.obsada-module .obs-bridge-input-line input{min-width:0;flex:1;border:1px solid var(--obs-border,var(--mr-c105,#dce2ea));border-radius:10px;background:var(--obs-surface,var(--mr-c21,#fff));color:inherit;padding:9px 11px;font-size:12px;outline-offset:2px}
+.obsada-module .obs-bridge-config-footer{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.obsada-module .obs-bridge-config-footer .obs-quiet{font-size:10px;overflow-wrap:anywhere}
+.obsada-module .obs-bridge-remove{margin-left:auto;background:none;border:0;color:var(--obs-accent,#bd5066);cursor:pointer;font-size:11px;font-weight:700;padding:8px 5px}
+.obsada-module .obs-bridge-config-btn:disabled,.obsada-module .obs-bridge-small-btn:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:740px){.obsada-module .obs-bridge-compact{flex-basis:100%;min-width:0}.obsada-module .obs-bridge-actions{width:100%}}
+@media(max-width:420px){.obsada-module .obs-bridge-input-line{flex-wrap:wrap}.obsada-module .obs-bridge-input-line input{flex-basis:100%}}

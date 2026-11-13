@@ -42,31 +42,77 @@ const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 
 // SharePoint Bridge: only explicit refresh, downloads through Excel Online.
 // Browser security requires a one-time folder grant to read the downloaded workbook.
-const obsadaBridge=reactive({busy:false,error:'',message:'',connected:false,sourceConfigured:false});
+const obsadaBridge=reactive({busy:false,setupBusy:false,error:'',message:'',connected:false,sourceConfigured:false,editing:false,link:'',folderName:''});
+const spErrorText=code=>{
+ const translations={
+  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.23. Zaktualizuj rozszerzenie.','Bridge 0.3.23 не найден. Обнови расширение.','Bridge 0.3.23 not detected. Update the extension.','Bridge 0.3.23 не знайдено. Оновіть розширення.'],
+  BRIDGE_NOT_RESPONDING:['Bridge nie odpowiada. Przeładuj rozszerzenie i stronę.','Bridge не отвечает. Перезагрузи расширение и страницу.','Bridge is not responding. Reload the extension and page.','Bridge не відповідає. Перезавантажте розширення та сторінку.'],
+  SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE:['Najpierw zapisz link SharePoint.','Сначала сохрани ссылку SharePoint.','Save the SharePoint link first.','Спершу збережіть посилання SharePoint.'],
+  INVALID_SHAREPOINT_LINK:['Wklej prawidłowy link https://lppsa-my.sharepoint.com/…','Вставь корректную ссылку https://lppsa-my.sharepoint.com/…','Enter a valid https://lppsa-my.sharepoint.com/… link','Вставте правильне посилання https://lppsa-my.sharepoint.com/…'],
+  FOLDER_ACCESS_UNSUPPORTED:['Ta przeglądarka nie obsługuje dostępu do folderu.','Браузер не поддерживает выбор папки.','This browser does not support folder access.','Браузер не підтримує доступ до папки.'],
+  WYBIERZ_FOLDER_MRROBOT_SHAREPOINT:['Wybierz folder Downloads/MrRobot/SharePoint.','Выбери папку Downloads/MrRobot/SharePoint.','Select Downloads/MrRobot/SharePoint.','Виберіть папку Downloads/MrRobot/SharePoint.'],
+  FOLDER_PERMISSION_REQUIRED:['Udziel zgody na odczyt folderu.','Разреши чтение папки.','Allow read access to the folder.','Дозвольте читання папки.'],
+  BRAK_ZGODY_SHAREPOINT:['Zezwól rozszerzeniu na SharePoint w jego oknie.','Разреши SharePoint в окне Bridge.','Grant SharePoint access in the Bridge popup.','Надайте доступ до SharePoint у Bridge.'],
+  ZAPISZ_LINK_SHAREPOINT:['Zapisz link SharePoint.','Сохрани ссылку SharePoint.','Save the SharePoint link.','Збережіть посилання SharePoint.'],
+  DOWNLOAD_TIMEOUT:['Nie udało się pobrać pliku na czas.','Время скачивания истекло.','Download timed out.','Час завантаження вичерпано.'],
+  STALE_DOWNLOAD_NOT_REPLACED:['Pobrany plik nie został zastąpiony.','Скачанный файл не обновился.','The downloaded file was not replaced.','Завантажений файл не оновився.']
+ };
+ const value=translations[String(code||'')];return value?value[["pl","ru","en","uk"].indexOf(uiLanguage.value)]||value[0]:String(code||'').replace(/https?:\/\/\S+/g,'[URL]').slice(0,120);
+};
 const SP_FOLDER_DB='mrrobot-obsada-sharepoint-folder';
 function spFolderDatabase(){return new Promise((resolve,reject)=>{const req=indexedDB.open(SP_FOLDER_DB,1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
 let spCachedFolder=null;
 async function spFolderGet(){const db=await spFolderDatabase();try{return await new Promise((resolve,reject)=>{const req=db.transaction('handles').objectStore('handles').get('downloadFolder');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}finally{db.close();}}
 async function spFolderPut(handle){spCachedFolder=handle;const db=await spFolderDatabase();try{await new Promise((resolve,reject)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put(handle,'downloadFolder');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
-spFolderGet().then(handle=>{spCachedFolder=handle;}).catch(()=>{});
-function spAskBridge(type,timeout=15000){
+spFolderGet().then(handle=>{spCachedFolder=handle;obsadaBridge.folderName=handle?.name||'';}).catch(()=>{});
+function spAskBridge(type,timeout=15000,payload={}){
  const nonce='sp-'+Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
  return new Promise((resolve,reject)=>{
   let timer;const cleanup=()=>{clearTimeout(timer);window.removeEventListener('message',answer);};
   function answer(ev){if(ev.source!==window||ev.origin!==location.origin||ev.data?.type!==type+'_RESULT'||ev.data.nonce!==nonce)return;cleanup();resolve(ev.data.result);}
   window.addEventListener('message',answer);
   timer=setTimeout(()=>{cleanup();reject(new Error('BRIDGE_NOT_RESPONDING'));},timeout);
-  window.postMessage({type,nonce},location.origin);
+  window.postMessage({type,nonce,...payload},location.origin);
  });
 }
 async function obsadaBridgeCheck(){
  try{const r=await spAskBridge('MR_SP_SOURCE_STATUS');obsadaBridge.connected=!!r?.ok;obsadaBridge.sourceConfigured=!!r?.configured;}
  catch(_){obsadaBridge.connected=false;obsadaBridge.sourceConfigured=false;}
 }
+function spValidLink(value){try{const u=new URL(value.trim());return u.protocol==='https:'&&u.hostname==='lppsa-my.sharepoint.com'&&!u.username&&!u.password;}catch{return false;}}
+async function obsadaBridgeSaveSource(){
+ if(obsadaBridge.setupBusy)return;
+ if(!spValidLink(obsadaBridge.link)){obsadaBridge.error=spErrorText('INVALID_SHAREPOINT_LINK');return;}
+ obsadaBridge.setupBusy=true;obsadaBridge.error='';obsadaBridge.message='';
+ try{const r=await spAskBridge('MR_SP_SOURCE_SAVE',15000,{url:obsadaBridge.link.trim()});if(!r?.ok)throw Error(r?.error||'BRIDGE_NOT_RESPONDING');obsadaBridge.sourceConfigured=true;obsadaBridge.connected=true;obsadaBridge.link='';obsadaBridge.editing=false;obsadaBridge.message=eMsg('Źródło zapisane w Bridge.','Ссылка сохранена в Bridge.','Source saved in Bridge.','Джерело збережено у Bridge.');}
+ catch(e){obsadaBridge.error=spErrorText(e.message);}
+ finally{obsadaBridge.setupBusy=false;}
+}
+async function obsadaBridgeClearSource(){
+ if(obsadaBridge.setupBusy||!obsadaBridge.sourceConfigured)return;
+ obsadaBridge.setupBusy=true;obsadaBridge.error='';obsadaBridge.message='';
+ try{const r=await spAskBridge('MR_SP_SOURCE_CLEAR');if(!r?.ok)throw Error(r?.error||'BRIDGE_NOT_RESPONDING');obsadaBridge.sourceConfigured=false;obsadaBridge.editing=true;obsadaBridge.link='';obsadaBridge.message=eMsg('Link usunięty.','Ссылка удалена.','Link removed.','Посилання видалено.');}
+ catch(e){obsadaBridge.error=spErrorText(e.message);}
+ finally{obsadaBridge.setupBusy=false;}
+}
+async function obsadaBridgeChooseFolder(){
+ // Direct user click is required by File System Access API.
+ obsadaBridge.error='';
+ try{
+  if(typeof window.showDirectoryPicker!=='function')throw Error('FOLDER_ACCESS_UNSUPPORTED');
+  const handle=await window.showDirectoryPicker({id:'mrrobot-sharepoint',mode:'read'});
+  if(handle.name.toLowerCase()!=='sharepoint')throw Error('WYBIERZ_FOLDER_MRROBOT_SHAREPOINT');
+  if(handle.queryPermission&&await handle.queryPermission({mode:'read'})!=='granted'){
+   if(!handle.requestPermission||await handle.requestPermission({mode:'read'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
+  }
+  await spFolderPut(handle);obsadaBridge.folderName=handle.name;
+  obsadaBridge.message=eMsg('Folder połączony.','Папка подключена.','Folder connected.','Папку підключено.');
+ }catch(e){if(e?.name!=='AbortError')obsadaBridge.error=spErrorText(e.message);}
+}
 async function obsadaBridgeRefresh(){
  if(obsadaBridge.busy||obsada.state.loading)return;
- if(!obsadaBridge.connected){obsadaBridge.error='BRIDGE_NOT_CONNECTED';return;}
- if(!obsadaBridge.sourceConfigured){obsadaBridge.error='SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE';return;}
+ if(!obsadaBridge.connected){obsadaBridge.error=spErrorText('BRIDGE_NOT_CONNECTED');return;}
+ if(!obsadaBridge.sourceConfigured){obsadaBridge.editing=true;obsadaBridge.error=spErrorText('SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE');return;}
  obsadaBridge.busy=true;obsadaBridge.error='';obsadaBridge.message='';
  try{
   // Request the folder in the click call stack, before awaiting the extension.
@@ -106,7 +152,7 @@ async function obsadaBridgeRefresh(){
   const ok=await obsada.loadFile(file,{keepSelection:true});
   if(!ok)throw Error(obsada.state.error||'INVALID_STAN');
   obsadaBridge.message='SharePoint · dane zaktualizowane';
- }catch(e){obsadaBridge.error=String(e?.message||e).slice(0,160);}
+ }catch(e){obsadaBridge.error=spErrorText(e?.message||e);}
  finally{obsadaBridge.busy=false;}
 }
 document.addEventListener('mr-openreports-bridge-ready',()=>obsadaBridgeCheck());
@@ -2694,6 +2740,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

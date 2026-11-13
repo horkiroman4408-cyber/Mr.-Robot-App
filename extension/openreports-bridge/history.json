@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.23",
+      "date": "2026-11-13",
+      "title": {
+        "pl": "Konfiguracja SharePoint bezpośrednio w Obsada",
+        "ru": "Настройка SharePoint прямо в Obsada",
+        "en": "Configure SharePoint directly in Obsada",
+        "uk": "Налаштування SharePoint безпосередньо в Obsada"
+      },
+      "changes": {
+        "pl": [
+          "Wklej, zamień lub usuń link SharePoint w kompaktowym panelu Obsada.",
+          "Ręczne odświeżanie zachowane; pobieranie OpenReports bez zmian."
+        ],
+        "ru": [
+          "Сохраняй, заменяй и удаляй ссылку SharePoint прямо в компактном блоке Obsada.",
+          "Ручное обновление сохранено; OpenReports не изменён."
+        ],
+        "en": [
+          "Save, replace or remove the SharePoint link in the compact Obsada panel.",
+          "Manual refresh retained; OpenReports downloads unchanged."
+        ],
+        "uk": [
+          "Зберігайте, замінюйте та видаляйте посилання SharePoint у компактному блоці Obsada.",
+          "Ручне оновлення збережено; OpenReports без змін."
+        ]
+      }
+    },
+    {
       "version": "0.3.22",
       "date": "2026-11-13",
       "title": {
