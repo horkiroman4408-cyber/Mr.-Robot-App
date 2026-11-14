@@ -284,3 +284,49 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .mr-bridge-settings .mr-bp-header-download:focus-visible{outline:2px solid var(--mr-focus,#5797ff);outline-offset:2px}
 .mr-bridge-settings #mr-bridge-warning{display:block;margin:0 0 12px;color:inherit;opacity:.67;font-size:11px;line-height:1.5}
 @media(max-width:540px){.mr-bridge-settings .mr-bp-heading-row{flex-wrap:wrap;gap:10px}.mr-bridge-settings .mr-bp-header-download{margin-top:0;align-self:flex-start}}
+
+/* Obsada local planning: theme-aware extension; other modules unchanged. */
+#app .obsada-module .obs-plan-switch{padding:13px 18px}
+#app .obs-plan-switch-head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#app .obs-plan-switch-head strong{font-size:12px}
+#app .obs-plan-mode{display:flex;gap:3px;padding:3px;border-radius:12px;background:var(--mr-c104,rgba(150,120,130,.11));border:1px solid var(--obs-border)}
+#app .obs-plan-mode button{padding:7px 14px;font-size:12px;font-weight:700;border-radius:9px;border:0;background:transparent;color:var(--obs-text);cursor:pointer}
+#app .obs-plan-mode button.active{background:var(--obs-surface);box-shadow:0 2px 9px rgba(0,0,0,.08)}
+#app .obs-plan-panel .obs-headline{margin-bottom:16px}
+#app .obs-plan-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#app .obs-plan-source{min-width:0;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(150,120,130,.05));border-radius:13px;padding:13px;display:flex;flex-direction:column;gap:5px}
+#app .obs-plan-source strong{font-size:12px}
+#app .obs-plan-source small{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app .obs-plan-tools{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 8px}
+#app .obs-plan-tools button,#app .obs-plan-import,#app .obs-plan-toolbar button,#app .obs-plan-add button{border-radius:10px;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(150,120,130,.07));color:var(--obs-text);font-size:11px;font-weight:720;min-height:34px;padding:7px 12px;cursor:pointer}
+#app .obs-plan-import{position:relative;overflow:hidden;display:inline-flex;align-items:center}
+#app .obs-plan-import input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+#app .obs-plan-save-status{margin:5px 0 12px}
+#app .obs-plan-fields{display:grid;grid-template-columns:1.25fr 1fr 1fr 1fr;gap:10px;margin:16px 0}
+#app .obs-plan-fields label{font-weight:680;font-size:11px;display:grid;gap:5px;min-width:0}
+#app .obs-plan-fields select,#app .obs-plan-fields input,#app .obs-plan-worker-head input,#app .obs-plan-add input,#app .obs-plan-history select{width:100%;min-width:0;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:10px;color:var(--obs-text);padding:9px;font-size:12px}
+#app .obs-plan-hourstrip{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 14px}
+#app .obs-plan-hourstrip button{border:1px solid var(--obs-border);border-radius:10px;background:var(--mr-c104,rgba(150,120,130,.06));color:var(--obs-text);padding:7px 9px;font-size:11px;cursor:pointer}
+#app .obs-plan-hourstrip button.active{border-color:var(--obs-accent);background:var(--module-soft,rgba(182,76,95,.12))}
+#app .obs-plan-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}
+#app .obs-plan-workerbox{border:1px solid var(--obs-border);border-radius:14px;padding:12px;margin:12px 0 20px}
+#app .obs-plan-worker-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#app .obs-plan-worker-head strong{font-size:12px}
+#app .obs-plan-worker-head input{width:min(240px,100%)}
+#app .obs-plan-workerlist{display:flex;flex-wrap:wrap;gap:7px;max-height:180px;overflow-y:auto;align-content:flex-start}
+#app .obs-plan-workerlist .obs-person-button{cursor:grab}
+#app .obs-plan-workerlist .obs-person-button.obs-plan-selected{outline:2px solid var(--obs-accent);outline-offset:1px}
+#app .obs-plan-dropzone{min-height:130px}
+#app .obs-plan-dropzone:has(.obs-plan-place:focus-visible){outline:1px solid var(--obs-accent)}
+#app .obs-plan-place{display:block;width:100%;border:1px dashed var(--obs-border);border-radius:9px;background:var(--mr-c104,rgba(150,120,130,.04));color:var(--obs-text);font-size:11px;padding:9px;margin-top:8px;cursor:pointer}
+#app .obs-plan-place:disabled{opacity:.43;cursor:default}
+#app .obs-plan-add{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}
+#app .obs-plan-add input{flex:1;min-width:170px}
+#app .obs-plan-history{margin-top:0}
+#app .obs-plan-history .obs-headline{gap:12px}
+#app .obs-plan-history select{width:auto}
+@media(max-width:780px){#app .obs-plan-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#app .obs-plan-sources{grid-template-columns:1fr}#app .obs-plan-workerlist{max-height:240px}}
+@media(max-width:460px){#app .obs-plan-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#app .obs-plan-worker-head input{width:100%}#app .obs-plan-tools>*{flex:1;justify-content:center;text-align:center}}
+@media(prefers-reduced-motion:reduce){#app .obs-plan-panel *{transition:none!important}}
+
+#app .obs-plan-remove{border:none;background:transparent;color:var(--obs-accent);font-size:11px;font-weight:700;cursor:pointer;margin:5px 0}
