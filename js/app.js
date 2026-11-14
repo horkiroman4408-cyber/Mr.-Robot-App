@@ -40,6 +40,8 @@ async function openSettingsMemory(){
 
 const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 const obsadaPlan=reactive(window.MRObsadaPlanner.create({reactive,computed,roster:()=>employeeRoster.value,source:()=>obsada.state.model,sourceName:()=>obsada.state.fileName,language:()=>uiLanguage.value}));
+// Warn when local changes are not yet synchronized to the user's Excel file.
+window.addEventListener('beforeunload',event=>{if(obsadaPlan.state.dirty||obsadaPlan.state.busy||obsadaPlan.state.status==='BROWSER_SAVE_FAILED'){event.preventDefault();event.returnValue='';}});
 // Local Obsada history: imported verified monthly hours and unverified planned hours are never merged into a single factual total.
 Vue.watch(()=>obsada.state.tab,(tab,previous)=>{if(tab==='history'&&previous!=='intelligence'&&obsada.state.source==='main'&&obsadaPlan.state.importedHistory.length)obsada.state.source='import';});
 const obsadaHistoryAll=computed(()=>{

@@ -375,3 +375,34 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 @media(max-width:650px){#app .obs-plan-workspace{padding:14px}#app .obs-plan-columns{grid-template-columns:1fr}#app .obs-plan-stafflist{max-height:225px}#app .obs-plan-processgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:430px){#app .obs-plan-processgrid{grid-template-columns:1fr}#app .obs-plan-topline>.obs-bridge-small-btn{width:100%}}
 @media(prefers-reduced-motion:reduce){#app .obs-plan-staff-chip{transition:none}}
+
+/* Shift team & verified Excel synchronization, isolated within Obsada. */
+#app .obs-plan-syncline{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:0 0 14px;padding:9px 12px;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);color:var(--obs-text)}
+#app .obs-plan-syncmark{width:9px;height:9px;border-radius:50%;background:#f59e0b;flex:none}
+#app .obs-plan-syncline.is-synced .obs-plan-syncmark{background:#16a34a}
+#app .obs-plan-syncline.is-saving .obs-plan-syncmark{background:#64748b;animation:obs-plan-pulse 1s ease-in-out infinite}
+#app .obs-plan-syncline.is-error .obs-plan-syncmark{background:#dc2626}
+#app .obs-plan-synctext{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;font-size:11px}
+#app .obs-plan-synctext small{color:var(--obs-muted);font-weight:400;font-size:10px}
+#app .obs-plan-syncbutton,#app .obs-plan-undobutton{border:1px solid var(--obs-border);padding:7px 10px;border-radius:9px;font-size:11px;color:var(--obs-text);background:var(--obs-surface);white-space:nowrap}
+#app .obs-plan-syncbutton:disabled{opacity:.48}
+#app .obs-plan-teamhint{font-size:11px;margin:2px 0 9px}
+#app .obs-plan-teamadd-btn{width:100%;padding:10px;border-radius:10px;border:1px solid var(--obs-accent);color:var(--obs-text);font-weight:650;font-size:12px;background:color-mix(in srgb,var(--obs-accent) 7%,var(--obs-surface))}
+#app .obs-plan-team-picker{padding:8px;margin-top:8px;margin-bottom:12px;border:1px solid var(--obs-border);border-radius:12px;display:flex;flex-direction:column;gap:5px;max-height:290px;overflow:auto}
+#app .obs-plan-team-picker input{border:1px solid var(--obs-border);border-radius:8px;padding:9px;background:var(--obs-surface);color:var(--obs-text);font-size:12px;width:100%}
+#app .obs-plan-team-picker button{display:flex;align-items:center;gap:10px;text-align:left;width:100%;padding:8px;border-radius:8px;color:var(--obs-text);font-size:11px;background:var(--obs-surface)}
+#app .obs-plan-team-picker button:hover{background:var(--obs-soft)}
+#app .obs-plan-team-picker button small{min-width:0;flex:1;color:var(--obs-muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#app .obs-plan-teamrow{display:flex;align-items:stretch;gap:4px}
+#app .obs-plan-teamrow .obs-plan-staff-chip{flex:1;min-width:0}
+#app .obs-plan-team-remove,#app .obs-plan-person-remove{width:27px;flex:none;display:grid;place-items:center;border:1px solid transparent;border-radius:9px;color:var(--obs-muted);font-size:17px;background:transparent}
+#app .obs-plan-team-remove:hover,#app .obs-plan-person-remove:hover{border-color:var(--obs-accent);color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-plan-person-row{display:inline-flex;align-items:center;max-width:100%;border:1px solid var(--obs-border);border-radius:9px;padding-right:2px;gap:0}
+#app .obs-plan-person-row .obs-person-button{border:0}
+@keyframes obs-plan-pulse{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){#app .obs-plan-syncline.is-saving .obs-plan-syncmark{animation:none}}
+
+#app .obs-plan-remove-panel{margin:0 0 14px;padding:12px;border:1px solid var(--obs-accent);border-radius:12px;background:var(--obs-surface);display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+#app .obs-plan-remove-panel>div{display:flex;flex-direction:column;min-width:150px;flex:1;font-size:12px}
+#app .obs-plan-remove-panel small{color:var(--obs-muted);font-size:10px}
+#app .obs-plan-remove-panel button{padding:8px 10px;border:1px solid var(--obs-border);border-radius:8px;color:var(--obs-text);font-size:11px}
