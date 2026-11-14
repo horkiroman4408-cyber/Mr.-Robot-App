@@ -21,7 +21,7 @@
     return 'edge'; // Explicitly switchable fallback.
   }
   const FALLBACK_VERSION='0.3.27';
-  const state = {version:null,browser:detectedBrowser(),expanded:false,guideMode:'install',historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
+  const state = {version:null,browser:detectedBrowser(),expanded:false,guideMode:'install',helpMode:'install',historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
   function tr(key,vars={}){const v=translations[lang()][key]||translations.pl[key]||key;return v.replace(/\{(\w+)\}/g,(_,k)=>String(vars[k]||''));}
   function compare(a,b){const x=a.split('.').map(Number),y=b.split('.').map(Number);for(let i=0;i<3;i++){if(x[i]!==y[i])return x[i]>y[i]?1:-1;}return 0;}
   function validVersion(v){return typeof v==='string'&&/^\d+\.\d+\.\d+$/.test(v);}
@@ -84,6 +84,8 @@
     panel.querySelectorAll('[data-bridge-browser]').forEach(b=>{const active=b.dataset.bridgeBrowser===state.browser;b.setAttribute('aria-pressed',String(active));b.classList.toggle('is-selected',active);});
     panel.querySelectorAll('[data-bridge-url]').forEach(el=>{el.textContent=browserUrl();});
     panel.querySelectorAll('[data-bridge-compat-note]').forEach(el=>{el.hidden=!['brave','vivaldi','opera'].includes(state.browser);});
+    panel.querySelectorAll('[data-bridge-help]').forEach(b=>{const active=b.dataset.bridgeHelp===state.helpMode;b.classList.toggle('is-selected',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
+    ['install','openreports','sharepoint'].forEach(mode=>{const content=get('mr-bridge-help-'+mode);if(content)content.hidden=mode!==state.helpMode;});
     panel.querySelectorAll('[data-bridge-guide]').forEach(b=>{const active=b.dataset.bridgeGuide===state.guideMode;b.classList.toggle('is-selected',active);b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
     const installSteps=get('mr-bridge-guide-install'),updateSteps=get('mr-bridge-guide-update');if(installSteps)installSteps.hidden=state.guideMode!=='install';if(updateSteps)updateSteps.hidden=state.guideMode!=='update';
     const install=get('mr-bridge-install-toggle'),installBody=get('mr-bridge-install-body');
@@ -127,6 +129,7 @@
   function copyUrl(){const value=browserUrl();if(navigator.clipboard?.writeText)navigator.clipboard.writeText(value).then(()=>{state.copyNotice=true;draw();},()=>fallbackCopy(value));else fallbackCopy(value);}
   function fallbackCopy(value){const input=document.createElement('textarea');input.value=value;input.style.position='fixed';input.style.opacity='0';document.body.append(input);input.select();try{state.copyNotice=document.execCommand('copy');}catch(_){state.copyNotice=false;}input.remove();draw();}
   document.addEventListener('click',ev=>{
+    const help=ev.target.closest('[data-bridge-help]');if(help&&get('settings-openreports')?.contains(help)){state.helpMode=help.dataset.bridgeHelp;draw();return;}
     const guide=ev.target.closest('[data-bridge-guide]');if(guide&&get('settings-openreports')?.contains(guide)){state.guideMode=guide.dataset.bridgeGuide;draw();return;}
     const b=ev.target.closest('[data-bridge-browser]');if(b&&get('settings-openreports')?.contains(b)){state.browser=b.dataset.bridgeBrowser;state.copyNotice=false;draw();return;}
     if(ev.target.closest('#mr-bridge-install-toggle')){state.expanded=!state.expanded;draw();return;}
@@ -134,6 +137,12 @@
     if(ev.target.closest('[data-bridge-copy]') && get('settings-openreports')?.contains(ev.target))copyUrl();
   });
   document.addEventListener('keydown',ev=>{
+    const helpTab=ev.target.closest?.('[data-bridge-help]');
+    if(helpTab&&get('settings-openreports')?.contains(helpTab)&&['ArrowLeft','ArrowRight','Home','End'].includes(ev.key)){
+      ev.preventDefault();const modes=['install','openreports','sharepoint'];const idx=modes.indexOf(state.helpMode);
+      state.helpMode=ev.key==='Home'?modes[0]:ev.key==='End'?modes[2]:modes[(idx+(ev.key==='ArrowRight'?1:2))%3];
+      draw();get('mr-bridge-help-'+state.helpMode+'-tab')?.focus();return;
+    }
     const tab=ev.target.closest?.('[data-bridge-guide]');
     if(!tab||!get('settings-openreports')?.contains(tab))return;
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key))return;

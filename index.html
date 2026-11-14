@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-bridge-hub-20261114">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-bridge-ui-20261114">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -397,7 +397,7 @@
       <template v-else>{{ tr(133) }}</template>
     </div>
   </div>
-  <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="OpenReports Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
+  <button type="button" class="mr-bridge-upload-status" data-mr-bridge-status data-state="disconnected" @click="openBridgeSettings" :title="eMsg('Ustawienia OpenReports Bridge','Настройки OpenReports Bridge','OpenReports Bridge settings','Налаштування OpenReports Bridge')" aria-label="Mr. Robot Bridge"><span class="mr-bridge-status-dot" aria-hidden="true"></span><span class="mr-bridge-status-label">Bridge</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M7 7h10v10"/></svg></button>
   <label class="grafik-btn" :class="{primary:!kpiAudit.loaded,disabled:kpiAudit.loading}">
     <input type="file" class="hidden" accept=".xlsx,.xls" @change="kpiOnAuditFile" :disabled="kpiAudit.loading"/>
     <span>{{ tr(kpiAudit.loaded ? '↻ Zmień' : '📥 Wczytaj') }}</span>
@@ -1991,19 +1991,6 @@
       <div class="mr-bp-footer"><span>{{ eMsg('Pobieranie SharePoint tylko po kliknięciu Odśwież dane.','SharePoint загружается только по кнопке «Обновить».','SharePoint downloads only on manual refresh.','SharePoint завантажується лише вручну.') }}</span><button type="button" class="mr-bp-check" @click="obsadaBridgeCheck">{{ eMsg('Sprawdź status','Проверить статус','Check status','Перевірити статус') }}</button></div>
      </div>
     </details>
-    <details class="mr-bp-details mr-bp-guide" id="mr-bridge-sharepoint-guide">
-     <summary><span class="mr-bp-details-title"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5.5c2.7-1.2 5.3-.8 8 .5v14c-2.7-1.3-5.3-1.7-8-.5zM12 6c2.7-1.3 5.3-1.7 8-.5v14c-2.7-1.2-5.3-.8-8 .5z"/></svg>{{ eMsg('Jak korzystać z SharePoint','Как пользоваться SharePoint','How to use SharePoint','Як користуватися SharePoint') }}</span><svg class="mr-bp-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
-     <div class="mr-bp-details-content mr-bp-guide-content">
-      <p>{{ eMsg('Bridge to jedno rozszerzenie Edge/Chrome z dwiema integracjami: OpenReports i SharePoint.','Bridge — одно расширение Edge/Chrome с двумя подключениями: OpenReports и SharePoint.','Bridge is one Edge/Chrome extension with two integrations: OpenReports and SharePoint.','Bridge — одне розширення Edge/Chrome з двома інтеграціями: OpenReports і SharePoint.') }}</p>
-      <ol>
-       <li>{{ eMsg('Otwórz moduł Obsada i w ustawieniach źródła wklej link do pliku Excel z SharePoint.','Открой Obsada и вставь ссылку на Excel из SharePoint в настройках источника.','Open Obsada and paste your SharePoint Excel link into its source settings.','Відкрий Obsada та встав посилання на Excel із SharePoint у налаштуваннях джерела.') }}</li>
-       <li>{{ eMsg('Przy pierwszym połączeniu zezwól Bridge na dostęp do witryny w oknie Edge. Zgoda pozostaje zapisana.','При первом подключении один раз разреши Bridge доступ к сайту в окне Edge. Разрешение сохранится.','On first connection, allow Bridge site access in the Edge prompt. The permission stays saved.','Під час першого підключення один раз дозволь Bridge доступ до сайту в Edge. Дозвіл збережеться.') }}</li>
-       <li>{{ eMsg('Wybierz folder Downloads/MrRobot/SharePoint w Obsada lub w sekcji Dostęp i foldery.','Выбери Downloads/MrRobot/SharePoint в Obsada или разделе «Доступ и папки».','Choose Downloads/MrRobot/SharePoint in Obsada or Access and folders.','Вибери Downloads/MrRobot/SharePoint в Obsada або в розділі «Доступ і папки».') }}</li>
-       <li>{{ eMsg('Kliknij Odśwież dane w Obsada. Bridge pobierze kopię XLSX i aplikacja odczyta nowy plik.','Нажми «Обновить данные» в Obsada. Bridge скачает XLSX, а приложение прочитает свежий файл.','Click Refresh data in Obsada. Bridge downloads the XLSX copy and the app reads the latest file.','Натисни «Оновити дані» в Obsada. Bridge завантажить XLSX, а застосунок прочитає новий файл.') }}</li>
-      </ol>
-      <p>{{ eMsg('SharePoint nie aktualizuje się sam. Przy kolejnym odświeżeniu wystarczy jeden przycisk. OpenReports używa osobnego folderu.','SharePoint не обновляется сам: в следующий раз достаточно одной кнопки. У OpenReports отдельная папка.','SharePoint never refreshes automatically. Next time, use one button. OpenReports has its own folder.','SharePoint не оновлюється сам: надалі достатньо однієї кнопки. OpenReports має окрему папку.') }}</p>
-     </div>
-    </details>
     <div class="mr-bridge-info" id="mr-bridge-info">
      <div class="mr-bridge-action-row">
       <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.3.27.zip" download="OpenReports-Bridge-v0.3.27.zip" id="mr-bridge-download">Pobierz Bridge</a>
@@ -2013,17 +2000,18 @@
       <div class="mr-bridge-update-title" id="mr-bridge-update-title"></div>
       <div class="mr-bridge-update-detail" id="mr-bridge-update-detail"></div>
      </div>
-     <div class="mr-bridge-release-panel">
-      <button type="button" class="mr-bridge-install-toggle" id="mr-bridge-history-toggle" aria-expanded="false" aria-controls="mr-bridge-history-body"><span id="mr-bridge-history-label"></span><svg class="mr-bridge-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <div id="mr-bridge-history-body" class="mr-bridge-release-body" hidden><div id="mr-bridge-history-list"></div></div>
-     </div>
-     <div class="mr-bridge-prereq" role="note"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg><span>{{ eMsg('Bridge automatycznie otworzy OpenReports, jeśli karta jest zamknięta. Gdy pojawi się logowanie, zaloguj się samodzielnie: raport wznowi się po zalogowaniu.','Если вкладка OpenReports закрыта, Bridge откроет её сам. Если потребуется вход, авторизуйся на сайте: после входа отчёт продолжится.','Bridge opens OpenReports if needed. If sign-in is required, log in on the site: the report resumes automatically.','Bridge відкриє OpenReports, якщо потрібно. Якщо потрібен вхід, авторизуйся на сайті: звіт продовжиться автоматично.') }}</span></div>
      <div class="mr-bridge-install-panel">
       <button type="button" id="mr-bridge-install-toggle" class="mr-bridge-install-toggle" aria-expanded="false" aria-controls="mr-bridge-install-body">
-       <span class="mr-bridge-install-toggle-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6v14c-2.5-1.5-5.5-1.5-8-.5V5.5Zm8 .5c2.5-1.5 5.5-1.5 8-.5v14c-2.5-1-5.5-1-8 .5"/></svg><span id="mr-bridge-install-label">{{ eMsg('Jak zainstalować rozszerzenie','Как установить расширение','How to install the extension','Як встановити розширення') }}</span></span>
+       <span class="mr-bridge-install-toggle-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5C6.5 4.5 9.5 4.5 12 6v14c-2.5-1.5-5.5-1.5-8-.5V5.5Zm8 .5c2.5-1.5 5.5-1.5 8-.5v14c-2.5-1-5.5-1-8 .5"/></svg><span id="mr-bridge-install-label">{{ eMsg('Konfiguracja i pomoc','Настройка и помощь','Setup and help','Налаштування і допомога') }}</span></span>
        <svg class="mr-bridge-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
       </button>
       <div id="mr-bridge-install-body" class="mr-bridge-install-body" hidden>
+       <div class="mr-bridge-help-tabs" role="tablist" :aria-label="eMsg('Integracje i instalacja','Интеграции и установка','Integrations and setup','Інтеграції та встановлення')">
+        <button type="button" class="mr-bridge-help-tab is-selected" id="mr-bridge-help-install-tab" data-bridge-help="install" role="tab" aria-selected="true" aria-controls="mr-bridge-help-install">{{ eMsg('Instalacja','Установка','Install','Встановлення') }}</button>
+        <button type="button" class="mr-bridge-help-tab" id="mr-bridge-help-openreports-tab" data-bridge-help="openreports" role="tab" aria-selected="false" aria-controls="mr-bridge-help-openreports">OpenReports</button>
+        <button type="button" class="mr-bridge-help-tab" id="mr-bridge-help-sharepoint-tab" data-bridge-help="sharepoint" role="tab" aria-selected="false" aria-controls="mr-bridge-help-sharepoint">SharePoint</button>
+       </div>
+       <div id="mr-bridge-help-install" class="mr-bridge-help-content" role="tabpanel" aria-labelledby="mr-bridge-help-install-tab">
        <div class="mr-bridge-guide-tabs" role="tablist" :aria-label="eMsg('Rodzaj instrukcji','Тип инструкции','Guide type','Тип інструкції')">
         <button type="button" class="mr-bridge-guide-tab is-selected" id="mr-bridge-guide-tab-install" data-bridge-guide="install" role="tab" aria-selected="true" aria-controls="mr-bridge-guide-install">{{ eMsg('Pierwsza instalacja','Первая установка','First install','Перше встановлення') }}</button>
         <button type="button" class="mr-bridge-guide-tab" id="mr-bridge-guide-tab-update" data-bridge-guide="update" role="tab" aria-selected="false" aria-controls="mr-bridge-guide-update">{{ eMsg('Aktualizacja','Обновление','Updating','Оновлення') }}</button>
@@ -2096,7 +2084,52 @@
        </div>
         <div class="mr-bridge-guide-note"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></svg> <p>{{ eMsg('Nie instaluj drugiej kopii Bridge. Użyj poprzedniego folderu.','Не устанавливай вторую копию Bridge. Используй прежнюю папку.','Do not install another copy of Bridge. Use the existing folder.','Не встановлюй другу копію Bridge. Використовуй попередню папку.') }}</p></div>
        </div>
+       </div><!-- end help-install -->
+       <div id="mr-bridge-help-openreports" class="mr-bridge-help-content mr-bridge-steps" role="tabpanel" aria-labelledby="mr-bridge-help-openreports-tab" hidden>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M4 7h16v12H4zM8 7V5h8v2M7 11h10M7 15h7'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>1. {{ eMsg('Otwórz moduł raportu','Открой модуль отчёта','Open a report module','Відкрий модуль звіту') }}</strong><p>{{ eMsg('W Mr. Robot wybierz moduł obsługujący OpenReports i określ parametry raportu.','В Mr. Robot открой модуль с OpenReports и выбери параметры отчёта.','In Mr. Robot open a module with OpenReports and choose the report parameters.','У Mr. Robot відкрий модуль з OpenReports і вибери параметри звіту.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x='4' y='10' width='16' height='11' rx='2'/><path d='M8 10V7a4 4 0 0 1 8 0v3'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>2. {{ eMsg('Sprawdź dostęp','Проверь доступ','Check access','Перевір доступ') }}</strong><p>{{ eMsg('Bridge korzysta z Twojej sesji OpenReports. Jeśli wymagane jest logowanie, zaloguj się na otwartej stronie.','Bridge использует твою сессию OpenReports. Если появится вход, авторизуйся на открытой странице.','Bridge uses your OpenReports session. If prompted, sign in on the opened page.','Bridge використовує твій сеанс OpenReports. За потреби увійди на відкритій сторінці.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M3 7h7l2 2h9v11H3z'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>3. {{ eMsg('Wybierz folder raportów','Выбери папку отчётов','Choose the reports folder','Вибери папку звітів') }}</strong><p>{{ eMsg('W Dostęp i foldery wskaż Downloads/MrRobot/OpenReports. Ten wybór nie zmienia folderu SharePoint.','В «Доступ и папки» выбери Downloads/MrRobot/OpenReports. Папка SharePoint не изменится.','In Access and folders choose Downloads/MrRobot/OpenReports. This does not change the SharePoint folder.','У «Доступ і папки» вибери Downloads/MrRobot/OpenReports. Папка SharePoint не зміниться.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M20 7v5h-5M4 17v-5h5M5.4 9a7 7 0 0 1 12-2l2.6 5M18.6 15a7 7 0 0 1-12 2L4 12'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>4. {{ eMsg('Pobierz raport','Скачай отчёт','Download the report','Завантаж звіт') }}</strong><p>{{ eMsg('Uruchom pobieranie w module. Bridge otworzy OpenReports i pobierze XLSX po zakończeniu generowania.','Запусти загрузку в модуле. Bridge откроет OpenReports и скачает XLSX после формирования отчёта.','Start downloading in the module. Bridge opens OpenReports and downloads the XLSX when ready.','Запусти завантаження в модулі. Bridge відкриє OpenReports і завантажить XLSX після створення звіту.') }}</p></div>
+        </div>
+       </div>
+       <div id="mr-bridge-help-sharepoint" class="mr-bridge-help-content mr-bridge-steps" role="tabpanel" aria-labelledby="mr-bridge-help-sharepoint-tab" hidden>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M4 7h16v12H4zM8 7V5h8v2M7 11h10M7 15h7'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>1. {{ eMsg('Skopiuj link do Excela','Скопируй ссылку на Excel','Copy the Excel link','Скопіюй посилання на Excel') }}</strong><p>{{ eMsg('Otwórz plik Excel w SharePoint i skopiuj link do udostępnionego skoroszytu.','Открой Excel в SharePoint и скопируй ссылку на книгу.','Open the Excel workbook in SharePoint and copy its shared link.','Відкрий Excel у SharePoint і скопіюй посилання на книгу.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l2-2'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>2. {{ eMsg('Dodaj źródło w Obsada','Добавь источник в Obsada','Add the source in Obsada','Додай джерело в Obsada') }}</strong><p>{{ eMsg('W ustawieniach źródła Obsada wklej link i zapisz go w Bridge.','В настройках источника Obsada вставь ссылку и сохрани её в Bridge.','In Obsada source settings, paste the link and save it to Bridge.','У налаштуваннях джерела Obsada встав посилання та збережи його в Bridge.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x='4' y='10' width='16' height='11' rx='2'/><path d='M8 10V7a4 4 0 0 1 8 0v3'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>3. {{ eMsg('Zezwól na dostęp','Разреши доступ','Grant access','Дозволь доступ') }}</strong><p>{{ eMsg('Przy pierwszym połączeniu potwierdź jednorazową zgodę Edge/Chrome na SharePoint i Excel Online.','При первом подключении один раз разреши Bridge доступ к SharePoint и Excel Online в Edge/Chrome.','On first connection, allow Bridge access to SharePoint and Excel Online in Edge/Chrome.','Під час першого підключення дозволь Bridge доступ до SharePoint і Excel Online в Edge/Chrome.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M3 7h7l2 2h9v11H3z'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>4. {{ eMsg('Wybierz folder SharePoint','Выбери папку SharePoint','Choose the SharePoint folder','Вибери папку SharePoint') }}</strong><p>{{ eMsg('Wskaż Downloads/MrRobot/SharePoint w Obsada lub Dostęp i foldery. OpenReports ma osobny folder.','Выбери Downloads/MrRobot/SharePoint в Obsada или «Доступ и папки». У OpenReports другая папка.','Choose Downloads/MrRobot/SharePoint in Obsada or Access and folders. OpenReports has a separate folder.','Вибери Downloads/MrRobot/SharePoint в Obsada або «Доступ і папки». OpenReports має окрему папку.') }}</p></div>
+        </div>
+        <div class="mr-bridge-guide-step">
+         <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M20 7v5h-5M4 17v-5h5M5.4 9a7 7 0 0 1 12-2l2.6 5M18.6 15a7 7 0 0 1-12 2L4 12'/></svg></span>
+         <div class="mr-bridge-guide-step-content"><strong>5. {{ eMsg('Odśwież dane','Обнови данные','Refresh data','Онови дані') }}</strong><p>{{ eMsg('Kliknij Odśwież dane w Obsada. Bridge pobierze kopię XLSX i aplikacja wczyta nowe dane.','Нажми «Обновить данные» в Obsada. Bridge скачает XLSX, а приложение загрузит новые данные.','Click Refresh data in Obsada. Bridge downloads the XLSX copy and the app reads the new data.','Натисни «Оновити дані» в Obsada. Bridge завантажить XLSX, а застосунок зчитає нові дані.') }}</p></div>
+        </div><div class="mr-bridge-guide-note"><span class="mr-bridge-guide-step-icon" aria-hidden="true">ⓘ</span><div><strong>{{ eMsg('Warto wiedzieć','Полезно знать','Good to know','Корисно знати') }}</strong><p>{{ eMsg('SharePoint odświeża się tylko ręcznie. Link i folder pozostają zapisane.','SharePoint обновляется только вручную. Ссылка и папка сохраняются.','SharePoint refreshes only manually. The link and folder remain saved.','SharePoint оновлюється лише вручну. Посилання та папка зберігаються.') }}</p></div></div>
+       </div>
       </div>
+     </div>
+     <div class="mr-bridge-release-panel">
+      <button type="button" class="mr-bridge-install-toggle" id="mr-bridge-history-toggle" aria-expanded="false" aria-controls="mr-bridge-history-body"><span id="mr-bridge-history-label"></span><svg class="mr-bridge-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div id="mr-bridge-history-body" class="mr-bridge-release-body" hidden><div id="mr-bridge-history-list"></div></div>
      </div>
      <small id="mr-bridge-warning">{{ eMsg('Rozszerzenie instaluje się osobno; PWA nie może go zainstalować automatycznie.','Расширение устанавливается отдельно: PWA не может установить его автоматически.','Install the extension separately: a PWA cannot install it automatically.','Розширення встановлюється окремо: PWA не може встановити його автоматично.') }}</small>
     </div>
@@ -2657,11 +2690,11 @@
 <script src="js/stock-intelligence.js"></script>
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
-<script src="js/app.js?v=3.25.0-bridge-hub-20261114"></script>
+<script src="js/app.js?v=3.25.0-bridge-ui-20261114"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
-<script src="js/bridge-setup.js"></script>
+<script src="js/bridge-setup.js?v=3.25.0-bridge-ui-20261114"></script>
 <script src="js/mrbot.js"></script>
 </body>
 </html>

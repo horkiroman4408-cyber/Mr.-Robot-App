@@ -251,3 +251,27 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 @media(max-width:740px){.mr-bridge-settings .mr-bp-services{grid-template-columns:1fr}.mr-bridge-settings .mr-bp-service{min-height:62px}.mr-bridge-settings .mr-bp-service-state{font-size:10px}}
 @media(max-width:420px){.mr-bridge-settings .mr-bp-inline-note{max-width:40%;text-align:right}}
 @media(prefers-reduced-motion:reduce){.mr-bridge-settings .mr-bp-chevron{transition:none}}
+
+/* 3.25.0 visual refinement: compact Bridge center, using inherited theme tokens. */
+.mr-bridge-settings .mr-bp-services{gap:8px;margin:10px 0 9px}
+.mr-bridge-settings .mr-bp-service{min-height:55px;padding:9px 11px;gap:9px;border-radius:13px}
+.mr-bridge-settings .mr-bp-service-icon{width:29px;height:29px;flex-basis:29px;border-radius:9px}
+.mr-bridge-settings .mr-bp-details{margin-bottom:8px}
+.mr-bridge-settings .mr-bp-details>summary{padding:11px 13px}
+.mr-bridge-settings .mr-bp-row{padding:9px 0}
+.mr-bridge-settings .mr-bp-service-state{font-size:10px}
+.mr-bridge-settings .mr-bridge-info{margin-top:4px}
+.mr-bridge-settings .mr-bridge-prereq{display:none}
+.mr-bridge-settings .mr-bridge-help-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:4px;margin:0 0 13px;background:color-mix(in srgb,currentColor 6%,transparent);border:1px solid var(--mr-control-border,rgba(125,135,155,.18));border-radius:12px}
+.mr-bridge-settings .mr-bridge-help-tab{flex:1 1 100px;min-width:0;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:inherit;opacity:.74;font-size:12px;font-weight:700;line-height:1.3;font-family:inherit;cursor:pointer;transition:background .16s ease,opacity .16s ease}
+.mr-bridge-settings .mr-bridge-help-tab.is-selected{opacity:1;background:color-mix(in srgb,currentColor 12%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,currentColor 14%,transparent)}
+.mr-bridge-settings .mr-bridge-help-tab:hover{opacity:1;background:color-mix(in srgb,currentColor 9%,transparent)}
+.mr-bridge-settings .mr-bridge-help-tab:focus-visible{outline:2px solid var(--mr-focus,#5797ff);outline-offset:2px}
+.mr-bridge-settings .mr-bridge-help-content[hidden]{display:none!important}
+.mr-bridge-settings .mr-bridge-steps{display:grid;gap:15px}
+.mr-bridge-settings .mr-bridge-steps .mr-bridge-guide-note{margin-top:0}
+.mr-bridge-settings .mr-bridge-install-panel{margin:8px 0}
+.mr-bridge-settings .mr-bridge-guide-step-icon{color:inherit}
+@media(max-width:740px){.mr-bridge-settings .mr-bp-services{grid-template-columns:repeat(2,minmax(0,1fr))}.mr-bridge-settings .mr-bp-service{flex-wrap:wrap}.mr-bridge-settings .mr-bp-service-state{width:100%;padding-left:38px}}
+@media(max-width:480px){.mr-bridge-settings .mr-bp-services{grid-template-columns:1fr}.mr-bridge-settings .mr-bp-service{flex-wrap:nowrap}.mr-bridge-settings .mr-bp-service-state{width:auto;padding-left:0}.mr-bridge-settings .mr-bridge-help-tab{font-size:11px;padding:9px 6px}}
+@media(prefers-reduced-motion:reduce){.mr-bridge-settings .mr-bridge-help-tab{transition:none}}
