@@ -39,7 +39,7 @@ async function openSettingsMemory(){
 
 
 const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
-const obsadaPlan=window.MRObsadaPlanner.create({reactive,computed,roster:()=>employeeRoster.value,source:()=>obsada.state.model});
+const obsadaPlan=reactive(window.MRObsadaPlanner.create({reactive,computed,roster:()=>employeeRoster.value,source:()=>obsada.state.model}));
 
 // SharePoint Bridge: only explicit refresh, downloads through Excel Online.
 // Browser security requires a one-time folder grant to read the downloaded workbook.
