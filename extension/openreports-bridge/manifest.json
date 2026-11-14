@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Mr. Robot | OpenReports Bridge",
-  "description": "OpenReports Bridge: XLSX reports for MP, RS and KPI Audyt, Scalanie, Rozkładanie and NADWE/VAS; PL/RU/EN/UK.",
-  "version": "0.3.14",
+  "name": "Mr. Robot | OpenReports + SharePoint Bridge (0.3.26)",
+  "description": "OpenReports automation and manual SharePoint XLSX refresh for Obsada. No scheduled downloads.",
+  "version": "0.3.26",
   "permissions": [
     "storage",
     "tabs",
@@ -43,6 +43,21 @@
         "mrrobot-content.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://horkiroman4408-cyber.github.io/Mr.-Robot-App/*"
+      ],
+      "js": [
+        "sharepoint-robot-content.js"
+      ],
+      "run_at": "document_idle"
     }
+  ],
+  "optional_host_permissions": [
+    "https://lppsa-my.sharepoint.com/*",
+    "https://*.officeapps.live.com/*",
+    "https://*.office.com/*",
+    "https://*.office.net/*"
   ]
 }

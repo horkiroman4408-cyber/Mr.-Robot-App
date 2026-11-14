@@ -1,4 +1,4 @@
-/* OpenReports Bridge: UI-only installation guide and connection indicator. */
+/* Mr. Robot Bridge: installation, version status and OpenReports/SharePoint integrations. */
 (function () { 'use strict';
   const get = id => document.getElementById(id);
   const translations = {
@@ -20,7 +20,7 @@
     if (/Chrome\//i.test(ua)) return 'chrome';
     return 'edge'; // Explicitly switchable fallback.
   }
-  const FALLBACK_VERSION='0.3.22';
+  const FALLBACK_VERSION='0.3.26';
   const state = {version:null,browser:detectedBrowser(),expanded:false,guideMode:'install',historyExpanded:false,copyNotice:false,latest:null,history:null,check:'idle',lastCheck:0};
   function tr(key,vars={}){const v=translations[lang()][key]||translations.pl[key]||key;return v.replace(/\{(\w+)\}/g,(_,k)=>String(vars[k]||''));}
   function compare(a,b){const x=a.split('.').map(Number),y=b.split('.').map(Number);for(let i=0;i<3;i++){if(x[i]!==y[i])return x[i]>y[i]?1:-1;}return 0;}
@@ -61,10 +61,10 @@
       el.dataset.state=displayState;
       const text=el.querySelector('.mr-bridge-status-label');if(text)text.textContent=label;
       el.title=label+' · '+tr('history');
-      el.setAttribute('aria-label',label+' · OpenReports Bridge');
+      el.setAttribute('aria-label',label+' · Mr. Robot Bridge');
     });
     const dot=get('mr-bridge-indicator-dot');if(dot)dot.dataset.connected=String(present);
-    const trigger=get('mr-bridge-indicator');if(trigger)trigger.title='OpenReports Bridge · '+status;
+    const trigger=get('mr-bridge-indicator');if(trigger)trigger.title='Mr. Robot Bridge · '+status;
     const panel=get('settings-openreports');if(!panel)return;
     const put=(id,text)=>{const el=get(id);if(el)el.textContent=text;};
     put('mr-bridge-status',status);const mainDot=get('mr-bridge-dot');if(mainDot)mainDot.dataset.connected=String(present);
@@ -159,4 +159,18 @@
   document.addEventListener('mrbot-view-change',()=>queueMicrotask(draw));
   if(navigator.brave?.isBrave && state.browser==='chrome'){Promise.resolve().then(()=>navigator.brave.isBrave()).then(yes=>{if(yes && state.browser==='chrome'){state.browser='brave';draw();}}).catch(()=>{});}
   detect();checkUpdates();document.dispatchEvent(new Event('mr-openreports-bridge-query'));setTimeout(detect,600);setTimeout(detect,2500);
+
+  // OpenReports folder belongs to the extension's existing IndexedDB handle.
+  // Only the extension can select/change it. Display its status in Settings.
+  document.addEventListener('mr-bridge-openreports-folder-status',ev=>{
+    const slot=get('mr-bp-or-folder');if(!slot)return;
+    const d=ev.detail||{};
+    const names={pl:{ok:'Wybrany',missing:'Nie wybrano folderu',expired:'Wymaga ponownej zgody'},ru:{ok:'Выбрана',missing:'Папка не выбрана',expired:'Нужно подтвердить доступ'},en:{ok:'Selected',missing:'Folder not selected',expired:'Permission needs renewal'},uk:{ok:'Обрана',missing:'Папку не вибрано',expired:'Потрібно поновити дозвіл'}};
+    const t=names[lang()]||names.pl;
+    slot.textContent=d.name?(d.permission==='granted'?t.ok:t.expired)+': '+d.name:t.missing+' · Downloads/MrRobot/OpenReports';
+  });
+  document.addEventListener('mr-openreports-bridge-ready',()=>document.dispatchEvent(new Event('mr-bridge-openreports-folder-status-query')));
+  const permissionSettings=get('mr-bridge-permissions');if(permissionSettings)permissionSettings.addEventListener('toggle',()=>{
+    if(permissionSettings.open)document.dispatchEvent(new Event('mr-bridge-openreports-folder-status-query'));
+  });
 })();

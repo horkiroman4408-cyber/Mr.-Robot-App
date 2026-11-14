@@ -5,8 +5,8 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.24.0-blue)
-[![OpenReports Bridge](https://img.shields.io/badge/OpenReports%20Bridge-v0.3.22-0d9488)](#-openreports-bridge)
+![version](https://img.shields.io/badge/version-3.25.0-blue)
+[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.26-0d9488)](#-mr-robot-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -28,7 +28,7 @@
 - [Always up to date](#-always-up-to-date)
 - [Why it exists](#-why-it-exists)
 - [Speed and performance](#-speed-and-performance)
-- [OpenReports Bridge](#-openreports-bridge)
+- [Mr. Robot Bridge](#-mr-robot-bridge)
 - [The Modules](#-the-modules-deep-dive)
 - [How it's built](#%EF%B8%8F-how-its-built-under-the-hood)
 - [Project structure](#-project-structure)
@@ -120,13 +120,15 @@ The calculations follow fixed rules defined in code, so the same input produces 
 
 ---
 
-## 🔌 OpenReports Bridge
+## 🔌 Mr. Robot Bridge
 
-**One connection for Mr. Robot, not just for audits.** OpenReports Bridge is an optional Edge/Chrome extension that lets Mr. Robot request authorized XLSX reports directly from OpenReports-WMS. It is designed as a shared integration for current and future modules, while each module keeps its own existing Excel processor. Manual import and offline calculations remain available without the extension.
+**Mr. Robot Bridge** is one optional Edge/Chrome extension with two integrations: **OpenReports** for WMS reports and **SharePoint** for refreshing the Obsada Excel workbook manually. Each integration uses its own access permissions and download folder. Configure both under **Mr. Robot → Settings → Bridge → Access and folders**. For SharePoint, paste the Excel share link in Obsada, grant permission once and choose `Downloads/MrRobot/SharePoint`; later use **Refresh data**.
+
+**One connection for Mr. Robot, not just for audits.** Mr. Robot Bridge is an optional Edge/Chrome extension that lets Mr. Robot request authorized XLSX reports directly from OpenReports-WMS. It is designed as a shared integration for current and future modules, while each module keeps its own existing Excel processor. Manual import and offline calculations remain available without the extension.
 
 **Currently connected:** `ECM_AI_Audit` → **AL_AUDYT / FORMATKA_59** and `ECM_STOCK_Items_after_receiving` → **GODZINY_MDT**, and `ECM_PICK_Lacks_during_picking` → **STOCK** (one day). Future reports can be added to the same Bridge rather than building separate extensions. Dates are selected in day/month/year order, and times use a 24-hour HH:MM:SS clock; some reports have additional parameters.
 
-**Installation in Edge / Chrome:** Open **Mr. Robot → Settings → OpenReports Bridge**, download the ZIP and extract it. In Edge open `edge://extensions` or in Chrome `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json` (`extension/openreports-bridge` in the repository, or `extension` in the standalone ZIP if present). Refresh Mr. Robot to check connection status and version. Bridge opens OpenReports automatically if no tab exists, and waits for you to sign in on the website before resuming the request. The extension has its own release history and `latest.json` to check updates without changing the Mr. Robot version. Unpacked extensions must still be updated manually.
+**Installation in Edge / Chrome:** Open **Mr. Robot → Settings → Bridge**, download the ZIP and extract it. In Edge open `edge://extensions` or in Chrome `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json` (`extension/openreports-bridge` in the repository, or `extension` in the standalone ZIP if present). Refresh Mr. Robot to check connection status and version. Bridge opens OpenReports automatically if no tab exists, and waits for you to sign in on the website before resuming the request. The extension has its own release history and `latest.json` to check updates without changing the Mr. Robot version. Unpacked extensions must still be updated manually.
 
 Reports download to `Downloads/MrRobot/OpenReports`. Grant read access to this folder within Mr. Robot when requested. Bridge matches downloads to their report type; credentials are not stored by Bridge, and report processing remains local. Corporate browser policies may restrict extensions. A PWA cannot silently install an Edge extension, and unpacked extensions do not update automatically from GitHub.
 
@@ -136,7 +138,7 @@ STOCK now uses ECM_PICK_Lacks_during_picking with one date and Data Source WMS E
 
 KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available through Bridge with independent date ranges and automatic `Pick Scal` selection.
 
-**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.22.zip`](downloads/OpenReports-Bridge-v0.3.22.zip).
+**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.26.zip`](downloads/OpenReports-Bridge-v0.3.26.zip).
 
 ---
 

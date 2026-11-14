@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.26",
+      "date": "2026-11-14",
+      "title": {
+        "pl": "Wspólny wybór folderu OpenReports",
+        "ru": "Общий выбор папки OpenReports",
+        "en": "Shared OpenReports folder picker",
+        "uk": "Спільний вибір папки OpenReports"
+      },
+      "changes": {
+        "pl": [
+          "Wybór folderu OpenReports z ustawień Mr. Robot korzysta z istniejącego uchwytu w rozszerzeniu."
+        ],
+        "ru": [
+          "Выбор папки OpenReports из настроек Mr. Robot использует существующее разрешение расширения."
+        ],
+        "en": [
+          "OpenReports folder selection in Mr. Robot Settings reuses the extension’s existing folder handle."
+        ],
+        "uk": [
+          "Вибір папки OpenReports в налаштуваннях Mr. Robot використовує наявний дозвіл розширення."
+        ]
+      }
+    },
+    {
       "version": "0.3.25",
       "date": "2026-11-14",
       "title": {

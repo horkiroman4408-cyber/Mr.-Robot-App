@@ -7,7 +7,7 @@
 
   // Passive availability signal for Mr. Robot UI (no credentials or report data).
   // Readable DOM marker is for display only, never authorization.
-  const bridgeVersion = '0.3.14';
+  const bridgeVersion = '0.3.26';
   function announceBridge(){
     document.documentElement.dataset.mrOpenreportsBridge = bridgeVersion;
     document.dispatchEvent(new CustomEvent('mr-openreports-bridge-ready',{detail:{version:bridgeVersion}}));
@@ -404,7 +404,7 @@
     const permission=await handle.queryPermission({mode:'read'});
     dirName.textContent=handle.name+' · '+(permission==='granted'?tt('folderGranted'):tt('folderExpired'));
   }
-  async function pickFolder() {
+  async function pickFolder(importAfterPick=true) {
     if(typeof window.showDirectoryPicker!=='function') {
       noticeKey('pickerUnavailable',{},'error');return;
     }
@@ -417,7 +417,7 @@
       await updateFolderStatus();
       noticeKey('folderLinked',{},'success');
       const {job}=await tryMessage('MR_STATUS');
-      if(job?.state==='done' && job.report===selectedReport && validName(job.downloadFilename,job.report))await importLatest(false,selectedReport);
+      if(importAfterPick && job?.state==='done' && job.report===selectedReport && validName(job.downloadFilename,job.report))await importLatest(false,selectedReport);
     } catch(e) {
       if(e?.name==='AbortError')return;
       noticeKey('pickerError',{reason:e.message||e},'error');
@@ -563,6 +563,20 @@
     }catch(e){noticeKey('syncError',{reason:e.message},'error');}
     finally {periodicRunning=false;}
   }
+  // Shared folder picker for both the report modal and Mr. Robot Settings.
+  // Called synchronously from an actual button click (required for picker activation).
+  async function sendFolderStatus(){
+    try{
+      const saved=handle||await getStoredHandle();
+      const permission=saved&&allowedFolder(saved)?await saved.queryPermission({mode:'read'}):'none';
+      document.dispatchEvent(new CustomEvent('mr-bridge-openreports-folder-status',{detail:{name:saved&&allowedFolder(saved)?saved.name:'',permission}}));
+    }catch(_){document.dispatchEvent(new CustomEvent('mr-bridge-openreports-folder-status',{detail:{name:'',permission:'none'}}));}
+  }
+  document.addEventListener('mr-bridge-openreports-folder-pick',()=>{
+    // Keep showDirectoryPicker inside the original user gesture.
+    pickFolder().then(sendFolderStatus).catch(sendFolderStatus);
+  });
+  document.addEventListener('mr-bridge-openreports-folder-status-query',()=>{sendFolderStatus();});
   function initialize() {
     injectStyle();
     mountButton();

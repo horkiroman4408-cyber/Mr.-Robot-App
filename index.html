@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.24.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.25.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.24.0-bridge-permissions-ui-20261114">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-bridge-hub-20261114">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -1920,7 +1920,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.24.0">v3.24.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.25.0">v3.25.0</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -1986,14 +1986,27 @@
      <div class="mr-bp-details-content">
       <div class="mr-bp-row"><div><strong>OpenReports</strong><small>{{ eMsg('Dostęp do OpenReports przyznawany przy instalacji Bridge','Доступ к OpenReports выдаётся при установке Bridge','OpenReports access is granted on Bridge installation','Доступ до OpenReports надається під час встановлення Bridge') }}</small></div><span class="mr-bp-inline-note">{{ eMsg('Bez dodatkowej zgody','Без отдельного разрешения','No separate prompt','Без окремого дозволу') }}</span></div>
       <div class="mr-bp-row"><div><strong>SharePoint · LPP</strong><small>{{ obsadaBridge.permissionGranted?eMsg('Zgoda Edge zapisana','Разрешение Edge сохранено','Edge permission granted','Дозвіл Edge збережено'):eMsg('Jednorazowa zgoda Edge','Однократное разрешение Edge','One-time Edge permission','Одноразовий дозвіл Edge') }}</small></div><button type="button" class="mr-bp-action" :disabled="!obsadaBridge.connected||obsadaBridge.permissionGranted||obsadaBridge.permissionPending" @click="obsadaBridgePermissionOpen">{{ obsadaBridge.permissionGranted?eMsg('Zezwolono','Разрешено','Allowed','Дозволено'):eMsg('Zezwól','Разрешить','Allow','Дозволити') }}</button></div>
-      <div class="mr-bp-row"><div><strong>{{ eMsg('Folder OpenReports','Папка OpenReports','OpenReports folder','Папка OpenReports') }}</strong><small>Downloads/MrRobot/OpenReports</small></div><span class="mr-bp-inline-note">{{ eMsg('W modułach OpenReports','В модулях OpenReports','In OpenReports modules','У модулях OpenReports') }}</span></div>
+      <div class="mr-bp-row"><div><strong>{{ eMsg('Folder OpenReports','Папка OpenReports','OpenReports folder','Папка OpenReports') }}</strong><small id="mr-bp-or-folder">Downloads/MrRobot/OpenReports</small></div><button type="button" class="mr-bp-action" id="mr-bp-or-folder-pick" @click="documentOpenReportsFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
       <div class="mr-bp-row"><div><strong>{{ eMsg('Folder SharePoint','Папка SharePoint','SharePoint folder','Папка SharePoint') }}</strong><small>{{ obsadaBridge.folderName?eMsg('Wybrany: ','Выбрана: ','Selected: ','Обрана: ')+obsadaBridge.folderName:'Downloads/MrRobot/SharePoint' }}</small></div><button type="button" class="mr-bp-action" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
       <div class="mr-bp-footer"><span>{{ eMsg('Pobieranie SharePoint tylko po kliknięciu Odśwież dane.','SharePoint загружается только по кнопке «Обновить».','SharePoint downloads only on manual refresh.','SharePoint завантажується лише вручну.') }}</span><button type="button" class="mr-bp-check" @click="obsadaBridgeCheck">{{ eMsg('Sprawdź status','Проверить статус','Check status','Перевірити статус') }}</button></div>
      </div>
     </details>
+    <details class="mr-bp-details mr-bp-guide" id="mr-bridge-sharepoint-guide">
+     <summary><span class="mr-bp-details-title"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5.5c2.7-1.2 5.3-.8 8 .5v14c-2.7-1.3-5.3-1.7-8-.5zM12 6c2.7-1.3 5.3-1.7 8-.5v14c-2.7-1.2-5.3-.8-8 .5z"/></svg>{{ eMsg('Jak korzystać z SharePoint','Как пользоваться SharePoint','How to use SharePoint','Як користуватися SharePoint') }}</span><svg class="mr-bp-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></summary>
+     <div class="mr-bp-details-content mr-bp-guide-content">
+      <p>{{ eMsg('Bridge to jedno rozszerzenie Edge/Chrome z dwiema integracjami: OpenReports i SharePoint.','Bridge — одно расширение Edge/Chrome с двумя подключениями: OpenReports и SharePoint.','Bridge is one Edge/Chrome extension with two integrations: OpenReports and SharePoint.','Bridge — одне розширення Edge/Chrome з двома інтеграціями: OpenReports і SharePoint.') }}</p>
+      <ol>
+       <li>{{ eMsg('Otwórz moduł Obsada i w ustawieniach źródła wklej link do pliku Excel z SharePoint.','Открой Obsada и вставь ссылку на Excel из SharePoint в настройках источника.','Open Obsada and paste your SharePoint Excel link into its source settings.','Відкрий Obsada та встав посилання на Excel із SharePoint у налаштуваннях джерела.') }}</li>
+       <li>{{ eMsg('Przy pierwszym połączeniu zezwól Bridge na dostęp do witryny w oknie Edge. Zgoda pozostaje zapisana.','При первом подключении один раз разреши Bridge доступ к сайту в окне Edge. Разрешение сохранится.','On first connection, allow Bridge site access in the Edge prompt. The permission stays saved.','Під час першого підключення один раз дозволь Bridge доступ до сайту в Edge. Дозвіл збережеться.') }}</li>
+       <li>{{ eMsg('Wybierz folder Downloads/MrRobot/SharePoint w Obsada lub w sekcji Dostęp i foldery.','Выбери Downloads/MrRobot/SharePoint в Obsada или разделе «Доступ и папки».','Choose Downloads/MrRobot/SharePoint in Obsada or Access and folders.','Вибери Downloads/MrRobot/SharePoint в Obsada або в розділі «Доступ і папки».') }}</li>
+       <li>{{ eMsg('Kliknij Odśwież dane w Obsada. Bridge pobierze kopię XLSX i aplikacja odczyta nowy plik.','Нажми «Обновить данные» в Obsada. Bridge скачает XLSX, а приложение прочитает свежий файл.','Click Refresh data in Obsada. Bridge downloads the XLSX copy and the app reads the latest file.','Натисни «Оновити дані» в Obsada. Bridge завантажить XLSX, а застосунок прочитає новий файл.') }}</li>
+      </ol>
+      <p>{{ eMsg('SharePoint nie aktualizuje się sam. Przy kolejnym odświeżeniu wystarczy jeden przycisk. OpenReports używa osobnego folderu.','SharePoint не обновляется сам: в следующий раз достаточно одной кнопки. У OpenReports отдельная папка.','SharePoint never refreshes automatically. Next time, use one button. OpenReports has its own folder.','SharePoint не оновлюється сам: надалі достатньо однієї кнопки. OpenReports має окрему папку.') }}</p>
+     </div>
+    </details>
     <div class="mr-bridge-info" id="mr-bridge-info">
      <div class="mr-bridge-action-row">
-      <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.3.22.zip" download="OpenReports-Bridge-v0.3.22.zip" id="mr-bridge-download">Bridge v0.3.0</a>
+      <a class="mr-bridge-download" href="downloads/OpenReports-Bridge-v0.3.26.zip" download="OpenReports-Bridge-v0.3.26.zip" id="mr-bridge-download">Pobierz Bridge</a>
       
      </div>
      <div class="mr-bridge-update" id="mr-bridge-update" hidden aria-live="polite">
@@ -2100,7 +2113,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.24.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.25.0</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -2644,7 +2657,7 @@
 <script src="js/stock-intelligence.js"></script>
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
-<script src="js/app.js?v=3.24.0-sp-retry-20261114"></script>
+<script src="js/app.js?v=3.25.0-bridge-hub-20261114"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>

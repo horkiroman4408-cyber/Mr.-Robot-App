@@ -1,3 +1,4 @@
+importScripts('sharepoint-sync-background.js','sharepoint-manual-background.js');
 'use strict';
 const ORIGIN = 'https://openreports-wms.lpp.com/';
 const REPORT_GROUP_URL = 'https://openreports-wms.lpp.com/openreports/reportGroup.action';
@@ -153,7 +154,11 @@ async function runOnTab(tabId){
     }
   }
 }
+// SharePoint probe is handled by sharepoint-probe-background.js.
+// Do not answer its message here: two responses race and the old fallback
+// used to send `Unknown message` before the SharePoint result.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if(['SP_PROBE_FILE','SP_WATCH_START','SP_WATCH_STATUS','SP_SYNC_SET_SOURCE','SP_SYNC_GET_SOURCE','SP_SYNC_CLEAR_SOURCE','SP_PERMISSION_OPEN','SP_SYNC_FETCH','SP_MANUAL_START','SP_MANUAL_STATUS'].includes(message?.type)) return false;
   (async()=>{
     if(message?.type==='MR_START'){
       const {from,to}=message;
@@ -341,6 +346,7 @@ async function finishDownload(job,item){
     message:inDedicatedFolder?'Excel pobrany do Downloads/MrRobot/OpenReports. Import do Mr. Robot…':'Excel pobrany poza Downloads/MrRobot/OpenReports. Sprawdź ustawienia pobierania Edge i wskaż rzeczywisty folder pliku.',updatedAt:Date.now()});
 }
 chrome.downloads.onDeterminingFilename.addListener((item,suggest)=>{
+  if (globalThis.mrSharePointDownloadName && globalThis.mrSharePointDownloadName(item,suggest)) return true;
   getJob().then(async job=>{
     if(fromReport(item,job)){
       const claimed=await claimDownload(item);
