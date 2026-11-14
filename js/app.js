@@ -223,9 +223,18 @@ async function obsadaBridgeRefresh(){
   if(bytes[0]!==80||bytes[1]!==75||bytes[2]!==3||bytes[3]!==4)throw Error('NOT_XLSX');
   const ok=await obsada.loadFile(file,{keepSelection:true});
   if(!ok)throw Error(obsada.state.error||'INVALID_STAN');
-  obsadaBridge.message='SharePoint · dane zaktualizowane';
+  await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name);
+  obsadaBridge.message=eMsg('SharePoint pobrany. STAN i historia zapisane w bazie przeglądarki; sprawdź osobno stan Excel.','SharePoint обновлён: STAN и история сохранены в браузере. Отдельно проверь запись Excel.','SharePoint refreshed: STAN and history stored locally. Check Excel sync separately.','SharePoint оновлено: STAN та історію збережено локально. Окремо перевірте Excel.');
  }catch(e){obsadaBridge.error=spErrorText(e?.message||e);}
  finally{obsadaBridge.busy=false;}
+}
+async function obsadaManualSyncFile(event){
+ const file=event?.target?.files?.[0];if(event?.target)event.target.value='';if(!file)return;
+ obsadaBridge.error='';obsadaBridge.message='';
+ const ok=await obsada.loadFile(file,{keepSelection:true});
+ if(!ok){obsadaBridge.error=obsada.state.error||'INVALID_XLSX';return;}
+ try{await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name);obsadaBridge.message=eMsg('Plik ręczny zsynchronizowany z bazą lokalną.','Файл вручную синхронизирован с локальной базой.','Manual file synchronized locally.','Файл синхронізовано з локальною базою.');}
+ catch(err){obsadaBridge.error=String(err.message||err);}
 }
 document.addEventListener('mr-openreports-bridge-ready',()=>obsadaBridgeCheck());
 setTimeout(obsadaBridgeCheck,900);
@@ -2812,6 +2821,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryPercent,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryPercent,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

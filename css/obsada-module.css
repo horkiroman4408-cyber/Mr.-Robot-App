@@ -407,6 +407,25 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-remove-panel small{color:var(--obs-muted);font-size:10px}
 #app .obs-plan-remove-panel button{padding:8px 10px;border:1px solid var(--obs-border);border-radius:8px;color:var(--obs-text);font-size:11px}
 
+/* Obsada 3.25.0 · compact SharePoint sync: no large XLSX drop area. */
+#app .obs-share-sync{display:block;padding:14px 16px}
+#app .obs-share-sync-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#app .obs-share-sync-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--obs-accent) 10%,var(--obs-surface));color:var(--obs-accent);font-weight:750;font-size:21px}
+#app .obs-share-sync-main{flex:1;min-width:170px;font-size:12px;color:var(--obs-text)}
+#app .obs-share-sync-main strong{font-weight:750;font-size:13px}
+#app .obs-share-sync-main .obs-quiet{font-size:11px;margin-top:3px}
+#app .obs-share-sync-actions{display:flex;align-items:center;gap:7px}
+#app .obs-share-sync-foot{margin:10px 0 0;padding:9px 0 0;border-top:1px solid var(--obs-border);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--obs-text)}
+#app .obs-share-sync-foot .obs-bridge-small-btn{margin-left:auto}
+#app .obs-share-sync-dot{height:8px;width:8px;display:inline-block;border-radius:50%;background:#f59e0b}
+#app .obs-share-sync-dot.is-synced{background:#16a34a}
+#app .obs-share-sync-dot.is-error{background:#dc2626}
+#app .obs-share-sync-dot.is-saving{background:#64748b}
+#app .obs-share-backup{margin-top:9px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#app .obs-local-view .obs-plan-fields{margin-top:14px}
+#app .obs-local-view .obs-today-stats{margin:12px 0}
+@media(max-width:600px){#app .obs-share-sync-head{align-items:flex-start}#app .obs-share-sync-actions{width:100%}#app .obs-share-sync-actions .obs-bridge-refresh{flex:1}}
+
 /* Obsada planning: visible, accessible confirmation for removing a planned assignment. */
 #app .obs-plan-person-remove,#app .obs-plan-team-remove{cursor:pointer;pointer-events:auto}
 #app .obs-plan-delete-backdrop{position:fixed;inset:0;z-index:9999;background:rgba(10,18,35,.46);display:flex;align-items:center;justify-content:center;padding:16px}

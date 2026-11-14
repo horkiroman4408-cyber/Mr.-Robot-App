@@ -1,0 +1,20 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm');
+const src='/mnt/data/Grafik procesowy (godziny)(1).xlsx';
+if(!fs.existsSync(src)){console.log('SKIP real workbook fixture not mounted');process.exit(0);}
+const context={console,setTimeout,clearTimeout,Uint8Array,ArrayBuffer,Date};
+vm.runInNewContext(fs.readFileSync(__dirname+'/../js/xlsx.js','utf8'),context,{timeout:10000});
+vm.runInNewContext(fs.readFileSync(__dirname+'/../js/obsada.js','utf8'),context,{timeout:10000});
+const XLSX=context.XLSX,planner=require('../js/obsada-planner.js');
+const source=XLSX.read(fs.readFileSync(src),{type:'buffer',cellDates:false});
+const model=context.ObsadaParser.extract(source,XLSX);
+assert.ok(model.intervals.length>0);assert.ok(model.history.length>2000);assert.ok(model.statuses.length>1000);
+const stan={updatedAt:'2026-11-15T13:00:00.000Z',intervals:model.intervals.map(i=>({label:i.label,people:i.people.map(p=>({login:p.login,process:p.process}))}))};
+const book=planner.buildWorkbook(XLSX,[],model.history,model.statuses,{},stan);
+assert.ok(!book.Sheets.STAN,'source STAN must not be copied raw');assert.ok(!book.Sheets.DANE);
+const copy=XLSX.read(XLSX.write(book,{bookType:'xlsx',type:'array'}),{type:'array',cellDates:false});
+const result=planner.readDatabase(XLSX,copy);
+assert.equal(result.history.length,model.history.length);
+assert.equal(result.statuses.length,model.statuses.length);
+assert.equal(result.stan.intervals.length,model.intervals.filter(i=>i.people.length>0).length);
+console.log('PASS real input XLSX history '+result.history.length+', statuses '+result.statuses.length+', STAN intervals '+result.stan.intervals.length);
