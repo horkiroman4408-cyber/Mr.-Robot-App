@@ -438,3 +438,19 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-delete-option:hover{border-color:var(--obs-accent);background:var(--obs-soft)}
 #app .obs-plan-delete-option small{color:var(--obs-muted);font-size:11px;font-weight:400;white-space:nowrap}
 #app .obs-plan-delete-cancel{align-self:flex-end;border:none;background:transparent;color:var(--obs-muted);padding:9px;cursor:pointer}
+
+/* Obsada sync UX: hide recovery tools until explicitly needed. */
+#app .obs-plan-dbsummary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+#app .obs-plan-dbsummary>div{border:1px solid var(--obs-border);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+#app .obs-plan-dbsummary strong{font-size:12px;color:var(--obs-text);overflow-wrap:anywhere}
+#app .obs-plan-dbsummary small,#app .obs-plan-dbsummary .obs-quiet{font-size:11px;overflow-wrap:anywhere}
+#app .obs-plan-dbactions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+#app .obs-plan-dbactions button{border:1px solid var(--obs-border);color:var(--obs-text);background:var(--mr-c104,rgba(150,120,130,.07));border-radius:10px;min-height:36px;padding:8px 13px;font-weight:700;font-size:11px;cursor:pointer}
+#app .obs-plan-dbactions button:disabled{opacity:.5;cursor:wait}
+#app .obs-plan-dbconflict{border:1px solid var(--obs-border);border-radius:12px;padding:13px;background:var(--mr-c104,rgba(150,120,130,.07))}
+#app .obs-plan-dbconflict strong{font-size:12px}
+#app .obs-plan-dbconflict p,#app .obs-plan-dbconflict small{font-size:11px;line-height:1.5}
+#app .obs-plan-dbadvanced{margin-top:12px;border-top:1px solid var(--obs-border);padding-top:12px}
+#app .obs-plan-dbadvanced summary{cursor:pointer;font-size:11px;font-weight:750;color:var(--obs-text)}
+#app .obs-plan-dbadvanced[open] .obs-plan-tools{margin-top:11px}
+@media(max-width:570px){#app .obs-plan-dbsummary{grid-template-columns:1fr}}

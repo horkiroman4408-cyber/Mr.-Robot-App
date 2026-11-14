@@ -163,11 +163,48 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(diskHash!==localHash && diskHash!==lastExportHash && diskLegacyHash!==lastExportHash){state.status='EXTERNAL_CHANGES_DETECTED';return;}
  }
  const fileHandle=existing||await folderHandle.getFileHandle(FILE,{create:true});const writable=await fileHandle.createWritable();try{await writable.write(buffer);await writable.close();}catch(e){await writable.abort().catch(()=>{});throw e;}lastExportHash=fingerprint(state.records,state.importedHistory,state.importedStatuses,state.shiftTeams,state.stanSnapshot);await put('lastExportHash',lastExportHash);state.dirty=revision!==startedRevision;state.pendingChanges=state.dirty?Math.max(1,revision-startedRevision):0;state.lastExcelSync=new Date().toISOString();await put('lastExcelSync',state.lastExcelSync);state.status=state.dirty?'LOCAL_SAVED_NOT_EXPORTED':'XLSX_SYNCED';state.error='';}catch(err){state.status='XLSX_FAILED';state.error=err.message||String(err);}finally{writing=false;state.busy=false;if(queued){queued=false;syncIfAllowed();}}}
+ async function resolveConflictWithBackup(){
+  if(state.status!=='EXTERNAL_CHANGES_DETECTED'||!folderHandle||state.busy)return false;
+  const locale=language?.()||'pl';
+  const warning={
+   pl:'Plik Excel na dysku jest inny niż dane w Robocie. Przed zastąpieniem Robot utworzy kopię starego pliku w tym samym folderze. Zachowasz obie wersje. Kontynuować?',
+   ru:'Excel на диске отличается от данных в Роботе. Перед заменой Робот сохранит резервную копию старого файла в той же папке. Обе версии останутся доступны. Продолжить?',
+   en:'The disk Excel differs from the Robot data. Before replacing it, Robot will back up the previous Excel in the same folder. Both versions will remain available. Continue?',
+   uk:'Excel на диску відрізняється від даних Робота. Перед заміною Робот збереже резервну копію старого файлу в тій самій папці. Обидві версії залишаться. Продовжити?'
+  };
+  if(!root.confirm?.(warning[locale]||warning.pl))return false;
+  state.busy=true;
+  try{
+   if(await folderHandle.queryPermission({mode:'readwrite'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
+   const original=await folderHandle.getFileHandle(FILE);
+   const file=await original.getFile();
+   const raw=await file.arrayBuffer();
+   const parsed=readDatabase(root.XLSX,root.XLSX.read(raw,{type:'array',cellDates:false}));
+   const timestamp=new Date().toISOString().replace(/[-:]/g,'').replace('T','_').slice(0,15);
+   let backup;
+   for(let i=0;i<20;i++){
+    const name='MrRobot_Obsada_Baza_backup_'+timestamp+(i?'_'+i:'')+'.xlsx';
+    try{await folderHandle.getFileHandle(name);continue;}catch(err){if(err.name!=='NotFoundError')throw err;}
+    backup=await folderHandle.getFileHandle(name,{create:true});break;
+   }
+   if(!backup)throw Error('BACKUP_FILENAME_UNAVAILABLE');
+   const writable=await backup.createWritable();
+   try{await writable.write(raw);await writable.close();}catch(err){await writable.abort().catch(()=>{});throw err;}
+   // Accept exactly the backed-up disk version as the last known version.
+   // The normal save path still re-reads the original and refuses unexpected changes.
+   lastExportHash=fingerprint(parsed.records,parsed.history,parsed.statuses,parsed.shiftTeams,parsed.stan);
+   state.status='LOCAL_SAVED_NOT_EXPORTED';
+   state.error='';
+  }catch(err){state.status='XLSX_FAILED';state.error=err.message||String(err);return false;}
+  finally{state.busy=false;}
+  await syncIfAllowed(true);
+  return state.status==='XLSX_SYNCED';
+ }
  function download(){const workbook=buildWorkbook(root.XLSX,state.records,state.importedHistory,state.importedStatuses,state.shiftTeams,state.stanSnapshot);root.XLSX.writeFile(workbook,FILE);state.status='XLSX_DOWNLOADED';}
  async function importFile(event){const file=event.target.files?.[0];if(event.target)event.target.value='';if(!file)return;try{const wb=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const imported=readDatabase(root.XLSX,wb);const next=imported.records;if((state.records.length||state.importedHistory.length||state.importedStatuses.length)&&!root.confirm('Replace the current local database with this Excel? This will replace local plans and imported history.'))return;state.records=next;state.importedHistory=imported.history;state.importedStatuses=imported.statuses;state.shiftTeams=imported.shiftTeams;state.stanSnapshot=imported.stan;lastExportHash=fingerprint(next,imported.history,imported.statuses,imported.shiftTeams,imported.stan);await put('lastExportHash',lastExportHash);await save();state.status='LOCAL_IMPORTED';state.error='';}catch(err){state.error=err.message||String(err);}}
  async function init(){try{const saved=await get('records');if(saved){state.records=Array.isArray(saved.records)?saved.records.filter(validRecord):[];state.additionalProcesses=Array.isArray(saved.additionalProcesses)?saved.additionalProcesses:[];state.importedHistory=Array.isArray(saved.importedHistory)?saved.importedHistory:[];state.importedStatuses=Array.isArray(saved.importedStatuses)?saved.importedStatuses:[];state.shiftTeams=(saved.shiftTeams&&typeof saved.shiftTeams==='object')?saved.shiftTeams:{};state.stanSnapshot=saved.stanSnapshot||null;state.importedSource=saved.importedSource||'';state.importedAt=saved.importedAt||'';state.unrecognized=Number(saved.unrecognized)||0;}lastExportHash=await get('lastExportHash')||null;state.lastExcelSync=await get('lastExcelSync')||'';state.lastBrowserSave=await get('lastBrowserSave')||'';folderHandle=await get('folder')||null;state.folderName=folderHandle?.name||'';state.dirty=state.lastBrowserSave&&(!state.lastExcelSync||state.lastBrowserSave>state.lastExcelSync);state.status=state.dirty?'LOCAL_SAVED_NOT_EXPORTED':(state.folderName&&state.lastExcelSync?'XLSX_SYNCED':'LOCAL_SAVED_NOT_EXPORTED');state.active=true;}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,shifts,slots,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,seedFromSource,chooseFolder,syncIfAllowed,download,importFile};
+ return {state,shifts,slots,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,seedFromSource,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile};
 }
 root.MRObsadaPlanner={create,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
