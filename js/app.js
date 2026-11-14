@@ -51,6 +51,7 @@ const spErrorText=code=>{
   INVALID_SHAREPOINT_LINK:['Wklej prawidłowy link https://lppsa-my.sharepoint.com/…','Вставь корректную ссылку https://lppsa-my.sharepoint.com/…','Enter a valid https://lppsa-my.sharepoint.com/… link','Вставте правильне посилання https://lppsa-my.sharepoint.com/…'],
   FOLDER_ACCESS_UNSUPPORTED:['Ta przeglądarka nie obsługuje dostępu do folderu.','Браузер не поддерживает выбор папки.','This browser does not support folder access.','Браузер не підтримує доступ до папки.'],
   WYBIERZ_FOLDER_MRROBOT_SHAREPOINT:['Wybierz folder Downloads/MrRobot/SharePoint.','Выбери папку Downloads/MrRobot/SharePoint.','Select Downloads/MrRobot/SharePoint.','Виберіть папку Downloads/MrRobot/SharePoint.'],
+  SHAREPOINT_FOLDER_FILE_NOT_FOUND:['Nie znaleziono nowego XLSX w wybranym folderze. Wybierz Downloads/MrRobot/SharePoint.','Новый XLSX не найден в выбранной папке. Выбери Downloads/MrRobot/SharePoint.','New XLSX not found in the selected folder. Select Downloads/MrRobot/SharePoint.','Новий XLSX не знайдено у вибраній папці. Виберіть Downloads/MrRobot/SharePoint.'],
   FOLDER_PERMISSION_REQUIRED:['Udziel zgody na odczyt folderu.','Разреши чтение папки.','Allow read access to the folder.','Дозвольте читання папки.'],
   BRAK_ZGODY_SHAREPOINT:['Zezwól rozszerzeniu na SharePoint w jego oknie.','Разреши SharePoint в окне Bridge.','Grant SharePoint access in the Bridge popup.','Надайте доступ до SharePoint у Bridge.'],
   ZAPISZ_LINK_SHAREPOINT:['Zapisz link SharePoint.','Сохрани ссылку SharePoint.','Save the SharePoint link.','Збережіть посилання SharePoint.'],
@@ -143,7 +144,9 @@ async function obsadaBridgeRefresh(){
    if(job.state==='complete'){done=true;started=Number(job.started||0);break;}
   }
   if(!done)throw Error('DOWNLOAD_TIMEOUT');
-  const fileHandle=await handle.getFileHandle('Grafik procesowy (godziny).xlsx');
+  let fileHandle;
+  try{fileHandle=await handle.getFileHandle('Grafik procesowy (godziny).xlsx');}
+  catch(e){if(e?.name==='NotFoundError')throw Error('SHAREPOINT_FOLDER_FILE_NOT_FOUND');throw e;}
   const file=await fileHandle.getFile();
   if(started&&file.lastModified<started-2500)throw Error('STALE_DOWNLOAD_NOT_REPLACED');
   if(file.size<4||file.size>80*1024*1024)throw Error('INVALID_FILE_SIZE');

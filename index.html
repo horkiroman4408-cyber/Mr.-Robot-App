@@ -215,7 +215,7 @@
    <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config">
     <label class="obs-bridge-input-label" for="obs-sharepoint-link">{{ eMsg('Link SharePoint','Ссылка SharePoint','SharePoint link','Посилання SharePoint') }}</label>
     <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.setupBusy || !obsadaBridge.link" @click="obsadaBridgeSaveSource">{{ obsadaBridge.sourceConfigured?eMsg('Zmień','Заменить','Replace','Замінити'):eMsg('Zapisz','Сохранить','Save','Зберегти') }}</button></div>
-    <div class="obs-bridge-config-footer"><button type="button" class="obs-bridge-small-btn" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Вибрати папку') }}</button><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" :disabled="obsadaBridge.setupBusy" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
+    <div class="obs-bridge-config-footer"><button type="button" class="obs-bridge-small-btn" @click="obsadaBridgeChooseFolder">{{ eMsg('Folder SharePoint','Папка SharePoint','SharePoint folder','Папка SharePoint') }}</button><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" :disabled="obsadaBridge.setupBusy" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
    </div>
   </div>
  </section>
@@ -2631,7 +2631,7 @@
 <script src="js/stock-intelligence.js"></script>
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
-<script src="js/app.js?v=3.24.0-sp-compact-20261113"></script>
+<script src="js/app.js?v=3.24.0-sp-folder-separation-20261113"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
