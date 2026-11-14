@@ -6,7 +6,7 @@
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
 ![версия](https://img.shields.io/badge/version-3.25.0-blue)
-[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.26-0d9488)](#-mr-robot-bridge)
+[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![офлайн](https://img.shields.io/badge/offline-ready-success)
@@ -138,7 +138,7 @@ STOCK: ECM_PICK_Lacks_during_picking, один день, источник WMS EC
 
 KPI Аудит (`Audit_ECM_KPI`) и KPI Scalanie (`Pick_ECM_KPI`) доступны через Bridge с отдельными периодами и автоматическим выбором `Pick Scal`.
 
-**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.26.zip`](downloads/OpenReports-Bridge-v0.3.26.zip).
+**Файлы проекта:** исходники [`extension/openreports-bridge/`](extension/openreports-bridge/) и готовый архив [`downloads/OpenReports-Bridge-v0.3.27.zip`](downloads/OpenReports-Bridge-v0.3.27.zip).
 
 ---
 

@@ -45,7 +45,7 @@ const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 const obsadaBridge=reactive({busy:false,setupBusy:false,error:'',message:'',connected:false,sourceConfigured:false,editing:false,link:'',folderName:'',permissionGranted:false,permissionPending:false});
 const spErrorText=code=>{
  const translations={
-  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.26. Zaktualizuj rozszerzenie.','Bridge не найден. Обнови расширение.','Bridge not detected. Update the extension.','Bridge не знайдено. Оновіть розширення.'],
+  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.27. Zaktualizuj rozszerzenie.','Bridge не найден. Обнови расширение.','Bridge not detected. Update the extension.','Bridge не знайдено. Оновіть розширення.'],
   BRIDGE_NOT_RESPONDING:['Bridge nie odpowiada. Przeładuj rozszerzenie i stronę.','Bridge не отвечает. Перезагрузи расширение и страницу.','Bridge is not responding. Reload the extension and page.','Bridge не відповідає. Перезавантажте розширення та сторінку.'],
   SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE:['Najpierw zapisz link SharePoint.','Сначала сохрани ссылку SharePoint.','Save the SharePoint link first.','Спершу збережіть посилання SharePoint.'],
   INVALID_SHAREPOINT_LINK:['Wklej prawidłowy link https://lppsa-my.sharepoint.com/…','Вставь корректную ссылку https://lppsa-my.sharepoint.com/…','Enter a valid https://lppsa-my.sharepoint.com/… link','Вставте правильне посилання https://lppsa-my.sharepoint.com/…'],

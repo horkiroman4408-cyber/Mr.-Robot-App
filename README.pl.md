@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![wersja](https://img.shields.io/badge/version-3.25.0-blue)
-[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.26-0d9488)](#-mr-robot-bridge)
+[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -138,7 +138,7 @@ STOCK: ECM_PICK_Lacks_during_picking, jeden dzień, źródło WMS ECM PODKARPACI
 
 KPI Audyt (`Audit_ECM_KPI`) i KPI Scalanie (`Pick_ECM_KPI`) są dostępne przez Bridge z osobnymi zakresami dat i automatycznym `Pick Scal`.
 
-**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.26.zip`](downloads/OpenReports-Bridge-v0.3.26.zip).
+**Pliki projektu:** kod [`extension/openreports-bridge/`](extension/openreports-bridge/) i paczka instalacyjna [`downloads/OpenReports-Bridge-v0.3.27.zip`](downloads/OpenReports-Bridge-v0.3.27.zip).
 
 ---
 

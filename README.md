@@ -6,7 +6,7 @@
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
 ![version](https://img.shields.io/badge/version-3.25.0-blue)
-[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.26-0d9488)](#-mr-robot-bridge)
+[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
 ![offline](https://img.shields.io/badge/offline-ready-success)
@@ -138,7 +138,7 @@ STOCK now uses ECM_PICK_Lacks_during_picking with one date and Data Source WMS E
 
 KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available through Bridge with independent date ranges and automatic `Pick Scal` selection.
 
-**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.26.zip`](downloads/OpenReports-Bridge-v0.3.26.zip).
+**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.27.zip`](downloads/OpenReports-Bridge-v0.3.27.zip).
 
 ---
 
