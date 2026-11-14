@@ -2,6 +2,8 @@
 (function(root){
 'use strict';
 const STORAGE='mrrobot-obsada-plan-v1', FILE='MrRobot_Obsada_Baza.xlsx';
+const HIST_HEADERS=['DATA','LOGIN_TH','PROCES','GODZINY','ARKUSZ','TYP','SUROWE'];
+const STATUS_HEADERS=['DATA','LOGIN_TH','STATUS','ARKUSZ'];
 const SHIFT_OPTIONS=[['06-18','06:00','18:00'],['18-06','18:00','06:00'],['06-16','06:00','16:00'],['16-02','16:00','02:00'],['06-14','06:00','14:00'],['14-22','14:00','22:00']];
 const norm=x=>String(x||'').trim();
 function pad(x){return String(x).padStart(2,'0');}
@@ -30,54 +32,99 @@ function applyAssignment(records,{day,shift,from,to,login,process}){
  return keep;
 }
 function sheetRows(records){const shifts=new Map();for(const r of records){const key=shiftKey(r.day,r.shift);if(!shifts.has(key))shifts.set(key,{day:r.day,shift:r.shift});}return {shifts:[['DATA_ZMIANY','GRAFIK'],...[...shifts.values()].sort((a,b)=>a.day.localeCompare(b.day)).map(x=>[x.day,x.shift])],assignments:[['DATA_ZMIANY','GRAFIK','GODZINA_OD','GODZINA_DO','LOGIN_TH','PROCES','STATUS','ZMIENIONO'],...records.slice().sort((a,b)=>a.day.localeCompare(b.day)||a.shift.localeCompare(b.shift)||a.slot-b.slot||a.login.localeCompare(b.login)).map(r=>{const slot=makeSlots(r.day,r.shift)[r.slot];const format=stamp=>{const d=new Date(stamp);return localDate(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes());};return [r.day,r.shift,format(slot.start),format(slot.end),r.login,r.process,'PLAN',r.updated||''];})]};}
-function buildWorkbook(XLSX,records){const wb=XLSX.utils.book_new();const rows=sheetRows(records);for(const [sheet,data] of [['PRZYDZIALY',rows.assignments],['ZMIANY',rows.shifts],['INFO',[['MR_ROBOT_OBSADA_BAZA','1'],['FORMAT','One row per employee per hour. Local planned assignments, not verified worked hours.'],['GENERATED',new Date().toISOString()]]]]){const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=data[0].map((_,i)=>({wch:i===5?28:20}));XLSX.utils.book_append_sheet(wb,ws,sheet);}return wb;}
+function buildWorkbook(XLSX,records,history=[],statuses=[]){const wb=XLSX.utils.book_new();const rows=sheetRows(records);const hist=[HIST_HEADERS,...history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType,r.raw||''])];const days=[STATUS_HEADERS,...statuses.map(r=>[r.date,r.login,r.status,r.source])];for(const [sheet,data] of [['PRZYDZIALY',rows.assignments],['ZMIANY',rows.shifts],['HISTORIA_IMPORTOWANA',hist],['STATUSY',days],['INFO',[['MR_ROBOT_OBSADA_BAZA','2'],['FORMAT','Imported history and planned hours are distinct. Do not sum as verified work.'],['GENERATED',new Date().toISOString()]]]]){const ws=XLSX.utils.aoa_to_sheet(data);ws['!cols']=data[0].map((_,i)=>({wch:i===5?28:20}));XLSX.utils.book_append_sheet(wb,ws,sheet);}return wb;}
 function readWorkbook(XLSX,wb){if(!wb.Sheets.PRZYDZIALY)throw Error('NO_LOCAL_ASSIGNMENTS_SHEET');const rows=XLSX.utils.sheet_to_json(wb.Sheets.PRZYDZIALY,{header:1,raw:false,defval:''});if(rows[0]?.slice(0,6).join('|')!==['DATA_ZMIANY','GRAFIK','GODZINA_OD','GODZINA_DO','LOGIN_TH','PROCES'].join('|'))throw Error('INVALID_LOCAL_DATABASE');const records=[];for(const row of rows.slice(1)){if(!norm(row[0]))continue;const day=norm(row[0]),shift=norm(row[1]),from=norm(row[2]),login=norm(row[4]),process=norm(row[5]);const slots=makeSlots(day,shift),slot=slots.find(s=>`${localDate(new Date(s.start))} ${s.from}`===from);const record={day,shift,slot:slot?.index,login,process,updated:norm(row[7])};if(!validRecord(record))throw Error('INVALID_LOCAL_RECORD');records.push(record);}const keys=new Set();for(const r of records){const key=[r.day,r.shift,r.slot,r.login].join('|');if(keys.has(key))throw Error('DUPLICATE_LOCAL_RECORD');keys.add(key);}return records;}
-function create({reactive,computed,roster,source}){
- const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],historyWindow:'week'});
+function readDatabase(XLSX,wb){
+ const records=readWorkbook(XLSX,wb);
+ function lines(sheet,expected){if(!wb.Sheets[sheet])return [];const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheet],{header:1,raw:false,defval:''});if(rows[0]?.slice(0,expected.length).join('|')!==expected.join('|'))throw Error('INVALID_'+sheet+'_HEADERS');return rows.slice(1).filter(r=>norm(r[0]));}
+ const history=lines('HISTORIA_IMPORTOWANA',HIST_HEADERS).map(r=>({date:norm(r[0]),login:norm(r[1]),process:norm(r[2]),hours:Number(String(r[3]).replace(',','.')),source:norm(r[4]),sourceType:norm(r[5])||'main',raw:norm(r[6])}));
+ const statuses=lines('STATUSY',STATUS_HEADERS).map(r=>({date:norm(r[0]),login:norm(r[1]),status:norm(r[2]),source:norm(r[3])}));
+ if(history.some(r=>!/^\d{4}-\d\d-\d\d$/.test(r.date)||!r.login||!r.process||!(r.hours>0&&r.hours<=24)))throw Error('INVALID_HISTORICAL_RECORD');
+ if(statuses.some(r=>!/^\d{4}-\d\d-\d\d$/.test(r.date)||!r.login||!r.status))throw Error('INVALID_STATUS_RECORD');
+ return {records,history,statuses};
+}
+function replaceImported(existing, incoming, sourceNames, keyFn){
+ // Only replace employee/day cells actually present in the new workbook.
+ // This preserves previous years when a monthly worksheet is reused for a new year,
+ // and preserves duplicate processes in one source cell.
+ const affected=new Set(incoming.map(r=>[r.source,r.date,r.login].join('|')));
+ return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
+}
+function create({reactive,computed,roster,source,sourceName,language}){
+ const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,showDatabase:false,staffFilter:'free',processFilter:'',showAllProcesses:false,visibleWorkers:45});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null;
- const fingerprint=records=>JSON.stringify(records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))));
+ const fingerprint=(records,history=[],statuses=[])=>JSON.stringify({records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b)))});
+ const legacyFingerprint=records=>JSON.stringify(records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))));
  const shifts=SHIFT_OPTIONS.map(([value,start,end])=>({value,label:start+'–'+end}));
  const slots=computed(()=>makeSlots(state.day,state.shift));
  const selectedSlot=computed(()=>slots.value[state.from]||slots.value[0]||null);
  const current=computed(()=>state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&r.slot===state.from));
  const initialWorkers=computed(()=>{
-  const people=new Set([...(source()?.employees||[]),...(source()?.intervals||[]).flatMap(s=>s.people.map(p=>p.login)),...state.records.map(r=>r.login)]);
+  const people=new Set([...(source()?.employees||[]),...(source()?.intervals||[]).flatMap(s=>s.people.map(p=>p.login)),...state.records.map(r=>r.login),...state.importedHistory.map(r=>r.login),...state.importedStatuses.map(r=>r.login)]);
   for(const r of roster()||[])if(r.source!=='rezygnacje')people.add(r.id);
   return [...people].filter(Boolean).sort();
  });
- const listedWorkers=computed(()=>initialWorkers.value.filter(s=>!state.search||s.toLowerCase().includes(state.search.toLowerCase())));
+ const workerNames=computed(()=>new Map((roster()||[]).map(p=>[p.id,String(p.name||'').toLowerCase()])));
+ const listedWorkers=computed(()=>{const query=state.search.toLowerCase().trim(),assigned=new Set(current.value.map(r=>r.login));return initialWorkers.value.filter(login=>(!query||login.toLowerCase().includes(query)||(workerNames.value.get(login)||'').includes(query))&&(state.staffFilter==='all'||(state.staffFilter==='assigned'?assigned.has(login):!assigned.has(login))));});
+ const visibleWorkerList=computed(()=>listedWorkers.value.slice(0,state.visibleWorkers));
  const processes=computed(()=>{
-  const set=new Set([...(source()?.intervals||[]).flatMap(s=>s.people.map(p=>p.process)),...(source()?.intervals||[]).flatMap(s=>Object.keys(s.officialSummary||{})),...(source()?.history||[]).map(r=>r.process),...state.records.map(r=>r.process),...state.additionalProcesses]);
+  const set=new Set([...(source()?.intervals||[]).flatMap(s=>s.people.map(p=>p.process)),...(source()?.intervals||[]).flatMap(s=>Object.keys(s.officialSummary||{})),...state.records.map(r=>r.process),...state.additionalProcesses]);
   return [...set].map(norm).filter(Boolean).sort((a,b)=>a.localeCompare(b));
  });
- const processCards=computed(()=>processes.value.map(name=>({name,people:current.value.filter(r=>r.process===name)})));
+ const allProcessCards=computed(()=>processes.value.map(name=>({name,people:current.value.filter(r=>r.process===name)})));
+ const processCards=computed(()=>allProcessCards.value.filter(p=>!state.processFilter||p.name.toLowerCase().includes(state.processFilter.toLowerCase())).filter(p=>state.showAllProcesses||p.people.length>0||state.additionalProcesses.includes(p.name)||state.processFilter.trim()||!current.value.length).slice(0,state.showAllProcesses?999:(!current.value.length?12:999)));
+ const currentPeopleCount=computed(()=>new Set(current.value.map(r=>r.login)).size);
  const unassigned=computed(()=>listedWorkers.value.filter(login=>!current.value.some(r=>r.login===login)));
  const days=computed(()=>[...new Set(state.records.map(r=>r.day))].sort().reverse());
  const historyRows=computed(()=>{const days=state.historyWindow==='week'?7:state.historyWindow==='month'?31:366;const limit=Date.parse(state.day+'T00:00:00')-(days-1)*86400000;const rows=state.records.filter(r=>new Date(r.day+'T00:00:00').getTime()>=limit);const groups=new Map();for(const r of rows){const key=[r.day,r.login,r.process].join('|');if(!groups.has(key))groups.set(key,{day:r.day,login:r.login,process:r.process,hours:0});groups.get(key).hours++;}return [...groups.values()].sort((a,b)=>b.day.localeCompare(a.day)||a.login.localeCompare(b.login));});
  function selectLogin(login){state.selectedLogin=norm(login);}
- async function save(){await put('records',JSON.parse(JSON.stringify({records:state.records,additionalProcesses:state.additionalProcesses})));state.dirty=true;state.status='LOCAL_SAVED';await syncIfAllowed();}
+ async function save(){await put('records',JSON.parse(JSON.stringify({records:state.records,additionalProcesses:state.additionalProcesses,importedHistory:state.importedHistory,importedStatuses:state.importedStatuses,importedSource:state.importedSource,importedAt:state.importedAt,unrecognized:state.unrecognized})));state.dirty=true;state.status='LOCAL_SAVED';await syncIfAllowed();}
  async function assign(login,process){login=norm(login);process=norm(process);if(!login||!process||state.to<=state.from||state.to>slots.value.length)return false;state.records=applyAssignment(state.records,{day:state.day,shift:state.shift,from:state.from,to:state.to,login,process});state.selectedLogin='';await save();return true;}
  async function remove(login){const n=state.records.length;state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.slot===state.from&&r.login===login));if(n!==state.records.length)await save();}
  function startDrag(event,login){event.dataTransfer.setData('text/plain',login);event.dataTransfer.effectAllowed='move';state.selectedLogin=login;}
  async function drop(event,process){event.preventDefault();const login=event.dataTransfer.getData('text/plain')||state.selectedLogin;await assign(login,process);}
  async function addProcess(name){name=norm(name).toUpperCase();if(!name||name.length>90)return; if(!processes.value.includes(name)){state.additionalProcesses.push(name);await save();}}
  async function seedFromSource(){const slot=slots.value[state.from];const matched=(source()?.intervals||[]).find(s=>s.start===minutes(slot?.from));if(!matched)return false;const people=matched.people||[];if(!people.length)return false;let overwrite=state.records.some(r=>r.day===state.day&&r.shift===state.shift&&r.slot===state.from);if(overwrite&&!root.confirm('Existing local assignments for this hour will be replaced. Continue?'))return false;state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.slot===state.from));for(const p of people)state.records.push({day:state.day,shift:state.shift,slot:state.from,login:p.login,process:p.process,updated:new Date().toISOString()});await save();return true;}
+ const importPreview=computed(()=>({entries:source()?.history?.length||0,statuses:source()?.statuses?.length||0,unexpected:source()?.unexpected?.length||0,sheets:(source()?.sheetNames||[]).filter(n=>/^(Styczeń|Luty|Marzec|Kwiecień|Maj|Czerwiec|Lipiec|Sierpień|Wrzesień|Październik|Listopad|Grudzień|Inne\s+\d{2})$/i.test(n))}));
+ async function importFromModel(model,fileName){
+  const sheets=(model?.sheetNames||[]).filter(n=>/^(Styczeń|Luty|Marzec|Kwiecień|Maj|Czerwiec|Lipiec|Sierpień|Wrzesień|Październik|Listopad|Grudzień|Inne\s+\d{2})$/i.test(n));
+  if(!sheets.length){state.error='BRAK_ARKUSZY_HISTORII';return false;}
+  const history=(model.history||[]).map(r=>({date:r.date,login:String(r.login),process:r.process,hours:Number(r.hours),source:r.source,sourceType:r.sourceType||'main',raw:r.raw||''}));
+  const statuses=(model.statuses||[]).map(r=>({date:r.date,login:String(r.login),status:r.status,source:r.source}));
+  const count=history.length+statuses.length;const unknown=(model.unexpected||[]).length;
+  if(!count){state.error='BRAK_DANYCH_HISTORYCZNYCH';return false;}
+  const loc=language?.()||'pl';const summary={
+   pl:`Importować historię z ${fileName||'XLSX'}?\n${history.length} wpisów pracy, ${statuses.length} statusów, ${unknown} nierozpoznanych.\nIstniejące wpisy z tych samych dni będą zaktualizowane. Puste komórki nie usuwają wcześniejszej historii. Lokalne plany pozostaną bez zmian.`,
+   ru:`Импортировать историю из ${fileName||'XLSX'}?\n${history.length} записей работы, ${statuses.length} статусов, ${unknown} нераспознанных.\nЗаписи тех же сотрудников за те же даты будут обновлены. Пустые ячейки не удаляют старую историю. Локальные планы останутся без изменений.`,
+   en:`Import history from ${fileName||'XLSX'}?\n${history.length} work entries, ${statuses.length} day statuses, ${unknown} unrecognized.\nEntries for the same employee/date will be updated. Blank cells do not delete old history. Local plans stay intact.`,
+   uk:`Імпортувати історію з ${fileName||'XLSX'}?\n${history.length} записів роботи, ${statuses.length} статусів, ${unknown} нерозпізнаних.\nЗаписи за ті самі дні буде оновлено. Порожні клітинки не видаляють стару історію. Локальні плани не зміняться.`};
+  const message=summary[loc]||summary.pl;
+  if(typeof root.confirm==='function'&&!root.confirm(message))return false;
+  state.importedHistory=replaceImported(state.importedHistory,history,sheets,r=>[r.source,r.date,r.login,r.process,r.hours,r.raw].join('|'));
+  state.importedStatuses=replaceImported(state.importedStatuses,statuses,sheets,r=>[r.source,r.date,r.login,r.status].join('|'));
+  state.importedSource=fileName||'';state.importedAt=new Date().toISOString();state.unrecognized=unknown;
+  state.error=unknown?`${unknown} wpisów nierozpoznanych w źródle; nie przeniesiono ich automatycznie.`:'';
+  await save();state.status='HISTORY_IMPORTED';return true;
+ }
+ async function importFromCurrent(){try{return await importFromModel(source(),sourceName?.()||'SharePoint / STAN');}catch(err){state.error=err.message||String(err);return false;}}
+ async function importHistoryFile(event){const file=event.target?.files?.[0];if(event.target)event.target.value='';if(!file)return false;try{if(!/\.xlsx?$/i.test(file.name))throw Error('EXPECTED_XLSX');const wb=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const model=root.ObsadaParser.extract(wb,root.XLSX);return await importFromModel(model,file.name);}catch(err){state.error=err.message||String(err);return false;}}
  async function chooseFolder(){if(typeof root.showDirectoryPicker!=='function'){state.error='FOLDER_ACCESS_UNSUPPORTED';return;}try{const handle=await root.showDirectoryPicker({id:'mrrobot-obsada-local',mode:'readwrite'});const permission=await handle.requestPermission({mode:'readwrite'});if(permission!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');folderHandle=handle;state.folderName=handle.name;await put('folder',handle);await syncIfAllowed(true);}catch(err){if(err?.name!=='AbortError')state.error=err.message||String(err);}}
- async function syncIfAllowed(force=false){if(writing){queued=true;return;}if(!folderHandle){state.status='LOCAL_SAVED_NOT_EXPORTED';return;}if(await folderHandle.queryPermission({mode:'readwrite'})!=='granted'){state.status='FOLDER_PERMISSION_REQUIRED';return;}writing=true;state.busy=true;try{const workbook=buildWorkbook(root.XLSX,state.records);const buffer=root.XLSX.write(workbook,{type:'array',bookType:'xlsx'});let existing=null;
+ async function syncIfAllowed(force=false){if(writing){queued=true;return;}if(!folderHandle){state.status='LOCAL_SAVED_NOT_EXPORTED';return;}if(await folderHandle.queryPermission({mode:'readwrite'})!=='granted'){state.status='FOLDER_PERMISSION_REQUIRED';return;}writing=true;state.busy=true;try{const workbook=buildWorkbook(root.XLSX,state.records,state.importedHistory,state.importedStatuses);const buffer=root.XLSX.write(workbook,{type:'array',bookType:'xlsx'});let existing=null;
  try{existing=await folderHandle.getFileHandle(FILE);}catch(e){if(e.name!=='NotFoundError')throw e;}
  if(existing){
-  const file=await existing.getFile();const workbook=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const currentRecords=readWorkbook(root.XLSX,workbook);
-  const diskHash=fingerprint(currentRecords),localHash=fingerprint(state.records);
-  if(lastExportHash===null && currentRecords.length && !state.records.length){state.records=currentRecords;await put('records',{records:JSON.parse(JSON.stringify(state.records)),additionalProcesses:[...state.additionalProcesses]});lastExportHash=diskHash;await put('lastExportHash',diskHash);state.dirty=false;state.status='XLSX_IMPORTED_FROM_FOLDER';return;}
-  if(diskHash!==localHash && diskHash!==lastExportHash){state.status='EXTERNAL_CHANGES_DETECTED';return;}
+  const file=await existing.getFile();const workbook=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const disk=readDatabase(root.XLSX,workbook);const currentRecords=disk.records;
+  const diskHash=fingerprint(disk.records,disk.history,disk.statuses),localHash=fingerprint(state.records,state.importedHistory,state.importedStatuses);
+  const diskLegacyHash=legacyFingerprint(disk.records);
+  if(lastExportHash===null && (currentRecords.length||disk.history.length||disk.statuses.length) && !state.records.length && !state.importedHistory.length && !state.importedStatuses.length){state.records=currentRecords;state.importedHistory=disk.history;state.importedStatuses=disk.statuses;await put('records',{records:JSON.parse(JSON.stringify(state.records)),additionalProcesses:[...state.additionalProcesses],importedHistory:disk.history,importedStatuses:disk.statuses});lastExportHash=diskHash;await put('lastExportHash',diskHash);state.dirty=false;state.status='XLSX_IMPORTED_FROM_FOLDER';return;}
+  if(diskHash!==localHash && diskHash!==lastExportHash && diskLegacyHash!==lastExportHash){state.status='EXTERNAL_CHANGES_DETECTED';return;}
  }
- const fileHandle=existing||await folderHandle.getFileHandle(FILE,{create:true});const writable=await fileHandle.createWritable();try{await writable.write(buffer);await writable.close();}catch(e){await writable.abort().catch(()=>{});throw e;}lastExportHash=fingerprint(state.records);await put('lastExportHash',lastExportHash);state.dirty=false;state.status='XLSX_SYNCED';state.error='';}catch(err){state.status='XLSX_FAILED';state.error=err.message||String(err);}finally{writing=false;state.busy=false;if(queued){queued=false;syncIfAllowed();}}}
- function download(){const workbook=buildWorkbook(root.XLSX,state.records);root.XLSX.writeFile(workbook,FILE);state.status='XLSX_DOWNLOADED';}
- async function importFile(event){const file=event.target.files?.[0];if(event.target)event.target.value='';if(!file)return;try{const wb=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const next=readWorkbook(root.XLSX,wb);if(state.records.length&&!root.confirm('Replace local planned history with the imported Excel?'))return;state.records=next;lastExportHash=fingerprint(next);await put('lastExportHash',lastExportHash);await save();state.status='LOCAL_IMPORTED';state.error='';}catch(err){state.error=err.message||String(err);}}
- async function init(){try{const saved=await get('records');if(saved){state.records=Array.isArray(saved.records)?saved.records.filter(validRecord):[];state.additionalProcesses=Array.isArray(saved.additionalProcesses)?saved.additionalProcesses:[];}lastExportHash=await get('lastExportHash')||null;folderHandle=await get('folder')||null;state.folderName=folderHandle?.name||'';state.active=true;}catch(err){state.error=err.message||String(err);state.active=true;}}
+ const fileHandle=existing||await folderHandle.getFileHandle(FILE,{create:true});const writable=await fileHandle.createWritable();try{await writable.write(buffer);await writable.close();}catch(e){await writable.abort().catch(()=>{});throw e;}lastExportHash=fingerprint(state.records,state.importedHistory,state.importedStatuses);await put('lastExportHash',lastExportHash);state.dirty=false;state.status='XLSX_SYNCED';state.error='';}catch(err){state.status='XLSX_FAILED';state.error=err.message||String(err);}finally{writing=false;state.busy=false;if(queued){queued=false;syncIfAllowed();}}}
+ function download(){const workbook=buildWorkbook(root.XLSX,state.records,state.importedHistory,state.importedStatuses);root.XLSX.writeFile(workbook,FILE);state.status='XLSX_DOWNLOADED';}
+ async function importFile(event){const file=event.target.files?.[0];if(event.target)event.target.value='';if(!file)return;try{const wb=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const imported=readDatabase(root.XLSX,wb);const next=imported.records;if((state.records.length||state.importedHistory.length||state.importedStatuses.length)&&!root.confirm('Replace the current local database with this Excel? This will replace local plans and imported history.'))return;state.records=next;state.importedHistory=imported.history;state.importedStatuses=imported.statuses;lastExportHash=fingerprint(next,imported.history,imported.statuses);await put('lastExportHash',lastExportHash);await save();state.status='LOCAL_IMPORTED';state.error='';}catch(err){state.error=err.message||String(err);}}
+ async function init(){try{const saved=await get('records');if(saved){state.records=Array.isArray(saved.records)?saved.records.filter(validRecord):[];state.additionalProcesses=Array.isArray(saved.additionalProcesses)?saved.additionalProcesses:[];state.importedHistory=Array.isArray(saved.importedHistory)?saved.importedHistory:[];state.importedStatuses=Array.isArray(saved.importedStatuses)?saved.importedStatuses:[];state.importedSource=saved.importedSource||'';state.importedAt=saved.importedAt||'';state.unrecognized=Number(saved.unrecognized)||0;}lastExportHash=await get('lastExportHash')||null;folderHandle=await get('folder')||null;state.folderName=folderHandle?.name||'';state.active=true;}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,shifts,slots,selectedSlot,current,initialWorkers,listedWorkers,unassigned,processes,processCards,days,historyRows,selectLogin,assign,remove,startDrag,drop,addProcess,seedFromSource,chooseFolder,syncIfAllowed,download,importFile};
+ return {state,shifts,slots,selectedSlot,current,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,startDrag,drop,addProcess,seedFromSource,chooseFolder,syncIfAllowed,download,importFile};
 }
-root.MRObsadaPlanner={create,makeSlots,sheetRows,readWorkbook,buildWorkbook,validRecord,applyAssignment,localDate};
+root.MRObsadaPlanner={create,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,localDate,replaceImported};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
 })(typeof window!=='undefined'?window:globalThis);

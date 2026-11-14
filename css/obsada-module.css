@@ -330,3 +330,48 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 @media(prefers-reduced-motion:reduce){#app .obs-plan-panel *{transition:none!important}}
 
 #app .obs-plan-remove{border:none;background:transparent;color:var(--obs-accent);font-size:11px;font-weight:700;cursor:pointer;margin:5px 0}
+
+/* Obsada Planowanie v3.25.0 · compact two-panel workspace (no changes to Podgląd). */
+#app .obs-plan-workspace{padding:18px 20px 22px}
+#app .obs-plan-topline{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+#app .obs-plan-topline .obs-section-title{margin:0 0 5px}
+#app .obs-plan-statsline{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:15px 0 2px;font-size:12px;color:var(--obs-muted)}
+#app .obs-plan-statsline strong{color:var(--obs-text);font-variant-numeric:tabular-nums}
+#app .obs-plan-database{border:1px solid var(--obs-border);background:var(--obs-surface);border-radius:14px;padding:16px;margin:16px 0;display:grid;gap:11px}
+#app .obs-plan-database .obs-plan-sources{margin:0}
+#app .obs-plan-database .obs-plan-tools{margin:0}
+#app .obs-plan-columns{display:grid;grid-template-columns:minmax(250px,30%) minmax(0,1fr);align-items:start;gap:16px;margin-top:18px}
+#app .obs-plan-staffside,#app .obs-plan-processside{min-width:0;border-radius:16px;border:1px solid var(--obs-border);padding:14px;background:var(--obs-surface)}
+#app .obs-plan-sidehead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+#app .obs-plan-sidehead h3{font-size:13px;font-weight:750;letter-spacing:-.01em;color:var(--obs-text);margin:0}
+#app .obs-plan-sidehead>span{font-size:11px;color:var(--obs-muted);font-variant-numeric:tabular-nums}
+#app .obs-plan-side-search{display:block;width:100%;box-sizing:border-box;background:var(--obs-surface);color:var(--obs-text);border:1px solid var(--obs-border);border-radius:10px;font-size:12px;padding:10px 12px;outline-offset:2px}
+#app .obs-plan-filters{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+#app .obs-plan-filters button,#app .obs-plan-inline button{padding:6px 10px;border:1px solid var(--obs-border);background:transparent;border-radius:8px;color:var(--obs-muted);font-size:11px;font-weight:650}
+#app .obs-plan-filters button.active{background:color-mix(in srgb,var(--obs-accent) 11%,transparent);border-color:var(--obs-accent);color:var(--obs-text)}
+#app .obs-plan-stafflist{display:flex;flex-direction:column;gap:6px;overflow-y:auto;max-height:min(60vh,610px);padding-right:2px}
+#app .obs-plan-staff-chip{display:flex;align-items:center;text-align:left;gap:8px;padding:7px 8px;width:100%;border-radius:10px;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);cursor:grab;transition:border-color .15s ease,background .15s ease}
+#app .obs-plan-staff-chip:hover,#app .obs-plan-staff-chip.active{border-color:var(--obs-accent);background:color-mix(in srgb,var(--obs-accent) 8%,var(--obs-surface))}
+#app .obs-plan-grip{color:var(--obs-muted);font-size:15px;line-height:1;flex:none}
+#app .obs-plan-staff-chip .obs-person-avatar{flex:none;width:28px;height:28px;font-size:10px}
+#app .obs-plan-workername{display:flex;flex-direction:column;gap:2px;min-width:0;font-size:11px;font-weight:750;overflow-wrap:anywhere}
+#app .obs-plan-workername small{font-size:10px;font-weight:450;color:var(--obs-muted);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+#app .obs-plan-more{font-size:11px;color:var(--obs-text);width:100%;padding:9px;border-radius:9px;margin-top:8px;border:1px solid var(--obs-border)}
+#app .obs-plan-selectedbar{border:1px solid var(--obs-border);background:color-mix(in srgb,var(--obs-accent) 6%,var(--obs-surface));border-radius:10px;margin-top:10px;padding:10px;display:flex;flex-wrap:wrap;gap:7px;align-items:center;font-size:11px;color:var(--obs-text)}
+#app .obs-plan-selectedbar button{border:1px solid var(--obs-border);border-radius:7px;padding:4px 8px;color:var(--obs-text)}
+#app .obs-plan-sidehint{margin:10px 0 14px;font-size:11px}
+#app .obs-plan-processgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#app .obs-plan-processgrid .obs-roster-card{min-width:0;min-height:130px;padding:13px;animation-duration:.25s}
+#app .obs-plan-processgrid .obs-roster-heading{margin-bottom:8px}
+#app .obs-plan-processgrid .obs-roster-heading h3{font-size:12px;overflow-wrap:anywhere}
+#app .obs-plan-processgrid .obs-roster-people{margin-bottom:9px}
+#app .obs-plan-processgrid .obs-plan-place{width:100%;padding:7px 9px;min-height:30px}
+#app .obs-plan-processside .obs-plan-add{margin:13px 0 0}
+#app .obs-plan-importhint{margin:12px 0 18px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+#app .obs-plan-importhint .obs-quiet{margin:0}
+#app .obs-history-origin{display:inline-block;padding:4px 7px;border-radius:7px;font-size:10px;background:var(--obs-surface);color:var(--obs-muted);border:1px solid var(--obs-border);white-space:nowrap}
+#app .obs-history-origin.is-plan{border-color:var(--obs-accent);color:var(--obs-text)}
+@media(max-width:980px){#app .obs-plan-columns{grid-template-columns:minmax(215px,35%) minmax(0,1fr)}#app .obs-plan-processgrid{grid-template-columns:1fr}}
+@media(max-width:650px){#app .obs-plan-workspace{padding:14px}#app .obs-plan-columns{grid-template-columns:1fr}#app .obs-plan-stafflist{max-height:225px}#app .obs-plan-processgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){#app .obs-plan-processgrid{grid-template-columns:1fr}#app .obs-plan-topline>.obs-bridge-small-btn{width:100%}}
+@media(prefers-reduced-motion:reduce){#app .obs-plan-staff-chip{transition:none}}
