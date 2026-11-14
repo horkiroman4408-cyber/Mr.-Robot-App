@@ -216,3 +216,38 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obsada-module .obs-bridge-config-btn:disabled,.obsada-module .obs-bridge-small-btn:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:740px){.obsada-module .obs-bridge-compact{flex-basis:100%;min-width:0}.obsada-module .obs-bridge-actions{width:100%}}
 @media(max-width:420px){.obsada-module .obs-bridge-input-line{flex-wrap:wrap}.obsada-module .obs-bridge-input-line input{flex-basis:100%}}
+
+/* SharePoint one-time permission inside compact Obsada setup; theme-neutral. */
+.obs-bridge-permission{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:8px;padding:8px 10px;border:1px solid var(--mr-c8,rgba(128,128,128,.25));border-radius:12px;font-size:12px;color:inherit}
+.obs-bridge-permission .obs-bridge-small-btn{flex-shrink:0}
+
+/* Bridge connection center: compact rows, consistent theme tokens, no fixed dark/light text. */
+.mr-bridge-settings .mr-bp-services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:15px 0 10px}
+.mr-bridge-settings .mr-bp-service{display:flex;align-items:center;gap:11px;min-width:0;min-height:68px;padding:12px 13px;background:var(--mr-c106,rgba(255,255,255,.07));border:1px solid var(--mr-c105,rgba(140,160,180,.27));border-radius:15px;color:inherit}
+.mr-bridge-settings .mr-bp-service-icon{height:34px;width:34px;flex:0 0 34px;display:grid;place-items:center;border-radius:11px;background:rgba(62,137,177,.14);color:var(--mr-c11,currentColor);font-size:13px;font-weight:800}
+.mr-bridge-settings .mr-bp-share-icon{background:rgba(181,77,96,.14);color:inherit}
+.mr-bridge-settings .mr-bp-service-body{min-width:0;flex:1;display:grid;gap:3px}
+.mr-bridge-settings .mr-bp-service-body strong{font-size:13px;line-height:1.25}
+.mr-bridge-settings .mr-bp-service-body small{font-size:11px;line-height:1.3;color:inherit;opacity:.69}
+.mr-bridge-settings .mr-bp-service-state{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;font-size:11px;color:inherit;opacity:.85}
+.mr-bridge-settings .mr-bp-mini-dot{width:7px;height:7px;border-radius:99px;background:#8995a5;display:inline-block;flex-shrink:0}
+.mr-bridge-settings .mr-bp-mini-dot.is-ready,.mr-bridge-settings .mr-bp-mini-dot[data-ready="true"]{background:#20a87a}
+.mr-bridge-settings .mr-bp-details{border-radius:13px;border:1px solid var(--mr-c105,rgba(140,160,180,.27));color:inherit;overflow:hidden;margin-bottom:15px}
+.mr-bridge-settings .mr-bp-details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:13px 14px;font-size:12px;font-weight:700;gap:10px}
+.mr-bridge-settings .mr-bp-details>summary::-webkit-details-marker{display:none}
+.mr-bridge-settings .mr-bp-details-title{display:flex;align-items:center;gap:9px}
+.mr-bridge-settings .mr-bp-chevron{transition:transform .2s ease}
+.mr-bridge-settings .mr-bp-details[open] .mr-bp-chevron{transform:rotate(180deg)}
+.mr-bridge-settings .mr-bp-details-content{padding:0 14px 12px}
+.mr-bridge-settings .mr-bp-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding:12px 0;border-top:1px solid var(--mr-c105,rgba(140,160,180,.21))}
+.mr-bridge-settings .mr-bp-row>div{min-width:0;display:grid;gap:3px}
+.mr-bridge-settings .mr-bp-row strong{font-size:12px}
+.mr-bridge-settings .mr-bp-row small,.mr-bridge-settings .mr-bp-inline-note{font-size:11px;line-height:1.4;color:inherit;opacity:.72;overflow-wrap:anywhere}
+.mr-bridge-settings .mr-bp-action,.mr-bridge-settings .mr-bp-check{border:1px solid var(--mr-c105,rgba(140,160,180,.3));border-radius:10px;background:var(--mr-c106,rgba(255,255,255,.08));color:inherit;padding:8px 11px;font-weight:650;cursor:pointer;font-size:11px;flex-shrink:0}
+.mr-bridge-settings .mr-bp-action:hover:not(:disabled),.mr-bridge-settings .mr-bp-check:hover:not(:disabled){border-color:var(--mr-c16,#b5576b)}
+.mr-bridge-settings .mr-bp-action:disabled{opacity:.6;cursor:default}
+.mr-bridge-settings .mr-bp-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--mr-c105,rgba(140,160,180,.21));padding-top:12px;font-size:11px;opacity:.85}
+.mr-bridge-settings .mr-bp-footer .mr-bp-check{opacity:1}
+@media(max-width:740px){.mr-bridge-settings .mr-bp-services{grid-template-columns:1fr}.mr-bridge-settings .mr-bp-service{min-height:62px}.mr-bridge-settings .mr-bp-service-state{font-size:10px}}
+@media(max-width:420px){.mr-bridge-settings .mr-bp-inline-note{max-width:40%;text-align:right}}
+@media(prefers-reduced-motion:reduce){.mr-bridge-settings .mr-bp-chevron{transition:none}}

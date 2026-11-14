@@ -42,10 +42,10 @@ const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 
 // SharePoint Bridge: only explicit refresh, downloads through Excel Online.
 // Browser security requires a one-time folder grant to read the downloaded workbook.
-const obsadaBridge=reactive({busy:false,setupBusy:false,error:'',message:'',connected:false,sourceConfigured:false,editing:false,link:'',folderName:''});
+const obsadaBridge=reactive({busy:false,setupBusy:false,error:'',message:'',connected:false,sourceConfigured:false,editing:false,link:'',folderName:'',permissionGranted:false,permissionPending:false});
 const spErrorText=code=>{
  const translations={
-  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.23. Zaktualizuj rozszerzenie.','Bridge 0.3.23 не найден. Обнови расширение.','Bridge 0.3.23 not detected. Update the extension.','Bridge 0.3.23 не знайдено. Оновіть розширення.'],
+  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.24. Zaktualizuj rozszerzenie.','Bridge 0.3.24 не найден. Обнови расширение.','Bridge 0.3.24 not detected. Update the extension.','Bridge 0.3.24 не знайдено. Оновіть розширення.'],
   BRIDGE_NOT_RESPONDING:['Bridge nie odpowiada. Przeładuj rozszerzenie i stronę.','Bridge не отвечает. Перезагрузи расширение и страницу.','Bridge is not responding. Reload the extension and page.','Bridge не відповідає. Перезавантажте розширення та сторінку.'],
   SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE:['Najpierw zapisz link SharePoint.','Сначала сохрани ссылку SharePoint.','Save the SharePoint link first.','Спершу збережіть посилання SharePoint.'],
   INVALID_SHAREPOINT_LINK:['Wklej prawidłowy link https://lppsa-my.sharepoint.com/…','Вставь корректную ссылку https://lppsa-my.sharepoint.com/…','Enter a valid https://lppsa-my.sharepoint.com/… link','Вставте правильне посилання https://lppsa-my.sharepoint.com/…'],
@@ -77,15 +77,36 @@ function spAskBridge(type,timeout=15000,payload={}){
  });
 }
 async function obsadaBridgeCheck(){
- try{const r=await spAskBridge('MR_SP_SOURCE_STATUS');obsadaBridge.connected=!!r?.ok;obsadaBridge.sourceConfigured=!!r?.configured;}
- catch(_){obsadaBridge.connected=false;obsadaBridge.sourceConfigured=false;}
+ try{const r=await spAskBridge('MR_SP_SOURCE_STATUS');obsadaBridge.connected=!!r?.ok;obsadaBridge.sourceConfigured=!!r?.configured;obsadaBridge.permissionGranted=!!r?.permissionGranted;}
+ catch(_){obsadaBridge.connected=false;obsadaBridge.sourceConfigured=false;obsadaBridge.permissionGranted=false;}
+}
+async function obsadaBridgePermissionOpen(){
+ if(obsadaBridge.permissionPending)return;
+ obsadaBridge.error='';
+ try{
+  const response=await spAskBridge('MR_SP_PERMISSION_OPEN');
+  if(!response?.ok)throw Error(response?.error||'BRIDGE_NOT_RESPONDING');
+  obsadaBridge.permissionPending=true;
+  obsadaBridge.message=eMsg('Potwierdź dostęp w małym oknie Edge.','Подтверди доступ в небольшом окне Edge.','Confirm access in the small Edge window.','Підтвердьте доступ у вікні Edge.');
+  // Poll only during this explicit setup flow; no background file polling.
+  for(let i=0;i<40;i++){
+   await new Promise(resolve=>setTimeout(resolve,1250));
+   const status=await spAskBridge('MR_SP_SOURCE_STATUS').catch(()=>null);
+   if(status?.ok&&status.permissionGranted){
+    obsadaBridge.permissionGranted=true;
+    obsadaBridge.message=eMsg('Dostęp SharePoint włączony. Możesz odświeżać dane.','Доступ SharePoint разрешён. Теперь можно обновлять данные.','SharePoint access granted. You can refresh data.','Доступ SharePoint надано. Можна оновлювати дані.');
+    break;
+   }
+  }
+ }catch(e){obsadaBridge.error=spErrorText(e?.message||e);}
+ finally{obsadaBridge.permissionPending=false;}
 }
 function spValidLink(value){try{const u=new URL(value.trim());return u.protocol==='https:'&&u.hostname==='lppsa-my.sharepoint.com'&&!u.username&&!u.password;}catch{return false;}}
 async function obsadaBridgeSaveSource(){
  if(obsadaBridge.setupBusy)return;
  if(!spValidLink(obsadaBridge.link)){obsadaBridge.error=spErrorText('INVALID_SHAREPOINT_LINK');return;}
  obsadaBridge.setupBusy=true;obsadaBridge.error='';obsadaBridge.message='';
- try{const r=await spAskBridge('MR_SP_SOURCE_SAVE',15000,{url:obsadaBridge.link.trim()});if(!r?.ok)throw Error(r?.error||'BRIDGE_NOT_RESPONDING');obsadaBridge.sourceConfigured=true;obsadaBridge.connected=true;obsadaBridge.link='';obsadaBridge.editing=false;obsadaBridge.message=eMsg('Źródło zapisane w Bridge.','Ссылка сохранена в Bridge.','Source saved in Bridge.','Джерело збережено у Bridge.');}
+ try{const r=await spAskBridge('MR_SP_SOURCE_SAVE',15000,{url:obsadaBridge.link.trim()});if(!r?.ok)throw Error(r?.error||'BRIDGE_NOT_RESPONDING');obsadaBridge.sourceConfigured=true;obsadaBridge.connected=true;obsadaBridge.link='';obsadaBridge.editing=false;obsadaBridge.message=eMsg('Źródło zapisane w Bridge.','Ссылка сохранена в Bridge.','Source saved in Bridge.','Джерело збережено у Bridge.');await obsadaBridgeCheck();if(!obsadaBridge.permissionGranted)obsadaBridgePermissionOpen();}
  catch(e){obsadaBridge.error=spErrorText(e.message);}
  finally{obsadaBridge.setupBusy=false;}
 }
@@ -114,6 +135,7 @@ async function obsadaBridgeRefresh(){
  if(obsadaBridge.busy||obsada.state.loading)return;
  if(!obsadaBridge.connected){obsadaBridge.error=spErrorText('BRIDGE_NOT_CONNECTED');return;}
  if(!obsadaBridge.sourceConfigured){obsadaBridge.editing=true;obsadaBridge.error=spErrorText('SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE');return;}
+ if(!obsadaBridge.permissionGranted){await obsadaBridgePermissionOpen();return;}
  obsadaBridge.busy=true;obsadaBridge.error='';obsadaBridge.message='';
  try{
   // Request the folder in the click call stack, before awaiting the extension.
@@ -2743,6 +2765,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaBridge,obsadaBridgeRefresh,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

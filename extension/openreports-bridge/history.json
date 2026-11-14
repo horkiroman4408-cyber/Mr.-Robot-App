@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.24",
+      "date": "2026-11-14",
+      "title": {
+        "pl": "Jednorazowa zgoda SharePoint z Obsada",
+        "ru": "Разрешение SharePoint из Obsada",
+        "en": "One-time SharePoint permission from Obsada",
+        "uk": "Одноразовий дозвіл SharePoint з Obsada"
+      },
+      "changes": {
+        "pl": [
+          "W Obsada konfiguracja otwiera małe okno Bridge z jednorazową zgodą Edge na SharePoint.",
+          "Po uzyskaniu zgody odświeżanie pozostaje ręczne; OpenReports bez zmian."
+        ],
+        "ru": [
+          "Obsada открывает небольшое окно Bridge для однократного разрешения SharePoint через Edge.",
+          "После разрешения обновление остаётся ручным; OpenReports не изменён."
+        ],
+        "en": [
+          "Obsada opens a small Bridge window for one-time Edge permission to access SharePoint.",
+          "Refresh remains manual; OpenReports is unchanged."
+        ],
+        "uk": [
+          "Obsada відкриває невелике вікно Bridge для одноразового дозволу Edge на SharePoint.",
+          "Оновлення залишається ручним; OpenReports не змінено."
+        ]
+      }
+    },
+    {
       "version": "0.3.23",
       "date": "2026-11-13",
       "title": {

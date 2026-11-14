@@ -90,6 +90,9 @@
     if(install)install.setAttribute('aria-expanded',String(state.expanded));if(installBody)installBody.hidden=!state.expanded;
     panel.querySelectorAll('[data-bridge-copy-label]').forEach(el=>{el.textContent=state.copyNotice?tr('copied'):tr('copy');});
     const version=state.latest?.version||FALLBACK_VERSION;
+    const orDot=get('mr-bp-or-dot'),orState=get('mr-bp-or-state');
+    if(orDot)orDot.dataset.ready=String(!!present);
+    if(orState)orState.textContent=present?tr('connected'):tr('missing');
     const download=get('mr-bridge-download');
     if(download){download.textContent=tr(!present?'plainInstall':newer?'plainUpdate':'plainDownload');download.href=state.latest?.download||`downloads/OpenReports-Bridge-v${FALLBACK_VERSION}.zip`;download.download=`OpenReports-Bridge-v${version}.zip`;}
     const update=get('mr-bridge-update');
