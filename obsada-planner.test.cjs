@@ -1,0 +1,12 @@
+'use strict';
+const assert=require('node:assert/strict');const p=require('../js/obsada-planner.js');
+const a=p.makeSlots('2026-11-14','18-06');assert.equal(a.length,12);assert.equal(a[0].from,'18:00');assert.equal(a[6].from,'00:00');assert.equal(p.localDate(new Date(a[6].start)),'2026-11-15');
+for(const [code,count] of [['06-18',12],['18-06',12],['06-16',10],['16-02',10],['06-14',8],['14-22',8]])assert.equal(p.makeSlots('2026-11-14',code).length,count);
+const rec=[{day:'2026-11-14',shift:'18-06',slot:7,login:'TH001',process:'AUDYT',updated:''},{day:'2026-11-14',shift:'18-06',slot:0,login:'TH002',process:'METKI',updated:''}];
+const s=p.sheetRows(rec);assert.equal(s.assignments.length,3);assert.equal(s.assignments[1][2],'2026-11-14 18:00');assert.equal(s.assignments[2][2],'2026-11-15 01:00');assert.equal(p.validRecord(rec[0]),true);assert.equal(p.validRecord({...rec[0],slot:12}),false);
+console.log('PASS: 6 shift schedules, midnight roll-over, workbook row dates, record validation');
+const moved=p.applyAssignment(rec,{day:'2026-11-14',shift:'18-06',from:7,to:9,login:'TH001',process:'METKI'});
+assert.equal(moved.filter(x=>x.login==='TH001'&&x.slot===7).length,1);
+assert.equal(moved.find(x=>x.login==='TH001'&&x.slot===7).process,'METKI');
+assert.equal(moved.find(x=>x.login==='TH001'&&x.slot===8).process,'METKI');
+assert.equal(moved.find(x=>x.login==='TH002'&&x.slot===0).process,'METKI');
