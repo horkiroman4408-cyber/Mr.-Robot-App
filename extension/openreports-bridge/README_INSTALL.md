@@ -1,4 +1,4 @@
-Mr. Robot Bridge 0.3.26 - OpenReports + SharePoint
+Mr. Robot Bridge 0.3.27 - OpenReports + SharePoint
 
 1. Replace the files in your existing unpacked extension folder, then click Reload in edge://extensions (or chrome://extensions). Do not install two Bridge copies.
 2. In the Bridge popup, paste the shared SharePoint Excel link and press Zapisz / zamień link. The link is stored only in the browser extension.

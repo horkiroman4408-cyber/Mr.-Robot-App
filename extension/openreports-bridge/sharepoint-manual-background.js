@@ -118,6 +118,8 @@
    const link=(await chrome.storage.local.get(SOURCE))[SOURCE];
    if(!allowedUrl(link))throw Error('ZAPISZ_LINK_SHAREPOINT');
    if(!await chrome.permissions.contains({origins:['https://lppsa-my.sharepoint.com/*']}))throw Error('BRAK_ZGODY_SHAREPOINT');
+   // Excel Online may render its menus in Office iframe domains; the same one-time consent covers them.
+   if(!await chrome.permissions.contains({origins:['https://lppsa-my.sharepoint.com/*','https://*.officeapps.live.com/*','https://*.office.com/*','https://*.office.net/*']}))throw Error('EXCEL_ONLINE_PERMISSION_REQUIRED');
    // Prefer the actual Excel editor tab: a sharing URL often redirects to a
    // different document pathname, so exact-path matching misses an open file.
    // Avoid touching a different workbook. Match a tab to the saved source by

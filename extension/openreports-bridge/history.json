@@ -2,6 +2,30 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.27",
+      "date": "2026-11-14",
+      "title": {
+        "pl": "Uprawnienia Excel Online",
+        "ru": "Разрешения Excel Online",
+        "en": "Excel Online permissions",
+        "uk": "Дозволи Excel Online"
+      },
+      "changes": {
+        "pl": [
+          "Jednorazowa zgoda obejmuje domeny ramek Excel Online, nie tylko SharePoint."
+        ],
+        "ru": [
+          "Однократное разрешение охватывает домены встроенного Excel Online, а не только SharePoint."
+        ],
+        "en": [
+          "One-time permission now includes Excel Online iframe domains as well as SharePoint."
+        ],
+        "uk": [
+          "Одноразовий дозвіл охоплює домени вбудованого Excel Online, а не лише SharePoint."
+        ]
+      }
+    },
+    {
       "version": "0.3.26",
       "date": "2026-11-14",
       "title": {
