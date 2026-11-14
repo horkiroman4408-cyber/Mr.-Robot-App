@@ -45,7 +45,7 @@ const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 const obsadaBridge=reactive({busy:false,setupBusy:false,error:'',message:'',connected:false,sourceConfigured:false,editing:false,link:'',folderName:'',permissionGranted:false,permissionPending:false});
 const spErrorText=code=>{
  const translations={
-  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.24. Zaktualizuj rozszerzenie.','Bridge 0.3.24 не найден. Обнови расширение.','Bridge 0.3.24 not detected. Update the extension.','Bridge 0.3.24 не знайдено. Оновіть розширення.'],
+  BRIDGE_NOT_CONNECTED:['Nie wykryto Bridge 0.3.24. Zaktualizuj rozszerzenie.','Bridge не найден. Обнови расширение.','Bridge not detected. Update the extension.','Bridge не знайдено. Оновіть розширення.'],
   BRIDGE_NOT_RESPONDING:['Bridge nie odpowiada. Przeładuj rozszerzenie i stronę.','Bridge не отвечает. Перезагрузи расширение и страницу.','Bridge is not responding. Reload the extension and page.','Bridge не відповідає. Перезавантажте розширення та сторінку.'],
   SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE:['Najpierw zapisz link SharePoint.','Сначала сохрани ссылку SharePoint.','Save the SharePoint link first.','Спершу збережіть посилання SharePoint.'],
   INVALID_SHAREPOINT_LINK:['Wklej prawidłowy link https://lppsa-my.sharepoint.com/…','Вставь корректную ссылку https://lppsa-my.sharepoint.com/…','Enter a valid https://lppsa-my.sharepoint.com/… link','Вставте правильне посилання https://lppsa-my.sharepoint.com/…'],
@@ -55,10 +55,14 @@ const spErrorText=code=>{
   FOLDER_PERMISSION_REQUIRED:['Udziel zgody na odczyt folderu.','Разреши чтение папки.','Allow read access to the folder.','Дозвольте читання папки.'],
   BRAK_ZGODY_SHAREPOINT:['Zezwól rozszerzeniu na SharePoint w jego oknie.','Разреши SharePoint в окне Bridge.','Grant SharePoint access in the Bridge popup.','Надайте доступ до SharePoint у Bridge.'],
   ZAPISZ_LINK_SHAREPOINT:['Zapisz link SharePoint.','Сохрани ссылку SharePoint.','Save the SharePoint link.','Збережіть посилання SharePoint.'],
+  EXCEL_UI_MANUAL_DOWNLOAD_REQUIRED:['Excel Online nie pozwolił Bridge uruchomić pobierania. Otwórz skoroszyt w Edge, zaczekaj aż się załaduje i ponów próbę.','Bridge не смог запустить скачивание в Excel Online. Открой файл в Edge, дождись загрузки Excel и повтори.','Bridge could not start Excel Online download. Open the workbook in Edge, wait for it to load and retry.','Bridge не зміг запустити завантаження Excel Online. Відкрийте файл в Edge, дочекайтеся завантаження та повторіть.'],
+  POBIERANIE_JUZ_TRWA:['Pobieranie jest już uruchomione. Poczekaj na wynik.','Загрузка уже выполняется. Дождись результата.','A download is already running. Wait for the result.','Завантаження вже виконується. Дочекайтеся результату.'],
   DOWNLOAD_TIMEOUT:['Nie udało się pobrać pliku na czas.','Время скачивания истекло.','Download timed out.','Час завантаження вичерпано.'],
   STALE_DOWNLOAD_NOT_REPLACED:['Pobrany plik nie został zastąpiony.','Скачанный файл не обновился.','The downloaded file was not replaced.','Завантажений файл не оновився.']
  };
- const value=translations[String(code||'')];return value?value[["pl","ru","en","uk"].indexOf(uiLanguage.value)]||value[0]:String(code||'').replace(/https?:\/\/\S+/g,'[URL]').slice(0,120);
+ const raw=String(code||'');
+ const kind=/(SCRIPT_NOT_ALLOWED_OR_EXCEL_LOADING|MAIN_FRAME_SCRIPT_BLOCKED|IFRAME_PERMISSION_OR_LOADING|FILE_MENU_NOT_FOUND|EXCEL_UI_NOT_FOUND)/.test(raw)?'EXCEL_UI_MANUAL_DOWNLOAD_REQUIRED':raw;
+ const value=translations[kind];return value?value[["pl","ru","en","uk"].indexOf(uiLanguage.value)]||value[0]:raw.replace(/https?:\/\/\S+/g,'[URL]').slice(0,120);
 };
 const SP_FOLDER_DB='mrrobot-obsada-sharepoint-folder';
 function spFolderDatabase(){return new Promise((resolve,reject)=>{const req=indexedDB.open(SP_FOLDER_DB,1);req.onupgradeneeded=()=>req.result.createObjectStore('handles');req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});}
@@ -154,7 +158,7 @@ async function obsadaBridgeRefresh(){
   if(!source?.ok)throw Error('BRIDGE_NOT_CONNECTED');
   if(!source.configured)throw Error('SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE');
   const start=await spAskBridge('MR_SP_JOB_START',80000);
-  if(!start?.ok)throw Error(start?.detail||start?.error||'DOWNLOAD_NOT_STARTED');
+  if(!start?.ok)throw Error(start?.error||start?.detail||'DOWNLOAD_NOT_STARTED');
   obsadaBridge.message='Pobieranie XLSX…';
   let done=false;let started=0;
   for(let i=0;i<120;i++){
