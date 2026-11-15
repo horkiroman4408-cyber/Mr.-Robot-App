@@ -483,3 +483,14 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 
 /* Give the expandable local database its own visual breathing room. */
 #app .obs-share-sync + .obs-plan-database-standalone{margin-top:20px!important;margin-bottom:16px!important}
+
+/* Confirmed shift state, compact and consistent with Obsada themes */
+#app .obs-confirm-panel{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 14px;padding:11px 14px;border:1px solid var(--obs-border);border-radius:13px;background:var(--mr-c104,rgba(150,120,130,.06))}
+#app .obs-confirm-state{display:flex;align-items:center;gap:10px;min-width:0}
+#app .obs-confirm-state strong{font-size:12px;display:block;color:var(--obs-text)}
+#app .obs-confirm-state small{font-size:11px;display:block;color:var(--obs-muted);margin-top:2px}
+#app .obs-confirm-indicator{height:8px;width:8px;flex:none;border-radius:50%;background:#9ca3af}
+#app .obs-confirm-indicator.is-pending{background:#d6a14b}
+#app .obs-confirm-indicator.is-confirmed{background:#39a879}
+#app .obs-confirm-action{padding:8px 13px;border-radius:10px;border:1px solid var(--obs-border);background:var(--obs-accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+#app .obs-confirm-action.is-muted{background:transparent;color:var(--obs-text)}
