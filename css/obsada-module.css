@@ -591,3 +591,29 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-compare-list>div{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;padding:9px 10px;border:1px solid var(--obs-border);border-radius:9px;font-size:11px}
 #app .obs-team-intel-compare-list small{color:var(--obs-muted)}
 @media(max-width:650px){#app .obs-team-intel-cards{grid-template-columns:1fr}#app .obs-team-intel-days-list>div{grid-template-columns:78px minmax(0,1fr)}#app .obs-team-intel-compare-list>div{grid-template-columns:minmax(0,1fr) auto}#app .obs-team-intel-compare-list small{grid-column:1/-1}}
+
+/* Obsada Intelligence: one compact employee view, saved teams independent from planning */
+#app .obs-team-intel-controls{padding:12px 14px;margin-top:10px}
+#app .obs-team-intel-range{margin:10px 0;gap:8px}
+#app .obs-team-intel-pickerbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#app .obs-team-intel-pickerbar button,#app .obs-team-intel-pickerbar select{border:1px solid var(--obs-border);color:var(--obs-text);background:var(--obs-surface);border-radius:9px;padding:8px 10px;font-size:11px;min-height:34px;cursor:pointer;max-width:100%}
+#app .obs-team-intel-pickerbar button:disabled{opacity:.45;cursor:default}
+#app .obs-team-intel-picker-toggle{font-weight:750}
+#app .obs-team-intel-picker-toggle span{margin-left:7px;color:var(--obs-muted)}
+#app .obs-team-intel-selected{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+#app .obs-team-intel-selected button{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--obs-border);background:var(--obs-soft);color:var(--obs-text);border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer}
+#app .obs-team-intel-selected span{color:var(--obs-accent);font-size:13px}
+#app .obs-team-intel-chooser{border:1px solid var(--obs-border);border-radius:11px;padding:8px;margin-top:9px}
+#app .obs-team-intel-people{max-height:130px}
+#app .obs-team-intel-cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:10px 0}
+#app .obs-team-intel-card{padding:11px 12px;border-radius:12px}
+#app .obs-team-intel-card-head strong{font-size:15px}
+#app .obs-team-intel-days{margin:3px 0 8px}
+#app .obs-team-intel-processes{display:grid;grid-template-columns:1fr;gap:2px}
+#app .obs-team-intel-process{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0;padding:3px 0;font-size:11px;line-height:1.25}
+#app .obs-team-intel-process span{min-width:0;overflow-wrap:anywhere;color:var(--obs-text)}
+#app .obs-team-intel-process b{flex-shrink:0;white-space:nowrap;font-variant-numeric:tabular-nums}
+#app .obs-team-intel-days-list{padding-top:8px;margin-top:8px;gap:6px}
+#app .obs-team-intel-days-list>div{grid-template-columns:72px minmax(0,1fr);font-size:10px}
+@media(max-width:950px){#app .obs-team-intel-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#app .obs-team-intel-cards{grid-template-columns:1fr}#app .obs-team-intel-pickerbar select{flex:1;min-width:145px}#app .obs-team-intel-days-list>div{grid-template-columns:78px minmax(0,1fr)}}
