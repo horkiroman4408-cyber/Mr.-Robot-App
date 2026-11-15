@@ -18,5 +18,6 @@ assert.deepEqual(rt.confirmations,{});
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 assert.ok(!html.includes('obsadaPlan.confirmShift()'));
 assert.ok(!html.includes('obsadaPlan.unlockShift()'));
-assert.ok(html.includes('obsadaPlan.finishedHours'));
+assert.ok(!html.includes('obsadaPlan.finishedHours }} h'),'Planning must not display total elapsed/planned hours');
+assert.ok(html.includes('obsadaPlan.currentPeopleCount'),'Planning must retain selected-hour staffing count');
 console.log('PASS: time-derived XLSX status and no manual confirmation UI');

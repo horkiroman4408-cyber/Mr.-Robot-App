@@ -525,3 +525,25 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-template-actions button:last-child{color:var(--obs-accent)}
 #app .obs-plan-worker-process{color:var(--obs-accent)!important;font-weight:650!important}
 @media(max-width:430px){#app .obs-plan-workspace .obs-plan-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#app .obs-team-template-row{flex-wrap:wrap}#app .obs-team-template-row button{flex:0 0 auto}}
+
+/* Obsada Planning: compact controls, no confirmation banner or hour totals. */
+#app .obs-plan-workspace .obs-plan-topline{margin-bottom:9px}
+#app .obs-plan-controlbar{border:1px solid var(--obs-border);border-radius:14px;padding:12px 14px;background:color-mix(in srgb,var(--obs-accent) 2%,var(--obs-surface));margin:0 0 14px}
+#app .obs-plan-controls-row{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:10px 20px}
+#app .obs-plan-controlbar .obs-plan-fields{display:grid;grid-template-columns:minmax(150px,1.2fr) minmax(135px,1fr);width:min(100%,480px);max-width:none;flex:1 1 360px;margin:0;gap:9px}
+#app .obs-plan-controlbar .obs-plan-statsline{display:flex;gap:9px;align-items:center;justify-content:flex-end;flex:0 1 auto;margin:0 0 1px;flex-wrap:wrap}
+#app .obs-plan-controlbar .obs-plan-statsline span{border:1px solid var(--obs-border);border-radius:9px;padding:8px 10px;background:var(--obs-surface);font-size:11px;white-space:nowrap}
+#app .obs-plan-controlbar .obs-plan-statsline strong{margin-left:4px}
+#app .obs-plan-controlbar .obs-plan-hourstrip-edit{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;margin:12px 0 7px}
+#app .obs-plan-controlbar .obs-plan-hourstrip-edit button{min-width:0;padding:9px 3px;border-radius:9px;white-space:nowrap;font-size:10px}
+#app .obs-plan-controlfooter{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+#app .obs-plan-controlfooter .obs-plan-hourhelp{margin:0;flex:1;font-size:10px}
+#app .obs-plan-controlfooter .obs-plan-quick-undo{margin:0}
+#app .obs-team-templates-compact{gap:7px;margin:6px 0 10px;padding:8px}
+#app .obs-team-template-details{border-top:1px solid var(--obs-border);padding-top:7px}
+#app .obs-team-template-details summary{cursor:pointer;color:var(--obs-muted);font-size:10px;font-weight:650;list-style-position:inside}
+#app .obs-team-template-details[open]{display:grid;gap:8px}
+#app .obs-team-template-details .obs-quiet{margin:0;font-size:10px}
+#app .obs-team-template-actions{justify-content:flex-start}
+@media(max-width:1050px){#app .obs-plan-controlbar .obs-plan-hourstrip-edit{grid-template-columns:repeat(6,minmax(0,1fr))}#app .obs-plan-controlbar .obs-plan-statsline{justify-content:flex-start}}
+@media(max-width:480px){#app .obs-plan-controlbar{padding:10px}#app .obs-plan-controlbar .obs-plan-fields{flex-basis:100%;grid-template-columns:repeat(2,minmax(0,1fr))}#app .obs-plan-controlbar .obs-plan-statsline span{padding:6px 7px;font-size:10px}#app .obs-plan-controlbar .obs-plan-hourstrip-edit{grid-template-columns:repeat(4,minmax(0,1fr))}#app .obs-team-template-row{flex-wrap:wrap}}
