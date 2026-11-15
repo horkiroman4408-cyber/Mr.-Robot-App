@@ -676,3 +676,26 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obsada-module .obs-history-reconciliation-link:focus-visible{outline:2px solid #b94f5c;outline-offset:1px}
 .obsada-module .obs-table tr.obs-history-focused>td{background:rgba(185,79,92,.10)}
 .obsada-module .obs-table tr.obs-history-focused>td:first-child{box-shadow:inset 3px 0 #b94f5c}
+
+/* Compact STAN selection and unified process entry */
+#app .obs-stan-review-list{max-height:none;overflow:visible;margin:10px 0}
+#app .obs-stan-review-bulk{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+#app .obs-stan-selected-count{font-size:11px;font-weight:700;color:var(--obs-muted);white-space:nowrap}
+#app .obs-stan-review-row{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:10px 12px;border:1px solid var(--obs-border);border-radius:11px;margin-bottom:6px;cursor:pointer;transition:background .15s ease,border-color .15s ease}
+#app .obs-stan-review-row.is-selected{border-color:rgba(185,79,92,.45);background:rgba(185,79,92,.055)}
+#app .obs-stan-review-row>input[type=checkbox]{flex:0 0 auto;width:16px;height:16px;accent-color:#b94f5c;cursor:pointer}
+#app .obs-stan-review-details{min-width:0;display:block;flex:1;font-size:12px}
+#app .obs-stan-review-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:4px}
+#app .obs-stan-review-compare{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;color:var(--obs-muted)}
+#app .obs-stan-review-compare strong{color:var(--obs-text);font-weight:650}
+#app .obs-plan-unified-process{display:flex;align-items:stretch;gap:8px;min-width:0}
+#app .obs-plan-unified-process input{min-width:0;flex:1}
+#app .obs-plan-unified-process button{flex:0 0 auto;min-height:38px;border-radius:10px;border:1px solid var(--obs-border);padding:0 13px;background:var(--obs-surface);color:var(--obs-text);font-size:12px;font-weight:700;cursor:pointer}
+#app .obs-plan-unified-process button:disabled{opacity:.45;cursor:default}
+@media(max-width:600px){#app .obs-stan-review-head{align-items:flex-start;flex-wrap:wrap}#app .obs-plan-unified-process button{padding:0 9px}}
+
+#app .obs-plan-process-entry{position:relative;flex:1;min-width:0}
+#app .obs-plan-process-entry input{width:100%}
+#app .obs-plan-process-suggestions{position:absolute;z-index:25;top:calc(100% + 5px);left:0;right:0;max-height:240px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);box-shadow:0 12px 30px rgba(0,0,0,.13);padding:5px}
+#app .obs-plan-process-suggestions button{display:block;width:100%;text-align:left;border:0;border-radius:8px;background:transparent;color:var(--obs-text);padding:10px 11px;min-height:36px;font-size:12px;font-weight:650;cursor:pointer}
+#app .obs-plan-process-suggestions button:hover,#app .obs-plan-process-suggestions button[aria-selected=true]{background:rgba(185,79,92,.10)}

@@ -16,7 +16,7 @@ const original=Array.from({length:12},(_,slot)=>({day,shift,slot,login:'PD001',p
 const diff=created.compareStanPlan(source(),day,shift,original,new Date('2029-12-31').getTime());
 assert.equal(diff.length,1,'12 hour differences should group into one row');
 assert.equal(diff[0].slot,0);assert.equal(diff[0].endSlot,12);
-assert.equal(diff[0].choice,'mine','existing local hours remain authoritative');
+assert.equal(diff[0].choice,'stan','future updates are selected for explicit confirmation');
 assert.equal(diff[0].incoming,'METKI');
 const fresh=created.compareStanPlan(source('PD002','VAS'),day,shift,original,new Date('2029-12-31').getTime());
 assert.equal(fresh.length,2,'new worker and departed old worker both compared');
@@ -72,7 +72,7 @@ console.log('PASS: grouped hours, new and existing appointments, elapsed protect
   assert.equal(changes.length,1);
   planner.state.stanChanges=changes;
   planner.state.stanReviewDay=day;planner.state.stanReviewShift=shift;
-  assert.equal(planner.state.stanChanges[0].choice,'mine');
+  assert.equal(planner.state.stanChanges[0].choice,'stan');
   planner.state.stanChanges[0].choice='stan';
   assert.equal(await planner.applyStanReview(),true);
   assert.equal(planner.state.records.filter(r=>r.process==='METKI').length,12);
