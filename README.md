@@ -227,9 +227,12 @@ The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists a
 
 ---
 
-### Obsada · process staffing (v3.24.0)
+### Obsada · process staffing (v3.25.0)
 
 Use **Obsada** from the main menu. Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
+
+**Planning in v3.25.0:** Select one hour and assign a worker to a process. The assignment continues through the end of the shift, replacing later assignments for that worker while preserving earlier hours. Save reusable team rosters, then add a complete team to a shift without duplicate logins. Saved teams are kept in IndexedDB and the optional `SZABLONY_ZESPOLOW` sheet of `MrRobot_Obsada_Baza.xlsx`; older local databases can still be read. Completed hours are classified automatically, and overlapping SharePoint history is not counted twice. SharePoint updates remain manual.
+
 
 ## ⚙️ How it's built (Under the Hood)
 

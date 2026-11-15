@@ -38,6 +38,6 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
 assert(html.includes('js/app.js?v=3.25.0-obsada-auto-hours-1'));
 assert(sw.includes('js/app.js?v=3.25.0-obsada-auto-hours-1'));
-assert(html.includes('css/obsada-module.css?v=3.25.0-obsada-auto-hours-1'));
-assert(sw.includes('css/obsada-module.css?v=3.25.0-obsada-auto-hours-1'));
+assert(html.includes('css/obsada-module.css?v=3.25.0-obsada-templates-hour-1'));
+assert(sw.includes('css/obsada-module.css?v=3.25.0-obsada-templates-hour-1'));
 console.log('PASS: last staffing date, shift, hour; separate planning edits; page reload; invalid storage; CSS spacing; PWA asset revisions');

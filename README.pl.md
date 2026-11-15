@@ -227,9 +227,12 @@ Karta Hub wyróżnia **Przestoje · ARTLTT · Kreseczki**, a ekran Inne oznacza 
 
 ---
 
-### Obsada · obsada procesów (v3.24.0)
+### Obsada · obsada procesów (v3.25.0)
 
 Nowy moduł **Obsada** w menu głównym. Wczytaj `Grafik procesowy (godziny).xlsx` i sprawdź STAN na całą zmianę, historię miesięcy i Intelligence na podstawie zapisanych godzin. Plik jest przetwarzany lokalnie. Synchronizacja OneDrive/Power BI **nie jest jeszcze zaimplementowana**. Puste przyszłe godziny nie oznaczają nieobecności.
+
+**Planowanie w v3.25.0:** wybierz godzinę i przypisz pracownika do procesu. Przydział trwa do końca zmiany i zastępuje późniejsze przydziały tej osoby, nie zmieniając wcześniejszych godzin. Można zapisywać zespoły i dodawać cały skład do zmiany bez duplikatów. Szablony są przechowywane w IndexedDB oraz opcjonalnym arkuszu `SZABLONY_ZESPOLOW` pliku `MrRobot_Obsada_Baza.xlsx`; starsze bazy nadal można odczytać. Godziny zakończone są klasyfikowane automatycznie, a nakładające się wpisy SharePoint nie są liczone podwójnie. Odświeżanie SharePoint pozostaje ręczne.
+
 
 ## ⚙️ Jak to działa od środka
 
