@@ -247,7 +247,7 @@
     <div class="obs-merge-panel">
       <div class="obs-db-heading"><div><strong>{{ eMsg('Połącz bazę kolegi','Объединить базу коллеги','Merge colleague database','Об’єднати базу колеги') }}</strong><p class="obs-quiet">{{ eMsg('Pełny plik XLSX, bez SharePoint. Zachowujemy obie kopie.','Полный XLSX, без SharePoint. Обе копии сохраняются.','Full XLSX, without SharePoint. Both originals preserved.','Повний XLSX, без SharePoint. Обидві копії зберігаються.') }}</p></div></div>
       <label class="obs-plan-import obs-merge-upload">{{ eMsg('Wybierz bazę kolegi XLSX','Выбрать базу коллеги XLSX','Choose colleague XLSX','Виберіть базу колеги XLSX') }}<input type="file" accept=".xlsx" @change="obsadaPlan.previewColleagueFile($event)"></label>
-      <p class="obs-quiet">{{ eMsg('Wskaż Pobrane lub istniejący folder MrRobot. Robot utworzy OpenReports, SharePoint, Obsada, Import i Backup.','Выбери «Загрузки» или папку MrRobot. Робот создаст OpenReports, SharePoint, Obsada, Import и Backup.','Choose Downloads or an existing MrRobot folder. Robot creates OpenReports, SharePoint, Obsada, Import and Backup.','Оберіть «Завантаження» або папку MrRobot. Robot створить OpenReports, SharePoint, Obsada, Import і Backup.') }}</p>
+      <p class="obs-quiet">{{ eMsg('Wybierz Pobrane. Robot utworzy katalog MrRobot oraz foldery OpenReports, SharePoint, Obsada, Import i Backup.','Выбери «Загрузки». Робот сам создаст MrRobot и папки OpenReports, SharePoint, Obsada, Import и Backup.','Choose Downloads. Robot creates MrRobot and its OpenReports, SharePoint, Obsada, Import and Backup folders.','Обери «Завантаження». Robot створить MrRobot та папки OpenReports, SharePoint, Obsada, Import і Backup.') }}</p>
       <div v-if="obsadaPlan.state.mergePreview" class="obs-merge-review">
         <strong>{{ obsadaPlan.state.mergeFileName }}</strong>
         <div class="obs-merge-stats"><span>{{ eMsg('Nowe godziny','Новые часы','New hours','Нові години') }}: {{ obsadaPlan.state.mergePreview.counts.newAssignments }}</span><span>{{ eMsg('Historia','История','History','Історія') }}: {{ obsadaPlan.state.mergePreview.counts.newHistory }}</span><span>{{ eMsg('Konflikty','Конфликты','Conflicts','Конфлікти') }}: {{ obsadaPlan.state.mergePreview.conflicts.length }}</span></div>
@@ -2102,8 +2102,9 @@
      <div class="mr-bp-details-content">
       <div class="mr-bp-row"><div><strong>OpenReports</strong><small>{{ eMsg('Dostęp do OpenReports przyznawany przy instalacji Bridge','Доступ к OpenReports выдаётся при установке Bridge','OpenReports access is granted on Bridge installation','Доступ до OpenReports надається під час встановлення Bridge') }}</small></div><span class="mr-bp-inline-note">{{ eMsg('Bez dodatkowej zgody','Без отдельного разрешения','No separate prompt','Без окремого дозволу') }}</span></div>
       <div class="mr-bp-row"><div><strong>SharePoint · LPP</strong><small>{{ obsadaBridge.permissionGranted?eMsg('Zgoda Edge zapisana','Разрешение Edge сохранено','Edge permission granted','Дозвіл Edge збережено'):eMsg('Jednorazowa zgoda Edge','Однократное разрешение Edge','One-time Edge permission','Одноразовий дозвіл Edge') }}</small></div><button type="button" class="mr-bp-action" :disabled="!obsadaBridge.connected||obsadaBridge.permissionGranted||obsadaBridge.permissionPending" @click="obsadaBridgePermissionOpen">{{ obsadaBridge.permissionGranted?eMsg('Zezwolono','Разрешено','Allowed','Дозволено'):eMsg('Zezwól','Разрешить','Allow','Дозволити') }}</button></div>
-      <div class="mr-bp-row"><div><strong>{{ eMsg('Folder OpenReports','Папка OpenReports','OpenReports folder','Папка OpenReports') }}</strong><small id="mr-bp-or-folder">Downloads/MrRobot/OpenReports</small></div><button type="button" class="mr-bp-action" id="mr-bp-or-folder-pick" @click="documentOpenReportsFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
-      <div class="mr-bp-row"><div><strong>{{ eMsg('Foldery MrRobot','Папки MrRobot','MrRobot folders','Папки MrRobot') }}</strong><small>{{ obsadaBridge.folderName?eMsg('Wybrany: ','Выбрана: ','Selected: ','Обрана: ')+obsadaBridge.folderName:'Downloads/MrRobot/SharePoint' }}</small></div><button type="button" class="mr-bp-action" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
+      <div class="mr-bp-row"><div><strong>{{ eMsg('Foldery MrRobot','Папки MrRobot','MrRobot folders','Папки MrRobot') }}</strong><small>{{ obsadaBridge.folderName?eMsg('Gotowe: ','Готово: ','Ready: ','Готово: ')+obsadaBridge.folderName:eMsg('Wybierz folder Pobrane','Выбери папку «Загрузки»','Choose the Downloads folder','Обери папку «Завантаження»') }}</small></div><button type="button" class="mr-bp-action" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
+      <div v-if="obsadaBridge.error" class="obs-quiet" role="alert" style="color:#b83b50; padding:5px 12px">{{ obsadaBridge.error }}</div>
+      <div v-else-if="obsadaBridge.message" class="obs-quiet" role="status" style="padding:5px 12px">{{ obsadaBridge.message }}</div>
       <div class="mr-bp-footer"><span>{{ eMsg('Pobieranie SharePoint tylko po kliknięciu Odśwież dane.','SharePoint загружается только по кнопке «Обновить».','SharePoint downloads only on manual refresh.','SharePoint завантажується лише вручну.') }}</span><button type="button" class="mr-bp-check" @click="obsadaBridgeCheck">{{ eMsg('Sprawdź status','Проверить статус','Check status','Перевірити статус') }}</button></div>
      </div>
     </details>
@@ -2231,7 +2232,7 @@
         </div>
         <div class="mr-bridge-guide-step">
          <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M3 7h7l2 2h9v11H3z'/></svg></span>
-         <div class="mr-bridge-guide-step-content"><strong>4. {{ eMsg('Przygotuj foldery MrRobot','Подготовь папки MrRobot','Prepare MrRobot folders','Підготуй папки MrRobot') }}</strong><p>{{ eMsg('Wskaż Downloads lub Downloads/MrRobot. Robot przygotuje wszystkie podfoldery, a SharePoint będzie korzystać z własnego katalogu.','Выбери Downloads или Downloads/MrRobot. Робот создаст все подпапки, а SharePoint использует свою папку.','Choose Downloads or Downloads/MrRobot. Robot creates all subfolders; SharePoint uses its own folder.','Оберіть Downloads або Downloads/MrRobot. Robot створить усі підпапки, а SharePoint використовуватиме свою папку.') }}</p></div>
+         <div class="mr-bridge-guide-step-content"><strong>4. {{ eMsg('Przygotuj foldery MrRobot','Подготовь папки MrRobot','Prepare MrRobot folders','Підготуй папки MrRobot') }}</strong><p>{{ eMsg('Wybierz folder Pobrane. Robot sam utworzy MrRobot i wszystkie potrzebne podfoldery.','Выбери папку «Загрузки». Робот сам создаст MrRobot и все необходимые подпапки.','Choose the Downloads folder. Robot automatically creates MrRobot and every required subfolder.','Обери папку «Завантаження». Robot автоматично створить MrRobot та всі потрібні підпапки.') }}</p></div>
         </div>
         <div class="mr-bridge-guide-step">
          <span class="mr-bridge-guide-step-icon"><svg class="mr-bridge-guide-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d='M20 7v5h-5M4 17v-5h5M5.4 9a7 7 0 0 1 12-2l2.6 5M18.6 15a7 7 0 0 1-12 2L4 12'/></svg></span>
@@ -2803,9 +2804,9 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.25.0-obsada-file-exchange-1"></script>
+<script src="js/obsada-planner.js?v=3.25.0-downloads-root-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1"></script>
-<script src="js/app.js?v=3.25.0-obsada-file-exchange-1"></script>
+<script src="js/app.js?v=3.25.0-downloads-root-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>

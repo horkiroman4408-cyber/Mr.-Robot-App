@@ -354,16 +354,15 @@ function create({reactive,computed,roster,source,sourceName,language}){
  async function ensureFolders(rootHandle){for(const name of ['OpenReports','SharePoint','Obsada','Import','Backup'])await rootHandle.getDirectoryHandle(name,{create:true});}
  async function getSharePointFolder(){const saved=await get('storageRoot');if(!saved)return null;if(await saved.queryPermission({mode:'read'})!=='granted')return null;return saved.getDirectoryHandle('SharePoint');}
  async function chooseFolder(){
-  if(typeof root.showDirectoryPicker!=='function'){state.error='FOLDER_ACCESS_UNSUPPORTED';return;}
+  if(typeof root.showDirectoryPicker!=='function'){state.error='FOLDER_ACCESS_UNSUPPORTED';return false;}
   try{
    const selected=await root.showDirectoryPicker({id:'mrrobot-storage-root',mode:'readwrite'});
    if(await selected.requestPermission({mode:'readwrite'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
-   // When Downloads is selected, create MrRobot itself; when MrRobot exists,
-   // use it directly. Never create files in an unrelated chosen directory.
-   const name=selected.name.toLowerCase();
-   const storageRoot=name==='mrrobot'?selected:
-     ['downloads','pobrane','загрузки','завантаження'].includes(name)?await selected.getDirectoryHandle('MrRobot',{create:true}):null;
-   if(!storageRoot)throw Error('Choose Downloads or Downloads/MrRobot.');
+   // Select Downloads only. MrRobot and its standard subfolders are created
+   // automatically; no need to navigate into an existing MrRobot directory.
+   const name=selected.name.trim().toLocaleLowerCase();
+   if(!['downloads','pobrane','загрузки','завантаження'].includes(name))throw Error('DOWNLOADS_FOLDER_REQUIRED');
+   const storageRoot=await selected.getDirectoryHandle('MrRobot',{create:true});
    await ensureFolders(storageRoot);
    // An existing base in the chosen folder is never silently moved.
    let active=storageRoot;
@@ -371,7 +370,8 @@ function create({reactive,computed,roster,source,sourceName,language}){
    folderHandle=active;state.folderName=storageRoot.name+(active===storageRoot?'':'/Obsada');
    await put('folder',active);await put('storageRoot',storageRoot);
    await syncIfAllowed(true);
-  }catch(err){if(err?.name!=='AbortError')state.error=err.message||String(err);}
+   return true;
+  }catch(err){if(err?.name!=='AbortError')state.error=err.message||String(err);return false;}
  }
  async function syncIfAllowed(force=false){if(writing){queued=true;return;}if(!folderHandle){state.status='LOCAL_SAVED_NOT_EXPORTED';return;}let permission;try{permission=await folderHandle.queryPermission({mode:'readwrite'});}catch(err){state.error=String(err);state.status='FOLDER_PERMISSION_REQUIRED';return;}if(permission!=='granted'){state.status='FOLDER_PERMISSION_REQUIRED';return;}writing=true;state.busy=true;const startedRevision=revision;try{const workbook=buildWorkbook(root.XLSX,state.records,state.importedHistory,state.importedStatuses,state.shiftTeams,state.stanSnapshot,state.hiddenProcesses,state.confirmations,state.excludedHistory,state.teamTemplates,state.tombstones);const buffer=root.XLSX.write(workbook,{type:'array',bookType:'xlsx'});let existing=null;
  try{existing=await folderHandle.getFileHandle(FILE);}catch(e){if(e.name!=='NotFoundError')throw e;}

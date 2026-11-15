@@ -194,7 +194,7 @@ function spFolderDatabase(){return new Promise((resolve,reject)=>{const req=inde
 let spCachedFolder=null;
 async function spFolderGet(){const db=await spFolderDatabase();try{return await new Promise((resolve,reject)=>{const req=db.transaction('handles').objectStore('handles').get('downloadFolder');req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);});}finally{db.close();}}
 async function spFolderPut(handle){spCachedFolder=handle;const db=await spFolderDatabase();try{await new Promise((resolve,reject)=>{const tx=db.transaction('handles','readwrite');tx.objectStore('handles').put(handle,'downloadFolder');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}finally{db.close();}}
-spFolderGet().then(handle=>{spCachedFolder=handle;obsadaBridge.folderName=handle?.name||'';}).catch(()=>{});
+spFolderGet().then(handle=>{spCachedFolder=handle;obsadaBridge.folderName=handle?.name==='SharePoint'?'':(handle?.name||'');}).catch(()=>{});
 function spAskBridge(type,timeout=15000,payload={}){
  const nonce='sp-'+Array.from(crypto.getRandomValues(new Uint8Array(16)),x=>x.toString(16).padStart(2,'0')).join('');
  return new Promise((resolve,reject)=>{
@@ -251,10 +251,15 @@ async function obsadaBridgeChooseFolder(){
  obsadaBridge.error='';
  try{
   // Keep the folder picker in the original click call stack (transient activation).
-  await obsadaPlan.chooseFolder();
+  const ready=await obsadaPlan.chooseFolder();
+  if(!ready){
+   const reason=obsadaPlan.state.error;
+   if(reason==='DOWNLOADS_FOLDER_REQUIRED')throw Error(eMsg('Wybierz folder Pobrane, nie MrRobot ani jego podfolder.','Выбери папку «Загрузки», а не MrRobot или его подпапку.','Choose Downloads, not MrRobot or one of its subfolders.','Вибери «Завантаження», а не MrRobot чи його підпапку.'));
+   throw Error(reason||'FOLDER_PERMISSION_REQUIRED');
+  }
   const handle=await obsadaPlan.getSharePointFolder();
   if(!handle)throw Error('FOLDER_PERMISSION_REQUIRED');
-  await spFolderPut(handle);obsadaBridge.folderName=handle.name;
+  await spFolderPut(handle);obsadaBridge.folderName='MrRobot';
   obsadaBridge.message=eMsg('Foldery MrRobot przygotowane.','Папки MrRobot подготовлены.','MrRobot folders are ready.','Папки MrRobot підготовлені.');
  }catch(e){if(e?.name!=='AbortError')obsadaBridge.error=spErrorText(e.message);}
 }
