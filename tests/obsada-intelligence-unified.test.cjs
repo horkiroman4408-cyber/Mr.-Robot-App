@@ -18,5 +18,12 @@ assert(!html.includes('obs-team-modes'));
 assert(!script.includes('obsadaTeamCompare'));
 assert(script.includes('function obsadaTeamAddTemplate()'));
 assert(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
-assert(sw.includes('v3.25.0-obsada-intel-unified-20261115'));
+assert(sw.includes('v3.25.0-obsada-intel-period-bars-20261115'));
 console.log('PASS: unified multi/single selector, independent saved teams, compact cards, no experience ranking');
+
+assert(html.includes('obsadaTeamMovePeriod(-1)'));
+assert(html.includes('obsadaTeamOpenEmployee(card.login)'));
+assert(html.includes('obs-team-intel-track'));
+assert(script.includes('function obsadaTeamOpenEmployee(login){employeeOpen(login);}') );
+assert(script.includes('calendarRange(mode,0)'));
+assert(!html.includes('obsadaTeamToPlanning(card.login)'));

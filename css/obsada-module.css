@@ -617,3 +617,20 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-days-list>div{grid-template-columns:72px minmax(0,1fr);font-size:10px}
 @media(max-width:950px){#app .obs-team-intel-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:650px){#app .obs-team-intel-cards{grid-template-columns:1fr}#app .obs-team-intel-pickerbar select{flex:1;min-width:145px}#app .obs-team-intel-days-list>div{grid-template-columns:78px minmax(0,1fr)}}
+
+/* Obsada Intelligence: navigable calendar periods and readable process bars */
+#app .obs-team-intel-calendar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#app .obs-team-intel-calendar .obs-team-intel-presets{margin-right:0}
+#app .obs-team-intel-calendar-nav{display:flex;align-items:center;gap:12px;background:var(--obs-soft);border:1px solid var(--obs-border);border-radius:11px;padding:4px;min-width:260px;justify-content:space-between}
+#app .obs-team-intel-calendar-nav button{display:grid;place-items:center;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:8px;color:var(--obs-text);font-size:22px;line-height:1;padding:4px 10px;cursor:pointer}
+#app .obs-team-intel-calendar-nav button:disabled{opacity:.28;cursor:default}
+#app .obs-team-intel-calendar-nav span{font-size:12px;font-weight:650;color:var(--obs-text);text-align:center}
+#app .obs-team-intel-custom-dates{display:flex;flex-wrap:wrap;gap:10px}
+#app .obs-team-intel-processes{gap:7px}
+#app .obs-team-intel-process{display:block;margin:0;padding:0;line-height:1.25}
+#app .obs-team-intel-process-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11px}
+#app .obs-team-intel-process-label span{min-width:0;overflow-wrap:anywhere}
+#app .obs-team-intel-process-label b{white-space:nowrap;font-size:11px;font-variant-numeric:tabular-nums}
+#app .obs-team-intel-track{height:5px;margin-top:4px;background:var(--obs-soft);border-radius:10px;overflow:hidden}
+#app .obs-team-intel-track span{display:block;height:100%;border-radius:10px;background:var(--obs-accent)}
+@media(max-width:650px){#app .obs-team-intel-calendar-nav{width:100%;min-width:0}}

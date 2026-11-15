@@ -124,7 +124,14 @@ const obsadaHistoryVerifiedProcessHours=computed(()=>window.ObsadaParser.analyze
 
 
 // Team Intelligence is independent of the single-person/month filters used by the existing report.
-const obsadaTeam=reactive({selected:[],search:'',templateChoice:'',from:window.MRObsadaTeamIntelligence.shiftDay(window.MRObsadaTeamIntelligence.today(),-13),to:window.MRObsadaTeamIntelligence.today(),preset:'14',compareProcess:'',chooserOpen:false});
+const obsadaTeamInitialRange=window.MRObsadaTeamIntelligence.calendarRange('week');
+const obsadaTeam=reactive({selected:[],search:'',templateChoice:'',from:obsadaTeamInitialRange.from,to:obsadaTeamInitialRange.to,preset:'week',periodOffset:0,chooserOpen:false});
+const obsadaTeamPeriodLabel=computed(()=>{
+ const culture={pl:'pl-PL',ru:'ru-RU',en:'en-GB',uk:'uk-UA'}[uiLanguage.value]||'pl-PL';
+ const parse=iso=>{const [y,m,d]=iso.split('-').map(Number);return new Date(y,m-1,d,12);};
+ if(obsadaTeam.preset==='month')return new Intl.DateTimeFormat(culture,{month:'long',year:'numeric'}).format(parse(obsadaTeam.from));
+ return new Intl.DateTimeFormat(culture,{day:'numeric',month:'short',year:'numeric'}).format(parse(obsadaTeam.from))+' – '+new Intl.DateTimeFormat(culture,{day:'numeric',month:'short',year:'numeric'}).format(parse(obsadaTeam.to));
+});
 const obsadaTeamCandidates=computed(()=>{
  const q=obsadaTeam.search.trim().toLocaleLowerCase('pl-PL');
  const list=[...new Set([...obsadaHistoryEmployees.value,...obsadaPlan.team,...obsadaPlan.initialWorkers])].filter(Boolean).sort();
@@ -132,10 +139,23 @@ const obsadaTeamCandidates=computed(()=>{
 });
 const obsadaTeamSummary=computed(()=>window.MRObsadaTeamIntelligence.summarize(obsadaHistoryAll.value,obsadaTeam.selected,obsadaTeam.from,obsadaTeam.to));
 function obsadaTeamToggle(login){const a=obsadaTeam.selected;obsadaTeam.selected=a.includes(login)?a.filter(id=>id!==login):[...a,login];}
-function obsadaTeamPreset(days){obsadaTeam.preset=String(days);if(days==='custom')return;const end=window.MRObsadaTeamIntelligence.today();obsadaTeam.to=end;obsadaTeam.from=window.MRObsadaTeamIntelligence.shiftDay(end,1-Number(days));}
+function obsadaTeamPreset(mode){
+ if(mode==='custom'){obsadaTeam.preset='custom';return;}
+ if(mode!=='week'&&mode!=='month')return;
+ const range=window.MRObsadaTeamIntelligence.calendarRange(mode,0);
+ obsadaTeam.preset=mode;obsadaTeam.periodOffset=0;
+ obsadaTeam.from=range.from;obsadaTeam.to=range.to;
+}
+function obsadaTeamMovePeriod(delta){
+ if(obsadaTeam.preset==='custom'||!Number.isInteger(delta))return;
+ const next=Math.min(0,obsadaTeam.periodOffset+delta);
+ const range=window.MRObsadaTeamIntelligence.calendarRange(obsadaTeam.preset,next);
+ if(!range)return;
+ obsadaTeam.periodOffset=next;obsadaTeam.from=range.from;obsadaTeam.to=range.to;
+}
 function obsadaTeamAddTemplate(){const team=obsadaPlan.state.teamTemplates[obsadaTeam.templateChoice];if(!Array.isArray(team))return;obsadaTeam.selected=[...new Set([...obsadaTeam.selected,...team])];}
 function obsadaTeamAddShift(){obsadaTeam.selected=[...new Set([...obsadaTeam.selected,...obsadaPlan.team])];}
-function obsadaTeamToPlanning(login){obsadaPlan.selectLogin(login);obsada.state.tab='planning';}
+function obsadaTeamOpenEmployee(login){employeeOpen(login);}
 
 // SharePoint Bridge: only explicit refresh, downloads through Excel Online.
 // Browser security requires a one-time folder grant to read the downloaded workbook.
@@ -2878,6 +2898,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamAddTemplate,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamAddShift,obsadaTeamToPlanning,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamAddTemplate,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 
