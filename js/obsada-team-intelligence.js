@@ -22,6 +22,10 @@ function summarize(rows,selected,from,to,referenceDay=today()){
  const dayBefore=shiftDay(referenceDay,-1),twoBefore=shiftDay(referenceDay,-2);
  const valid=rows.filter(r=>names.has(r.login)&&!r.excluded&&!r.superseded&&(r.kind==='work'||r.kind==='confirmed')&&Number(r.hours)>0);
  const kept=valid.filter(r=>r.date>=from&&r.date<=to);
+ // Monthly workbook day statuses (WOLNY, URLOP, L4...) are informational,
+ // not hours. Keep them available even outside the chosen analysis range.
+ const dayStatuses=rows.filter(r=>names.has(r.login)&&r.kind==='status'&&!r.excluded&&
+  (r.date===dayBefore||r.date===twoBefore)&&String(r.status||r.process||'').trim());
  const cards=employees.map(login=>{
   const all=kept.filter(r=>r.login===login),byProcess=new Map(),byDay=new Map();
   for(const r of all){const hrs=Number(r.hours),name=String(r.process||'').trim();if(!name)continue;byProcess.set(name,(byProcess.get(name)||0)+hrs);const key=r.date+'|'+name;byDay.set(key,(byDay.get(key)||0)+hrs);}
@@ -29,7 +33,10 @@ function summarize(rows,selected,from,to,referenceDay=today()){
   for(const r of valid){if(r.login!==login||(r.date!==dayBefore&&r.date!==twoBefore))continue;const key=r.date+'|'+String(r.process||'').trim();if(!r.process)continue;if(!all.includes(r))byDay.set(key,(byDay.get(key)||0)+Number(r.hours));}
   const processes=[...byProcess].map(([process,hours])=>({process,hours,lastDate:all.filter(r=>r.process===process).map(r=>r.date).sort().at(-1)||''})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));
   function forDate(day){return [...byDay].filter(([k])=>k.startsWith(day+'|')).map(([k,hours])=>({process:k.slice(day.length+1),hours})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));}
-  return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,days:new Set(all.map(r=>r.date)).size,yesterday:forDate(dayBefore),dayBeforeYesterday:forDate(twoBefore)};
+  const statusOn=day=>[...new Set(dayStatuses.filter(r=>r.login===login&&r.date===day).map(r=>String(r.status||r.process).trim().toUpperCase()))];
+  return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,days:new Set(all.map(r=>r.date)).size,
+   yesterday:forDate(dayBefore),dayBeforeYesterday:forDate(twoBefore),
+   yesterdayStatuses:statusOn(dayBefore),dayBeforeYesterdayStatuses:statusOn(twoBefore)};
  });
  const procMap=new Map();for(const card of cards)for(const v of card.processes)procMap.set(v.process,(procMap.get(v.process)||0)+v.hours);
  return {cards,processes:[...procMap].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(x=>x[0]),from,to,yesterday:dayBefore,dayBeforeYesterday:twoBefore};
