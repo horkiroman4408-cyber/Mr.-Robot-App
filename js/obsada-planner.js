@@ -137,7 +137,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
  const processCards=computed(()=>allProcessCards.value.filter(p=>!state.hiddenProcesses.includes(processKey(p.name))).filter(p=>!state.processFilter||p.name.toLowerCase().includes(state.processFilter.toLowerCase())).filter(p=>state.showAllProcesses||p.people.length>0||state.additionalProcesses.includes(p.name)||state.processFilter.trim()||!current.value.length).slice(0,state.showAllProcesses?999:(!current.value.length?12:999)));
  const currentPeopleCount=computed(()=>teamAssigned.value.size);
  const readonlyRoster=computed(()=>{
-  if(current.value.length){const map=new Map();for(const r of current.value){if(!map.has(r.process))map.set(r.process,[]);map.get(r.process).push({login:r.login});}return {origin:'plan',groups:[...map].map(([name,people])=>({name,people,count:people.length})),count:new Set(current.value.map(r=>r.login)).size};}
+  if(current.value.length||state.records.some(r=>r.day===state.day&&r.shift===state.shift)){const map=new Map();for(const r of current.value){if(!map.has(r.process))map.set(r.process,[]);map.get(r.process).push({login:r.login});}return {origin:'plan',groups:[...map].map(([name,people])=>({name,people,count:people.length})),count:new Set(current.value.map(r=>r.login)).size};}
   const stan=state.stanSnapshot;
   // STAN is a snapshot of the current day only, never a historical allocation.
   if(!stan?.day||stan.day!==state.day||stan.shift!==state.shift)return {origin:'empty',groups:[],count:0};
@@ -284,21 +284,28 @@ function create({reactive,computed,roster,source,sourceName,language}){
   return {records,team:[...team]};
  }
 
- // Build an hourly comparison of populated STAN intervals. Blank cells mean
- // unknown, never a request to delete a person's local assignment.
+ // Compare each hour covered by a populated STAN snapshot, including workers
+ // absent from the refreshed snapshot. A blank STAN interval is unknown: it
+ // must not be interpreted as an empty workforce or delete assignments.
  function compareStanPlan(model,day,shift,records,now=Date.now()){
   const incoming=planFromStanIntervals(model,day,shift).records;
-  const local=new Map(records.filter(r=>r.day===day&&r.shift===shift).map(r=>[[r.slot,r.login].join('|'),r]));
   const hours=makeSlots(day,shift);
-  const differences=incoming.filter(r=>{
-   const old=local.get([r.slot,r.login].join('|'));
-   return !old||processKey(old.process)!==processKey(r.process);
-  }).map(r=>{
-   const old=local.get([r.slot,r.login].join('|'));
-   return {day,shift,slot:r.slot,login:r.login,local:old?.process||'',incoming:r.process,
-    past:hours[r.slot]?.end<=now};
-  });
-  // Compact consecutive hours with identical decisions into one review row.
+  if(!incoming.length)return [];
+  const incomingMap=new Map(incoming.map(r=>[[r.slot,r.login].join('|'),r]));
+  const local=new Map(records.filter(r=>r.day===day&&r.shift===shift).map(r=>[[r.slot,r.login].join('|'),r]));
+  // planFromStanIntervals starts at the earliest populated snapshot and
+  // carries the last known distribution through later blank intervals.
+  const first=Math.min(...incoming.map(r=>r.slot));
+  const keys=new Set([...incomingMap.keys(),...local.keys()].filter(key=>Number(key.split('|')[0])>=first));
+  const differences=[];
+  for(const key of keys){
+   const fresh=incomingMap.get(key),old=local.get(key);
+   if(!old&&!fresh)continue;
+   if(old&&fresh&&processKey(old.process)===processKey(fresh.process))continue;
+   const slot=(fresh||old).slot,login=(fresh||old).login;
+   differences.push({day,shift,slot,login,local:old?.process||'',incoming:fresh?.process||'',
+    past:hours[slot]?.end<=now,removal:!!old&&!fresh});
+  }
   differences.sort((a,b)=>a.login.localeCompare(b.login)||a.slot-b.slot);
   const grouped=[];
   for(const r of differences){
@@ -306,7 +313,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    if(prev&&prev.login===r.login&&prev.endSlot===r.slot&&prev.local===r.local&&prev.incoming===r.incoming&&prev.past===r.past){
     prev.endSlot++;prev.label=(hours[prev.slot]?.from||'')+'–'+(hours[prev.endSlot-1]?.to||'');
    }else grouped.push({...r,id:[day,shift,r.slot,r.login].join('|'),endSlot:r.slot+1,
-    label:hours[r.slot]?.label||'',choice:r.local||r.past?'mine':'stan'});
+    label:hours[r.slot]?.label||'',choice:r.past||r.local&&!r.removal?'mine':'stan'});
   }
   return grouped;
  }
@@ -338,7 +345,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const keys=new Set(selected.flatMap(c=>Array.from({length:c.endSlot-c.slot},(_,n)=>[c.day,c.shift,c.slot+n,c.login].join('|'))));
   state.records=state.records.filter(r=>!keys.has([r.day,r.shift,r.slot,r.login].join('|')));
   const updated=new Date().toISOString();
-  state.records.push(...selected.flatMap(c=>Array.from({length:c.endSlot-c.slot},(_,n)=>({day:c.day,shift:c.shift,slot:c.slot+n,login:c.login,process:c.incoming,updated}))));
+  state.records.push(...selected.filter(c=>c.incoming).flatMap(c=>Array.from({length:c.endSlot-c.slot},(_,n)=>({day:c.day,shift:c.shift,slot:c.slot+n,login:c.login,process:c.incoming,updated}))));
   const key=shiftKey(state.stanReviewDay,state.stanReviewShift);
   state.shiftTeams={...state.shiftTeams,[key]:[...new Set([...(state.shiftTeams[key]||[]),...selected.map(c=>c.login)])]};
   await save();

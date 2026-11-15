@@ -224,7 +224,7 @@
    <div class="obs-stan-review-head"><div><strong>{{ eMsg('STAN · różnice w planowaniu','STAN · различия в планировании','STAN · planning differences','STAN · розбіжності планування') }}</strong><p class="obs-quiet">{{ obsadaPlan.state.stanReviewDay }} · {{ obsadaPlan.state.stanReviewShift }} · {{ obsadaPlan.state.stanChanges.length }} {{ eMsg('różnic do sprawdzenia','различий для проверки','differences to review','розбіжностей для перевірки') }}</p></div></div>
    <p class="obs-quiet">{{ eMsg('Puste komórki STAN niczego nie usuwają. Minione godziny pozostają lokalne, dopóki ręcznie nie wybierzesz STAN.','Пустые часы STAN ничего не удаляют. Прошедшие часы остаются локальными, пока ты явно не выберешь STAN.','Blank STAN hours never delete local plans. Elapsed hours remain local unless explicitly selected.','Порожні години STAN нічого не видаляють. Минулі години залишаються локальними без явного вибору STAN.') }}</p>
    <div class="obs-stan-review-list"><div v-for="row in obsadaPlan.state.stanChanges" :key="row.id" class="obs-stan-review-row">
-    <div><b>{{ row.login }}</b> · {{ row.label }} <span v-if="row.past" class="obs-stan-past">{{ eMsg('Minęło','Прошло','Elapsed','Минуло') }}</span><small>{{ eMsg('Lokalnie','Локально','Local','Локально') }}: {{ row.local||'—' }} · STAN: {{ row.incoming }}</small></div>
+    <div><b>{{ row.login }}</b> · {{ row.label }} <span v-if="row.past" class="obs-stan-past">{{ eMsg('Minęło','Прошло','Elapsed','Минуло') }}</span><small>{{ eMsg('Lokalnie','Локально','Local','Локально') }}: {{ row.local||'—' }} · STAN: {{ row.removal?eMsg('Usunąć przydział','Снять назначение','Remove assignment','Зняти призначення'):row.incoming }}</small></div>
     <select v-model="row.choice" :aria-label="row.login+' '+row.label"><option value="mine">{{ eMsg('Zostaw lokalne','Оставить локальное','Keep local','Залишити локальне') }}</option><option value="stan">{{ eMsg('Zastosuj STAN','Применить STAN','Apply STAN','Застосувати STAN') }}</option></select>
    </div></div>
    <div class="obs-stan-review-actions"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaPlan.state.busy" @click="obsadaPlan.applyStanReview()">{{ eMsg('Zastosuj wybrane','Применить выбранное','Apply selected','Застосувати вибране') }}</button><button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.dismissStanReview()">{{ eMsg('Zachowaj lokalne','Оставить локальное','Keep local','Залишити локальне') }}</button></div>
@@ -2813,7 +2813,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.25.0-stan-review-1"></script>
+<script src="js/obsada-planner.js?v=3.25.0-stan-departure-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1"></script>
 <script src="js/app.js?v=3.25.0-stan-review-1"></script>
 <script src="js/pwa-register.js"></script>
