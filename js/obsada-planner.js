@@ -76,7 +76,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:''});
+ const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:''});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -283,14 +283,85 @@ function create({reactive,computed,roster,source,sourceName,language}){
   }
   return {records,team:[...team]};
  }
+
+ // Build an hourly comparison of populated STAN intervals. Blank cells mean
+ // unknown, never a request to delete a person's local assignment.
+ function compareStanPlan(model,day,shift,records,now=Date.now()){
+  const incoming=planFromStanIntervals(model,day,shift).records;
+  const local=new Map(records.filter(r=>r.day===day&&r.shift===shift).map(r=>[[r.slot,r.login].join('|'),r]));
+  const hours=makeSlots(day,shift);
+  const differences=incoming.filter(r=>{
+   const old=local.get([r.slot,r.login].join('|'));
+   return !old||processKey(old.process)!==processKey(r.process);
+  }).map(r=>{
+   const old=local.get([r.slot,r.login].join('|'));
+   return {day,shift,slot:r.slot,login:r.login,local:old?.process||'',incoming:r.process,
+    past:hours[r.slot]?.end<=now};
+  });
+  // Compact consecutive hours with identical decisions into one review row.
+  differences.sort((a,b)=>a.login.localeCompare(b.login)||a.slot-b.slot);
+  const grouped=[];
+  for(const r of differences){
+   const prev=grouped[grouped.length-1];
+   if(prev&&prev.login===r.login&&prev.endSlot===r.slot&&prev.local===r.local&&prev.incoming===r.incoming&&prev.past===r.past){
+    prev.endSlot++;prev.label=(hours[prev.slot]?.from||'')+'–'+(hours[prev.endSlot-1]?.to||'');
+   }else grouped.push({...r,id:[day,shift,r.slot,r.login].join('|'),endSlot:r.slot+1,
+    label:hours[r.slot]?.label||'',choice:r.local||r.past?'mine':'stan'});
+  }
+  return grouped;
+ }
+ async function applyStanReview(){
+  try{
+  const changes=state.stanChanges;
+  if(!changes.length)return false;
+  if(changes.some(c=>c.day!==state.stanReviewDay||c.shift!==state.stanReviewShift))return false;
+  const selected=changes.filter(c=>c.choice==='stan');
+  if(!selected.length){state.stanChanges=[];state.stanNotice='STAN_NO_CHANGES_SELECTED';return false;}
+  // The plan may have been edited after the preview. Do not overwrite such edits.
+  for(const c of selected)for(let slot=c.slot;slot<c.endSlot;slot++){
+   const current=state.records.find(r=>r.day===c.day&&r.shift===c.shift&&r.slot===slot&&r.login===c.login);
+   if((current?.process||'')!==c.local){state.error='STAN_PREVIEW_OUTDATED';return false;}
+  }
+  // If an XLSX folder is connected, retain the complete pre-change workbook.
+  if(folderHandle){
+   const storage=await get('storageRoot')||folderHandle;
+   if(await storage.queryPermission({mode:'readwrite'})==='granted'){
+    const backupDir=await storage.getDirectoryHandle('Backup',{create:true});
+    const name='Obsada_before_STAN_'+new Date().toISOString().replace(/[-:.]/g,'')+'_'+Math.random().toString(36).slice(2,7)+'.xlsx';
+    const workbook=buildWorkbook(root.XLSX,state.records,state.importedHistory,state.importedStatuses,state.shiftTeams,state.stanSnapshot,state.hiddenProcesses,state.confirmations,state.excludedHistory,state.teamTemplates,state.tombstones);
+    const content=root.XLSX.write(workbook,{type:'array',bookType:'xlsx'});
+    const file=await backupDir.getFileHandle(name,{create:true});
+    const writer=await file.createWritable();try{await writer.write(content);await writer.close();}catch(err){await writer.abort().catch(()=>{});throw err;}
+   }else {state.error='FOLDER_PERMISSION_REQUIRED';return false;}
+  }
+  snapshot('stan-review');
+  const keys=new Set(selected.flatMap(c=>Array.from({length:c.endSlot-c.slot},(_,n)=>[c.day,c.shift,c.slot+n,c.login].join('|'))));
+  state.records=state.records.filter(r=>!keys.has([r.day,r.shift,r.slot,r.login].join('|')));
+  const updated=new Date().toISOString();
+  state.records.push(...selected.flatMap(c=>Array.from({length:c.endSlot-c.slot},(_,n)=>({day:c.day,shift:c.shift,slot:c.slot+n,login:c.login,process:c.incoming,updated}))));
+  const key=shiftKey(state.stanReviewDay,state.stanReviewShift);
+  state.shiftTeams={...state.shiftTeams,[key]:[...new Set([...(state.shiftTeams[key]||[]),...selected.map(c=>c.login)])]};
+  await save();
+  if(state.status==='BROWSER_SAVE_FAILED')return false;
+  state.stanNotice='STAN_APPLIED_'+selected.length;
+  state.stanChanges=[];
+  return true;
+  }catch(err){state.error=err.message||String(err);return false;}
+ }
+ function dismissStanReview(){state.stanChanges=[];state.stanNotice='STAN_REVIEW_DISMISSED';}
  async function syncFromSharePoint(model,fileName,day,shift){
   if(!model?.intervals||!Array.isArray(model.intervals))throw Error('INVALID_STAN');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!SHIFT_OPTIONS.some(s=>s[0]===shift))throw Error('STAN_DATE_SHIFT_REQUIRED');
   const stanData={updatedAt:new Date().toISOString(),day,shift,intervals:model.intervals.map(iv=>({label:norm(iv.label),people:(iv.people||[]).map(p=>({login:norm(p.login),process:norm(p.process)})).filter(p=>p.login&&p.process)}))};
   const previous={stan:state.stanSnapshot,records:state.records,teams:state.shiftTeams};
-  // Initial STAN import only: do not replace user-edited assignments on re-sync.
+  // An untouched shift is seeded. Otherwise prepare an explicit, hourly
+  // review instead of ignoring the refreshed STAN or overwriting local edits.
   const populated=state.records.some(r=>r.day===day&&r.shift===shift);
   const seed=populated?{records:[],team:[]}:planFromStanIntervals(model,day,shift);
+  const changes=populated?compareStanPlan(model,day,shift,state.records):[];
+  state.stanChanges=changes;
+  state.stanReviewDay=day;state.stanReviewShift=shift;
+  state.stanNotice=changes.length?'STAN_REVIEW_REQUIRED':seed.records.length?'STAN_INITIAL_PLAN':'STAN_NO_DIFFERENCES';
   state.stanSnapshot=stanData;
   if(seed.records.length){
    snapshot('stan-initial-plan');
@@ -358,11 +429,11 @@ function create({reactive,computed,roster,source,sourceName,language}){
   try{
    const selected=await root.showDirectoryPicker({id:'mrrobot-storage-root',mode:'readwrite'});
    if(await selected.requestPermission({mode:'readwrite'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
-   // Edge blocks directory-picker access to the Downloads system root.
-   // Select the existing MrRobot subfolder directly and create children there.
+   // Select Downloads only. MrRobot and its standard subfolders are created
+   // automatically; no need to navigate into an existing MrRobot directory.
    const name=selected.name.trim().toLocaleLowerCase();
-   if(name!=='mrrobot')throw Error('MRROBOT_FOLDER_REQUIRED');
-   const storageRoot=selected;
+   if(!['downloads','pobrane','загрузки','завантаження'].includes(name))throw Error('DOWNLOADS_FOLDER_REQUIRED');
+   const storageRoot=await selected.getDirectoryHandle('MrRobot',{create:true});
    await ensureFolders(storageRoot);
    // An existing base in the chosen folder is never silently moved.
    let active=storageRoot;
@@ -492,7 +563,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,templateNames,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {state,templateNames,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
 root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;

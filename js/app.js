@@ -92,6 +92,29 @@ const obsadaHistoryAll=computed(()=>{
  }
  return [...imported,...statuses,...aggregates.values()];
 });
+// A monthly workbook contains day totals but no hourly schedule. It is
+// impossible to infer the uncovered hours, so surface the discrepancy rather
+// than silently counting or inventing them.
+const obsadaHistoryReconciliation=computed(()=>{
+ const local=obsadaPlan.state.importedHistory;
+ const imported=local.length?local:(obsada.state.model?.history||[]);
+ const totals=new Map();
+ for(const r of imported){
+  if(obsadaPlan.isExcluded({...r,kind:'work'}))continue;
+  const key=r.date+'|'+r.login;
+  totals.set(key,(totals.get(key)||0)+Number(r.hours||0));
+ }
+ const confirmed=new Map();
+ for(const r of obsadaPlan.state.records){
+  if(!window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow))continue;
+  const key=r.day+'|'+r.login;
+  confirmed.set(key,(confirmed.get(key)||0)+1);
+ }
+ return [...totals.entries()].filter(([key,total])=>confirmed.has(key)&&Math.abs(total-confirmed.get(key))>0.001).map(([key,total])=>{
+  const divider=key.indexOf('|');return {date:key.slice(0,divider),login:key.slice(divider+1),imported:total,local:confirmed.get(key),difference:total-confirmed.get(key)};
+ }).sort((a,b)=>b.date.localeCompare(a.date)||a.login.localeCompare(b.login));
+});
+const obsadaHistoryReconciliationVisible=computed(()=>obsadaHistoryReconciliation.value.filter(r=>(!obsada.state.month||r.date.slice(0,7)===obsada.state.month)&&(!obsada.state.employee||r.login===obsada.state.employee)));
 const obsadaHistoryMonths=computed(()=>[...new Set(obsadaHistoryAll.value.map(r=>r.date.slice(0,7)))].sort().reverse());
 const obsadaHistoryEmployees=computed(()=>[...new Set(obsadaHistoryAll.value.map(r=>r.login))].sort());
 const obsadaHistoryProcesses=computed(()=>[...new Set(obsadaHistoryAll.value.filter(r=>r.kind!=='status').map(r=>r.process))].sort());
@@ -139,6 +162,7 @@ const obsadaTeamCandidates=computed(()=>{
  return q?list.filter(login=>login.toLocaleLowerCase('pl-PL').includes(q)||String(pracownicyKpiLookup(login)?.name||'').toLocaleLowerCase('pl-PL').includes(q)):list;
 });
 const obsadaTeamSummary=computed(()=>window.MRObsadaTeamIntelligence.summarize(obsadaHistoryAll.value,obsadaTeam.selected,obsadaTeam.from,obsadaTeam.to));
+const obsadaTeamReconciliationVisible=computed(()=>obsadaHistoryReconciliation.value.filter(r=>obsadaTeam.selected.includes(r.login)&&r.date>=obsadaTeam.from&&r.date<=obsadaTeam.to));
 function obsadaTeamToggle(login){const a=obsadaTeam.selected;obsadaTeam.selected=a.includes(login)?a.filter(id=>id!==login):[...a,login];}
 function obsadaTeamPreset(mode){
  if(mode==='custom'){obsadaTeam.preset='custom';return;}
@@ -2906,6 +2930,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

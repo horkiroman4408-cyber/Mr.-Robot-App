@@ -644,3 +644,18 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obs-merge-conflict{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 9px;background:rgba(125,125,125,.06);border-radius:8px;font-size:12px}
 .obs-merge-conflict>span{min-width:0;overflow-wrap:anywhere}
 .obs-merge-conflict select{min-width:130px;max-width:48%;padding:5px;border-radius:7px;border:1px solid var(--obs-border,rgba(120,120,120,.3));background:var(--obs-surface,#fff);color:inherit}
+
+/* STAN hourly review and historical reconciliation · v3.25.0 */
+.obs-stan-review{margin:10px 0;padding:14px 16px;border-left:3px solid #b94f5c}
+.obs-stan-review-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
+.obs-stan-review-list{max-height:270px;overflow:auto;overscroll-behavior:contain;margin:10px 0}
+.obs-stan-review-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:9px 2px;border-bottom:1px solid var(--border-color,rgba(128,128,128,.18))}
+.obs-stan-review-row>div{min-width:0;font-size:13px}
+.obs-stan-review-row small{display:block;font-size:11px;opacity:.75;margin-top:3px}
+.obs-stan-review-row select{max-width:190px;min-width:145px;padding:7px 9px;border:1px solid rgba(128,128,128,.3);border-radius:9px;background:var(--card-bg,transparent);color:inherit;font:inherit;font-size:12px}
+.obs-stan-review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.obs-stan-past{font-size:10px;opacity:.7;margin-left:6px}
+.obs-history-reconciliation{padding:12px 16px;margin:12px 0;border-left:3px solid #b94f5c}
+.obs-history-reconciliation-rows{max-height:170px;overflow:auto;font-size:12px;line-height:1.8}
+.obs-intel-reconcile-note{margin:8px 0;color:inherit}
+@media(max-width:600px){.obs-stan-review-row{align-items:stretch;flex-direction:column;gap:5px}.obs-stan-review-row select{max-width:100%;width:100%}}
