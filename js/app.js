@@ -67,19 +67,25 @@ Vue.watch(()=>[obsadaPlan.state.day,obsadaPlan.state.shift,obsadaPlan.state.from
 // Warn when local changes are not yet synchronized to the user's Excel file.
 window.addEventListener('beforeunload',event=>{if(obsadaPlan.state.dirty||obsadaPlan.state.busy||obsadaPlan.state.status==='BROWSER_SAVE_FAILED'){event.preventDefault();event.returnValue='';}});
 // Local Obsada history: imported verified monthly hours and unverified planned hours are never merged into a single factual total.
-Vue.watch(()=>obsada.state.tab,(tab,previous)=>{if(tab==='intelligence'&&previous!=='intelligence')obsada.state.source='verified';else if(tab==='history'&&previous!=='history'&&obsada.state.source==='verified')obsada.state.source='import';});
+Vue.watch(()=>obsada.state.tab,(tab,previous)=>{if((tab==='intelligence'||tab==='history')&&previous!==tab)obsada.state.source='verified';});
+const obsadaHistoryOptions=reactive({sourceDetail:'all',planStatus:'all',showExcluded:false,selected:[]});
+function obsadaHistoryRowKey(r){return r.origin==='import'?obsadaPlan.historyExclusionKey(r):JSON.stringify(['plan',r.date,r.shift,r.login,r.process]);}
+function obsadaHistorySelect(r){const key=obsadaHistoryRowKey(r);const a=obsadaHistoryOptions.selected;obsadaHistoryOptions.selected=a.includes(key)?a.filter(x=>x!==key):[...a,key];}
+async function obsadaHistoryManage(rows){const result=await obsadaPlan.manageHistoryRows(rows);if(result)obsadaHistoryOptions.selected=[];return result;}
+async function obsadaHistoryManageSelected(){const keys=new Set(obsadaHistoryOptions.selected);return obsadaHistoryManage(obsadaHistoryFiltered.value.filter(r=>keys.has(obsadaHistoryRowKey(r))));}
+Vue.watch(()=>[obsada.state.source,obsada.state.month,obsada.state.employee,obsada.state.process],()=>{obsadaHistoryOptions.selected=[];});
 // Confirmed assignments replace imported history for the same employee / shift-start date
 // in combined totals. Both originals remain accessible under their source filters.
 const obsadaHistoryAll=computed(()=>{
  const local=obsadaPlan.state.importedHistory;
  const historical=local.length?local:(obsada.state.model?.history||[]);
- const confirmedPeople=new Set(obsadaPlan.state.records.filter(r=>obsadaPlan.state.confirmations[r.day+'|'+r.shift]).map(r=>r.day+'|'+r.login));
- const imported=historical.map(r=>({...r,origin:'import',sourceType:r.sourceType||'main',kind:'work',superseded:confirmedPeople.has(r.date+'|'+r.login)}));
- const statuses=obsadaPlan.state.importedStatuses.map(r=>({...r,date:r.date,process:r.status,hours:0,sourceType:'status',origin:'import',kind:'status'}));
+ const confirmedPeople=new Set(obsadaPlan.state.records.filter(r=>window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow)).map(r=>r.day+'|'+r.login));
+ const imported=historical.map(r=>({...r,origin:'import',sourceType:r.sourceType||'main',kind:'work',superseded:confirmedPeople.has(r.date+'|'+r.login),excluded:obsadaPlan.isExcluded({...r,kind:'work'})}));
+ const statuses=obsadaPlan.state.importedStatuses.map(r=>({...r,date:r.date,process:r.status,hours:0,sourceType:'status',origin:'import',kind:'status',excluded:obsadaPlan.isExcluded({...r,kind:'status'})}));
  const aggregates=new Map();
  for(const r of obsadaPlan.state.records){
-  const confirmed=!!obsadaPlan.state.confirmations[r.day+'|'+r.shift];
-  const key=[r.day,r.shift,r.login,r.process].join('|');
+  const confirmed=window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow);
+  const key=[r.day,r.shift,r.login,r.process,confirmed?'done':'future'].join('|');
   if(!aggregates.has(key))aggregates.set(key,{date:r.day,shift:r.shift,login:r.login,process:r.process,hours:0,origin:'plan',kind:confirmed?'confirmed':'plan',source:'Planowanie',sourceType:'plan',confirmed});
   aggregates.get(key).hours++;
  }
@@ -90,12 +96,13 @@ const obsadaHistoryEmployees=computed(()=>[...new Set(obsadaHistoryAll.value.map
 const obsadaHistoryProcesses=computed(()=>[...new Set(obsadaHistoryAll.value.filter(r=>r.kind!=='status').map(r=>r.process))].sort());
 const obsadaHistoryFiltered=computed(()=>obsadaHistoryAll.value.filter(r=>{
  const src=obsada.state.source;
- if(src==='plan'&&(r.origin!=='plan'||r.kind!=='plan'))return false;
- if(src==='confirmed'&&r.kind!=='confirmed')return false;
- if(src==='verified'&&(r.kind==='plan'||r.kind==='status'||r.superseded))return false;
+ if(src==='verified'&&(r.kind==='plan'||r.kind==='status'||r.superseded||r.excluded))return false;
  if(src==='import'&&r.origin!=='import')return false;
- if(src==='main'&&r.sourceType!=='main')return false;
- if(src==='other'&&r.sourceType!=='other')return false;
+ if(src==='planning'&&r.origin!=='plan')return false;
+ if(src==='planning'&&obsadaHistoryOptions.planStatus==='confirmed'&&r.kind!=='confirmed')return false;
+ if(src==='planning'&&obsadaHistoryOptions.planStatus==='unconfirmed'&&r.kind!=='plan')return false;
+ if(src==='import'&&obsadaHistoryOptions.sourceDetail!=='all'&&r.sourceType!==obsadaHistoryOptions.sourceDetail)return false;
+ if(r.excluded&&!(src==='import'&&obsadaHistoryOptions.showExcluded))return false;
  if(obsada.state.month&&r.date.slice(0,7)!==obsada.state.month)return false;
  if(obsada.state.employee&&r.login!==obsada.state.employee)return false;
  if(obsada.state.process&&r.process!==obsada.state.process)return false;
@@ -103,20 +110,17 @@ const obsadaHistoryFiltered=computed(()=>obsadaHistoryAll.value.filter(r=>{
 }));
 const obsadaHistoryReport=computed(()=>{
  const filtered=obsadaHistoryFiltered.value;
- const included=filtered.filter(r=>r.kind==='work'||r.kind==='confirmed' || (obsada.state.source==='plan'&&r.kind==='plan') || (obsada.state.source==='all'&&r.kind==='plan'));
- const verified=included.filter(r=>r.kind!=='plan'&&!r.superseded);
- const report=window.ObsadaParser.analyze((obsada.state.source==='all'||obsada.state.source==='verified')?verified:included,{sourceType:''});
- const importedHours=verified.filter(r=>r.origin==='import').reduce((n,r)=>n+r.hours,0);
- const confirmedHours=verified.filter(r=>r.kind==='confirmed').reduce((n,r)=>n+r.hours,0);
- const planHours=included.filter(r=>r.kind==='plan').reduce((n,r)=>n+r.hours,0);
- return {...report,statusCount:filtered.filter(r=>r.kind==='status').length,importedHours,confirmedHours,planHours,verifiedHours:importedHours+confirmedHours};
+ const src=obsada.state.source;
+ const counted=filtered.filter(r=>!r.excluded&&!r.superseded&&r.kind!=='status'&&(src==='planning'||r.kind!=='plan'));
+ const report=window.ObsadaParser.analyze(counted,{sourceType:''});
+ return {...report,statusCount:filtered.filter(r=>r.kind==='status'&&!r.excluded).length,planHours:filtered.filter(r=>r.kind==='plan').reduce((n,r)=>n+r.hours,0),verifiedHours:filtered.filter(r=>r.kind==='work'||r.kind==='confirmed').filter(r=>!r.excluded&&!r.superseded).reduce((n,r)=>n+r.hours,0)};
 });
 const obsadaHistoryTable=computed(()=>obsadaHistoryFiltered.value.slice().sort((a,b)=>b.date.localeCompare(a.date)||a.login.localeCompare(b.login)).slice(0,600));
 const obsadaHistoryMax=computed(()=>obsadaHistoryReport.value.processes[0]?.[1]||1);
 function obsadaHistoryPercent(v){return Math.min(100,Math.max(0,100*Number(v||0)/obsadaHistoryMax.value))+'%';}
-const obsadaHistoryImportedProcessHours=computed(()=>window.ObsadaParser.analyze(obsadaHistoryFiltered.value.filter(r=>r.kind==='work'&&r.origin==='import'),{sourceType:''}).processes);
+const obsadaHistoryImportedProcessHours=computed(()=>window.ObsadaParser.analyze(obsadaHistoryFiltered.value.filter(r=>r.kind==='work'&&r.origin==='import'&&!r.excluded&&!r.superseded),{sourceType:''}).processes);
 const obsadaHistoryPlanProcessHours=computed(()=>window.ObsadaParser.analyze(obsadaHistoryFiltered.value.filter(r=>r.kind==='plan'),{sourceType:''}).processes);
-const obsadaHistoryVerifiedProcessHours=computed(()=>window.ObsadaParser.analyze(obsadaHistoryFiltered.value.filter(r=>(r.kind==='work'||r.kind==='confirmed')&&!r.superseded),{sourceType:''}).processes);
+const obsadaHistoryVerifiedProcessHours=computed(()=>window.ObsadaParser.analyze(obsadaHistoryFiltered.value.filter(r=>(r.kind==='work'||r.kind==='confirmed')&&!r.excluded&&!r.superseded),{sourceType:''}).processes);
 
 
 // SharePoint Bridge: only explicit refresh, downloads through Excel Online.
@@ -2860,6 +2864,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 

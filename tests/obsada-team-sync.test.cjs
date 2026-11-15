@@ -13,7 +13,7 @@ const team={[day+'|'+shift]:[login,'36001119']};
 const history=[{date:'2026-11-01',login,process:'SCALANIE',hours:8,source:'Listopad',sourceType:'main',raw:'SCALANIE (8h)'}];
 const statuses=[{date:'2026-11-02',login,status:'WOLNY',source:'Listopad'}];
 const wb=planner.buildWorkbook(XLSX,records,history,statuses,team);
-assert.deepEqual([...wb.SheetNames].sort(),['PRZYDZIALY','ZMIANY','HISTORIA_IMPORTOWANA','STATUSY','ZESPOLY','STAN_SNAPSHOT','PROCESY_UKRYTE','POTWIERDZENIA','INFO'].sort());
+assert.deepEqual([...wb.SheetNames].sort(),['PRZYDZIALY','ZMIANY','HISTORIA_IMPORTOWANA','STATUSY','ZESPOLY','STAN_SNAPSHOT','PROCESY_UKRYTE','POTWIERDZENIA','WYKLUCZENIA','INFO'].sort());
 const bytes=XLSX.write(wb,{type:'array',bookType:'xlsx'});
 const rt=planner.readDatabase(XLSX,XLSX.read(bytes,{type:'array',cellDates:false}));
 assert.equal(rt.records.length,4);

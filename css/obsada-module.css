@@ -494,3 +494,10 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-confirm-indicator.is-confirmed{background:#39a879}
 #app .obs-confirm-action{padding:8px 13px;border-radius:10px;border:1px solid var(--obs-border);background:var(--obs-accent);color:#fff;font-size:12px;font-weight:700;cursor:pointer}
 #app .obs-confirm-action.is-muted{background:transparent;color:var(--obs-text)}
+
+#app .obs-history-manage{font:inherit;font-size:11px;font-weight:650;padding:6px 10px;border:1px solid var(--obs-border);border-radius:9px;background:transparent;color:var(--obs-text);cursor:pointer;white-space:nowrap}
+#app .obs-history-manage:hover{background:var(--mr-c104,rgba(120,120,120,.09))}
+#app .obs-confirm-indicator.is-partial{background:#d6a14b}
+
+#app .obs-history-bulk{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:9px 0 14px;font-size:12px;font-weight:650;color:var(--obs-text)}
+#app .obs-history-bulk button{border:1px solid var(--obs-border);border-radius:9px;padding:7px 10px;font:inherit;font-size:11px;background:var(--mr-c104,rgba(120,120,120,.07));color:var(--obs-text);cursor:pointer}
