@@ -2,7 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm'),path=require('path');
 const m=require('../js/obsada-planner.js');
 const app=fs.readFileSync(path.resolve(__dirname,'../js/app.js'),'utf8');
-const start=app.indexOf('const obsadaHistoryAll=computed(()=>{');
+const start=app.indexOf('const obsadaUnified=computed(()=>');
 const end=app.indexOf('const obsadaHistoryTable=',start);
 assert.ok(start>0&&end>start);
 const block=app.slice(start,end);
@@ -16,7 +16,7 @@ const analyze=rows=>{const by=new Map();for(const r of rows)by.set(r.process,(by
 const now=m.makeSlots(day,'18-06')[5].start+30*60000;
 const obsadaPlan={state,clockNow:now,isExcluded:()=>false};
 const obsadaHistoryOptions={planStatus:'all',sourceDetail:'all',showExcluded:false};
-const sandbox={obsada,obsadaPlan,obsadaHistoryOptions,computed,window:{ObsadaParser:{analyze},MRObsadaPlanner:m},console};
+const sandbox={obsada,obsadaPlan,obsadaHistoryOptions,obsadaHistoryFocus:{date:'',login:''},computed,window:{ObsadaParser:{analyze},MRObsadaPlanner:m,MRObsadaUnifiedHistory:require('../js/obsada-unified-history.js')},console};
 vm.createContext(sandbox);
 vm.runInContext(block+'\nglobalThis.results={all:obsadaHistoryAll,filtered:obsadaHistoryFiltered,report:obsadaHistoryReport};',sandbox);
 assert.equal(sandbox.results.report.value.hours,14,'6 completed hours including PD3 + 8 imported, no double count');

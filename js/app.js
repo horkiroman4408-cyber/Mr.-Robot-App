@@ -128,46 +128,18 @@ function obsadaHistorySelect(r){const key=obsadaHistoryRowKey(r);const a=obsadaH
 async function obsadaHistoryManage(rows){const result=await obsadaPlan.manageHistoryRows(rows);if(result)obsadaHistoryOptions.selected=[];return result;}
 async function obsadaHistoryManageSelected(){const keys=new Set(obsadaHistoryOptions.selected);return obsadaHistoryManage(obsadaHistoryFiltered.value.filter(r=>keys.has(obsadaHistoryRowKey(r))));}
 Vue.watch(()=>[obsada.state.source,obsada.state.month,obsada.state.employee,obsada.state.process],()=>{obsadaHistoryOptions.selected=[];});
-// Confirmed assignments replace imported history for the same employee / shift-start date
-// in combined totals. Both originals remain accessible under their source filters.
-const obsadaHistoryAll=computed(()=>{
- const local=obsadaPlan.state.importedHistory;
- const historical=local.length?local:(obsada.state.model?.history||[]);
- const confirmedPeople=new Set(obsadaPlan.state.records.filter(r=>window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow)).map(r=>r.day+'|'+r.login));
- const imported=historical.map(r=>({...r,origin:'import',sourceType:r.sourceType||'main',kind:'work',superseded:confirmedPeople.has(r.date+'|'+r.login),excluded:obsadaPlan.isExcluded({...r,kind:'work'})}));
- const historicalStatuses=obsadaPlan.state.importedHistory.length||obsadaPlan.state.importedStatuses.length?obsadaPlan.state.importedStatuses:(obsada.state.model?.statuses||[]);
- const statuses=historicalStatuses.map(r=>({...r,date:r.date,process:r.status,hours:0,sourceType:'status',origin:'import',kind:'status',excluded:obsadaPlan.isExcluded({...r,kind:'status'})}));
- const aggregates=new Map();
- for(const r of obsadaPlan.state.records){
-  const confirmed=window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow);
-  const key=[r.day,r.shift,r.login,r.process,confirmed?'done':'future'].join('|');
-  if(!aggregates.has(key))aggregates.set(key,{date:r.day,shift:r.shift,login:r.login,process:r.process,hours:0,origin:'plan',kind:confirmed?'confirmed':'plan',source:'Planowanie',sourceType:'plan',confirmed});
-  aggregates.get(key).hours++;
- }
- return [...imported,...statuses,...aggregates.values()];
-});
-// A monthly workbook contains day totals but no hourly schedule. It is
-// impossible to infer the uncovered hours, so surface the discrepancy rather
-// than silently counting or inventing them.
-const obsadaHistoryReconciliation=computed(()=>{
- const local=obsadaPlan.state.importedHistory;
- const imported=local.length?local:(obsada.state.model?.history||[]);
- const totals=new Map();
- for(const r of imported){
-  if(obsadaPlan.isExcluded({...r,kind:'work'}))continue;
-  const key=r.date+'|'+r.login;
-  totals.set(key,(totals.get(key)||0)+Number(r.hours||0));
- }
- const confirmed=new Map();
- for(const r of obsadaPlan.state.records){
-  if(!window.MRObsadaPlanner.autoHourConfirmed(r,obsadaPlan.clockNow))continue;
-  const key=r.day+'|'+r.login;
-  confirmed.set(key,(confirmed.get(key)||0)+1);
- }
- return [...totals.entries()].filter(([key,total])=>confirmed.has(key)&&Math.abs(total-confirmed.get(key))>0.001).map(([key,total])=>{
-  const divider=key.indexOf('|');return {date:key.slice(0,divider),login:key.slice(divider+1),imported:total,local:confirmed.get(key),difference:total-confirmed.get(key)};
- }).sort((a,b)=>b.date.localeCompare(a.date)||a.login.localeCompare(b.login));
-});
+// SharePoint is an input to the local Obsada database, not a second set of hours.
+// Keep the original monthly entries in XLSX for auditing and exchanging bases;
+// effective totals use confirmed local hourly assignments when present.
+const obsadaUnified=computed(()=>window.MRObsadaUnifiedHistory.resolve({
+ history:obsadaPlan.state.importedHistory,
+ statuses:obsadaPlan.state.importedStatuses,
+ records:obsadaPlan.state.records,now:obsadaPlan.clockNow,
+ isConfirmed:window.MRObsadaPlanner.autoHourConfirmed,
+ isExcluded:r=>obsadaPlan.isExcluded(r),makeSlots:window.MRObsadaPlanner.makeSlots
+}));
+const obsadaHistoryAll=computed(()=>obsadaUnified.value.rows);
+const obsadaHistoryReconciliation=computed(()=>obsadaUnified.value.discrepancies);
 const obsadaHistoryReconciliationVisible=computed(()=>obsadaHistoryReconciliation.value.filter(r=>(!obsada.state.month||r.date.slice(0,7)===obsada.state.month)&&(!obsada.state.employee||r.login===obsada.state.employee)));
 const obsadaHistoryMonths=computed(()=>[...new Set(obsadaHistoryAll.value.map(r=>r.date.slice(0,7)))].sort().reverse());
 const obsadaHistoryEmployees=computed(()=>[...new Set(obsadaHistoryAll.value.map(r=>r.login))].sort());
@@ -181,6 +153,9 @@ const obsadaHistoryFiltered=computed(()=>obsadaHistoryAll.value.filter(r=>{
  if(src==='planning'&&obsadaHistoryOptions.planStatus==='unconfirmed'&&r.kind!=='plan')return false;
  if(src==='import'&&obsadaHistoryOptions.sourceDetail!=='all'&&r.sourceType!==obsadaHistoryOptions.sourceDetail)return false;
  if(r.excluded&&!(src==='import'&&obsadaHistoryOptions.showExcluded))return false;
+ // In the unified view do not show imported rows that the local base replaced.
+ // Explicit imported-source view and a focused discrepancy remain auditable.
+ if(r.superseded&&src!=='import'&&!(obsadaHistoryFocus.date===r.date&&obsadaHistoryFocus.login===r.login))return false;
  if(obsada.state.month&&r.date.slice(0,7)!==obsada.state.month)return false;
  if(obsada.state.employee&&r.login!==obsada.state.employee)return false;
  if(obsada.state.process&&r.process!==obsada.state.process)return false;

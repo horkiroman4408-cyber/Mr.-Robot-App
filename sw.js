@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.25.0-obsada-history-jump-20261115';
+const CACHE_REVISION = 'v3.25.0-obsada-unified-history-20261116';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -28,6 +28,7 @@ const PRECACHE_URLS = [
   'js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1',
   'js/obsada-planner.js?v=3.25.0-obsada-folder-date-1',
   'js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1',
+  'js/obsada-unified-history.js?v=3.25.0-unified-history-1',
   './',
   'index.html',
   'css/styles.css',
@@ -52,7 +53,7 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/stock-intelligence.js',
-  'js/app.js?v=3.25.0-obsada-history-jump-1',
+  'js/app.js?v=3.25.0-unified-history-1',
   'js/bridge-setup.js?v=3.25.0-bridge-storage-2',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',

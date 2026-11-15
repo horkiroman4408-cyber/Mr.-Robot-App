@@ -29,14 +29,14 @@ assert.equal(created.compareStanPlan(source('PD001','AUDYT'),day,shift,local,new
 
 // Test current History computation with hour totals that cannot be safely combined.
 const app=fs.readFileSync(require('node:path').resolve(__dirname,'../js/app.js'),'utf8');
-const a=app.indexOf('const obsadaHistoryReconciliation=computed(()=>{');
+const a=app.indexOf('const obsadaUnified=computed(()=>');
 const b=app.indexOf('const obsadaHistoryReconciliationVisible=',a);
 assert(a>0&&b>a);
 const confirmedRows=[...Array.from({length:4},(_,slot)=>({day:'2026-11-14',shift:'18-06',slot,login:'PD001',process:'AUDYT'}))];
 const mock={
  computed:fn=>({get value(){return fn();}}),
- obsadaPlan:{state:{importedHistory:[{date:'2026-11-14',login:'PD001',process:'METKI',hours:12,source:'Listopad'}],records:confirmedRows},clockNow:new Date('2026-11-16').getTime(),isExcluded:()=>false},
- obsada:{state:{model:null}},window:{MRObsadaPlanner:root}
+ obsadaPlan:{state:{importedHistory:[{date:'2026-11-14',login:'PD001',process:'METKI',hours:12,source:'Listopad'}],importedStatuses:[],records:confirmedRows},clockNow:new Date('2026-11-16').getTime(),isExcluded:()=>false},
+ obsada:{state:{model:null}},window:{MRObsadaPlanner:root,MRObsadaUnifiedHistory:require('../js/obsada-unified-history.js')}
 };
 vm.runInNewContext(app.slice(a,b)+'this.getDifferences=()=>obsadaHistoryReconciliation.value;',mock);
 const report=mock.getDifferences();
