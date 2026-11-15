@@ -247,26 +247,6 @@ async function obsadaBridgeClearSource(){
  finally{obsadaBridge.setupBusy=false;}
 }
 function documentOpenReportsFolder(){document.dispatchEvent(new CustomEvent('mr-bridge-openreports-folder-pick'));}
-async function obsadaBridgePrepareFolders(){
- if(obsadaBridge.setupBusy)return;
- obsadaBridge.setupBusy=true;obsadaBridge.error='';obsadaBridge.message='';
- try{
-  const result=await spAskBridge('MR_STORAGE_PREPARE',300000);
-  if(!result?.ok)throw Error(result?.error||'BRIDGE_NOT_RESPONDING');
-  obsadaBridge.message=eMsg('Bridge przygotował folder MrRobot oraz pięć podfolderów. Teraz wybierz MrRobot, aby umożliwić zapis bazy.',
-    'Bridge создал MrRobot и пять подпапок. Теперь подключи папку MrRobot для сохранения базы.',
-    'Bridge created MrRobot and five subfolders. Now connect MrRobot to save the database.',
-    'Bridge створив MrRobot і п’ять підпапок. Тепер підключи MrRobot для збереження бази.');
- }catch(e){
-  const code=String(e?.message||e);
-  obsadaBridge.error=code==='STORAGE_DOWNLOAD_PATH_CHANGED'
-   ?eMsg('Przeglądarka zapisała plik poza Downloads/MrRobot. Wyłącz pytanie o lokalizację każdego pobrania i spróbuj ponownie.',
-         'Браузер сохранил файл вне Downloads/MrRobot. Отключи запрос папки для каждого скачивания и повтори.',
-         'Browser redirected the download. Disable Ask where to save each file and retry.',
-         'Браузер змінив папку завантаження. Вимкни запит місця для кожного файлу й повтори.')
-   :spErrorText(code);
- }finally{obsadaBridge.setupBusy=false;}
-}
 async function obsadaBridgeChooseFolder(){
  obsadaBridge.error='';
  try{
@@ -280,7 +260,7 @@ async function obsadaBridgeChooseFolder(){
   const handle=await obsadaPlan.getSharePointFolder();
   if(!handle)throw Error('FOLDER_PERMISSION_REQUIRED');
   await spFolderPut(handle);obsadaBridge.folderName='MrRobot';
-  obsadaBridge.message=eMsg('Foldery MrRobot przygotowane.','Папки MrRobot подготовлены.','MrRobot folders are ready.','Папки MrRobot підготовлені.');
+  obsadaBridge.message=eMsg('Połączono MrRobot i utworzono brakujące podfoldery.','MrRobot подключён, недостающие подпапки созданы.','MrRobot connected; missing subfolders created.','MrRobot підключено, відсутні підпапки створено.');
  }catch(e){if(e?.name!=='AbortError')obsadaBridge.error=spErrorText(e.message);}
 }
 async function obsadaBridgeRefresh(){
@@ -2926,6 +2906,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,obsadaBridgePrepareFolders,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).mount('#app');
 
