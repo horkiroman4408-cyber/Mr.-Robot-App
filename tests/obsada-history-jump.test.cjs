@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const app=fs.readFileSync(path.join(__dirname,'../js/app.js'),'utf8');
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const css=fs.readFileSync(path.join(__dirname,'../css/obsada-module.css'),'utf8');
+const begin=app.indexOf('const obsadaHistoryFocus=reactive(');
+const end=app.indexOf('function obsadaHistoryRowKey',begin);
+assert(begin>0&&end>begin);
+const records=[{date:'2026-11-15',login:'PD000532'},{date:'2026-11-15',login:'PD000980'}];
+let scrolled=null;
+const context={reactive:x=>x,obsada:{state:{source:'verified',month:'',employee:'',process:'AUDYT'}},Vue:{nextTick:async()=>{}},document:{querySelectorAll:()=>records.map(x=>({...{dataset:{historyDate:x.date,historyLogin:x.login}},scrollIntoView:opts=>{scrolled={...x,...opts}}}))}};
+vm.runInNewContext(app.slice(begin,end)+'this.go=obsadaHistoryGoToDiscrepancy;this.focus=obsadaHistoryFocus;',context);
+(async()=>{
+ await context.go({date:'2026-11-15',login:'PD000980'});
+ assert.equal(context.obsada.state.source,'all');assert.equal(context.obsada.state.month,'2026-11');assert.equal(context.obsada.state.employee,'PD000980');assert.equal(context.obsada.state.process,'');assert.equal(scrolled.login,'PD000980');assert.equal(context.focus.login,'PD000980');
+ assert(html.includes('@click="obsadaHistoryGoToDiscrepancy(row)"'));
+ assert(html.includes('class="obs-history-row"'));
+ assert(html.includes('value="all"'));
+ assert(css.includes('obs-history-focused'));
+ console.log('PASS: discrepancy click filters, scrolls, highlights matching employee/date');
+})().catch(e=>{console.error(e);process.exitCode=1});

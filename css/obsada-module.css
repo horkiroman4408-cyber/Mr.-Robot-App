@@ -669,3 +669,10 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .mr-obs-date-native{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;opacity:0;cursor:pointer;font-size:16px!important}
 #app .mr-obs-date-native::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
 #app .mr-obs-date-field:has(input:disabled){opacity:.6;cursor:not-allowed}
+
+/* Jump from discrepancy summary to matching history records. */
+.obsada-module .obs-history-reconciliation-link{display:block;width:100%;padding:3px 7px;margin:1px 0;border:0;border-radius:7px;background:transparent;color:inherit;text-align:left;font:inherit;line-height:1.6;cursor:pointer}
+.obsada-module .obs-history-reconciliation-link:hover,.obsada-module .obs-history-reconciliation-link:focus-visible{background:rgba(185,79,92,.10);color:var(--obs-text,#24242b)}
+.obsada-module .obs-history-reconciliation-link:focus-visible{outline:2px solid #b94f5c;outline-offset:1px}
+.obsada-module .obs-table tr.obs-history-focused>td{background:rgba(185,79,92,.10)}
+.obsada-module .obs-table tr.obs-history-focused>td:first-child{box-shadow:inset 3px 0 #b94f5c}
