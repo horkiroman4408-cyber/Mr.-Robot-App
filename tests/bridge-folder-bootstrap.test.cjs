@@ -9,7 +9,7 @@ const code=source.slice(start,end)+'\n globalThis.prepare=mrPrepareStorage;';
 async function runScenario({moved=false,interrupted=false,failCleanup=false}={}){
   let next=0;const files=new Map(),calls=[],erasures=[];
   const chrome={downloads:{
-    async download(spec){const id=++next;calls.push(spec);files.set(id,{id,filename:'C:/Users/Test/Downloads/'+(moved?'elsewhere':spec.filename),state:interrupted?'interrupted':'complete'});return id},
+    async download(spec){const segments=spec.filename.split('/');if(segments.some(c=>!c||c.startsWith('.')||/[<>:?*]/.test(c)))throw Error('Invalid filename');const id=++next;calls.push(spec);files.set(id,{id,filename:'C:/Users/Test/Downloads/'+(moved?'elsewhere':spec.filename),state:interrupted?'interrupted':'complete'});return id},
     async search({id}){return files.has(id)?[files.get(id)]:[]},
     async removeFile(id){if(failCleanup)throw Error('test cleanup');files.delete(id)},
     async erase({id}){erasures.push(id)}

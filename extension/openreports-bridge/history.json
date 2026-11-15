@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.29",
+      "date": "2026-11-15",
+      "title": {
+        "pl": "Poprawka przygotowania folderów",
+        "ru": "Исправление создания папок",
+        "en": "Folder initialization fix",
+        "uk": "Виправлення створення папок"
+      },
+      "changes": {
+        "pl": [
+          "Naprawiono błąd Invalid filename podczas tworzenia folderów przez Bridge.",
+          "Plik tymczasowy ma teraz nazwę zgodną z zasadami pobierania Edge/Chrome."
+        ],
+        "ru": [
+          "Исправлена ошибка Invalid filename при создании папок через Bridge.",
+          "Временный файл теперь имеет допустимое для Edge/Chrome имя."
+        ],
+        "en": [
+          "Fixed Invalid filename when preparing folders via Bridge.",
+          "Temporary marker now uses a valid filename for Edge/Chrome downloads."
+        ],
+        "uk": [
+          "Виправлено помилку Invalid filename під час створення папок через Bridge.",
+          "Тимчасовий файл тепер має допустиму назву для Edge/Chrome."
+        ]
+      }
+    },
+    {
       "version": "0.3.28",
       "date": "2026-11-15",
       "title": {

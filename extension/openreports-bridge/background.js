@@ -38,7 +38,7 @@ async function mrPrepareStorage(){
     const created=[];
     for(const dirname of MR_STORAGE_DIRS){
       // The marker name is unique to this operation and contains no personal data.
-      const relative=`MrRobot/${dirname}/.mrrobot-folder-init.txt`;
+      const relative=`MrRobot/${dirname}/mrrobot-folder-init.txt`;
       const id=await mrStorageDownloadStarted(relative);
       const item=await mrStorageWaitForDownload(id);
       // Verify Chrome did not redirect this into another directory (e.g. when
