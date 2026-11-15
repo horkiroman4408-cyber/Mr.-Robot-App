@@ -1,0 +1,15 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('fs'),vm=require('vm');
+const planner=require('../js/obsada-planner.js');
+const ctx={console,setTimeout,clearTimeout,Uint8Array,ArrayBuffer,Date};
+vm.runInNewContext(fs.readFileSync(__dirname+'/../js/xlsx.js','utf8'),ctx,{timeout:10000});
+const XLSX=ctx.XLSX;
+const hidden=['AUDYT GEEK'];
+const wb=planner.buildWorkbook(XLSX,[],[],[],{},null,hidden);
+const parsed=planner.readDatabase(XLSX,XLSX.read(XLSX.write(wb,{type:'array',bookType:'xlsx'}),{type:'array'}));
+assert.deepEqual(parsed.hiddenProcesses,hidden);
+assert.equal(parsed.records.length,0);
+const legacy=planner.buildWorkbook(XLSX,[]);delete legacy.Sheets.PROCESY_UKRYTE;legacy.SheetNames=legacy.SheetNames.filter(n=>n!=='PROCESY_UKRYTE');
+assert.equal(planner.readDatabase(XLSX,legacy).hiddenProcesses.length,0,'old DB must remain readable');
+assert.equal(planner.findProcessMatch(['AUDYT','INNE DZIALY'],' audyt '),'AUDYT');
+console.log('PASS process hiding survives XLSX roundtrip, older database loads, process names deduplicated');
