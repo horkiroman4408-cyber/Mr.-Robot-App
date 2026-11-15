@@ -288,7 +288,7 @@
      <div class="obs-plan-sidehead"><h3>{{ eMsg('Zespół zmiany','Команда смены','Shift team','Команда зміни') }}</h3><span>{{ obsadaPlan.team.length }}</span></div>
      <p class="obs-quiet obs-plan-teamhint">{{ eMsg('Dodaj osoby na tę zmianę, a potem przypisz je do procesów.','Добавь людей на эту смену, затем распредели по процессам.','Add people to this shift, then assign them to processes.','Додайте людей до зміни, потім призначте до процесів.') }}</p>
      <div class="obs-team-templates obs-team-templates-compact">
-      <div class="obs-team-template-row"><select v-model="obsadaPlan.state.selectedTemplate" @change="obsadaPlan.state.templateName=obsadaPlan.state.selectedTemplate" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Zapisane zespoły','Сохранённые команды','Saved teams','Збережені команди') }} ({{ obsadaPlan.templateNames.length }})</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name">{{ name }} · {{ obsadaPlan.state.teamTemplates[name].length }}</option></select><button type="button" :disabled="!obsadaPlan.state.selectedTemplate" @click="obsadaPlan.loadTeamTemplate()">{{ eMsg('Dodaj do zmiany','Добавить в смену','Add to shift','Додати до зміни') }}</button></div>
+      <div class="obs-team-template-row"><select v-model="obsadaPlan.state.selectedTemplate" @change="obsadaPlan.loadTeamTemplate()" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Zapisane zespoły','Сохранённые команды','Saved teams','Збережені команди') }} ({{ obsadaPlan.templateNames.length }})</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name">{{ name }} · {{ obsadaPlan.state.teamTemplates[name].length }}</option></select></div>
       <details class="obs-team-template-details"><summary>{{ eMsg('Zarządzaj zapisanymi zespołami','Управление сохранёнными командами','Manage saved teams','Керування збереженими командами') }}</summary>
        <p class="obs-quiet">{{ eMsg('Zapisz skład bieżącej zmiany pod nową nazwą lub aktualizuj istniejący.','Сохрани текущую команду под новым именем или обнови существующую.','Save the current shift roster under a new name or update an existing team.','Збережіть поточний склад під новою назвою або оновіть наявний.') }}</p>
        <div class="obs-team-template-row"><input type="text" v-model="obsadaPlan.state.templateName" maxlength="80" :placeholder="eMsg('Nazwa zespołu','Название команды','Team name','Назва команди')"><button type="button" :disabled="!obsadaPlan.state.templateName.trim() || !obsadaPlan.team.length" @click="obsadaPlan.saveTeamTemplate()">{{ eMsg('Zapisz skład','Сохранить состав','Save roster','Зберегти склад') }}</button></div>
@@ -2783,7 +2783,7 @@
 <script src="js/stock-intelligence.js"></script>
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
-<script src="js/obsada-planner.js?v=3.25.0-obsada-templates-hour-1"></script>
+<script src="js/obsada-planner.js?v=3.25.0-obsada-stan-team-switch-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-period-bars-1"></script>
 <script src="js/app.js?v=3.25.0-obsada-intel-period-bars-1"></script>
 <script src="js/pwa-register.js"></script>

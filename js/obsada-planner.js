@@ -161,8 +161,23 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(existing&&typeof root.confirm==='function'&&!root.confirm(({pl:'Zastąpić zapisany zespół?',ru:'Заменить сохранённую команду?',en:'Replace the saved team?',uk:'Замінити збережену команду?'}[language?.()]||'Zastąpić zapisany zespół?')))return false;
   snapshot('save-template');const key=existing||name;state.teamTemplates={...state.teamTemplates,[key]:[...team.value]};state.selectedTemplate=key;state.templateName=key;await save();return true;
  }
- async function loadTeamTemplate(){const members=state.teamTemplates[state.selectedTemplate];if(!Array.isArray(members)||!members.length)return false;
-  snapshot('load-template');state.shiftTeams={...state.shiftTeams,[teamKey.value]:[...new Set([...(state.shiftTeams[teamKey.value]||[]),...members])]};await save();return true;
+ async function loadTeamTemplate(){
+  // Selecting a different template replaces the shift roster, it does not append.
+  // Assignments for workers outside that roster are never silently discarded.
+  const members=state.teamTemplates[state.selectedTemplate];
+  if(!Array.isArray(members)||!members.length)return false;
+  const next=[...new Set(members.map(norm).filter(Boolean))];
+  const keep=new Set(next);
+  const removed=state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&!keep.has(r.login));
+  if(removed.length&&typeof root.confirm==='function'&&!root.confirm({pl:'Zmiana zespołu usunie przydziały pracowników, których nie ma w nowym szablonie, tylko dla tej zmiany. Kontynuować?',ru:'Смена команды удалит назначения сотрудников, которых нет в новом шаблоне, только для этой смены. Продолжить?',en:'Switching teams will remove this shift’s assignments for workers missing from the new template. Continue?',uk:'Зміна команди видалить призначення працівників поза новим шаблоном лише для цієї зміни. Продовжити?'}[language?.()]||'Replace shift team?')){
+   state.selectedTemplate='';state.templateName='';return false;
+  }
+  snapshot('switch-template');
+  state.shiftTeams={...state.shiftTeams,[teamKey.value]:next};
+  if(removed.length)state.records=state.records.filter(r=>r.day!==state.day||r.shift!==state.shift||keep.has(r.login));
+  if(state.selectedLogin&&!keep.has(state.selectedLogin))state.selectedLogin='';
+  state.templateName=state.selectedTemplate;state.staffFilter='all';state.visibleWorkers=45;
+  await save();return state.status!=='BROWSER_SAVE_FAILED';
  }
  async function deleteTeamTemplate(){const name=state.selectedTemplate;if(!state.teamTemplates[name])return false;
   if(typeof root.confirm==='function'&&!root.confirm(({pl:'Usunąć zapisany zespół? Przydziały zmian pozostaną.',ru:'Удалить сохранённую команду? Назначения смен останутся.',en:'Delete this saved team? Shift assignments will remain.',uk:'Видалити збережену команду? Призначення змін залишаться.'}[language?.()]||'Usunąć zapisany zespół?')))return false;
@@ -228,18 +243,57 @@ function create({reactive,computed,roster,source,sourceName,language}){
   state.error=unknown?`${unknown} wpisów nierozpoznanych w źródle; nie przeniesiono ich automatycznie.`:'';
   await save();return state.status!=='BROWSER_SAVE_FAILED';
  }
+ // STAN contains hourly snapshots, not a historical clock-in record.
+ // On an untouched shift, make the latest populated STAN interval continue until
+ // the next populated interval or shift end. Re-sync must not overwrite manual plans.
+ function planFromStanIntervals(model,day,shift){
+  const slots=makeSlots(day,shift),bySlot=new Map();
+  const timeRx=/^(\d{1,2}):(\d{2})\s*[-–—]\s*(\d{1,2}):(\d{2})$/;
+  for(const iv of model?.intervals||[]){
+   const m=timeRx.exec(norm(iv.label));if(!m||Number(m[1])>23||Number(m[2])>59)continue;
+   const at=`${pad(m[1])}:${pad(m[2])}`;
+   const index=slots.findIndex(slot=>slot.from===at);
+   if(index<0)continue;
+   const people=(iv.people||[]).filter(p=>norm(p.login)&&norm(p.process));
+   if(!people.length)continue; // Blank future columns mean unknown, not an empty shift.
+   bySlot.set(index,people);
+  }
+  if(!bySlot.size)return {records:[],team:[]};
+  const first=Math.min(...bySlot.keys());
+  const team=new Set(),records=[];let current=[];
+  const updated=new Date().toISOString();
+  for(let slot=first;slot<slots.length;slot++){
+   if(bySlot.has(slot))current=bySlot.get(slot);
+   const seen=new Set();
+   for(const person of current){const login=norm(person.login),process=norm(person.process);
+    if(seen.has(login))continue;seen.add(login);team.add(login);
+    records.push({day,shift,slot,login,process,updated});
+   }
+  }
+  return {records,team:[...team]};
+ }
  async function syncFromSharePoint(model,fileName,day,shift){
   if(!model?.intervals||!Array.isArray(model.intervals))throw Error('INVALID_STAN');
   if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!SHIFT_OPTIONS.some(s=>s[0]===shift))throw Error('STAN_DATE_SHIFT_REQUIRED');
-  const snapshot={updatedAt:new Date().toISOString(),day,shift,intervals:model.intervals.map(iv=>({label:norm(iv.label),people:(iv.people||[]).map(p=>({login:norm(p.login),process:norm(p.process)})).filter(p=>p.login&&p.process)}))};
-  const previous=state.stanSnapshot;
-  state.stanSnapshot=snapshot;
+  const stanData={updatedAt:new Date().toISOString(),day,shift,intervals:model.intervals.map(iv=>({label:norm(iv.label),people:(iv.people||[]).map(p=>({login:norm(p.login),process:norm(p.process)})).filter(p=>p.login&&p.process)}))};
+  const previous={stan:state.stanSnapshot,records:state.records,teams:state.shiftTeams};
+  // Initial STAN import only: do not replace user-edited assignments on re-sync.
+  const populated=state.records.some(r=>r.day===day&&r.shift===shift);
+  const seed=populated?{records:[],team:[]}:planFromStanIntervals(model,day,shift);
+  state.stanSnapshot=stanData;
+  if(seed.records.length){
+   snapshot('stan-initial-plan');
+   state.records=[...state.records,...seed.records];
+   state.shiftTeams={...state.shiftTeams,[shiftKey(day,shift)]:seed.team};
+  }
   try{
    const imported=await importFromModel(model,fileName,{silent:true});
    if(!imported){state.error='';await save();}
    if(state.status==='BROWSER_SAVE_FAILED')throw Error('BROWSER_SAVE_FAILED');
+   // Show the shift that was actually imported, not a previously selected shift.
+   if(seed.records.length){state.day=day;state.shift=shift;state.from=0;state.staffFilter='all';}
    return true;
-  }catch(err){state.stanSnapshot=previous;throw err;}
+  }catch(err){state.stanSnapshot=previous.stan;state.records=previous.records;state.shiftTeams=previous.teams;throw err;}
  }
  async function importFromCurrent(){try{return await importFromModel(source(),sourceName?.()||'SharePoint / STAN');}catch(err){state.error=err.message||String(err);return false;}}
  async function importHistoryFile(event){const file=event.target?.files?.[0];if(event.target)event.target.value='';if(!file)return false;try{if(!/\.xlsx?$/i.test(file.name))throw Error('EXPECTED_XLSX');const wb=root.XLSX.read(await file.arrayBuffer(),{type:'array',cellDates:false});const model=root.ObsadaParser.extract(wb,root.XLSX);return await importFromModel(model,file.name);}catch(err){state.error=err.message||String(err);return false;}}

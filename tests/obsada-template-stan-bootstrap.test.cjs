@@ -1,0 +1,51 @@
+'use strict';
+const assert=require('node:assert/strict');
+const p=require('../js/obsada-planner.js');
+const mem=new Map();
+const originals={indexedDB:global.indexedDB,confirm:global.confirm,setInterval:global.setInterval};
+let confirmValue=true;
+global.confirm=()=>confirmValue;
+global.setInterval=()=>1;
+global.indexedDB={open(){
+ const req={result:null};queueMicrotask(()=>{
+  const db={createObjectStore(){},close(){},transaction(){const tx={oncomplete:null,onerror:null,onabort:null};tx.objectStore=()=>({get(key){const r={result:mem.get(key)};queueMicrotask(()=>r.onsuccess?.());return r;},put(value,key){mem.set(key,value);queueMicrotask(()=>tx.oncomplete?.());return {};}});return tx;}};
+  req.result=db;req.onupgradeneeded?.();req.onsuccess?.();
+ });return req;
+}};
+const computed=fn=>({get value(){return fn();}});
+const model={intervals:[{label:'18:00-19:00',people:[{login:'PD1',process:'AUDYT'},{login:'PD2',process:'METKI'}]}],history:[],statuses:[],sheetNames:['STAN'],unexpected:[]};
+(async()=>{
+ const app=p.create({reactive:x=>x,computed,roster:()=>[],source:()=>model,language:()=> 'ru'});
+ await new Promise(r=>setTimeout(r,10));
+ app.state.day='2026-11-15';app.state.shift='18-06';
+ app.state.teamTemplates={'TEAM A':['PD1','PD2'],'TEAM B':['PD3','PD4']};
+ app.state.selectedTemplate='TEAM A';
+ assert.equal(await app.loadTeamTemplate(),true);
+ assert.deepEqual([...app.team.value],['PD1','PD2']);
+ app.state.selectedTemplate='TEAM B';
+ assert.equal(await app.loadTeamTemplate(),true);
+ assert.deepEqual([...app.team.value],['PD3','PD4'],'switching templates replaces staff');
+ app.state.records=[{day:'2026-11-15',shift:'18-06',slot:0,login:'PD3',process:'VAS'}];
+ confirmValue=false;app.state.selectedTemplate='TEAM A';
+ assert.equal(await app.loadTeamTemplate(),false,'cancel destructive roster change');
+ assert.equal(app.state.records.length,1);
+ assert.ok(app.team.value.includes('PD3'));
+ confirmValue=true;app.state.selectedTemplate='TEAM A';
+ assert.equal(await app.loadTeamTemplate(),true);
+ assert.deepEqual([...app.team.value],['PD1','PD2']);
+ assert.equal(app.state.records.length,0,'removed members no longer have shift assignments');
+ const result=await app.syncFromSharePoint(model,'example.xlsx','2026-11-15','18-06');
+ assert.equal(result,true);
+ assert.equal(app.state.records.length,24,'first hour fills each worker across all 12 hours');
+ assert.equal(app.state.records[23].slot,11);
+ assert.deepEqual([...app.team.value],['PD1','PD2']);
+ // A subsequent SharePoint sync must preserve manual editing, even if STAN changed.
+ await app.assign('PD1','NADWE');
+ const edited=app.state.records.find(r=>r.slot===0&&r.login==='PD1');
+ assert.equal(edited.process,'NADWE');
+ const changed={...model,intervals:[{label:'18:00-19:00',people:[{login:'PD1',process:'QC'}]}]};
+ await app.syncFromSharePoint(changed,'example.xlsx','2026-11-15','18-06');
+ assert.equal(app.state.records.find(r=>r.slot===0&&r.login==='PD1').process,'NADWE','manual plan protected');
+ assert.equal(app.state.records.length,24);
+ console.log('PASS: switch saved teams, preserve on cancel, seed first STAN hour through shift, re-sync safe');
+})().catch(e=>{console.error(e);process.exitCode=1;}).finally(()=>{global.indexedDB=originals.indexedDB;global.confirm=originals.confirm;global.setInterval=originals.setInterval;});

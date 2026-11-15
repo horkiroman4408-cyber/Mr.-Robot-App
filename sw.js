@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.25.0-obsada-intel-period-bars-20261115-sp032';
+const CACHE_REVISION = 'v3.25.0-obsada-stan-team-switch-20261115-sp033';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -25,7 +25,7 @@ const PRECACHE_URLS = [
   'css/obsada-module.css?v=3.25.0-obsada-intel-period-bars-1',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.25.0-local-sync-conflict-ui-1',
-  'js/obsada-planner.js?v=3.25.0-obsada-templates-hour-1',
+  'js/obsada-planner.js?v=3.25.0-obsada-stan-team-switch-1',
   'js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-period-bars-1',
   './',
   'index.html',
