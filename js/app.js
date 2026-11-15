@@ -254,7 +254,7 @@ async function obsadaBridgeChooseFolder(){
   const ready=await obsadaPlan.chooseFolder();
   if(!ready){
    const reason=obsadaPlan.state.error;
-   if(reason==='DOWNLOADS_FOLDER_REQUIRED')throw Error(eMsg('Wybierz folder Pobrane, nie MrRobot ani jego podfolder.','Выбери папку «Загрузки», а не MrRobot или его подпапку.','Choose Downloads, not MrRobot or one of its subfolders.','Вибери «Завантаження», а не MrRobot чи його підпапку.'));
+   if(reason==='MRROBOT_FOLDER_REQUIRED')throw Error(eMsg('Wybierz folder Pobrane/MrRobot, nie systemowy folder Pobrane ani SharePoint.','Выбери папку «Загрузки/MrRobot», а не системную «Загрузки» или SharePoint.','Choose Downloads/MrRobot, not the system Downloads folder or SharePoint.','Обери Завантаження/MrRobot, а не системну папку Завантаження чи SharePoint.'));
    throw Error(reason||'FOLDER_PERMISSION_REQUIRED');
   }
   const handle=await obsadaPlan.getSharePointFolder();

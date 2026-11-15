@@ -358,11 +358,11 @@ function create({reactive,computed,roster,source,sourceName,language}){
   try{
    const selected=await root.showDirectoryPicker({id:'mrrobot-storage-root',mode:'readwrite'});
    if(await selected.requestPermission({mode:'readwrite'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
-   // Select Downloads only. MrRobot and its standard subfolders are created
-   // automatically; no need to navigate into an existing MrRobot directory.
+   // Edge blocks directory-picker access to the Downloads system root.
+   // Select the existing MrRobot subfolder directly and create children there.
    const name=selected.name.trim().toLocaleLowerCase();
-   if(!['downloads','pobrane','загрузки','завантаження'].includes(name))throw Error('DOWNLOADS_FOLDER_REQUIRED');
-   const storageRoot=await selected.getDirectoryHandle('MrRobot',{create:true});
+   if(name!=='mrrobot')throw Error('MRROBOT_FOLDER_REQUIRED');
+   const storageRoot=selected;
    await ensureFolders(storageRoot);
    // An existing base in the chosen folder is never silently moved.
    let active=storageRoot;
