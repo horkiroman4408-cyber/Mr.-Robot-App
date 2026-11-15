@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('fs'); const vm=require('vm');
+const p=require('../js/obsada-planner.js');
+const ctx={console,setTimeout,clearTimeout,Uint8Array,ArrayBuffer,Date};
+vm.runInNewContext(fs.readFileSync(__dirname+'/../js/xlsx.js','utf8'),ctx,{timeout:10000});
+const XLSX=ctx.XLSX;
+const stan={day:'2026-11-14',shift:'18-06',updatedAt:'2026-11-15T00:52:00.000Z',intervals:[{label:'18:00-19:00',people:[{login:'PD009361',process:'AUDYT'}]}]};
+const x=p.readDatabase(XLSX,XLSX.read(XLSX.write(p.buildWorkbook(XLSX,[],[],[],{},stan),{type:'array',bookType:'xlsx'}),{type:'array'}));
+assert.equal(x.stan.day,'2026-11-14');
+assert.equal(x.stan.shift,'18-06');
+assert.equal(x.stan.updatedAt,'2026-11-15T00:52:00.000Z');
+assert.notEqual(x.stan.day,x.stan.updatedAt.slice(0,10));
+assert.deepEqual(x.stan.intervals[0].people,[{login:'PD009361',process:'AUDYT'}]);
+// Old STAN_SNAPSHOT column format remains accepted; absence of user-confirmed date stays unknown.
+const old=p.buildWorkbook(XLSX,[],[],[],{},{updatedAt:'2026-11-15T00:52:00.000Z',intervals:stan.intervals});
+old.Sheets.STAN_SNAPSHOT['!ref']='A1:D2';
+const prior=p.readDatabase(XLSX,old);
+assert.equal(prior.stan.day,'');
+assert.equal(prior.stan.shift,'');
+console.log('PASS STAN shift date separate from downloaded timestamp; old files read without guessed date');

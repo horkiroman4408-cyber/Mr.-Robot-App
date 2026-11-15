@@ -180,6 +180,7 @@ async function obsadaBridgeChooseFolder(){
 }
 async function obsadaBridgeRefresh(){
  if(obsadaBridge.busy||obsada.state.loading)return;
+ if(!obsadaPlan.state.stanDate || !obsadaPlan.state.stanShift){obsadaBridge.error=eMsg('Wybierz datę i grafik STAN przed synchronizacją.','Перед синхронизацией выбери дату и график STAN.','Select the STAN date and shift before syncing.','Перед синхронізацією оберіть дату й графік STAN.');return;}
  if(!obsadaBridge.connected){obsadaBridge.error=spErrorText('BRIDGE_NOT_CONNECTED');return;}
  if(!obsadaBridge.sourceConfigured){obsadaBridge.editing=true;obsadaBridge.error=spErrorText('SHAREPOINT_LINK_NOT_SAVED_IN_BRIDGE');return;}
  if(!obsadaBridge.permissionGranted){await obsadaBridgePermissionOpen();return;}
@@ -223,7 +224,7 @@ async function obsadaBridgeRefresh(){
   if(bytes[0]!==80||bytes[1]!==75||bytes[2]!==3||bytes[3]!==4)throw Error('NOT_XLSX');
   const ok=await obsada.loadFile(file,{keepSelection:true});
   if(!ok)throw Error(obsada.state.error||'INVALID_STAN');
-  await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name);
+  await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name,obsadaPlan.state.stanDate,obsadaPlan.state.stanShift);
   obsadaBridge.message=eMsg('SharePoint pobrany. STAN i historia zapisane w bazie przeglądarki; sprawdź osobno stan Excel.','SharePoint обновлён: STAN и история сохранены в браузере. Отдельно проверь запись Excel.','SharePoint refreshed: STAN and history stored locally. Check Excel sync separately.','SharePoint оновлено: STAN та історію збережено локально. Окремо перевірте Excel.');
  }catch(e){obsadaBridge.error=spErrorText(e?.message||e);}
  finally{obsadaBridge.busy=false;}
@@ -233,7 +234,8 @@ async function obsadaManualSyncFile(event){
  obsadaBridge.error='';obsadaBridge.message='';
  const ok=await obsada.loadFile(file,{keepSelection:true});
  if(!ok){obsadaBridge.error=obsada.state.error||'INVALID_XLSX';return;}
- try{await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name);obsadaBridge.message=eMsg('Plik ręczny zsynchronizowany z bazą lokalną.','Файл вручную синхронизирован с локальной базой.','Manual file synchronized locally.','Файл синхронізовано з локальною базою.');}
+ if(!obsadaPlan.state.stanDate || !obsadaPlan.state.stanShift){obsadaBridge.error=eMsg('Wybierz datę i grafik STAN.','Выбери дату и график STAN.','Select STAN date and shift.','Оберіть дату й графік STAN.');return;}
+ try{await obsadaPlan.syncFromSharePoint(obsada.state.model,file.name,obsadaPlan.state.stanDate,obsadaPlan.state.stanShift);obsadaBridge.message=eMsg('Plik ręczny zsynchronizowany z bazą lokalną.','Файл вручную синхронизирован с локальной базой.','Manual file synchronized locally.','Файл синхронізовано з локальною базою.');}
  catch(err){obsadaBridge.error=String(err.message||err);}
 }
 document.addEventListener('mr-openreports-bridge-ready',()=>obsadaBridgeCheck());
