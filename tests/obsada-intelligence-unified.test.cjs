@@ -18,7 +18,7 @@ assert(!html.includes('obs-team-modes'));
 assert(!script.includes('obsadaTeamCompare'));
 assert(script.includes('function obsadaTeamAddTemplate()'));
 assert(css.includes('grid-template-columns:repeat(3,minmax(0,1fr))'));
-assert(sw.includes('v3.25.0-obsada-intel-day-statuses-20261115'));
+assert(sw.includes('v3.25.0-obsada-file-exchange-20261115'));
 console.log('PASS: unified multi/single selector, independent saved teams, compact cards, no experience ranking');
 
 assert(html.includes('obsadaTeamMovePeriod(-1)'));

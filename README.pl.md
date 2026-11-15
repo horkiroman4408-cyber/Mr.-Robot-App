@@ -120,6 +120,8 @@ Obliczenia trzymają się stałych reguł zapisanych w kodzie: to samo wejście 
 
 ---
 
+**Wymiana baz Obsada:** wybierz `Downloads` lub `Downloads/MrRobot` w Baza lokalna / Foldery MrRobot, aby przygotować `OpenReports`, `SharePoint`, `Obsada`, `Import` i `Backup`. Cały plik `MrRobot_Obsada_Baza.xlsx` kolegi można porównać i scalić bez SharePoint, z wyborem w razie konfliktów oraz kopią bezpieczeństwa.
+
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** to jedno rozszerzenie Edge/Chrome z dwiema integracjami: **OpenReports** do raportów WMS i **SharePoint** do ręcznego odświeżania pliku Excel w Obsada. Każda integracja ma osobne uprawnienia i folder pobierania. Ustawisz je w **Mr. Robot → Ustawienia → Bridge → Dostęp i foldery**. Dla SharePoint wklej link do pliku w Obsada, jednorazowo zezwól na dostęp i wybierz `Downloads/MrRobot/SharePoint`; później użyj **Odśwież dane**.

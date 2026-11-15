@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const p=require('../js/obsada-planner.js');
+const sandbox={console,setTimeout,clearTimeout,Uint8Array,ArrayBuffer,Date};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/xlsx.js'),'utf8'),sandbox,{timeout:20000});
+const old={indexedDB:global.indexedDB,showDirectoryPicker:global.showDirectoryPicker,XLSX:global.XLSX,setInterval:global.setInterval};
+const memory=new Map();global.XLSX=sandbox.XLSX;global.setInterval=()=>1;
+const directory=(name)=>({name,dirs:new Map(),files:new Map(),async requestPermission(){return 'granted'},async queryPermission(){return 'granted'},async getDirectoryHandle(n,{create=false}={}){if(!this.dirs.has(n)&&create)this.dirs.set(n,directory(n));if(!this.dirs.has(n))throw Object.assign(Error('not found'),{name:'NotFoundError'});return this.dirs.get(n)},async getFileHandle(n,{create=false}={}){if(!this.files.has(n)&&create){let bytes=null;this.files.set(n,{async createWritable(){return {async write(b){bytes=b},async close(){},async abort(){}}},async getFile(){return {arrayBuffer:async()=>bytes}}})}if(!this.files.has(n))throw Object.assign(Error('not found'),{name:'NotFoundError'});return this.files.get(n)}});
+const downloads=directory('Downloads');global.showDirectoryPicker=async()=>downloads;
+global.indexedDB={open(){const req={};queueMicrotask(()=>{req.result={close(){},createObjectStore(){},transaction(){const tx={};tx.objectStore=()=>({get(k){const r={result:memory.get(k)};queueMicrotask(()=>r.onsuccess?.());return r},put(v,k){memory.set(k,v);queueMicrotask(()=>tx.oncomplete?.());return {}}});return tx}};req.onupgradeneeded?.();req.onsuccess?.()});return req}};
+(async()=>{
+ const app=p.create({reactive:x=>x,computed:f=>({get value(){return f()}}),roster:()=>[],source:()=>null,language:()=> 'ru'});
+ await new Promise(r=>setTimeout(r,15));
+ await app.chooseFolder();
+ const root=downloads.dirs.get('MrRobot');assert.ok(root,'root auto-created in Downloads');
+ assert.equal(app.state.folderName,'MrRobot/Obsada');
+ assert.deepEqual([...root.dirs.keys()].sort(),['Backup','Import','Obsada','OpenReports','SharePoint']);
+ assert.ok(root.dirs.get('Obsada').files.has('MrRobot_Obsada_Baza.xlsx'));
+ assert.equal((await app.getSharePointFolder()).name,'SharePoint');
+ console.log('PASS: one folder selection prepares all directories and routes base into Obsada');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{Object.assign(global,old)});

@@ -248,17 +248,14 @@ async function obsadaBridgeClearSource(){
 }
 function documentOpenReportsFolder(){document.dispatchEvent(new CustomEvent('mr-bridge-openreports-folder-pick'));}
 async function obsadaBridgeChooseFolder(){
- // Direct user click is required by File System Access API.
  obsadaBridge.error='';
  try{
-  if(typeof window.showDirectoryPicker!=='function')throw Error('FOLDER_ACCESS_UNSUPPORTED');
-  const handle=await window.showDirectoryPicker({id:'mrrobot-sharepoint',mode:'read'});
-  if(handle.name.toLowerCase()!=='sharepoint')throw Error('WYBIERZ_FOLDER_MRROBOT_SHAREPOINT');
-  if(handle.queryPermission&&await handle.queryPermission({mode:'read'})!=='granted'){
-   if(!handle.requestPermission||await handle.requestPermission({mode:'read'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
-  }
+  // Keep the folder picker in the original click call stack (transient activation).
+  await obsadaPlan.chooseFolder();
+  const handle=await obsadaPlan.getSharePointFolder();
+  if(!handle)throw Error('FOLDER_PERMISSION_REQUIRED');
   await spFolderPut(handle);obsadaBridge.folderName=handle.name;
-  obsadaBridge.message=eMsg('Folder połączony.','Папка подключена.','Folder connected.','Папку підключено.');
+  obsadaBridge.message=eMsg('Foldery MrRobot przygotowane.','Папки MrRobot подготовлены.','MrRobot folders are ready.','Папки MrRobot підготовлені.');
  }catch(e){if(e?.name!=='AbortError')obsadaBridge.error=spErrorText(e.message);}
 }
 async function obsadaBridgeRefresh(){
@@ -270,12 +267,10 @@ async function obsadaBridgeRefresh(){
  obsadaBridge.busy=true;obsadaBridge.error='';obsadaBridge.message='';
  try{
   // Request the folder in the click call stack, before awaiting the extension.
-  let handle=spCachedFolder;
+  let handle=spCachedFolder || await obsadaPlan.getSharePointFolder();
+  if(handle && !spCachedFolder)await spFolderPut(handle);
   if(!handle){
-   if(typeof window.showDirectoryPicker!=='function')throw Error('FOLDER_ACCESS_UNSUPPORTED');
-   handle=await window.showDirectoryPicker({id:'mrrobot-sharepoint',mode:'read'});
-   if(handle.name.toLowerCase()!=='sharepoint')throw Error('WYBIERZ_FOLDER_MRROBOT_SHAREPOINT');
-   await spFolderPut(handle);
+   throw Error(eMsg('Najpierw przygotuj foldery MrRobot przez Folder SharePoint.','Сначала создай папки MrRobot кнопкой «Папка SharePoint».','First set up MrRobot folders with the SharePoint folder button.','Спочатку підготуйте папки MrRobot кнопкою «Папка SharePoint».'));
   }
   if(handle.queryPermission && await handle.queryPermission({mode:'read'})!=='granted'){
    if(!handle.requestPermission||await handle.requestPermission({mode:'read'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');

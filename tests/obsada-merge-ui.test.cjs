@@ -1,0 +1,24 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const p=require('../js/obsada-planner.js');const merge=require('../js/obsada-merge.js');
+const ctx={console,setTimeout,clearTimeout,Uint8Array,ArrayBuffer,Date};
+vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../js/xlsx.js'),'utf8'),ctx,{timeout:12000});
+const previous={indexedDB:global.indexedDB,showDirectoryPicker:global.showDirectoryPicker,XLSX:global.XLSX,MRObsadaMerge:global.MRObsadaMerge,setInterval:global.setInterval};
+const memory=new Map();global.XLSX=ctx.XLSX;global.MRObsadaMerge=merge;global.setInterval=()=>1;
+const directory=name=>({name,dirs:new Map(),files:new Map(),async requestPermission(){return 'granted'},async queryPermission(){return 'granted'},async getDirectoryHandle(n,{create=false}={}){if(!this.dirs.has(n)&&create)this.dirs.set(n,directory(n));if(!this.dirs.has(n))throw Object.assign(Error('missing'),{name:'NotFoundError'});return this.dirs.get(n)},async getFileHandle(n,{create=false}={}){if(!this.files.has(n)&&create){const file={bytes:null,async createWritable(){return {write:async b=>{file.bytes=b},close:async()=>{},abort:async()=>{}}},async getFile(){return {arrayBuffer:async()=>file.bytes}}};this.files.set(n,file)}if(!this.files.has(n))throw Object.assign(Error('missing'),{name:'NotFoundError'});return this.files.get(n)}});
+const root=directory('MrRobot');global.showDirectoryPicker=async()=>root;
+global.indexedDB={open(){const req={};queueMicrotask(()=>{req.result={createObjectStore(){},close(){},transaction(){const tx={};tx.objectStore=()=>({get(k){const r={result:memory.get(k)};queueMicrotask(()=>r.onsuccess?.());return r},put(v,k){memory.set(k,v);queueMicrotask(()=>tx.oncomplete?.());return {}}});return tx}};req.onupgradeneeded?.();req.onsuccess?.()});return req}};
+const row={day:'2026-11-13',shift:'18-06',slot:0,login:'PD15',process:'METKI',updated:'2026-11-14T02:00:00Z'};
+(async()=>{
+ const app=p.create({reactive:x=>x,computed:f=>({get value(){return f()}}),roster:()=>[],source:()=>null,language:()=> 'ru'});
+ await new Promise(r=>setTimeout(r,15));await app.chooseFolder();
+ const wb=p.buildWorkbook(ctx.XLSX,[row],[],[{date:'2026-11-12',login:'PD15',status:'URLOP',source:'Listopad'}]);
+ const bytes=ctx.XLSX.write(wb,{type:'array',bookType:'xlsx'});
+ await app.previewColleagueFile({target:{files:[{name:'MrRobot_Obsada_Baza.xlsx',size:bytes.byteLength,arrayBuffer:async()=>bytes}]}});
+ assert.ok(app.state.mergePreview);assert.equal(app.state.mergePreview.counts.newAssignments,1);
+ assert.equal(await app.applyColleagueMerge(),true,app.state.error);
+ assert.equal(app.state.records.length,1);assert.equal(app.state.importedStatuses[0].status,'URLOP');
+ assert.equal(root.dirs.get('Backup').files.size,1);assert.equal(root.dirs.get('Import').files.size,1);
+ assert.ok(root.dirs.get('Obsada').files.has('MrRobot_Obsada_Baza.xlsx'));
+ console.log('PASS: XLSX colleague import, review, backup, source preservation and local persistence');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{Object.assign(global,previous)});

@@ -120,6 +120,8 @@ The calculations follow fixed rules defined in code, so the same input produces 
 
 ---
 
+**Obsada local database exchange:** choose `Downloads` or `Downloads/MrRobot` in Local Database / MrRobot folders to create `OpenReports`, `SharePoint`, `Obsada`, `Import` and `Backup`. A colleague’s full `MrRobot_Obsada_Baza.xlsx` can be previewed and merged without SharePoint; each conflict is reviewed, the previous local database is backed up and the incoming file is retained. Existing databases remain readable.
+
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** is one optional Edge/Chrome extension with two integrations: **OpenReports** for WMS reports and **SharePoint** for refreshing the Obsada Excel workbook manually. Each integration uses its own access permissions and download folder. Configure both under **Mr. Robot → Settings → Bridge → Access and folders**. For SharePoint, paste the Excel share link in Obsada, grant permission once and choose `Downloads/MrRobot/SharePoint`; later use **Refresh data**.

@@ -120,6 +120,8 @@ Mr. Robot — браузерное приложение для работы со
 
 ---
 
+**Обмен базами Obsada:** выбери `Downloads` или `Downloads/MrRobot` через «Локальная база / Папки MrRobot», чтобы создать `OpenReports`, `SharePoint`, `Obsada`, `Import` и `Backup`. Полный `MrRobot_Obsada_Baza.xlsx` коллеги можно сравнить и объединить без SharePoint; конфликты рассматриваются отдельно, перед объединением создаётся резервная копия.
+
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** — одно расширение Edge/Chrome с двумя интеграциями: **OpenReports** для отчётов WMS и **SharePoint** для ручного обновления Excel в Obsada. У каждого подключения свои разрешения и папка загрузки. Настройка находится в **Mr. Robot → Настройки → Bridge → Доступ и папки**. Для SharePoint вставь ссылку на Excel в Obsada, один раз разреши доступ и выбери `Downloads/MrRobot/SharePoint`; далее нажимай **Odśwież dane**.

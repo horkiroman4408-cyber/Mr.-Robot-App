@@ -634,3 +634,13 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-track{height:5px;margin-top:4px;background:var(--obs-soft);border-radius:10px;overflow:hidden}
 #app .obs-team-intel-track span{display:block;height:100%;border-radius:10px;background:var(--obs-accent)}
 @media(max-width:650px){#app .obs-team-intel-calendar-nav{width:100%;min-width:0}}
+
+/* Full local Obsada database exchange, isolated from other modules. */
+.obs-merge-panel{border-top:1px solid var(--obs-border,rgba(110,120,130,.2));padding-top:15px;margin-top:15px;display:grid;gap:10px}
+.obs-merge-upload{display:inline-flex;max-width:max-content}
+.obs-merge-review{display:grid;gap:10px;padding:13px;border:1px solid var(--obs-border,rgba(120,120,120,.25));border-radius:13px}
+.obs-merge-stats{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;opacity:.85}
+.obs-merge-conflicts{display:grid;gap:6px;max-height:270px;overflow:auto}
+.obs-merge-conflict{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 9px;background:rgba(125,125,125,.06);border-radius:8px;font-size:12px}
+.obs-merge-conflict>span{min-width:0;overflow-wrap:anywhere}
+.obs-merge-conflict select{min-width:130px;max-width:48%;padding:5px;border-radius:7px;border:1px solid var(--obs-border,rgba(120,120,120,.3));background:var(--obs-surface,#fff);color:inherit}
