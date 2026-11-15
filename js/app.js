@@ -40,6 +40,30 @@ async function openSettingsMemory(){
 
 const obsada=reactive(window.createMrObsada({reactive,computed,markRaw}));
 const obsadaPlan=reactive(window.MRObsadaPlanner.create({reactive,computed,roster:()=>employeeRoster.value,source:()=>obsada.state.model,sourceName:()=>obsada.state.fileName,language:()=>uiLanguage.value}));
+// Remember the last chosen Obsada (read-only staffing) date, shift and hour.
+// Planning uses the same underlying selection controls, but must not replace the
+// staffing-view preference when the user works on another date or shift.
+const OBSADA_VIEW_PREF_KEY='mrrobot-obsada-view-selection-v1';
+function restoreObsadaViewSelection(){
+ let saved;
+ try{saved=JSON.parse(window.localStorage.getItem(OBSADA_VIEW_PREF_KEY)||'null');}catch(_){return;}
+ if(!saved||typeof saved!=='object')return;
+ if(typeof saved.day==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(saved.day)&&!Number.isNaN(Date.parse(saved.day+'T00:00:00')))obsadaPlan.state.day=saved.day;
+ if(typeof saved.shift==='string'&&obsadaPlan.shifts.some(s=>s.value===saved.shift))obsadaPlan.state.shift=saved.shift;
+ const length=obsadaPlan.slots.length;
+ if(Number.isInteger(saved.from)&&saved.from>=0&&saved.from<length)obsadaPlan.state.from=saved.from;
+ else if(obsadaPlan.state.from>=length)obsadaPlan.state.from=0;
+ obsadaPlan.state.to=obsadaPlan.state.from+1;
+}
+restoreObsadaViewSelection();
+Vue.watch(()=>obsada.state.tab,tab=>{
+ if(tab==='today')restoreObsadaViewSelection();
+},{flush:'sync'});
+Vue.watch(()=>[obsadaPlan.state.day,obsadaPlan.state.shift,obsadaPlan.state.from],([day,shift,from])=>{
+ if(obsada.state.tab!=='today'||!/^\d{4}-\d{2}-\d{2}$/.test(day)||!obsadaPlan.shifts.some(s=>s.value===shift)||!Number.isInteger(from)||from<0||from>=obsadaPlan.slots.length)return;
+ try{window.localStorage.setItem(OBSADA_VIEW_PREF_KEY,JSON.stringify({day,shift,from}));}catch(_){/* Read-only view still works without persistent storage. */}
+},{immediate:true,flush:'post'});
+
 // Warn when local changes are not yet synchronized to the user's Excel file.
 window.addEventListener('beforeunload',event=>{if(obsadaPlan.state.dirty||obsadaPlan.state.busy||obsadaPlan.state.status==='BROWSER_SAVE_FAILED'){event.preventDefault();event.returnValue='';}});
 // Local Obsada history: imported verified monthly hours and unverified planned hours are never merged into a single factual total.
