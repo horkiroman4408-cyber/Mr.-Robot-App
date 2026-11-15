@@ -659,3 +659,13 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obs-history-reconciliation-rows{max-height:170px;overflow:auto;font-size:12px;line-height:1.8}
 .obs-intel-reconcile-note{margin:8px 0;color:inherit}
 @media(max-width:600px){.obs-stan-review-row{align-items:stretch;flex-direction:column;gap:5px}.obs-stan-review-row select{max-width:100%;width:100%}}
+
+/* Obsada compact locale-independent day.month.year fields, native calendar still available. */
+#app .mr-obs-date-field{display:flex;align-items:center;position:relative;width:100%;min-width:0;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:10px;color:var(--obs-text);height:40px;overflow:hidden}
+#app .mr-obs-date-field:focus-within{border-color:var(--obs-accent,#b94f5c);box-shadow:0 0 0 2px color-mix(in srgb,var(--obs-accent,#b94f5c) 13%,transparent)}
+#app .mr-obs-date-field .mr-obs-date-text{min-width:0;flex:1;width:calc(100% - 38px);height:100%;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:8px 6px 8px 11px!important;color:inherit!important;font-size:12px!important}
+#app .mr-obs-date-field .mr-obs-date-text[aria-invalid="true"]{color:#b83b50!important}
+#app .mr-obs-date-picker{display:grid;place-items:center;width:38px;min-width:38px;height:100%;position:relative;color:var(--obs-muted,var(--obs-text));border-left:1px solid var(--obs-border);cursor:pointer}
+#app .mr-obs-date-native{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;margin:0!important;padding:0!important;border:0!important;opacity:0;cursor:pointer;font-size:16px!important}
+#app .mr-obs-date-native::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+#app .mr-obs-date-field:has(input:disabled){opacity:.6;cursor:not-allowed}

@@ -10,6 +10,44 @@ function pickMedianByQty(rows){if(!rows||rows.length===0)return null;const sorte
 function pickToteByStrategy(rows,strategy){if(!rows||rows.length===0)return null;const sorted=[...rows].sort((a,b)=>a.qty-b.qty);if(strategy==='min')return sorted[0];const mid=Math.floor((sorted.length-1)/2);return sorted[mid];}
 function hasReservation(r){return r.qtyAvailable!==null||r.qtyReserved!==null;}
 
+// Fixed Polish-style display for Obsada dates, independent of Edge/Windows locale.
+// The model always remains ISO YYYY-MM-DD; no change to shift or hour calculations.
+function mrObsadaDateFormat(iso){
+ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso||''));
+ return m?`${m[3]}.${m[2]}.${m[1]}`:'';
+}
+function mrObsadaDateParse(value){
+ const m=/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/.exec(String(value||'').trim());
+ if(!m)return null;
+ const day=Number(m[1]),month=Number(m[2]),year=Number(m[3]);
+ if(year<1000||year>9999)return null;
+ const date=new Date(year,month-1,day,12);
+ if(date.getFullYear()!==year||date.getMonth()!==month-1||date.getDate()!==day)return null;
+ return `${m[3]}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+const mrObsadaDateField={
+ props:{modelValue:{type:String,default:''},disabled:{type:Boolean,default:false}},
+ emits:['update:modelValue'],
+ setup(props,{emit}){
+  const draft=Vue.ref(mrObsadaDateFormat(props.modelValue));
+  const invalid=Vue.ref(false);
+  Vue.watch(()=>props.modelValue,v=>{draft.value=mrObsadaDateFormat(v);invalid.value=false;});
+  function commit(){
+   const parsed=mrObsadaDateParse(draft.value);
+   if(parsed){invalid.value=false;draft.value=mrObsadaDateFormat(parsed);if(parsed!==props.modelValue)emit('update:modelValue',parsed);}
+   else{invalid.value=true;draft.value=mrObsadaDateFormat(props.modelValue);}
+  }
+  function fromCalendar(event){
+   const value=event.target.value;
+   if(/^\d{4}-\d{2}-\d{2}$/.test(value)){invalid.value=false;draft.value=mrObsadaDateFormat(value);emit('update:modelValue',value);}
+  }
+  return {draft,invalid,commit,fromCalendar};
+ },
+ template:`<span class="mr-obs-date-field">
+  <input class="mr-obs-date-text" type="text" inputmode="numeric" autocomplete="off" placeholder="dd.mm.rrrr" aria-label="dd.mm.yyyy" :aria-invalid="invalid" :disabled="disabled" v-model="draft" @blur="commit" @keydown.enter.prevent="commit" maxlength="10">
+  <span class="mr-obs-date-picker"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M7.5 3v5m9-5v5M3.5 10h17"/></svg><input type="date" class="mr-obs-date-native" :value="modelValue" :disabled="disabled" @change="fromCalendar" aria-label="Choose date from calendar" title="Choose date from calendar"></span>
+ </span>`
+};
 const{createApp,ref,reactive,computed,watch,markRaw}=Vue;
 createApp({setup(){
 
@@ -2931,5 +2969,5 @@ stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTog
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
 kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
-}}).mount('#app');
+}}).component('mr-obsada-date',mrObsadaDateField).mount('#app');
 

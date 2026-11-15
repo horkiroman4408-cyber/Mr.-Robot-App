@@ -436,11 +436,12 @@ function create({reactive,computed,roster,source,sourceName,language}){
   try{
    const selected=await root.showDirectoryPicker({id:'mrrobot-storage-root',mode:'readwrite'});
    if(await selected.requestPermission({mode:'readwrite'})!=='granted')throw Error('FOLDER_PERMISSION_REQUIRED');
-   // Select Downloads only. MrRobot and its standard subfolders are created
-   // automatically; no need to navigate into an existing MrRobot directory.
+   // Edge does not grant website access to the system Downloads folder.
+   // The user creates Downloads/MrRobot once, then selects that subfolder.
+   // Never require, or create directories under, the protected Downloads root.
    const name=selected.name.trim().toLocaleLowerCase();
-   if(!['downloads','pobrane','загрузки','завантаження'].includes(name))throw Error('DOWNLOADS_FOLDER_REQUIRED');
-   const storageRoot=await selected.getDirectoryHandle('MrRobot',{create:true});
+   if(name!=='mrrobot')throw Error('MRROBOT_FOLDER_REQUIRED');
+   const storageRoot=selected;
    await ensureFolders(storageRoot);
    // An existing base in the chosen folder is never silently moved.
    let active=storageRoot;
@@ -448,6 +449,8 @@ function create({reactive,computed,roster,source,sourceName,language}){
    folderHandle=active;state.folderName=storageRoot.name+(active===storageRoot?'':'/Obsada');
    await put('folder',active);await put('storageRoot',storageRoot);
    await syncIfAllowed(true);
+   if(state.status==='FOLDER_PERMISSION_REQUIRED'||state.status==='XLSX_FAILED')throw Error(state.status);
+   state.error='';
    return true;
   }catch(err){if(err?.name!=='AbortError')state.error=err.message||String(err);return false;}
  }

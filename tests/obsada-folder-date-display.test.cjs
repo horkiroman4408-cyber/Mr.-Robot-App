@@ -1,0 +1,31 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const planner=fs.readFileSync(path.join(root,'js/obsada-planner.js'),'utf8');
+const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'css/obsada-module.css'),'utf8');
+const start=app.indexOf('function mrObsadaDateFormat('),end=app.indexOf('const mrObsadaDateField=',start);
+assert(start>=0&&end>start);
+const dates=vm.runInNewContext(app.slice(start,end)+'\n({format:mrObsadaDateFormat,parse:mrObsadaDateParse})');
+assert.equal(dates.format('2026-11-15'),'15.11.2026');
+assert.equal(dates.parse('15.11.2026'),'2026-11-15');
+assert.equal(dates.parse('1.2.2028'),'2028-02-01');
+assert.equal(dates.parse('29.02.2028'),'2028-02-29');
+for(const invalid of ['29.02.2027','31.04.2026','11/15/2026','01.13.2026',''])assert.equal(dates.parse(invalid),null);
+assert(planner.includes("if(name!=='mrrobot')throw Error('MRROBOT_FOLDER_REQUIRED')"));
+assert(!planner.includes('DOWNLOADS_FOLDER_REQUIRED'));
+assert(planner.includes('const storageRoot=selected;'));
+for(const name of ['OpenReports','SharePoint','Obsada','Import','Backup'])assert(planner.includes("'"+name+"'"));
+for(const binding of ['obsadaPlan.state.day','obsadaPlan.state.stanDate','obsadaTeam.from','obsadaTeam.to']){
+ assert(html.includes('<mr-obsada-date v-model="'+binding+'"'));
+ assert(!html.includes('<input type="date" v-model="'+binding+'"'));
+}
+assert(app.includes(".component('mr-obsada-date',mrObsadaDateField).mount('#app')"));
+assert(css.includes('.mr-obs-date-native'));
+assert(sw.includes('v3.25.0-obsada-folder-date-20261115'));
+console.log('PASS: selecting MrRobot, creating 5 folders, fixed dd.mm.yyyy with picker, leap-year parsing, PWA revision');

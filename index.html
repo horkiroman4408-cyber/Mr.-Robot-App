@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-stan-review-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-obsada-folder-date-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -212,7 +212,7 @@
     <div class="obs-quiet">{{ obsadaPlan.state.stanSnapshot?.updatedAt?eMsg('STAN · data zmiany','STAN · дата смены','STAN · shift date','STAN · дата зміни')+': '+(obsadaPlan.state.stanSnapshot.day||eMsg('Nieokreślona','Не указана','Not specified','Не вказана'))+' · '+eMsg('Pobrano','Получен','Downloaded','Отримано')+': '+new Date(obsadaPlan.state.stanSnapshot.updatedAt).toLocaleString():eMsg('Brak zsynchronizowanego STAN','Нет сохранённого STAN','No synchronized STAN','Немає синхронізованого STAN') }} · {{ obsadaPlan.state.importedHistory.length }} {{ eMsg('wpisów historii','записей истории','history records','записів історії') }}</div>
    </div>
    <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
-    <label>{{ eMsg('STAN · data zmiany','STAN · дата смены','STAN · shift date','STAN · дата зміни') }}<input type="date" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy" required></label>
+    <label>{{ eMsg('STAN · data zmiany','STAN · дата смены','STAN · shift date','STAN · дата зміни') }}<mr-obsada-date v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
     <label>{{ eMsg('Grafik STAN','График STAN','STAN shift','Графік STAN') }}<select v-model="obsadaPlan.state.stanShift" :disabled="obsadaBridge.busy" required><option value="" disabled>{{ eMsg('Wybierz','Выбрать','Select','Оберіть') }}</option><option v-for="opt in obsadaPlan.shifts" :key="opt.value" :value="opt.value">{{ opt.label }}</option></select></label>
    </div>
    <div class="obs-share-sync-actions">
@@ -281,7 +281,7 @@
  <template v-if="obsada.state.tab==='today'">
  <section class="obs-surface obs-local-view">
   <div class="obs-headline"><div><h2 class="obs-section-title">{{ eMsg('Obsada · zapis lokalny','Расстановка · локальная база','Staffing · local database','Розподіл · локальна база') }}</h2><p class="obs-quiet">{{ eMsg('Odczyt bez edycji. Zmiany wprowadzaj w Planowanie.','Только просмотр. Изменения вноси в Планировании.','Read-only. Edit assignments in Planning.','Лише перегляд. Змінюйте у Плануванні.') }}</p></div><span class="obs-pill">{{ obsadaPlan.readonlyRoster.origin==='plan'?eMsg('Plan lokalny · niepotwierdzony','Локальный план · не подтверждён','Local plan · unverified','Локальний план · непідтверджений'):obsadaPlan.readonlyRoster.origin==='stan'?eMsg('Ostatni STAN SharePoint','Последний STAN SharePoint','Latest SharePoint STAN','Останній STAN SharePoint'):eMsg('Brak danych','Нет данных','No data','Немає даних') }}</span></div>
-  <div class="obs-plan-fields"><label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<input type="date" v-model="obsadaPlan.state.day"></label><label>{{ eMsg('Grafik','График','Schedule','Графік') }}<select v-model="obsadaPlan.state.shift" @change="obsadaPlan.state.from=0;obsadaPlan.state.to=1"><option v-for="item in obsadaPlan.shifts" :key="item.value" :value="item.value">{{ item.label }}</option></select></label></div>
+  <div class="obs-plan-fields"><label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<mr-obsada-date v-model="obsadaPlan.state.day"></mr-obsada-date></label><label>{{ eMsg('Grafik','График','Schedule','Графік') }}<select v-model="obsadaPlan.state.shift" @change="obsadaPlan.state.from=0;obsadaPlan.state.to=1"><option v-for="item in obsadaPlan.shifts" :key="item.value" :value="item.value">{{ item.label }}</option></select></label></div>
   <div class="obs-plan-hourstrip"><button type="button" v-for="slot in obsadaPlan.slots" :key="slot.start" :class="{active:obsadaPlan.state.from===slot.index}" @click="obsadaPlan.state.from=slot.index;obsadaPlan.state.to=slot.index+1">{{ slot.from }}</button></div>
   <div class="obs-today-stats"><div class="obs-today-stat"><strong>{{ obsadaPlan.readonlyRoster.count }}</strong><small>{{ eMsg('Pracownicy w wybranej godzinie','Сотрудники в выбранный час','Workers in selected hour','Працівники в обрану годину') }}</small></div><div class="obs-today-stat"><strong>{{ obsadaPlan.readonlyRoster.groups.length }}</strong><small>{{ eMsg('Aktywne procesy','Активные процессы','Active processes','Активні процеси') }}</small></div></div>
   <p v-if="obsadaPlan.readonlyRoster.origin==='empty'" class="obs-quiet">{{ eMsg('Brak przydziałów na ten dzień i godzinę. Otwórz Planowanie. STAN pokazuje tylko aktualny dzień synchronizacji.','Нет назначений на выбранный час. Открой Планирование. STAN показывается только за день синхронизации.','No assignments for this hour. Open Planning. STAN snapshot applies only to the sync day.','Немає призначень. Відкрийте Планування. STAN лише за день синхронізації.') }}</p>
@@ -296,7 +296,7 @@
    </div>
    <div class="obs-plan-controlbar">
     <div class="obs-plan-controls-row">
-     <div class="obs-plan-fields"><label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<input type="date" v-model="obsadaPlan.state.day"></label><label>{{ eMsg('Grafik','График','Schedule','Графік') }}<select v-model="obsadaPlan.state.shift" @change="obsadaPlan.state.from=0;obsadaPlan.state.to=1"><option v-for="item in obsadaPlan.shifts" :key="item.value" :value="item.value">{{ item.label }}</option></select></label></div>
+     <div class="obs-plan-fields"><label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<mr-obsada-date v-model="obsadaPlan.state.day"></mr-obsada-date></label><label>{{ eMsg('Grafik','График','Schedule','Графік') }}<select v-model="obsadaPlan.state.shift" @change="obsadaPlan.state.from=0;obsadaPlan.state.to=1"><option v-for="item in obsadaPlan.shifts" :key="item.value" :value="item.value">{{ item.label }}</option></select></label></div>
      <div class="obs-plan-statsline" aria-live="polite"><span>{{ eMsg('W zespole','В команде','On shift team','У команді') }} <strong>{{ obsadaPlan.team.length }}</strong></span><span>{{ eMsg('Przydzieleni','Назначены','Assigned','Призначено') }} <strong>{{ obsadaPlan.currentPeopleCount }}</strong></span><span>{{ eMsg('Wolni','Свободные','Available','Вільні') }} <strong>{{ obsadaPlan.teamFree.length }}</strong></span></div>
     </div>
     <div class="obs-plan-hourstrip obs-plan-hourstrip-edit" role="group" :aria-label="eMsg('Wybierz godzinę','Выбрать час','Select hour','Виберіть годину')"><button type="button" v-for="slot in obsadaPlan.slots" :key="slot.start" :class="{active:obsadaPlan.state.from===slot.index,passed:slot.end<=obsadaPlan.clockNow}" :aria-pressed="obsadaPlan.state.from===slot.index" @click="obsadaPlan.state.from=slot.index;obsadaPlan.state.to=slot.index+1"><span>{{ slot.from }}</span><span class="obs-plan-hour-mark" aria-hidden="true">{{ slot.end<=obsadaPlan.clockNow?'✓':'' }}</span></button></div>
@@ -352,7 +352,7 @@
     <div class="obs-team-intel-range obs-team-intel-calendar">
      <div class="obs-team-intel-presets" role="group" :aria-label="eMsg('Zakres analizy','Период анализа','Analysis period','Період аналізу')"><button type="button" :class="{active:obsadaTeam.preset==='week'}" @click="obsadaTeamPreset('week')">{{ eMsg('Tydzień','Неделя','Week','Тиждень') }}</button><button type="button" :class="{active:obsadaTeam.preset==='month'}" @click="obsadaTeamPreset('month')">{{ eMsg('Miesiąc','Месяц','Month','Місяць') }}</button><button type="button" :class="{active:obsadaTeam.preset==='custom'}" @click="obsadaTeamPreset('custom')">{{ eMsg('Własny okres','Свой период','Custom range','Свій період') }}</button></div>
      <div v-if="obsadaTeam.preset!=='custom'" class="obs-team-intel-calendar-nav"><button type="button" @click="obsadaTeamMovePeriod(-1)" :aria-label="eMsg('Poprzedni okres','Предыдущий период','Previous period','Попередній період')">‹</button><span aria-live="polite">{{ obsadaTeamPeriodLabel }}</span><button type="button" @click="obsadaTeamMovePeriod(1)" :disabled="obsadaTeam.periodOffset>=0" :aria-label="eMsg('Następny okres','Следующий период','Next period','Наступний період')">›</button></div>
-     <div v-else class="obs-team-intel-custom-dates"><label>{{ eMsg('Od','От','From','Від') }}<input type="date" v-model="obsadaTeam.from"></label><label>{{ eMsg('Do','До','To','До') }}<input type="date" v-model="obsadaTeam.to"></label></div>
+     <div v-else class="obs-team-intel-custom-dates"><label>{{ eMsg('Od','От','From','Від') }}<mr-obsada-date v-model="obsadaTeam.from"></mr-obsada-date></label><label>{{ eMsg('Do','До','To','До') }}<mr-obsada-date v-model="obsadaTeam.to"></mr-obsada-date></label></div>
     </div>
     <div class="obs-team-intel-pickerbar">
      <button type="button" class="obs-team-intel-picker-toggle" @click="obsadaTeam.chooserOpen=!obsadaTeam.chooserOpen" :aria-expanded="obsadaTeam.chooserOpen">{{ eMsg('Pracownicy','Сотрудники','Employees','Працівники') }} ({{ obsadaTeam.selected.length }}) <span>{{ obsadaTeam.chooserOpen?'▴':'▾' }}</span></button>
@@ -2813,9 +2813,9 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.25.0-stan-departure-1"></script>
+<script src="js/obsada-planner.js?v=3.25.0-obsada-folder-date-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1"></script>
-<script src="js/app.js?v=3.25.0-stan-review-1"></script>
+<script src="js/app.js?v=3.25.0-obsada-folder-date-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
