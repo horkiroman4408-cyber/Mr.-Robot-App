@@ -232,7 +232,7 @@
   <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config">
    <label class="obs-bridge-input-label" for="obs-sharepoint-link">SharePoint · URL</label>
    <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.setupBusy || !obsadaBridge.link" @click="obsadaBridgeSaveSource">{{ eMsg('Zapisz link','Сохранить ссылку','Save link','Зберегти посилання') }}</button></div>
-   <div class="obs-bridge-config-footer"><button type="button" class="obs-bridge-small-btn" @click="obsadaBridgeChooseFolder">{{ eMsg('Foldery MrRobot','Папки MrRobot','MrRobot folders','Папки MrRobot') }}</button><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
+   <div class="obs-bridge-config-footer"><button type="button" class="obs-bridge-small-btn" @click="obsadaBridgePrepareFolders">{{ eMsg('Utwórz foldery MrRobot','Создать папки MrRobot','Create MrRobot folders','Створити папки MrRobot') }}</button><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
    <div class="obs-share-backup"><label class="obs-upload">{{ eMsg('Wczytaj XLSX ręcznie (awaryjnie)','Загрузить XLSX вручную (резерв)','Manual XLSX upload (backup)','Ручне завантаження XLSX (резерв)') }}<input type="file" accept=".xlsx,.xls" :disabled="obsada.state.loading" @change="obsadaManualSyncFile($event)"></label><span class="obs-quiet">{{ eMsg('Bez Bridge. Zapisuje historię i STAN do bazy lokalnej.','Без Bridge: сохранит историю и STAN в локальной базе.','Without Bridge: stores history and STAN locally.','Без Bridge: зберігає історію та STAN локально.') }}</span></div>
   </div>
  </section>
@@ -2081,7 +2081,7 @@
    </section>
    <section id="settings-openreports" class="settings-card glass-strong mr-bridge-settings" aria-label="OpenReports Bridge">
     <div class="mr-bp-heading-row"><div class="settings-card-heading"><span class="settings-eyebrow" id="mr-bridge-category">{{ eMsg('Integracje','Интеграции','Integrations','Інтеграції') }}</span><h2>Mr. Robot Bridge</h2><p id="mr-bridge-description">{{ eMsg('Jedno rozszerzenie dla OpenReports i SharePoint. Raporty WMS i dane Obsada.','Одно расширение для OpenReports и SharePoint. Отчёты WMS и данные Obsada.','One extension for OpenReports and SharePoint. WMS reports and Obsada data.','Одне розширення для OpenReports і SharePoint. Звіти WMS та дані Obsada.') }}</p></div>
-     <a class="mr-bridge-download mr-bp-header-download" href="downloads/OpenReports-Bridge-v0.3.27.zip" download="OpenReports-Bridge-v0.3.27.zip" id="mr-bridge-download">Pobierz Bridge</a>
+     <a class="mr-bridge-download mr-bp-header-download" href="downloads/OpenReports-Bridge-v0.3.28.zip" download="OpenReports-Bridge-v0.3.28.zip" id="mr-bridge-download">Pobierz Bridge</a>
     </div>
     <div class="mr-bridge-topline">
      <div class="mr-bridge-status-stack">
@@ -2102,7 +2102,7 @@
      <div class="mr-bp-details-content">
       <div class="mr-bp-row"><div><strong>OpenReports</strong><small>{{ eMsg('Dostęp do OpenReports przyznawany przy instalacji Bridge','Доступ к OpenReports выдаётся при установке Bridge','OpenReports access is granted on Bridge installation','Доступ до OpenReports надається під час встановлення Bridge') }}</small></div><span class="mr-bp-inline-note">{{ eMsg('Bez dodatkowej zgody','Без отдельного разрешения','No separate prompt','Без окремого дозволу') }}</span></div>
       <div class="mr-bp-row"><div><strong>SharePoint · LPP</strong><small>{{ obsadaBridge.permissionGranted?eMsg('Zgoda Edge zapisana','Разрешение Edge сохранено','Edge permission granted','Дозвіл Edge збережено'):eMsg('Jednorazowa zgoda Edge','Однократное разрешение Edge','One-time Edge permission','Одноразовий дозвіл Edge') }}</small></div><button type="button" class="mr-bp-action" :disabled="!obsadaBridge.connected||obsadaBridge.permissionGranted||obsadaBridge.permissionPending" @click="obsadaBridgePermissionOpen">{{ obsadaBridge.permissionGranted?eMsg('Zezwolono','Разрешено','Allowed','Дозволено'):eMsg('Zezwól','Разрешить','Allow','Дозволити') }}</button></div>
-      <div class="mr-bp-row"><div><strong>{{ eMsg('Foldery MrRobot','Папки MrRobot','MrRobot folders','Папки MrRobot') }}</strong><small>{{ obsadaBridge.folderName?eMsg('Gotowe: ','Готово: ','Ready: ','Готово: ')+obsadaBridge.folderName:eMsg('Wybierz Pobrane/MrRobot','Выбери папку «Загрузки/MrRobot»','Choose Downloads/MrRobot','Обери Завантаження/MrRobot') }}</small></div><button type="button" class="mr-bp-action" @click="obsadaBridgeChooseFolder">{{ eMsg('Wybierz','Выбрать','Choose','Обрати') }}</button></div>
+      <div class="mr-bp-row"><div><strong>{{ eMsg('Foldery MrRobot','Папки MrRobot','MrRobot folders','Папки MrRobot') }}</strong><small>{{ obsadaBridge.folderName?eMsg('Połączono: ','Подключено: ','Connected: ','Підключено: ')+obsadaBridge.folderName:eMsg('Najpierw utwórz foldery przez Bridge, potem połącz MrRobot','Сначала создай папки через Bridge, затем подключи MrRobot','Create folders via Bridge, then connect MrRobot','Спочатку створи папки через Bridge, потім підключи MrRobot') }}</small></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button type="button" class="mr-bp-action" :disabled="obsadaBridge.setupBusy" @click="obsadaBridgePrepareFolders">{{ obsadaBridge.setupBusy?eMsg('Tworzenie…','Создание…','Creating…','Створення…'):eMsg('Utwórz foldery','Создать папки','Create folders','Створити папки') }}</button><button type="button" class="mr-bp-action" :disabled="obsadaBridge.setupBusy" @click="obsadaBridgeChooseFolder">{{ eMsg('Połącz MrRobot','Подключить MrRobot','Connect MrRobot','Підключити MrRobot') }}</button></div></div>
       <div v-if="obsadaBridge.error" class="obs-quiet" role="alert" style="color:#b83b50; padding:5px 12px">{{ obsadaBridge.error }}</div>
       <div v-else-if="obsadaBridge.message" class="obs-quiet" role="status" style="padding:5px 12px">{{ obsadaBridge.message }}</div>
       <div class="mr-bp-footer"><span>{{ eMsg('Pobieranie SharePoint tylko po kliknięciu Odśwież dane.','SharePoint загружается только по кнопке «Обновить».','SharePoint downloads only on manual refresh.','SharePoint завантажується лише вручну.') }}</span><button type="button" class="mr-bp-check" @click="obsadaBridgeCheck">{{ eMsg('Sprawdź status','Проверить статус','Check status','Перевірити статус') }}</button></div>
@@ -2806,11 +2806,11 @@
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
 <script src="js/obsada-planner.js?v=3.25.0-edge-folder-fix-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1"></script>
-<script src="js/app.js?v=3.25.0-edge-folder-fix-1"></script>
+<script src="js/app.js?v=3.25.0-bridge-storage-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
-<script src="js/bridge-setup.js?v=3.25.0-bridge-ui-20261114"></script>
+<script src="js/bridge-setup.js?v=3.25.0-bridge-storage-1"></script>
 <script src="js/mrbot.js"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Mr. Robot | OpenReports + SharePoint Bridge (0.3.27)",
+  "name": "Mr. Robot | OpenReports + SharePoint Bridge (0.3.28)",
   "description": "OpenReports automation and manual SharePoint XLSX refresh for Obsada. No scheduled downloads.",
-  "version": "0.3.27",
+  "version": "0.3.28",
   "permissions": [
     "storage",
     "tabs",

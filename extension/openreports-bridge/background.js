@@ -5,6 +5,58 @@ const REPORT_GROUP_URL = 'https://openreports-wms.lpp.com/openreports/reportGrou
 const APP_ORIGIN = 'https://horkiroman4408-cyber.github.io';
 const APP_PREFIX = '/Mr.-Robot-App/';
 const DOWNLOAD_SUBFOLDER = 'MrRobot/OpenReports/';
+
+// Folder bootstrap via the extension Downloads API. The web app cannot obtain a
+// File System Access handle to the protected Downloads root in Edge/Chrome.
+// Each temporary, innocuous text file causes Chromium to create its parent
+// directory. Remove only our own file afterwards; never touch user files.
+const MR_STORAGE_DIRS = Object.freeze(['OpenReports','SharePoint','Obsada','Import','Backup']);
+let mrStorageInitRunning = null;
+function mrStorageDownloadStarted(filename){
+  return chrome.downloads.download({
+    url: 'data:text/plain;charset=utf-8,MrRobot%20folder%20initialization',
+    filename,
+    conflictAction:'overwrite',
+    saveAs:false
+  });
+}
+async function mrStorageWaitForDownload(id,timeoutMs=45000){
+  const started=Date.now();
+  while(Date.now()-started<timeoutMs){
+    const rows=await chrome.downloads.search({id});
+    const row=rows[0];
+    if(!row)throw Error('STORAGE_DOWNLOAD_MISSING');
+    if(row.state==='complete')return row;
+    if(row.state==='interrupted')throw Error('STORAGE_DOWNLOAD_INTERRUPTED');
+    await new Promise(resolve=>setTimeout(resolve,180));
+  }
+  throw Error('STORAGE_DOWNLOAD_TIMEOUT');
+}
+async function mrPrepareStorage(){
+  if(mrStorageInitRunning)return mrStorageInitRunning;
+  mrStorageInitRunning=(async()=>{
+    const created=[];
+    for(const dirname of MR_STORAGE_DIRS){
+      // The marker name is unique to this operation and contains no personal data.
+      const relative=`MrRobot/${dirname}/.mrrobot-folder-init.txt`;
+      const id=await mrStorageDownloadStarted(relative);
+      const item=await mrStorageWaitForDownload(id);
+      // Verify Chrome did not redirect this into another directory (e.g. when
+      // the user has enabled 'Ask where to save each file').
+      const normalized=String(item.filename||'').replace(/\\/g,'/');
+      if(!normalized.toLowerCase().endsWith('/'+relative.toLowerCase())){
+        throw Error('STORAGE_DOWNLOAD_PATH_CHANGED');
+      }
+      try{await chrome.downloads.removeFile(id);}
+      catch(e){throw Error('STORAGE_MARKER_CLEANUP_FAILED');}
+      await chrome.downloads.erase({id});
+      created.push(dirname);
+    }
+    return {ok:true,folders:created,root:'MrRobot'};
+  })().finally(()=>{mrStorageInitRunning=null;});
+  return mrStorageInitRunning;
+}
+
 // Downloads API paths can be Windows paths or Unix-style absolute paths.
 // Confirm exactly the designated directory, not a similarly named parent.
 const inReportFolder = path => /(?:^|\/)MrRobot\/OpenReports\/[^/]+$/i.test(String(path||'').replace(/\\/g,'/'));
@@ -158,6 +210,14 @@ async function runOnTab(tabId){
 // Do not answer its message here: two responses race and the old fallback
 // used to send `Unknown message` before the SharePoint result.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if(message?.type==='MR_STORAGE_PREPARE'){
+    // The content script always has our own extension id, but only the exact
+    // Mr. Robot origin is allowed to trigger file operations.
+    const fromApp=sender.id===chrome.runtime.id && isApp(sender.url) && isApp(sender.tab?.url);
+    if(!fromApp){sendResponse({ok:false,error:'STORAGE_UNAUTHORIZED'});return false;}
+    mrPrepareStorage().then(sendResponse).catch(e=>sendResponse({ok:false,error:String(e.message||e).slice(0,100)}));
+    return true;
+  }
   if(['SP_PROBE_FILE','SP_WATCH_START','SP_WATCH_STATUS','SP_SYNC_SET_SOURCE','SP_SYNC_GET_SOURCE','SP_SYNC_CLEAR_SOURCE','SP_PERMISSION_OPEN','SP_SYNC_FETCH','SP_MANUAL_START','SP_MANUAL_STATUS'].includes(message?.type)) return false;
   (async()=>{
     if(message?.type==='MR_START'){

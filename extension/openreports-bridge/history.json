@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "releases": [
     {
+      "version": "0.3.28",
+      "date": "2026-11-15",
+      "title": {
+        "pl": "Automatyczne przygotowanie folderów",
+        "ru": "Автоматическое создание папок",
+        "en": "Automatic folder preparation",
+        "uk": "Автоматичне створення папок"
+      },
+      "changes": {
+        "pl": [
+          "Przycisk w Mr. Robot tworzy Downloads/MrRobot i foldery OpenReports, SharePoint, Obsada, Import, Backup przez Bridge.",
+          "Foldery są przygotowywane bez wybierania systemowego katalogu Pobrane."
+        ],
+        "ru": [
+          "Кнопка в Mr. Robot создаёт Downloads/MrRobot и подпапки OpenReports, SharePoint, Obsada, Import, Backup через Bridge.",
+          "Не требуется выбирать системную папку «Загрузки»."
+        ],
+        "en": [
+          "A button in Mr. Robot creates Downloads/MrRobot and OpenReports, SharePoint, Obsada, Import, Backup via Bridge.",
+          "No need to select the protected system Downloads directory."
+        ],
+        "uk": [
+          "Кнопка в Mr. Robot створює Downloads/MrRobot та папки OpenReports, SharePoint, Obsada, Import, Backup через Bridge.",
+          "Не потрібно вибирати системну папку Завантаження."
+        ]
+      }
+    },
+    {
       "version": "0.3.27",
       "date": "2026-11-14",
       "title": {
