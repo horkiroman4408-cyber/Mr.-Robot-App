@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-department-cards-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-department-three-stats-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -292,8 +292,6 @@
    <div class="obs-today-stat obs-today-stat-total"><strong>{{ obsadaPlan.readonlyRoster.count }}</strong><small>{{ eMsg('Wszyscy nasi pracownicy','Всего наших сотрудников','All our workers','Усього наших працівників') }}</small></div>
    <div class="obs-today-stat"><strong>{{ obsadaPlan.readonlyDepartments.local.count }}</strong><small>{{ eMsg('Pracują w naszym dziale','Работают в нашем отделе','Working in our department','Працюють у нашому відділі') }}</small></div>
    <div class="obs-today-stat obs-today-stat-other"><strong>{{ obsadaPlan.readonlyDepartments.other.count }}</strong><small>{{ eMsg('Nasi pracownicy w innych działach','Наши сотрудники в других отделах','Our workers in other departments','Наші працівники в інших відділах') }}</small></div>
-   <div class="obs-today-stat"><strong>{{ obsadaPlan.readonlyDepartments.local.processCount }}</strong><small>{{ eMsg('Aktywne procesy naszego działu','Активные процессы нашего отдела','Active processes in our department','Активні процеси нашого відділу') }}</small></div>
-   <div class="obs-today-stat obs-today-stat-other"><strong>{{ obsadaPlan.readonlyDepartments.other.processCount }}</strong><small>{{ eMsg('Aktywne procesy innych działów','Активные процессы других отделов','Active processes in other departments','Активні процеси інших відділів') }}</small></div>
   </div>
   <p v-if="obsadaPlan.readonlyRoster.origin==='empty'" class="obs-quiet">{{ eMsg('Brak przydziałów na ten dzień i godzinę. Otwórz Planowanie. STAN pokazuje tylko aktualny dzień synchronizacji.','Нет назначений на выбранный час. Открой Планирование. STAN показывается только за день синхронизации.','No assignments for this hour. Open Planning. STAN snapshot applies only to the sync day.','Немає призначень. Відкрийте Планування. STAN лише за день синхронізації.') }}</p>
   <section class="obs-readonly-dropzone" :class="{'obs-readonly-dropzone-hover':obsadaPlan.state.departmentDragOver==='local'}" @dragover.prevent="obsadaPlan.state.departmentDragOver='local'" @dragleave="obsadaPlan.leaveDepartmentDrop($event,'local')" @drop.prevent="obsadaPlan.dropDepartmentCard($event,'local')" :aria-label="eMsg('Nasz dział','Наш отдел','Our department','Наш відділ')">
