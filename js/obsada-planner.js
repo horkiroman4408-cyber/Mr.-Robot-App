@@ -185,7 +185,12 @@ function create({reactive,computed,roster,source,sourceName,language}){
    }
   }
   for(const r of displayedAssignments.value)if(!members.has(r.login))members.set(r.login,{login:r.login,day:r.day,shift:r.shift});
-  return [...members.values()];
+  // On overlaps, prefer the edited shift for a person present in two rosters.
+  for(const login of state.shiftTeams[teamKey.value]||[]){
+   if(members.has(login)&&shiftHourForTimestamp(state.day,state.shift,time)>=0)
+    members.set(login,{login,day:state.day,shift:state.shift});
+  }
+  return [...members.values()].sort((a,b)=>a.login.localeCompare(b.login));
  });
 
  function focusAssignment(person){
@@ -221,8 +226,35 @@ function create({reactive,computed,roster,source,sourceName,language}){
   return [...people].filter(Boolean).sort();
  });
  const workerNames=computed(()=>new Map((roster()||[]).map(p=>[p.id,String(p.name||'').toLowerCase()])));
- const listedWorkers=computed(()=>{const query=state.search.toLowerCase().trim(),assigned=teamAssigned.value;return team.value.filter(login=>(!query||login.toLowerCase().includes(query)||(workerNames.value.get(login)||'').includes(query))&&(state.staffFilter==='all'||(state.staffFilter==='assigned'?assigned.has(login):!assigned.has(login))));});
- const visibleWorkerList=computed(()=>listedWorkers.value.slice(0,state.visibleWorkers));
+ // The sidebar follows the real shared hour, not only the selected schedule.
+ // Each person retains their own day/shift so edits never land on another team's hours.
+ const staffEntries=computed(()=>state.combinedView?combinedScheduled.value:team.value.map(login=>({login,day:state.day,shift:state.shift})));
+ const staffAssigned=computed(()=>new Set(displayedAssignments.value.map(r=>r.login)));
+ const listedStaffEntries=computed(()=>{
+  const query=state.search.toLowerCase().trim(),assigned=state.combinedView?staffAssigned.value:teamAssigned.value;
+  return staffEntries.value.filter(person=>(!query||person.login.toLowerCase().includes(query)||(workerNames.value.get(person.login)||'').includes(query))&&
+   (state.staffFilter==='all'||(state.staffFilter==='assigned'?assigned.has(person.login):!assigned.has(person.login))));
+ });
+ const listedWorkers=computed(()=>listedStaffEntries.value.map(person=>person.login));
+ const visibleStaffEntries=computed(()=>listedStaffEntries.value.slice(0,state.visibleWorkers));
+ const visibleWorkerList=computed(()=>visibleStaffEntries.value.map(person=>person.login));
+ const staffTotal=computed(()=>staffEntries.value.length);
+ const staffAssignedCount=computed(()=>state.combinedView?staffAssigned.value.size:teamAssigned.value.size);
+ const staffFreeCount=computed(()=>staffEntries.value.filter(p=>!(state.combinedView?staffAssigned.value:teamAssigned.value).has(p.login)&&!localAbsence(p.login,p.day)).length);
+ function focusStaffEntry(person){
+  if(!person||!person.login)return false;
+  const time=selectedSlot.value?.start;
+  const index=shiftHourForTimestamp(person.day,person.shift,time);
+  if(index<0)return false;
+  if(person.day!==state.day||person.shift!==state.shift){
+   state.day=person.day;state.shift=person.shift;state.from=index;state.to=index+1;
+  }
+  state.selectedLogin=person.login;return true;
+ }
+ function dragStaffEntry(event,person){if(!focusStaffEntry(person))return false;startDrag(event,person.login);return true;}
+ function staffProcess(person){return displayedAssignments.value.find(r=>r.login===person.login)?.process||'';}
+ function openStaffActions(person){if(!focusStaffEntry(person))return false;return openWorkerActions(person.login);}
+ function removeStaffMember(person){if(!focusStaffEntry(person))return false;return removeTeamMember(person.login);}
  // Existing sources are suggestions; historic-only processes do not flood the visible cards.
  const processCatalog=computed(()=>{
   const names=[...(source()?.intervals||[]).flatMap(s=>(s.people||[]).map(p=>p.process)),
@@ -779,7 +811,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,templateNames,sharedTimeline,activeTeamShifts,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {state,templateNames,sharedTimeline,activeTeamShifts,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
 root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
