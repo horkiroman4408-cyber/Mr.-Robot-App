@@ -1,0 +1,24 @@
+const assert=require('node:assert/strict');
+const p=require('../js/obsada-planner.js');
+const day='2026-11-16';
+let records=[];
+records=p.assignFromHour(records,{day,shift:'06-18',from:8,login:'MAIN',process:'AUDYT'});
+records=p.assignFromHour(records,{day,shift:'14-22',from:0,login:'AGENCY',process:'AUDYT'});
+let combined=p.simultaneousAssignments(records,day,'06-18',8);
+assert.deepEqual(combined.people.map(r=>r.login).sort(),['AGENCY','MAIN']);
+assert.equal(combined.conflicts.length,0);
+assert.equal(p.simultaneousAssignments(records,day,'06-18',7).people.length,0);
+assert.equal(p.simultaneousAssignments(records,day,'14-22',5).people.length,1);
+assert.equal(p.simultaneousAssignments(records,day,'14-22',5).people[0].login,'AGENCY');
+assert.equal(p.shiftHourForTimestamp(day,'14-22',p.makeSlots(day,'06-18')[8].start),0);
+records=p.assignFromHour(records,{day,shift:'14-22',from:0,login:'MAIN',process:'METKI'});
+combined=p.simultaneousAssignments(records,day,'06-18',8);
+assert.equal(combined.people.filter(x=>x.login==='MAIN').length,1);
+assert.equal(combined.conflicts.length,1);
+assert.equal(combined.people.find(x=>x.login==='MAIN').process,'AUDYT');
+// Midnight must be compared by epoch timestamp, never by hour/slot index.
+let night=p.assignFromHour([],{day,shift:'18-06',from:6,login:'NIGHT',process:'METKI'});
+night=p.assignFromHour(night,{day:'2026-11-17',shift:'06-18',from:0,login:'DAY',process:'AUDYT'});
+assert.equal(p.simultaneousAssignments(night,'2026-11-17','06-18',0).people.length,1);
+assert.equal(p.simultaneousAssignments(night,day,'18-06',6).people[0].login,'NIGHT');
+console.log('PASS parallel teams same-hour union, deduplication, conflict, midnight');

@@ -731,3 +731,13 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-action-people label{display:flex;gap:5px;align-items:center;min-width:0;overflow-wrap:anywhere}
 #app .obs-action-primary{border-color:var(--obs-accent)!important;color:var(--obs-accent)!important;background:var(--obs-soft)!important}
 @media(max-width:420px){#app .obs-action-dates,#app .obs-action-people{grid-template-columns:1fr}}
+
+/* Parallel-shift controls: contained, theme-aware, responsive. */
+.obs-plan-parallel{padding:12px 14px;border:1px solid var(--obs-border,rgba(128,128,128,.22));border-radius:14px;background:var(--obs-panel,transparent);display:grid;gap:8px;min-width:0}
+.obs-plan-parallel-title,.obs-plan-parallel-picker{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.obs-plan-parallel-title{justify-content:space-between}
+.obs-plan-parallel-title label{display:flex;align-items:center;gap:7px;font-size:12px}
+.obs-plan-parallel-picker select{flex:1 1 145px;min-width:0;max-width:100%}
+.obs-plan-parallel-picker button{flex:0 1 auto}
+.obs-plan-foreign-shift{font-size:10px;opacity:.68;white-space:nowrap}
+@media(max-width:680px){.obs-plan-parallel-picker select,.obs-plan-parallel-picker button{flex:1 1 100%}}

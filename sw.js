@@ -17,16 +17,16 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.25.0-obsada-worker-actions-20261116';
+const CACHE_REVISION = 'v3.25.0-obsada-parallel-teams-20261116';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
 const PRECACHE_URLS = [
-  'css/obsada-module.css?v=3.25.0-worker-actions-1',
+  'css/obsada-module.css?v=3.25.0-parallel-teams-1',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.25.0-local-sync-conflict-ui-1',
   'js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1',
-  'js/obsada-planner.js?v=3.25.0-worker-actions-1',
+  'js/obsada-planner.js?v=3.25.0-parallel-teams-1',
   'js/obsada-team-intelligence.js?v=3.25.0-latest-shifts-2',
   'js/obsada-unified-history.js?v=3.25.0-worker-actions-1',
   './',
