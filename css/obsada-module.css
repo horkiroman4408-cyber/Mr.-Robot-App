@@ -858,3 +858,18 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 @keyframes mrObsPopupIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.mr-obs-control-layer.obsada-module{animation:none!important}}
 @media(max-width:640px){.mr-obs-control-layer.obsada-module{max-width:calc(100vw - 16px);border-radius:13px}.mr-obs-control-layer .mr-obs-option{min-height:43px;font-size:13px}}
+
+/* Obsada Intelligence: two aligned recent-activity tiles (view-only, no hour logic). */
+#app .obs-team-intel-card{display:flex;flex-direction:column;min-width:0}
+#app .obs-team-intel-days-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;margin-top:auto;padding-top:11px;border-top:1px solid var(--obs-border)}
+#app .obs-team-intel-days-list>.obs-team-intel-activity{display:flex;flex-direction:column;min-width:0;gap:8px;padding:9px 10px;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-soft);font-size:11px;color:var(--obs-text)}
+#app .obs-team-intel-activity-head{display:flex;align-items:baseline;justify-content:space-between;gap:7px;min-width:0;font-size:10px;line-height:1.3}
+#app .obs-team-intel-activity-head strong{font-size:10px;font-weight:700;color:var(--obs-text)}
+#app .obs-team-intel-activity-head time{font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--obs-muted);margin:0}
+#app .obs-team-intel-activity-processes{display:grid;gap:5px;align-content:start;min-width:0}
+#app .obs-team-intel-activity-process{display:flex;justify-content:space-between;align-items:start;gap:5px;min-width:0;line-height:1.35}
+#app .obs-team-intel-activity-process span{min-width:0;overflow-wrap:anywhere;color:var(--obs-text)}
+#app .obs-team-intel-activity-process b{flex:none;font-size:10px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--obs-text)}
+#app .obs-team-intel-days-list .obs-team-intel-activity-status{margin:0;line-height:1.4;font-size:11px;color:var(--obs-text)}
+#app .obs-team-intel-activity-empty{grid-column:1/-1}
+@media(max-width:350px){#app .obs-team-intel-days-list{grid-template-columns:1fr}}

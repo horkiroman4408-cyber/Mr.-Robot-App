@@ -1,0 +1,18 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const base=path.resolve(__dirname,'..');
+const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
+const css=fs.readFileSync(path.join(base,'css/obsada-module.css'),'utf8');
+const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
+const block=html.match(/<div class="obs-team-intel-days-list"[\s\S]*?<\/section>[\s\S]*?<\/div>\s*<\/article>/)?.[0];
+assert.ok(block,'Recent activity section exists');
+for(const token of ['card.lastActivities','event.kind===\'work\'','event.processes','event.date','event.status===\'dayOff\'','event.status===\'leave\'','obsada.formatHours(v.hours,uiLanguage)','obs-team-intel-activity-head','obs-team-intel-activity-process']) assert.ok(block.includes(token),token);
+for(const lang of ['Ostatnia','Последняя','Latest','Остання','Poprzednia','Предыдущая','Previous','Попередня','Wolne','Выходной','Day off','Вихідний']) assert.ok(block.includes(lang),lang);
+assert.match(css,/#app \.obs-team-intel-days-list\{display:grid;grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+assert.match(css,/#app \.obs-team-intel-card\{display:flex;flex-direction:column/);
+assert.match(css,/@media\(max-width:350px\)/);
+assert.ok(sw.includes('v3.25.0-obsada-activity-tiles-20261117'));
+assert.ok(sw.includes('css/obsada-module.css?v=3.25.0-activity-tiles-1'));
+console.log('PASS: recent activity tiles, localization, adaptive styles and PWA revision');
