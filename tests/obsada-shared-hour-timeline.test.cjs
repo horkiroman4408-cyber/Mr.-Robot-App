@@ -1,0 +1,57 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const planner=require('../js/obsada-planner.js');
+const day='2026-11-16';
+let records=[];
+const teamA='18-06',teamB='14-22';
+const rosters={[day+'|'+teamA]:['A'],[day+'|'+teamB]:['B']};
+const before=JSON.stringify(records);
+const timeline=planner.combinedTimeline(day,teamA,rosters,records);
+assert.equal(timeline.length,16);
+assert.equal(timeline[0].from,'14:00');
+assert.equal(timeline.at(-1).from,'05:00');
+assert.deepEqual(timeline.find(h=>h.from==='19:00').shifts.sort(),[teamB,teamA].sort());
+assert.deepEqual(timeline.find(h=>h.from==='15:00').shifts,[teamB]);
+assert.deepEqual(timeline.find(h=>h.from==='23:00').shifts,[teamA]);
+assert.equal(JSON.stringify(records),before,'building timeline must not mutate assignments');
+const old={indexedDB:global.indexedDB,setInterval:global.setInterval};
+global.setInterval=()=>0;
+const cache=new Map();
+global.indexedDB={open(){const request={};queueMicrotask(()=>{request.result={close(){},createObjectStore(){},transaction(){const tx={};tx.objectStore=()=>({get(key){const r={result:cache.get(key)};queueMicrotask(()=>r.onsuccess?.());return r;},put(value,key){cache.set(key,value);queueMicrotask(()=>tx.oncomplete?.());}});return tx;}};request.onupgradeneeded?.();request.onsuccess?.();});return request;}};
+const computed=fn=>({get value(){return fn();}});
+(async()=>{
+ const p=planner.create({reactive:x=>x,computed,roster:()=>[],source:()=>null,language:()=> 'ru'});
+ await new Promise(resolve=>setTimeout(resolve,5));
+ p.state.day=day;p.state.shift=teamA;p.state.from=0;p.state.shiftTeams=rosters;
+ assert.equal(p.chooseSharedHour(timeline.find(x=>x.from==='15:00').start),true);
+ assert.equal(p.state.shift,teamB);
+ assert.equal(p.selectedSlot.value.from,'15:00');
+ assert.equal(p.chooseSharedHour(timeline.find(x=>x.from==='19:00').start),true);
+ assert.equal(p.state.shift,teamB,'retains selected schedule when both are active');
+ assert.equal(p.chooseSharedHour(timeline.find(x=>x.from==='23:00').start),true);
+ assert.equal(p.state.shift,teamA);
+ assert.equal(p.selectedSlot.value.from,'23:00');
+ assert.equal(p.state.records.length,0,'changing hour must not create records');
+ assert.equal(cache.get('records'),undefined,'changing hour must not save/rewrite database');
+ let plan=[];
+ plan=planner.assignFromHour(plan,{day,shift:teamA,from:1,login:'A',process:'AUDYT'}); // 19-06, 11 h
+ plan=planner.assignFromHour(plan,{day,shift:teamB,from:5,login:'B',process:'AUDYT'}); // 19-22, 3 h
+ assert.equal(plan.filter(r=>r.login==='A').length,11);
+ assert.equal(plan.filter(r=>r.login==='B').length,3);
+ const eighteen=planner.simultaneousAssignments(plan,day,teamA,1);
+ assert.equal(eighteen.people.length,2);
+ assert.equal(eighteen.conflicts.length,0);
+ assert.equal(planner.finishedHourCount(plan,Date.parse('2026-11-16T20:00:00')),2,'hour cutoff remains per employee, per real hour');
+ const beforeSheet=planner.sheetRows(plan).assignments;
+ p.state.records=plan;
+ p.chooseSharedHour(timeline.find(x=>x.from==='21:00').start);
+ assert.deepEqual(planner.sheetRows(p.state.records).assignments,beforeSheet,'navigation must not alter exported XLSX hours');
+ // Shift boundaries and cross-midnight are not converted into common shift slots.
+ assert.equal(planner.simultaneousAssignments(plan,day,teamA,4).people.map(x=>x.login).includes('B'),false);
+ assert.equal(planner.simultaneousAssignments(plan,day,teamA,7).people.map(x=>x.login).includes('A'),true);
+ const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
+ assert(html.includes('obsadaPlan.chooseSharedHour(hour.start)'));
+ assert(html.includes('obsadaPlan.sharedTimeline'));
+ console.log('PASS shared timeline, automatic schedule focus, no persistent changes, overlap, night, XLSX hour parity');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{global.indexedDB=old.indexedDB;global.setInterval=old.setInterval;});

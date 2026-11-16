@@ -741,3 +741,23 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obs-plan-parallel-picker button{flex:0 1 auto}
 .obs-plan-foreign-shift{font-size:10px;opacity:.68;white-space:nowrap}
 @media(max-width:680px){.obs-plan-parallel-picker select,.obs-plan-parallel-picker button{flex:1 1 100%}}
+
+/* Obsada: one hourly navigation timeline shared by overlapping teams. */
+#app .obs-plan-team-summary{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px}
+#app .obs-plan-summary-label{font-size:11px;color:var(--obs-muted);margin-right:4px}
+#app .obs-plan-team-tag{display:inline-flex;align-items:center;gap:3px;border:1px solid var(--obs-border);border-radius:8px;padding:5px 9px;font-size:11px;color:var(--obs-text);background:var(--obs-surface)}
+#app .obs-plan-team-tag.active{border-color:var(--obs-accent);background:color-mix(in srgb,var(--obs-accent) 11%,var(--obs-surface))}
+#app .obs-plan-team-tag small{opacity:.7}
+#app .obs-plan-team-tag-add{font-size:10px;color:var(--obs-muted);margin-left:auto}
+#app .obs-plan-controlbar .obs-plan-shared-hours{grid-template-columns:repeat(12,minmax(0,1fr));margin-top:9px}
+#app .obs-plan-shared-hours button.foreign:not(.active){border-style:dashed}
+#app .obs-plan-parallel-compact{padding:9px 12px;gap:5px}
+#app .obs-plan-parallel-compact .obs-plan-parallel-title{justify-content:flex-start;gap:12px}
+#app .obs-plan-parallel-compact .obs-plan-parallel-title>span{font-size:11px;color:var(--obs-muted);margin-right:auto}
+#app .obs-plan-parallel-adding{position:relative}
+#app .obs-plan-parallel-adding summary{list-style:none;cursor:pointer;border:1px solid var(--obs-border);padding:7px 10px;border-radius:8px;font-size:11px;color:var(--obs-text);white-space:nowrap}
+#app .obs-plan-parallel-adding summary::-webkit-details-marker{display:none}
+#app .obs-plan-parallel-adding[open]{width:100%}
+#app .obs-plan-parallel-adding[open] .obs-plan-parallel-picker{padding-top:10px}
+@media(max-width:1050px){#app .obs-plan-controlbar .obs-plan-shared-hours{grid-template-columns:repeat(8,minmax(0,1fr))}}
+@media(max-width:680px){#app .obs-plan-controlbar .obs-plan-shared-hours{grid-template-columns:repeat(4,minmax(0,1fr))}#app .obs-plan-team-tag-add{display:none}#app .obs-plan-parallel-compact .obs-plan-parallel-title{gap:7px}}
