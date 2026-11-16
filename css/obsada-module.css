@@ -817,3 +817,44 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-team-tag>span{min-width:0;overflow-wrap:anywhere}
 #app .obs-team-intel-team-tag button{border:0;background:transparent;color:var(--obs-muted);font-size:17px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:6px}
 #app .obs-team-intel-team-tag button:hover,#app .obs-team-intel-team-tag button:focus-visible{color:var(--obs-accent);background:var(--obs-surface)}
+
+/* Obsada unified controls: light/dark/theme-aware, no browser-native dropdown surfaces. */
+#app .obsada-module .mr-obs-select-wrap{display:block;position:relative;min-width:0;width:100%}
+#app .obsada-module .mr-obs-select-native{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important}
+#app .obsada-module .mr-obs-select-trigger{width:100%;min-height:39px;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 11px;border:1px solid var(--obs-border);border-radius:11px;background:var(--obs-surface);color:var(--obs-text);font:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:start;box-shadow:none;transition:border-color .16s,box-shadow .16s,background .16s}
+#app .obsada-module .mr-obs-select-trigger span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#app .obsada-module .mr-obs-select-trigger svg{height:15px;width:15px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;opacity:.65}
+#app .obsada-module .mr-obs-select-trigger:hover{border-color:var(--obs-accent)}
+#app .obsada-module .mr-obs-select-trigger:focus-visible,#app .mr-obs-calendar-trigger:focus-visible{outline:2px solid var(--obs-accent);outline-offset:2px}
+#app .obsada-module .mr-obs-select-trigger:disabled{opacity:.5;cursor:not-allowed}
+#app .mr-obs-date-field .mr-obs-calendar-trigger{height:100%;width:40px;flex:none;display:grid;place-items:center;border:0;border-left:1px solid var(--obs-border);background:transparent;color:var(--obs-text);cursor:pointer;padding:0}
+#app .mr-obs-date-field .mr-obs-calendar-trigger:hover{background:color-mix(in srgb,var(--obs-accent) 9%,transparent)}
+/* Teleported panels provide their own Obsada tokens and follow root theme variables. */
+.mr-obs-control-layer.obsada-module{--obs-accent:var(--module-accent,#b94f5c);--obs-border:var(--mr-control-border,var(--mr-c105,rgba(120,140,166,.25)));--obs-surface:var(--mr-c106,#fff);--obs-text:var(--mr-c11,#222a36);--obs-muted:var(--mr-c13,#64748b);position:fixed;z-index:99999;box-sizing:border-box;background:var(--obs-surface);color:var(--obs-text);border:1px solid var(--obs-border);border-radius:15px;padding:7px;box-shadow:0 16px 45px rgba(16,24,40,.17),0 3px 12px rgba(16,24,40,.07);max-height:min(430px,calc(100dvh - 24px));overflow:auto;overscroll-behavior:contain;animation:mrObsPopupIn .14s ease-out}
+html[data-theme="dark"] .mr-obs-control-layer.obsada-module{--obs-accent:#f2a2aa;box-shadow:0 20px 52px rgba(0,0,0,.45)}
+html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5b}
+.mr-obs-control-layer .mr-obs-select-search{width:100%;box-sizing:border-box;padding:9px 10px;margin-bottom:5px;background:var(--obs-surface);color:var(--obs-text);border:1px solid var(--obs-border);border-radius:10px;outline:none;font-size:12px}
+.mr-obs-control-layer .mr-obs-select-search:focus{border-color:var(--obs-accent)}
+.mr-obs-control-layer .mr-obs-option-list{max-height:min(344px,55dvh);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.mr-obs-control-layer .mr-obs-option{border:0;width:100%;min-height:37px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;padding:8px 10px;background:transparent;color:var(--obs-text);border-radius:9px;font-size:12px;font-weight:550;text-align:start;transition:background .13s ease}
+.mr-obs-control-layer .mr-obs-option span:first-child{overflow-wrap:anywhere}
+.mr-obs-control-layer .mr-obs-option:hover,.mr-obs-control-layer .mr-obs-option.is-active{background:color-mix(in srgb,var(--obs-accent) 8%,transparent)}
+.mr-obs-control-layer .mr-obs-option.is-selected{background:color-mix(in srgb,var(--obs-accent) 13%,transparent);color:var(--obs-text);font-weight:750}
+.mr-obs-control-layer .mr-obs-option.is-selected span:last-child{color:var(--obs-accent)}
+.mr-obs-control-layer .mr-obs-option:disabled{opacity:.45;cursor:not-allowed}
+.mr-obs-control-layer .mr-obs-empty{padding:12px 9px;font-size:12px;color:var(--obs-muted)}
+.mr-obs-calendar-popup{width:282px}
+.mr-obs-calendar-popup .mr-obs-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:3px 3px 10px}
+.mr-obs-calendar-popup .mr-obs-calendar-head strong{font-size:12px;font-weight:750;text-transform:capitalize}
+.mr-obs-calendar-popup .mr-obs-calendar-head button{width:33px;height:33px;border:1px solid var(--obs-border);border-radius:9px;background:transparent;color:var(--obs-text);font-size:23px;cursor:pointer}
+.mr-obs-calendar-popup .mr-obs-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.mr-obs-calendar-popup .mr-obs-calendar-weekday{text-align:center;font-size:10px;font-weight:650;opacity:.65;padding:7px 0}
+.mr-obs-calendar-popup .mr-obs-calendar-day{aspect-ratio:1;width:100%;display:grid;place-items:center;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--obs-text);font-size:12px;cursor:pointer}
+.mr-obs-calendar-popup .mr-obs-calendar-day:hover{background:color-mix(in srgb,var(--obs-accent) 10%,transparent)}
+.mr-obs-calendar-popup .mr-obs-calendar-day.is-today{border-color:var(--obs-accent)}
+.mr-obs-calendar-popup .mr-obs-calendar-day.is-selected{background:var(--obs-accent);color:white;font-weight:750}
+.mr-obs-calendar-popup .mr-obs-calendar-foot{margin-top:9px;padding-top:8px;border-top:1px solid var(--obs-border);display:flex;justify-content:space-between;gap:8px}
+.mr-obs-calendar-popup .mr-obs-calendar-foot button{background:transparent;border:0;border-radius:8px;padding:7px 9px;color:var(--obs-accent);font-size:11px;font-weight:750;cursor:pointer}
+@keyframes mrObsPopupIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.mr-obs-control-layer.obsada-module{animation:none!important}}
+@media(max-width:640px){.mr-obs-control-layer.obsada-module{max-width:calc(100vw - 16px);border-radius:13px}.mr-obs-control-layer .mr-obs-option{min-height:43px;font-size:13px}}
