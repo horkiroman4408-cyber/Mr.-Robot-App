@@ -45,6 +45,28 @@ function applyAssignment(records,{day,shift,from,to,login,process}){
  return keep;
 }
 function assignFromHour(records,{day,shift,from,login,process}){return applyAssignment(records,{day,shift,from,to:makeSlots(day,shift).length,login,process});}
+// Local absence events are kept in the existing STATUSY workbook sheet.
+const ABSENCE_SOURCE='Planowanie';
+const ABSENCE_TYPES=new Set(['WOLNY','URLOP']);
+const EARLY_EXIT_PREFIX='WCZESNIEJSZE_WYJSCIE@';
+function absenceDates(start,end){
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||start>end)throw Error('INVALID_ABSENCE_RANGE');
+ const a=new Date(start+'T12:00:00'),b=new Date(end+'T12:00:00');
+ if(!Number.isFinite(a.getTime())||!Number.isFinite(b.getTime())||localDate(a)!==start||localDate(b)!==end)throw Error('INVALID_ABSENCE_RANGE');
+ const out=[];
+ while(a<=b){if(out.length>=366)throw Error('ABSENCE_RANGE_TOO_LONG');out.push(localDate(a));a.setDate(a.getDate()+1);}
+ return out;
+}
+function updateLocalAbsences(statuses,logins,dates,status){
+ const keys=new Set(logins.flatMap(login=>dates.map(date=>date+'|'+login)));
+ const existing=statuses.filter(r=>!(r.source===ABSENCE_SOURCE&&keys.has(r.date+'|'+r.login)));
+ return status?[...existing,...logins.flatMap(login=>dates.map(date=>({date,login,status,source:ABSENCE_SOURCE})))]:existing;
+}
+function cutAfterHour(records,{day,shift,login,from}){
+ const len=makeSlots(day,shift).length;
+ if(!Number.isInteger(from)||from<0||from>=len)throw Error('INVALID_DEPARTURE_HOUR');
+ return records.filter(r=>!(r.day===day&&r.shift===shift&&r.login===login&&r.slot>=from));
+}
 function autoHourConfirmed(r,now=Date.now()){const slot=makeSlots(r.day,r.shift)[Number(r.slot)];return Boolean(slot&&slot.end<=now);}
 function finishedHourCount(records,now=Date.now()){return records.reduce((n,r)=>n+(autoHourConfirmed(r,now)?1:0),0);}
 function sheetRows(records,confirmations={}){const shifts=new Map();for(const r of records){const key=shiftKey(r.day,r.shift);if(!shifts.has(key))shifts.set(key,{day:r.day,shift:r.shift});}return {shifts:[['DATA_ZMIANY','GRAFIK'],...[...shifts.values()].sort((a,b)=>a.day.localeCompare(b.day)).map(x=>[x.day,x.shift])],assignments:[['DATA_ZMIANY','GRAFIK','GODZINA_OD','GODZINA_DO','LOGIN_TH','PROCES','STATUS','ZMIENIONO'],...records.slice().sort((a,b)=>a.day.localeCompare(b.day)||a.shift.localeCompare(b.shift)||a.slot-b.slot||a.login.localeCompare(b.login)).map(r=>{const slot=makeSlots(r.day,r.shift)[r.slot];const format=stamp=>{const d=new Date(stamp);return localDate(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes());};return [r.day,r.shift,format(slot.start),format(slot.end),r.login,r.process,autoHourConfirmed(r)?'POTWIERDZONE_AUTO':'PLAN',r.updated||''];})]};}
@@ -76,7 +98,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:''});
+ const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -104,8 +126,10 @@ function create({reactive,computed,roster,source,sourceName,language}){
  // A past assignment stays editable; changes are immediately reflected in the totals.
  function canEditShift(){return true;}
  const team=computed(()=>[...new Set([...(state.shiftTeams[teamKey.value]||[]),...state.records.filter(r=>r.day===state.day&&r.shift===state.shift).map(r=>r.login)])].sort((a,b)=>a.localeCompare(b)));
+ const localAbsence=(login,day=state.day)=>state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login&&ABSENCE_TYPES.has(r.status))?.status||'';
+ const earlyExit=(login,day=state.day)=>state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login&&r.status.startsWith(EARLY_EXIT_PREFIX))?.status.slice(EARLY_EXIT_PREFIX.length)||'';
  const teamAssigned=computed(()=>new Set(current.value.map(r=>r.login)));
- const teamFree=computed(()=>team.value.filter(login=>!teamAssigned.value.has(login)));
+ const teamFree=computed(()=>team.value.filter(login=>!teamAssigned.value.has(login)&&!localAbsence(login)));
  const teamCandidates=computed(()=>{const q=state.teamSearch.toLowerCase().trim();const names=workerNames.value;return !q?[]:initialWorkers.value.filter(login=>!team.value.includes(login)&&(login.toLowerCase().includes(q)||(names.get(login)||'').includes(q))).slice(0,30);});
  const initialWorkers=computed(()=>{
   const people=new Set([...(source()?.employees||[]),...(source()?.intervals||[]).flatMap(s=>s.people.map(p=>p.login)),...state.records.map(r=>r.login),...state.importedHistory.map(r=>r.login),...state.importedStatuses.map(r=>r.login)]);
@@ -157,8 +181,8 @@ function create({reactive,computed,roster,source,sourceName,language}){
  const days=computed(()=>[...new Set(state.records.map(r=>r.day))].sort().reverse());
  const historyRows=computed(()=>{const days=state.historyWindow==='week'?7:state.historyWindow==='month'?31:366;const limit=Date.parse(state.day+'T00:00:00')-(days-1)*86400000;const rows=state.records.filter(r=>new Date(r.day+'T00:00:00').getTime()>=limit);const groups=new Map();for(const r of rows){const key=[r.day,r.login,r.process].join('|');if(!groups.has(key))groups.set(key,{day:r.day,login:r.login,process:r.process,hours:0});groups.get(key).hours++;}return [...groups.values()].sort((a,b)=>b.day.localeCompare(a.day)||a.login.localeCompare(b.login));});
  function selectLogin(login){state.selectedLogin=norm(login);}
- function snapshot(label){undoSnapshot={selectedTemplate:state.selectedTemplate,templateName:state.templateName,teamTemplates:JSON.parse(JSON.stringify(state.teamTemplates)),records:JSON.parse(JSON.stringify(state.records)),shiftTeams:JSON.parse(JSON.stringify(state.shiftTeams)),additionalProcesses:[...state.additionalProcesses],hiddenProcesses:[...state.hiddenProcesses]};state.undoAvailable=true;state.undoLabel=label;}
- function restoreUndo(){if(!canEditShift()||!undoSnapshot)return false;const prior=undoSnapshot;undoSnapshot=null;state.undoAvailable=false;state.records=prior.records;state.teamTemplates=prior.teamTemplates;state.selectedTemplate=prior.selectedTemplate;state.templateName=prior.templateName;state.shiftTeams=prior.shiftTeams;state.additionalProcesses=prior.additionalProcesses;state.hiddenProcesses=prior.hiddenProcesses;save();return true;}
+ function snapshot(label){undoSnapshot={selectedTemplate:state.selectedTemplate,templateName:state.templateName,teamTemplates:JSON.parse(JSON.stringify(state.teamTemplates)),records:JSON.parse(JSON.stringify(state.records)),shiftTeams:JSON.parse(JSON.stringify(state.shiftTeams)),additionalProcesses:[...state.additionalProcesses],hiddenProcesses:[...state.hiddenProcesses],importedStatuses:JSON.parse(JSON.stringify(state.importedStatuses))};state.undoAvailable=true;state.undoLabel=label;}
+ function restoreUndo(){if(!canEditShift()||!undoSnapshot)return false;const prior=undoSnapshot;undoSnapshot=null;state.undoAvailable=false;state.records=prior.records;state.teamTemplates=prior.teamTemplates;state.selectedTemplate=prior.selectedTemplate;state.templateName=prior.templateName;state.shiftTeams=prior.shiftTeams;state.additionalProcesses=prior.additionalProcesses;state.hiddenProcesses=prior.hiddenProcesses;state.importedStatuses=prior.importedStatuses;save();return true;}
  async function save(){
   const before=new Map(lastSavedRecords.map(r=>[[r.day,r.shift,r.slot,r.login].join('|'),r]));
   const after=new Map(state.records.map(r=>[[r.day,r.shift,r.slot,r.login].join('|'),r]));
@@ -203,11 +227,72 @@ function create({reactive,computed,roster,source,sourceName,language}){
  }
  async function addTeamMember(login){if(!canEditShift())return false;login=norm(login);if(!login||!initialWorkers.value.includes(login))return false;if(team.value.includes(login))return true;snapshot('add');state.shiftTeams={...state.shiftTeams,[teamKey.value]:[...(state.shiftTeams[teamKey.value]||[]),login]};state.teamSearch='';state.teamPicker=false;await save();return true;}
  async function removeTeamMember(login){if(!canEditShift())return false;login=norm(login);if(!team.value.includes(login))return false;const existing=state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&r.login===login);if(existing.length&&typeof root.confirm==='function'&&!root.confirm(({ru:'Удалить сотрудника из смены и все его назначения на эту смену?',en:'Remove the worker from this shift and all assignments on this shift?',uk:'Прибрати працівника зі зміни та всі його призначення?',pl:'Usunąć pracownika ze zmiany i wszystkie jego przydziały?'}[language?.()]||'Usunąć pracownika ze zmiany i wszystkie jego przydziały?')))return false;snapshot('remove-team');state.shiftTeams={...state.shiftTeams,[teamKey.value]:(state.shiftTeams[teamKey.value]||[]).filter(x=>x!==login)};state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.login===login));state.selectedLogin=state.selectedLogin===login?'':state.selectedLogin;await save();return true;}
- async function assign(login,process){if(!canEditShift())return false;login=norm(login);process=norm(process);if(!login||!process||state.from<0||state.from>=slots.value.length)return false;snapshot('assign');state.records=assignFromHour(state.records,{day:state.day,shift:state.shift,from:state.from,login,process});if(!state.shiftTeams[teamKey.value]?.includes(login))state.shiftTeams={...state.shiftTeams,[teamKey.value]:[...(state.shiftTeams[teamKey.value]||[]),login]};state.selectedLogin='';await save();return true;}
+ async function assign(login,process){if(!canEditShift())return false;login=norm(login);process=norm(process);if(!login||!process||state.from<0||state.from>=slots.value.length)return false;if(localAbsence(login)){state.error='ABSENCE_CLEAR_FIRST';return false;}snapshot('assign');state.records=assignFromHour(state.records,{day:state.day,shift:state.shift,from:state.from,login,process});if(!state.shiftTeams[teamKey.value]?.includes(login))state.shiftTeams={...state.shiftTeams,[teamKey.value]:[...(state.shiftTeams[teamKey.value]||[]),login]};state.selectedLogin='';await save();return true;}
  async function removeRange(login,scope='hour'){if(!canEditShift())return false;login=norm(login);const from=scope==='shift'?0:state.from,to=scope==='shift'?slots.value.length:scope==='range'?state.to:state.from+1;const next=dropAssignments(state.records,{day:state.day,shift:state.shift,login,from,to});if(next.length===state.records.length)return false;snapshot('remove');state.records=next;await save();return true;}
  async function remove(login){return removeRange(login,'hour');}
  function chooseRemoval(login){state.removingLogin=norm(login);return !!state.removingLogin;}
  async function confirmRemoval(scope){if(!state.removingLogin)return false;const login=state.removingLogin;state.removingLogin='';return removeRange(login,scope);}
+ function openWorkerActions(login){
+  const member=norm(login);if(!member)return false;
+  state.actionLogin=member;state.actionSelected=[member];state.actionType='WOLNY';
+  state.actionFrom=state.day;state.actionTo=state.day;state.actionHour=state.from;
+  state.error='';return true;
+ }
+ function toggleActionWorker(login){
+  const set=new Set(state.actionSelected);
+  if(set.has(login))set.delete(login);else set.add(login);
+  state.actionSelected=[...set];
+ }
+ function closeWorkerActions(){state.actionLogin='';state.actionSelected=[];}
+ async function applyDayStatus(){
+  if(!canEditShift())return false;
+  const logins=[...new Set(state.actionSelected.map(norm).filter(Boolean))],type=state.actionType;
+  if(!logins.length||!ABSENCE_TYPES.has(type))return false;
+  try{
+   const dates=absenceDates(state.actionFrom,state.actionTo);
+   // A full-day absence must never silently erase hours that have already elapsed.
+   const confirmed=state.records.filter(r=>logins.includes(r.login)&&dates.includes(r.day)&&autoHourConfirmed(r,clock.now));
+   if(confirmed.length)throw Error('ABSENCE_HAS_CONFIRMED_HOURS');
+   const localConflicts=state.records.filter(r=>logins.includes(r.login)&&dates.includes(r.day));
+   const importedConflicts=state.importedHistory.filter(r=>logins.includes(r.login)&&dates.includes(r.date)&&Number(r.hours)>0);
+   if((localConflicts.length||importedConflicts.length)&&typeof root.confirm==='function'){
+    const msg={ru:'За выбранные даты есть рабочие записи. Будущие локальные назначения будут сняты. Импортированная история останется доступна для сверки. Продолжить?',pl:'W wybranych dniach istnieją wpisy pracy. Przyszłe przydziały lokalne zostaną usunięte, historia importowana pozostanie do weryfikacji. Kontynuować?',en:'These dates contain work records. Future local assignments will be removed; imported history stays for review. Continue?',uk:'За вибрані дати є записи роботи. Майбутні локальні призначення буде знято, імпортована історія залишиться для перевірки. Продовжити?'}[language?.()]||'Confirm absence?';
+    if(!root.confirm(msg))return false;
+   }
+   snapshot('absence');
+   state.records=state.records.filter(r=>!(logins.includes(r.login)&&dates.includes(r.day)));
+   state.importedStatuses=updateLocalAbsences(state.importedStatuses,logins,dates,type);
+   closeWorkerActions();await save();return state.status!=='BROWSER_SAVE_FAILED';
+  }catch(err){state.error=err.message||String(err);return false;}
+ }
+ async function markEarlyExit(){
+  const login=norm(state.actionLogin),from=Number(state.actionHour),slot=slots.value[from];
+  if(!login||!slot||!Number.isInteger(from))return false;
+  if(typeof root.confirm==='function'&&!root.confirm(({ru:'Снять назначения с '+slot.from+' до конца смены? Все часы до этого времени сохранятся.',pl:'Usunąć przydziały od '+slot.from+' do końca zmiany? Wcześniejsze godziny pozostaną.',en:'Remove assignments from '+slot.from+' through shift end? Earlier hours are preserved.',uk:'Зняти призначення від '+slot.from+' до кінця зміни? Попередні години залишаться.'}[language?.()]||'Confirm early departure?')))return false;
+  snapshot('early-exit');
+  state.records=cutAfterHour(state.records,{day:state.day,shift:state.shift,login,from});
+  state.importedStatuses=updateLocalAbsences(state.importedStatuses,[login],[state.day],EARLY_EXIT_PREFIX+slot.from);
+  closeWorkerActions();await save();return state.status!=='BROWSER_SAVE_FAILED';
+ }
+ async function clearWorkerStatus(){
+  const login=norm(state.actionLogin);if(!login)return false;
+  const before=state.importedStatuses.length;
+  const filtered=state.importedStatuses.filter(r=>!(r.source===ABSENCE_SOURCE&&r.login===login&&r.date===state.day));
+  if(before===filtered.length){closeWorkerActions();return false;}
+  snapshot('clear-status');state.importedStatuses=filtered;state.selectedLogin=login;closeWorkerActions();await save();return true;
+ }
+ async function resumeWorker(){
+  const login=norm(state.actionLogin);if(!login)return false;
+  const date=state.day;
+  snapshot('resume-worker');
+  state.importedStatuses=state.importedStatuses.filter(r=>!(r.source===ABSENCE_SOURCE&&r.login===login&&r.date===date));state.selectedLogin=login;closeWorkerActions();await save();return true;
+ }
+ async function removeFromSelectedHour(){
+  const login=norm(state.actionLogin),slot=slots.value[state.actionHour];if(!login||!slot)return false;
+  const next=cutAfterHour(state.records,{day:state.day,shift:state.shift,login,from:Number(state.actionHour)});
+  if(next.length===state.records.length)return false;
+  snapshot('remove-from-hour');state.records=next;closeWorkerActions();await save();return true;
+ }
  function startDrag(event,login){event.dataTransfer.setData('text/plain',login);event.dataTransfer.effectAllowed='move';state.selectedLogin=login;}
  async function drop(event,process){event.preventDefault();const login=event.dataTransfer.getData('text/plain')||state.selectedLogin;await assign(login,process);}
  async function addProcess(name){if(!canEditShift())return false;
@@ -421,17 +506,20 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(!entries.length)return false;
   const plan=entries.filter(r=>r.origin==='plan'&&r.shift);
   const imported=entries.filter(r=>r.origin==='import');
-  if(!plan.length&&!imported.length)return false;
+  const localStatus=entries.filter(r=>r.kind==='status'&&r.source===ABSENCE_SOURCE);
+  if(!plan.length&&!imported.length&&!localStatus.length)return false;
   const message={pl:'Zastosować zmiany do wybranych wpisów historii? Przydziały zostaną usunięte z planu, a dane SharePoint tylko wykluczone lokalnie.',ru:'Применить изменения к выбранным записям? Назначения будут удалены из плана, а записи SharePoint только исключены локально.',en:'Apply changes? Planned assignments will be deleted, SharePoint history only excluded locally.',uk:'Застосувати зміни? Призначення буде видалено, історію SharePoint лише виключено локально.'};
   if(typeof root.confirm==='function'&&!root.confirm(message[language?.()]||message.pl))return false;
   const remove=new Set(plan.map(r=>[r.date,r.shift,r.login,processKey(r.process)].join('|')));
   const records=state.records.filter(r=>!remove.has([r.day,r.shift,r.login,processKey(r.process)].join('|')));
   const excluded=new Set(state.excludedHistory);
   for(const r of imported){const key=historyExclusionKey(r);if(r.excluded)excluded.delete(key);else excluded.add(key);}
-  if(records.length===state.records.length&&[...excluded].sort().join('|')===[...state.excludedHistory].sort().join('|'))return false;
-  const beforeRecords=state.records,beforeExcluded=state.excludedHistory;
-  snapshot('history-edit');state.records=records;state.excludedHistory=[...excluded];await save();
-  if(state.status==='BROWSER_SAVE_FAILED'){state.records=beforeRecords;state.excludedHistory=beforeExcluded;return false;}
+  const statusKeys=new Set(localStatus.map(r=>[r.date,r.login,r.status].join('|')));
+  const newStatuses=state.importedStatuses.filter(r=>r.source!==ABSENCE_SOURCE||!statusKeys.has([r.date,r.login,r.status].join('|')));
+  if(records.length===state.records.length&&[...excluded].sort().join('|')===[...state.excludedHistory].sort().join('|')&&newStatuses.length===state.importedStatuses.length)return false;
+  const beforeRecords=state.records,beforeExcluded=state.excludedHistory,beforeStatuses=state.importedStatuses;
+  snapshot('history-edit');state.records=records;state.excludedHistory=[...excluded];state.importedStatuses=newStatuses;await save();
+  if(state.status==='BROWSER_SAVE_FAILED'){state.records=beforeRecords;state.excludedHistory=beforeExcluded;state.importedStatuses=beforeStatuses;return false;}
   return true;
  }
  async function ensureFolders(rootHandle){for(const name of ['OpenReports','SharePoint','Obsada','Import','Backup'])await rootHandle.getDirectoryHandle(name,{create:true});}
@@ -578,8 +666,8 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,templateNames,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {state,templateNames,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
-root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported};
+root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
 })(typeof window!=='undefined'?window:globalThis);

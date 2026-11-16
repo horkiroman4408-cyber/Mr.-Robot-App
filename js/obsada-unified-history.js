@@ -25,16 +25,20 @@ function resolve({history=[],statuses=[],records=[],now=Date.now(),isConfirmed,i
   }
  }
  const onlineTotals=new Map(),onlineProcesses=new Map();
+ // Local day-off/leave status is authoritative for an absent day. Preserve the
+ // original SharePoint history for review, but do not count it as verified work.
+ const absent=new Set(statuses.filter(r=>r.source==='Planowanie'&&['WOLNY','URLOP'].includes(r.status)).map(r=>key(r.date,r.login)));
  const imported=history.map(r=>{
   const k=key(r.date,r.login),excluded=!!isExcluded({...r,kind:'work'}),hours=Number(r.hours)||0;
-  if(!excluded){
+  if(!excluded&&!absent.has(k)){
    onlineTotals.set(k,(onlineTotals.get(k)||0)+hours);
    const pm=onlineProcesses.get(k)||new Map(),p=proc(r.process);
    pm.set(p,(pm.get(p)||0)+hours);onlineProcesses.set(k,pm);
   }
-  return {...r,origin:'import',kind:'work',sourceType:r.sourceType||'main',superseded:localTotals.has(k),excluded};
+  return {...r,origin:'import',kind:'work',sourceType:r.sourceType||'main',superseded:localTotals.has(k)||absent.has(k),excluded};
  });
- const resolvedStatuses=statuses.map(r=>({...r,process:r.status,hours:0,sourceType:'status',origin:'import',kind:'status',excluded:!!isExcluded({...r,kind:'status'})}));
+ const localDays=new Set(statuses.filter(r=>r.source==='Planowanie').map(r=>key(r.date,r.login)));
+ const resolvedStatuses=statuses.filter(r=>r.source==='Planowanie'||!localDays.has(key(r.date,r.login))).map(r=>({...r,process:r.status,hours:0,sourceType:'status',origin:r.source==='Planowanie'?'plan':'import',kind:'status',excluded:!!isExcluded({...r,kind:'status'})}));
  const discrepancies=[];
  for(const [k,online] of onlineTotals){
   if(!localTotals.has(k))continue;

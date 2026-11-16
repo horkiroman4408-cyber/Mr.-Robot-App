@@ -1,0 +1,31 @@
+'use strict';
+const assert=require('node:assert/strict');
+const m=require('../js/obsada-planner.js');
+const memory=new Map(),original={indexedDB:global.indexedDB,confirm:global.confirm,setInterval:global.setInterval};
+global.setInterval=()=>1;global.confirm=()=>true;
+global.indexedDB={open(){const request={result:null};queueMicrotask(()=>{const database={createObjectStore(){},close(){},transaction(){const tx={oncomplete:null,onabort:null,onerror:null};tx.objectStore=()=>({get(k){const req={result:memory.get(k)};queueMicrotask(()=>req.onsuccess?.());return req;},put(v,k){memory.set(k,v);queueMicrotask(()=>tx.oncomplete?.());return {};}});return tx;}};request.result=database;request.onupgradeneeded?.();request.onsuccess?.();});return request;}};
+const computed=fn=>({get value(){return fn();}});
+(async()=>{
+ const app=m.create({reactive:x=>x,computed,roster:()=>[],source:()=>null,language:()=> 'ru'});
+ await new Promise(r=>setTimeout(r,10));
+ app.state.day='2099-11-15';app.state.shift='18-06';
+ app.state.records=m.assignFromHour([],{day:'2099-11-15',shift:'18-06',from:0,login:'PD1',process:'AUDYT'});
+ app.openWorkerActions('PD1');assert.equal(app.state.actionLogin,'PD1');
+ app.state.actionType='WOLNY';assert.equal(await app.applyDayStatus(),true);
+ assert.equal(app.state.records.length,0);assert.equal(app.localAbsence('PD1'),'WOLNY');
+ assert.equal(memory.get('records').importedStatuses.some(r=>r.status==='WOLNY'&&r.source==='Planowanie'),true);
+ assert.equal(await app.assign('PD1','AUDYT'),false,'cannot silently assign worker on absence day');
+ app.openWorkerActions('PD1');assert.equal(await app.resumeWorker(),true);assert.equal(app.localAbsence('PD1'),'');
+ assert.equal(await app.assign('PD1','AUDYT'),true,'can assign again after resume');
+ app.openWorkerActions('PD1');app.state.actionType='early';app.state.actionHour=5;
+ assert.equal(await app.markEarlyExit(),true);
+ assert.equal(app.state.records.length,5);assert.equal(app.earlyExit('PD1'),'23:00');
+ assert.equal(memory.get('records').records.length,5);
+ app.openWorkerActions('PD1');assert.equal(await app.resumeWorker(),true);
+ assert.equal(app.earlyExit('PD1'),'');assert.equal(app.state.selectedLogin,'PD1');
+ // A full-day absence cannot overwrite already completed work.
+ app.state.day='2020-11-15';app.state.records=m.assignFromHour([],{day:'2020-11-15',shift:'18-06',from:0,login:'PD1',process:'AUDYT'});
+ app.openWorkerActions('PD1');app.state.actionFrom='2020-11-15';app.state.actionTo='2020-11-15';
+ assert.equal(await app.applyDayStatus(),false);assert.equal(app.state.error,'ABSENCE_HAS_CONFIRMED_HOURS');
+ console.log('PASS worker actions: leave, resume, departure, IndexedDB, protected past');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{global.indexedDB=original.indexedDB;global.confirm=original.confirm;global.setInterval=original.setInterval;});

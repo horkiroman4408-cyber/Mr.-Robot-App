@@ -714,3 +714,20 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 
 /* Obsada Intelligence: dates for the last two work shifts. */
 #app .obs-team-intel-days-list time{display:inline-block;font-variant-numeric:tabular-nums;margin-left:3px;color:var(--obs-text)}
+
+/* Obsada worker actions: compact, accessible, theme-aware. */
+#app .obs-plan-worker-actions{width:29px;flex:none;cursor:pointer;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);border-radius:9px;font-size:18px;line-height:1}
+#app .obs-plan-worker-actions:hover{background:var(--obs-soft);border-color:var(--obs-accent)}
+#app .obs-plan-action-dialog{width:min(100%,490px)}
+#app .obs-action-type-row{display:flex;flex-wrap:wrap;gap:6px}
+#app .obs-action-type-row button{padding:8px 10px;border-radius:9px;border:1px solid var(--obs-border);background:transparent;color:var(--obs-text);font:inherit;font-size:12px;cursor:pointer}
+#app .obs-action-type-row button.active{border-color:var(--obs-accent);background:var(--obs-soft);color:var(--obs-accent)}
+#app .obs-action-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#app .obs-action-dates label,#app .obs-action-hour{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--obs-text)}
+#app .obs-action-hour select{padding:10px;border-radius:9px;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text)}
+#app .obs-action-multi{border:1px solid var(--obs-border);border-radius:10px;padding:10px;font-size:12px;color:var(--obs-text)}
+#app .obs-action-multi summary{cursor:pointer}
+#app .obs-action-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:170px;overflow-y:auto;margin-top:10px}
+#app .obs-action-people label{display:flex;gap:5px;align-items:center;min-width:0;overflow-wrap:anywhere}
+#app .obs-action-primary{border-color:var(--obs-accent)!important;color:var(--obs-accent)!important;background:var(--obs-soft)!important}
+@media(max-width:420px){#app .obs-action-dates,#app .obs-action-people{grid-template-columns:1fr}}
