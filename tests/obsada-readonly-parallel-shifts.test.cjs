@@ -1,0 +1,31 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const P=require('../js/obsada-planner.js');
+const day='2026-11-16', A='18-06', B='14-22';
+let records=[];
+records=P.assignFromHour(records,{day,shift:A,from:0,login:'A',process:'AUDYT'});
+records=P.assignFromHour(records,{day,shift:B,from:0,login:'B',process:'AUDYT'});
+const snapshot=JSON.stringify(records),xlsx=JSON.stringify(P.sheetRows(records).assignments);
+const timeline=P.combinedTimeline(day,A,{[day+'|'+A]:['A'],[day+'|'+B]:['B']},records);
+function at(hour){return timeline.find(x=>x.from===hour).start;}
+assert.equal(P.rosterAtTimestamp(records,at('15:00')).count,1);
+assert.equal(P.rosterAtTimestamp(records,at('15:00')).groups[0].people[0].login,'B');
+const overlap=P.rosterAtTimestamp(records,at('19:00'));
+assert.equal(overlap.count,2);assert.equal(overlap.groups.length,1);assert.equal(overlap.groups[0].count,2);
+assert.equal(P.rosterAtTimestamp(records,at('23:00')).count,1);
+assert.equal(P.rosterAtTimestamp(records,at('00:00')).count,1);
+assert.equal(P.rosterAtTimestamp(records,at('00:00')).groups[0].people[0].login,'A');
+// A duplicate person on two overlapping schedules must never count twice.
+const double=[...records,...P.assignFromHour([],{day,shift:B,from:4,login:'A',process:'METKI'})];
+const dup=P.rosterAtTimestamp(double,at('19:00'),day,A);
+assert.equal(dup.count,2);assert.equal(dup.conflicts.length,1);
+assert.equal(dup.groups.find(g=>g.name==='AUDYT').people.length,2);
+assert.equal(JSON.stringify(records),snapshot);assert.equal(JSON.stringify(P.sheetRows(records).assignments),xlsx);
+const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
+assert.match(html,/obsadaPlan\.readonlyTimeline/);
+assert.match(html,/obsadaPlan\.chooseReadonlyHour\(hour\.start\)/);
+assert.match(html,/obsadaPlan\.readonlyRoster\.conflicts/);
+assert.match(html,/obsadaPlan\.readonlyActiveShifts/);
+console.log('PASS readonly parallel rosters, overlap, midnight, dedup, unchanged XLSX');

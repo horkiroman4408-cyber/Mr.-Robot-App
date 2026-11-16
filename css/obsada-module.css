@@ -761,3 +761,10 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-parallel-adding[open] .obs-plan-parallel-picker{padding-top:10px}
 @media(max-width:1050px){#app .obs-plan-controlbar .obs-plan-shared-hours{grid-template-columns:repeat(8,minmax(0,1fr))}}
 @media(max-width:680px){#app .obs-plan-controlbar .obs-plan-shared-hours{grid-template-columns:repeat(4,minmax(0,1fr))}#app .obs-plan-team-tag-add{display:none}#app .obs-plan-parallel-compact .obs-plan-parallel-title{gap:7px}}
+
+/* Read-only Obsada: compact shared-hour navigator for overlapping shifts. */
+#app .obsada-module .obs-readonly-shifts{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0 7px}
+#app .obsada-module .obs-readonly-shift{font-size:10px;line-height:1.4;padding:5px 8px;border:1px solid var(--obs-border);border-radius:9px;color:var(--obs-text);background:var(--obs-surface)}
+#app .obsada-module .obs-readonly-hourstrip{margin:7px 0 8px}
+#app .obsada-module .obs-readonly-hourcontext{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--obs-muted);margin-bottom:13px}
+#app .obsada-module .obs-readonly-hourcontext strong{color:var(--obs-text)}
