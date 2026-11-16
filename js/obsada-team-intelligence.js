@@ -17,7 +17,21 @@ function calendarRange(mode,offset=0,referenceDay=today()){
  const last=new Date(first.getFullYear(),first.getMonth()+1,0,12);
  return {from:today(first),to:today(last)};
 }
-function summarize(rows,selected,from,to,referenceDay=today()){
+// A confirmed HOUR is not necessarily a completed SHIFT. In recent activity
+// only use locally confirmed work once the actual shift end has passed.
+const shiftTimes={
+ '06-18':[6,18],'18-06':[18,6],'06-16':[6,16],
+ '16-02':[16,2],'06-14':[6,14],'14-22':[14,22]
+};
+function finishedShift(date,shift,now){
+ const bounds=shiftTimes[shift];
+ const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+ if(!bounds||!m)return false; // Do not infer completion without a known schedule.
+ const [start,end]=bounds;
+ const until=new Date(Number(m[1]),Number(m[2])-1,Number(m[3])+(end<=start?1:0),end,0,0,0).getTime();
+ return Number.isFinite(until)&&until<=now;
+}
+function summarize(rows,selected,from,to,referenceDay=today(),now=Date.now()){
  const employees=[...new Set(selected)].filter(Boolean), names=new Set(employees);
  const valid=rows.filter(r=>names.has(r.login)&&!r.excluded&&!r.superseded&&(r.kind==='work'||r.kind==='confirmed')&&Number(r.hours)>0);
  const kept=valid.filter(r=>r.date>=from&&r.date<=to);
@@ -44,10 +58,11 @@ function summarize(rows,selected,from,to,referenceDay=today()){
    const date=String(r.date||'');
    const name=String(r.process||'').trim();
    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!name)continue;
-   // A monthly XLSX gives a date and total, not proof that today's shift
-   // already started. Use today's confirmed local hours if present, but defer
-   // imported work for today until tomorrow. Never show future dates here.
+   // Imported monthly totals carry no trustworthy time-of-day. Do not show
+   // today's import as a completed shift. Local hourly confirmations count
+   // only after their FULL shift ends, including shifts past midnight.
    if(date>referenceDay||(r.kind==='work'&&date===referenceDay))continue;
+   if(r.kind==='confirmed'&&!finishedShift(date,r.shift,now))continue;
    if(!recentByDay.has(date))recentByDay.set(date,new Map());
    const processes=recentByDay.get(date);
    processes.set(name,(processes.get(name)||0)+Number(r.hours));
