@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-obsada-history-jump-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-intel-day-summary-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -368,7 +368,12 @@
     <p class="obs-quiet obs-team-intel-note">{{ eMsg('Wczoraj','Вчера','Yesterday','Вчора') }}: {{ obsadaTeamSummary.yesterday }} · {{ eMsg('Przedwczoraj','Позавчера','Day before yesterday','Позавчора') }}: {{ obsadaTeamSummary.dayBeforeYesterday }}. {{ eMsg('Brak wpisu nie oznacza dnia wolnego.','Отсутствие записи не означает выходной.','No record does not imply a day off.','Відсутність запису не означає вихідний.') }}</p>
     <p v-if="obsadaTeamReconciliationVisible.length" class="obs-quiet obs-intel-reconcile-note">{{ eMsg('Uwaga: rozbieżności między historią miesięczną a potwierdzonym planem. Sprawdź zakładkę Historia.','Внимание: месячная история и подтверждённый план расходятся. Подробности во вкладке «История».','Monthly history differs from confirmed plans. Review details in History.','Увага: місячна історія відрізняється від підтвердженого плану. Деталі в Історії.') }}</p><div class="obs-team-intel-cards"><article v-for="card in obsadaTeamSummary.cards" :key="card.login" class="obs-team-intel-card">
       <div class="obs-team-intel-card-head"><div><button type="button" @click="obsadaTeamOpenEmployee(card.login)" :title="eMsg('Profil pracownika','Карточка сотрудника','Employee profile','Профіль працівника')">{{ card.login }} ↗</button><small v-if="pracownicyKpiLookup(card.login)?.name">{{ pracownicyKpiLookup(card.login).name }}</small></div><strong>{{ obsada.formatHours(card.hours,uiLanguage) }} h</strong></div>
-      <small class="obs-team-intel-days">{{ card.days }} {{ eMsg('dni z wpisami','дней с данными','days with records','днів із записами') }}</small>
+      <div class="obs-team-intel-stats" :aria-label="eMsg('Podsumowanie dni w wybranym okresie','Дни за выбранный период','Days in selected period','Дні за вибраний період')">
+       <span :title="eMsg('Dni z uwzględnianą pracą','Дни с учтённой работой','Days with counted work','Дні з урахованою роботою')"><b>{{ card.days }}</b> {{ eMsg('dni pracy','рабочих','work days','робочих') }}</span>
+       <span :title="eMsg('Dni ze statusem WOLNY','Дни со статусом WOLNY','Days explicitly marked WOLNY','Дні зі статусом WOLNY')"><b>{{ card.dayOffDays }}</b> {{ eMsg('wolne','выходных','days off','вихідних') }}</span>
+       <span :title="eMsg('Dni ze statusem URLOP','Дни со статусом URLOP','Days explicitly marked URLOP','Дні зі статусом URLOP')"><b>{{ card.leaveDays }}</b> {{ eMsg('urlop','отпуск','leave','відпустка') }}</span>
+       <span v-if="card.sickDays" :title="eMsg('Dni ze statusem chorobowym','Дни со статусом больничного','Days explicitly marked sick leave','Дні зі статусом лікарняного')"><b>{{ card.sickDays }}</b> {{ eMsg('L4','больничных','sick','лікарняних') }}</span>
+      </div>
       <div class="obs-team-intel-processes"><div v-for="proc in card.processes" :key="proc.process" class="obs-team-intel-process"><div class="obs-team-intel-process-label"><span :title="proc.process">{{ proc.process }}</span><b>{{ obsada.formatHours(proc.hours,uiLanguage) }} h</b></div><div class="obs-team-intel-track" role="meter" :aria-label="proc.process" :aria-valuenow="proc.hours" aria-valuemin="0" :aria-valuemax="Math.max(card.hours,proc.hours)"><span :style="{width:Math.min(100,100*proc.hours/Math.max(1,card.hours))+'%'}"></span></div></div></div>
       <p v-if="!card.hours" class="obs-quiet">{{ eMsg('Brak uwzględnianych godzin w okresie.','Нет учитываемых часов за период.','No counted hours in this period.','Немає врахованих годин за період.') }}</p>
       <div class="obs-team-intel-days-list"><div><span>{{ eMsg('Wczoraj','Вчера','Yesterday','Вчора') }}</span><p v-if="card.yesterday.length"><span v-for="(v,i) in card.yesterday" :key="v.process">{{ i?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p><p v-else-if="card.yesterdayStatuses.length"><span v-for="(status,i) in card.yesterdayStatuses" :key="status">{{ i?', ':'' }}{{ obsadaTeamDayStatus(status) }}</span></p><p v-else>— {{ eMsg('brak wpisu','нет записи','no record','немає запису') }}</p></div><div><span>{{ eMsg('Przedwczoraj','Позавчера','Day before','Позавчора') }}</span><p v-if="card.dayBeforeYesterday.length"><span v-for="(v,i) in card.dayBeforeYesterday" :key="v.process">{{ i?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p><p v-else-if="card.dayBeforeYesterdayStatuses.length"><span v-for="(status,i) in card.dayBeforeYesterdayStatuses" :key="status">{{ i?', ':'' }}{{ obsadaTeamDayStatus(status) }}</span></p><p v-else>— {{ eMsg('brak wpisu','нет записи','no record','немає запису') }}</p></div></div>
@@ -2812,7 +2817,7 @@
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
 <script src="js/obsada-planner.js?v=3.25.0-obsada-folder-date-1"></script>
-<script src="js/obsada-team-intelligence.js?v=3.25.0-obsada-intel-day-statuses-1"></script>
+<script src="js/obsada-team-intelligence.js?v=3.25.0-intel-day-summary-1"></script>
 <script src="js/obsada-unified-history.js?v=3.25.0-unified-history-1"></script>
 <script src="js/app.js?v=3.25.0-unified-history-1"></script>
 <script src="js/pwa-register.js"></script>

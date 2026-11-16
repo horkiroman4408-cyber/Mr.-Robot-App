@@ -699,3 +699,15 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-process-suggestions{position:absolute;z-index:25;top:calc(100% + 5px);left:0;right:0;max-height:240px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);box-shadow:0 12px 30px rgba(0,0,0,.13);padding:5px}
 #app .obs-plan-process-suggestions button{display:block;width:100%;text-align:left;border:0;border-radius:8px;background:transparent;color:var(--obs-text);padding:10px 11px;min-height:36px;font-size:12px;font-weight:650;cursor:pointer}
 #app .obs-plan-process-suggestions button:hover,#app .obs-plan-process-suggestions button[aria-selected=true]{background:rgba(185,79,92,.10)}
+
+/* Obsada Intelligence: compact day breakdown, driven only by explicit stored history. */
+#app .obs-team-intel-card-head{align-items:start;gap:8px;margin-bottom:7px}
+#app .obs-team-intel-card-head button{line-height:1.4}
+#app .obs-team-intel-card-head strong{font-size:17px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+#app .obs-team-intel-stats{display:flex;align-items:center;flex-wrap:wrap;gap:5px 11px;margin:0 0 12px;color:var(--obs-muted);font-size:10px;line-height:1.4}
+#app .obs-team-intel-stats span{display:inline-flex;gap:4px;align-items:baseline;white-space:nowrap}
+#app .obs-team-intel-stats span+span:before{content:'·';margin-right:7px;color:var(--obs-muted);opacity:.55}
+#app .obs-team-intel-stats b{font-variant-numeric:tabular-nums;color:var(--obs-text);font-size:11px}
+#app .obs-team-intel-processes{gap:6px}
+#app .obs-team-intel-days-list{margin-top:11px;padding-top:10px}
+@media(max-width:650px){#app .obs-team-intel-stats{gap:5px 9px}#app .obs-team-intel-stats span+span:before{margin-right:5px}}
