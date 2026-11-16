@@ -810,3 +810,10 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 @media(max-width:650px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#app .obsada-module .obs-roster-grip{display:none}#app .obsada-module .obs-roster-move{padding:7px}}
 
 @media(max-width:430px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:1fr}}
+
+/* Intelligence: additive team selection, with removable team tags. */
+#app .obs-team-intel-team-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px}
+#app .obs-team-intel-team-tag{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--obs-border);background:var(--obs-soft);border-radius:9px;padding:3px 5px 3px 9px;color:var(--obs-text);font-size:11px;max-width:100%}
+#app .obs-team-intel-team-tag>span{min-width:0;overflow-wrap:anywhere}
+#app .obs-team-intel-team-tag button{border:0;background:transparent;color:var(--obs-muted);font-size:17px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:6px}
+#app .obs-team-intel-team-tag button:hover,#app .obs-team-intel-team-tag button:focus-visible{color:var(--obs-accent);background:var(--obs-surface)}

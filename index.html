@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-department-three-stats-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-intelligence-multiteam-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -407,9 +407,12 @@
     </div>
     <div class="obs-team-intel-pickerbar">
      <button type="button" class="obs-team-intel-picker-toggle" @click="obsadaTeam.chooserOpen=!obsadaTeam.chooserOpen" :aria-expanded="obsadaTeam.chooserOpen">{{ eMsg('Pracownicy','Сотрудники','Employees','Працівники') }} ({{ obsadaTeam.selected.length }}) <span>{{ obsadaTeam.chooserOpen?'▴':'▾' }}</span></button>
-     <select v-model="obsadaTeam.templateChoice" @change="obsadaTeamSelectTemplate()" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Zapisany zespół…','Сохранённая команда…','Saved team…','Збережена команда…') }}</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name">{{ name }} · {{ (obsadaPlan.state.teamTemplates[name]||[]).length }}</option></select>
+     <select v-model="obsadaTeam.templateChoice" @change="obsadaTeamSelectTemplate()" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Dodaj zapisany zespół…','Добавить команду…','Add saved team…','Додати команду…') }}</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name" :disabled="obsadaTeam.selectedTemplates.includes(name)">{{ name }} · {{ (obsadaPlan.state.teamTemplates[name]||[]).length }}{{ obsadaTeam.selectedTemplates.includes(name)?' ✓':'' }}</option></select>
      <button type="button" @click="obsadaTeamAddShift()">{{ eMsg('Wybierz bieżącą zmianę','Выбрать текущую смену','Select current shift','Вибрати поточну зміну') }}</button>
-     <button v-if="obsadaTeam.selected.length" type="button" @click="obsadaTeam.selected=[];obsadaTeam.templateChoice=''">{{ eMsg('Wyczyść','Очистить','Clear','Очистити') }}</button>
+     <button v-if="obsadaTeam.selected.length" type="button" @click="obsadaTeamClear()">{{ eMsg('Wyczyść','Очистить','Clear','Очистити') }}</button>
+    </div>
+    <div v-if="obsadaTeam.selectedTemplates.length" class="obs-team-intel-team-tags" :aria-label="eMsg('Zespoły w analizie','Команды в анализе','Teams in analysis','Команди в аналізі')">
+     <span class="obs-team-intel-team-tag" v-for="name in obsadaTeam.selectedTemplates" :key="name"><span>{{ name }} · {{ (obsadaPlan.state.teamTemplates[name]||[]).length }}</span><button type="button" @click="obsadaTeamRemoveTemplate(name)" :title="eMsg('Usuń zespół z analizy','Убрать команду из анализа','Remove team from analysis','Прибрати команду з аналізу')" :aria-label="eMsg('Usuń zespół','Убрать команду','Remove team','Прибрати команду')+' '+name">×</button></span>
     </div>
     <div v-if="obsadaTeam.selected.length" class="obs-team-intel-selected"><button type="button" v-for="login in obsadaTeam.selected" :key="login" @click="obsadaTeamToggle(login)" :title="eMsg('Usuń z analizy','Убрать из анализа','Remove from analysis','Прибрати з аналізу')">{{ login }} <span aria-hidden="true">×</span></button></div>
     <div v-if="obsadaTeam.chooserOpen" class="obs-team-intel-chooser"><input class="obs-team-intel-search" type="search" v-model="obsadaTeam.search" :placeholder="eMsg('Szukaj loginu lub nazwiska','Поиск логина или имени','Search login or name','Пошук логіна або імені')"><div class="obs-team-intel-people"><label v-for="login in obsadaTeamCandidates.slice(0,60)" :key="login" class="obs-team-intel-option" :class="{selected:obsadaTeam.selected.includes(login)}"><input type="checkbox" :checked="obsadaTeam.selected.includes(login)" @change="obsadaTeamToggle(login)"><span>{{ login }}</span><small v-if="pracownicyKpiLookup(login)?.name">{{ pracownicyKpiLookup(login).name }}</small></label></div><small v-if="obsadaTeamCandidates.length>60" class="obs-quiet">{{ eMsg('Wpisz login, aby zawęzić listę','Введи логин, чтобы сузить список','Search to narrow the list','Введіть логін для пошуку') }}</small></div>
@@ -2878,7 +2881,7 @@
 <script src="js/obsada-planner.js?v=3.25.0-department-cards-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.25.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.25.0-worker-actions-1"></script>
-<script src="js/app.js?v=3.25.0-worker-actions-1"></script>
+<script src="js/app.js?v=3.25.0-intelligence-multiteam-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
