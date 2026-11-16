@@ -18,6 +18,27 @@ const norm=x=>String(x||'').trim();
 // Reuse process names consistently across STAN, historical records and local plans.
 const processKey=x=>norm(x).normalize('NFKC').replace(/\s+/g,' ').toLocaleUpperCase('pl-PL');
 const findProcessMatch=(names,query)=>names.find(name=>processKey(name)===processKey(query))||'';
+
+// Display-only categorization for the read-only roster. This never edits
+// PRZYDZIALY, exported hours, reconciled history, or any source data.
+const OTHER_DEPARTMENT_DEFAULT=['PACK','PICK','ZWROTY','WYSYŁKA'];
+const OTHER_DEPARTMENT_STORAGE='mrrobot-obsada-other-department-v1';
+function readOtherDepartmentSelection(){
+ try{
+  const raw=typeof localStorage!=='undefined'?localStorage.getItem(OTHER_DEPARTMENT_STORAGE):null;
+  const parsed=raw===null?null:JSON.parse(raw);
+  return Array.isArray(parsed)?[...new Set(parsed.map(processKey).filter(Boolean))]:OTHER_DEPARTMENT_DEFAULT.map(processKey);
+ }catch(_){return OTHER_DEPARTMENT_DEFAULT.map(processKey);}
+}
+function splitRosterDepartments(roster,selected){
+ const outside=new Set((selected||[]).map(processKey));
+ const groups=roster?.groups||[];
+ const local=groups.filter(g=>!outside.has(processKey(g.name)));
+ const external=groups.filter(g=>outside.has(processKey(g.name)));
+ const count=arr=>new Set(arr.flatMap(g=>g.people||[]).map(p=>p.login).filter(Boolean)).size;
+ return {local:{groups:local,count:count(local),processCount:local.length},other:{groups:external,count:count(external),processCount:external.length}};
+}
+
 function pad(x){return String(x).padStart(2,'0');}
 function localDate(date=new Date()){return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;}
 function minutes(hhmm){const a=/^(\d{2}):(\d{2})$/.exec(hhmm||'');return a?Number(a[1])*60+Number(a[2]):NaN;}
@@ -151,7 +172,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22'});
+ const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',otherDepartmentProcesses:readOtherDepartmentSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -359,6 +380,42 @@ function create({reactive,computed,roster,source,sourceName,language}){
   }
   return {origin:'stan',groups:[...map.values()].map(g=>({...g,count:g.people.length})),count:byLogin.size,conflicts:[]};
  });
+ const readonlyDepartments=computed(()=>splitRosterDepartments(readonlyRoster.value,state.otherDepartmentProcesses));
+ const readonlyProcessChoices=computed(()=>{
+  const names=[...processCatalog.value,...readonlyRoster.value.groups.map(g=>g.name),...OTHER_DEPARTMENT_DEFAULT];
+  const distinct=new Map();
+  for(const name of names){const key=processKey(name);if(key&&!distinct.has(key))distinct.set(key,norm(name));}
+  return [...distinct.values()].sort((a,b)=>a.localeCompare(b,'pl'));
+ });
+ function isOtherDepartmentProcess(name){return state.otherDepartmentProcesses.includes(processKey(name));}
+ function setOtherDepartmentProcess(name,checked){
+  const key=processKey(name);if(!key)return;
+  const next=new Set(state.otherDepartmentProcesses);
+  if(checked)next.add(key);else next.delete(key);
+  state.otherDepartmentProcesses=[...next];
+  try{if(typeof localStorage!=='undefined')localStorage.setItem(OTHER_DEPARTMENT_STORAGE,JSON.stringify(state.otherDepartmentProcesses));}catch(_){}
+ }
+ function startDepartmentDrag(event,name){
+  const key=processKey(name);if(!key)return;
+  state.departmentDragProcess=key;state.departmentDragOver='';
+  if(event?.dataTransfer){event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',key);}
+ }
+ function endDepartmentDrag(){state.departmentDragProcess='';state.departmentDragOver='';}
+ function leaveDepartmentDrop(event,section){
+  const next=event?.relatedTarget;
+  if(next&&event?.currentTarget?.contains(next))return;
+  if(state.departmentDragOver===section)state.departmentDragOver='';
+ }
+ function dropDepartmentCard(event,section){
+  const key=state.departmentDragProcess||event?.dataTransfer?.getData('text/plain');
+  // Only accept a drag initiated by one of our own process cards.
+  if(key&&state.departmentDragProcess===key&&['local','other'].includes(section))setOtherDepartmentProcess(key,section==='other');
+  endDepartmentDrag();
+ }
+ function restoreOtherDepartmentDefaults(){
+  state.otherDepartmentProcesses=OTHER_DEPARTMENT_DEFAULT.map(processKey);
+  try{if(typeof localStorage!=='undefined')localStorage.setItem(OTHER_DEPARTMENT_STORAGE,JSON.stringify(state.otherDepartmentProcesses));}catch(_){}
+ }
  const syncKind=computed(()=>{if(!state.active)return 'loading';if(state.busy)return 'saving';if(state.status==='EXTERNAL_CHANGES_DETECTED'||state.status==='XLSX_FAILED'||state.status==='FOLDER_PERMISSION_REQUIRED'||state.status==='BROWSER_SAVE_FAILED')return 'error';if(!state.folderName)return 'no-folder';return state.dirty?'pending':'synced';});
  const canClose=computed(()=>!state.busy&&!state.dirty);
  const syncTimeText=computed(()=>state.lastExcelSync?new Date(state.lastExcelSync).toLocaleString(({pl:'pl-PL',ru:'ru-RU',en:'en-GB',uk:'uk-UA'}[language?.()]||'pl-PL'),{dateStyle:'short',timeStyle:'short'}):'');
@@ -880,8 +937,8 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {state,templateNames,sharedTimeline,activeTeamShifts,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {state,templateNames,sharedTimeline,activeTeamShifts,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,setOtherDepartmentProcess,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
-root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline,rosterAtTimestamp};
+root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline,rosterAtTimestamp,splitRosterDepartments};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
 })(typeof window!=='undefined'?window:globalThis);

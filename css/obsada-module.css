@@ -768,3 +768,43 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obsada-module .obs-readonly-hourstrip{margin:7px 0 8px}
 #app .obsada-module .obs-readonly-hourcontext{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--obs-muted);margin-bottom:13px}
 #app .obsada-module .obs-readonly-hourcontext strong{color:var(--obs-text)}
+
+/* Read-only roster: configurable other-department view. */
+#app .obsada-module .obs-readonly-department-tools{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:12px 0 8px}
+#app .obsada-module .obs-readonly-department-tools .obs-quiet{flex:1;min-width:210px}
+#app .obsada-module .obs-readonly-department-settings{border:1px solid var(--obs-border);background:var(--obs-surface);border-radius:13px;padding:13px;margin:8px 0 12px}
+#app .obsada-module .obs-readonly-department-setting-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;font-size:12px}
+#app .obsada-module .obs-readonly-department-checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:8px;max-height:170px;overflow:auto}
+#app .obsada-module .obs-readonly-department-checks label{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--obs-text);padding:7px;border:1px solid var(--obs-border);border-radius:9px;cursor:pointer;min-width:0}
+#app .obsada-module .obs-readonly-department-checks input{accent-color:var(--module-accent);flex-shrink:0}
+#app .obsada-module .obs-readonly-department-checks span{overflow-wrap:anywhere}
+#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#app .obsada-module .obs-readonly-department-stats .obs-today-stat{min-height:105px;padding:16px 17px}
+#app .obsada-module .obs-readonly-department-stats .obs-today-stat strong{font-size:clamp(25px,2.8vw,36px)}
+#app .obsada-module .obs-readonly-department-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:18px 0 10px}
+#app .obsada-module .obs-readonly-department-heading h3{margin:0;font-size:14px;color:var(--obs-text)}
+#app .obsada-module .obs-readonly-department-heading span{font-size:12px;color:var(--obs-muted)}
+#app .obsada-module .obs-readonly-department-heading-other{border-top:1px solid var(--obs-border);padding-top:18px}
+#app .obsada-module .obs-roster-card-other{background:var(--obs-surface)}
+@media(max-width:940px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#app .obsada-module .obs-readonly-department-stats .obs-today-stat{min-height:95px;padding:12px}#app .obsada-module .obs-readonly-department-stats .obs-today-stat small{font-size:10px}}
+
+/* Obsada: read-only process categorization by moving cards, not assignments. */
+#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(5,minmax(0,1fr))}
+#app .obsada-module .obs-readonly-department-stats .obs-today-stat{min-height:98px;padding:13px}
+#app .obsada-module .obs-readonly-department-stats .obs-today-stat strong{font-size:clamp(24px,2.4vw,33px)}
+#app .obsada-module .obs-readonly-dropzone{border:1px dashed transparent;border-radius:14px;padding:8px;margin-top:8px;transition:border-color .15s ease,background .15s ease}
+#app .obsada-module .obs-readonly-dropzone-other{margin-top:14px;border-top-color:var(--obs-border)}
+#app .obsada-module .obs-readonly-dropzone-hover{background:var(--obs-surface);border-color:var(--module-accent)}
+#app .obsada-module .obs-readonly-dropzone .obs-readonly-department-heading{margin:4px 0 7px}
+#app .obsada-module .obs-readonly-department-heading-other{border-top:0;padding-top:0}
+#app .obsada-module .obs-readonly-drop-hint{font-size:11px;color:var(--obs-muted);margin:0 0 10px}
+#app .obsada-module .obs-roster-card-movable{cursor:grab}
+#app .obsada-module .obs-roster-card-movable:active{cursor:grabbing}
+#app .obsada-module .obs-roster-dept-actions{display:flex;align-items:center;gap:8px}
+#app .obsada-module .obs-roster-move{border:1px solid var(--obs-border);border-radius:8px;background:var(--obs-surface);padding:5px 7px;cursor:pointer;font-size:10px;color:var(--obs-text);white-space:nowrap}
+#app .obsada-module .obs-roster-move:hover,#app .obsada-module .obs-roster-move:focus-visible{border-color:var(--module-accent);color:var(--module-accent)}
+#app .obsada-module .obs-roster-grip{font-size:17px;color:var(--obs-muted);line-height:1;user-select:none}
+#app .obsada-module .obs-readonly-empty-drop{padding:20px 12px;text-align:center;color:var(--obs-muted);font-size:12px;border:1px dashed var(--obs-border);border-radius:10px}
+@media(max-width:1100px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(2,minmax(0,1fr))}#app .obsada-module .obs-roster-grip{display:none}#app .obsada-module .obs-roster-move{padding:7px}}
