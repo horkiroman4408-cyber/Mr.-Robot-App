@@ -711,3 +711,6 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-processes{gap:6px}
 #app .obs-team-intel-days-list{margin-top:11px;padding-top:10px}
 @media(max-width:650px){#app .obs-team-intel-stats{gap:5px 9px}#app .obs-team-intel-stats span+span:before{margin-right:5px}}
+
+/* Obsada Intelligence: dates for the last two work shifts. */
+#app .obs-team-intel-days-list time{display:inline-block;font-variant-numeric:tabular-nums;margin-left:3px;color:var(--obs-text)}

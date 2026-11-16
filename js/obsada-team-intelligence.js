@@ -19,11 +19,8 @@ function calendarRange(mode,offset=0,referenceDay=today()){
 }
 function summarize(rows,selected,from,to,referenceDay=today()){
  const employees=[...new Set(selected)].filter(Boolean), names=new Set(employees);
- const dayBefore=shiftDay(referenceDay,-1),twoBefore=shiftDay(referenceDay,-2);
  const valid=rows.filter(r=>names.has(r.login)&&!r.excluded&&!r.superseded&&(r.kind==='work'||r.kind==='confirmed')&&Number(r.hours)>0);
  const kept=valid.filter(r=>r.date>=from&&r.date<=to);
- // Monthly workbook day statuses (WOLNY, URLOP, L4...) are informational,
- // not hours. Keep them available even outside the chosen analysis range.
  // Retain all explicit day statuses for the selected analysis period; never
  // infer a day off from missing records or count duplicated imported rows.
  const dayStatuses=rows.filter(r=>names.has(r.login)&&r.kind==='status'&&!r.excluded&&!r.superseded&&
@@ -36,10 +33,25 @@ function summarize(rows,selected,from,to,referenceDay=today()){
   return '';
  };
  const cards=employees.map(login=>{
-  const all=kept.filter(r=>r.login===login),byProcess=new Map(),byDay=new Map();
-  for(const r of all){const hrs=Number(r.hours),name=String(r.process||'').trim();if(!name)continue;byProcess.set(name,(byProcess.get(name)||0)+hrs);const key=r.date+'|'+name;byDay.set(key,(byDay.get(key)||0)+hrs);}
-  // Recent-day context is always relative to today, even when an older period is selected.
-  for(const r of valid){if(r.login!==login||(r.date!==dayBefore&&r.date!==twoBefore))continue;const key=r.date+'|'+String(r.process||'').trim();if(!r.process)continue;if(!all.includes(r))byDay.set(key,(byDay.get(key)||0)+Number(r.hours));}
+  const all=kept.filter(r=>r.login===login),byProcess=new Map();
+  for(const r of all){const hrs=Number(r.hours),name=String(r.process||'').trim();if(!name)continue;byProcess.set(name,(byProcess.get(name)||0)+hrs);}
+  // Last two dates with counted work, across the whole locally saved history.
+  // Neither day-off/leave statuses nor unconfirmed future planning count as shifts.
+  // Monthly XLSX supplies a work date but not a precise shift boundary, so
+  // one date is the best available unit when grouping historical entries.
+  const recentByDay=new Map();
+  for(const r of valid){
+   if(r.login!==login)continue;
+   const date=String(r.date||'');
+   const name=String(r.process||'').trim();
+   if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!name)continue;
+   if(!recentByDay.has(date))recentByDay.set(date,new Map());
+   const processes=recentByDay.get(date);
+   processes.set(name,(processes.get(name)||0)+Number(r.hours));
+  }
+  const lastShifts=[...recentByDay.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,2)
+   .map(([date,processes])=>({date,processes:[...processes].map(([process,hours])=>({process,hours}))
+    .sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process))}));
   const daysByStatus={dayOff:new Set(),leave:new Set(),sick:new Set()};
   for(const r of dayStatuses){
    if(r.login!==login||r.date<from||r.date>to)continue;
@@ -47,14 +59,12 @@ function summarize(rows,selected,from,to,referenceDay=today()){
    if(category)daysByStatus[category].add(r.date);
   }
   const processes=[...byProcess].map(([process,hours])=>({process,hours,lastDate:all.filter(r=>r.process===process).map(r=>r.date).sort().at(-1)||''})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));
-  function forDate(day){return [...byDay].filter(([k])=>k.startsWith(day+'|')).map(([k,hours])=>({process:k.slice(day.length+1),hours})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));}
-  const statusOn=day=>[...new Set(dayStatuses.filter(r=>r.login===login&&r.date===day).map(r=>String(r.status||r.process).trim().toUpperCase()))];
-  return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,days:new Set(all.map(r=>r.date)).size,dayOffDays:daysByStatus.dayOff.size,leaveDays:daysByStatus.leave.size,sickDays:daysByStatus.sick.size,
-   yesterday:forDate(dayBefore),dayBeforeYesterday:forDate(twoBefore),
-   yesterdayStatuses:statusOn(dayBefore),dayBeforeYesterdayStatuses:statusOn(twoBefore)};
+  return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,
+   days:new Set(all.map(r=>r.date)).size,dayOffDays:daysByStatus.dayOff.size,
+   leaveDays:daysByStatus.leave.size,sickDays:daysByStatus.sick.size,lastShifts};
  });
  const procMap=new Map();for(const card of cards)for(const v of card.processes)procMap.set(v.process,(procMap.get(v.process)||0)+v.hours);
- return {cards,processes:[...procMap].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(x=>x[0]),from,to,yesterday:dayBefore,dayBeforeYesterday:twoBefore};
+ return {cards,processes:[...procMap].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(x=>x[0]),from,to};
 }
 const API={today,shiftDay,calendarRange,summarize};root.MRObsadaTeamIntelligence=API;
 if(typeof module==='object'&&module.exports)module.exports=API;

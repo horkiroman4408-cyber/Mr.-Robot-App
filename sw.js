@@ -17,17 +17,17 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.25.0-obsada-intel-day-summary-20261116';
+const CACHE_REVISION = 'v3.25.0-obsada-last-shifts-team-20261116';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
 const PRECACHE_URLS = [
-  'css/obsada-module.css?v=3.25.0-intel-day-summary-1',
+  'css/obsada-module.css?v=3.25.0-latest-shifts-1',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.25.0-local-sync-conflict-ui-1',
   'js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1',
   'js/obsada-planner.js?v=3.25.0-obsada-folder-date-1',
-  'js/obsada-team-intelligence.js?v=3.25.0-intel-day-summary-1',
+  'js/obsada-team-intelligence.js?v=3.25.0-latest-shifts-1',
   'js/obsada-unified-history.js?v=3.25.0-unified-history-1',
   './',
   'index.html',
@@ -53,7 +53,7 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/stock-intelligence.js',
-  'js/app.js?v=3.25.0-unified-history-1',
+  'js/app.js?v=3.25.0-team-filter-replace-1',
   'js/bridge-setup.js?v=3.25.0-bridge-storage-2',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',

@@ -192,7 +192,7 @@ const obsadaTeamCandidates=computed(()=>{
 });
 const obsadaTeamSummary=computed(()=>window.MRObsadaTeamIntelligence.summarize(obsadaHistoryAll.value,obsadaTeam.selected,obsadaTeam.from,obsadaTeam.to));
 const obsadaTeamReconciliationVisible=computed(()=>obsadaHistoryReconciliation.value.filter(r=>obsadaTeam.selected.includes(r.login)&&r.date>=obsadaTeam.from&&r.date<=obsadaTeam.to));
-function obsadaTeamToggle(login){const a=obsadaTeam.selected;obsadaTeam.selected=a.includes(login)?a.filter(id=>id!==login):[...a,login];}
+function obsadaTeamToggle(login){const a=obsadaTeam.selected;obsadaTeam.selected=a.includes(login)?a.filter(id=>id!==login):[...a,login];obsadaTeam.templateChoice='';}
 function obsadaTeamPreset(mode){
  if(mode==='custom'){obsadaTeam.preset='custom';return;}
  if(mode!=='week'&&mode!=='month')return;
@@ -207,8 +207,18 @@ function obsadaTeamMovePeriod(delta){
  if(!range)return;
  obsadaTeam.periodOffset=next;obsadaTeam.from=range.from;obsadaTeam.to=range.to;
 }
-function obsadaTeamAddTemplate(){const team=obsadaPlan.state.teamTemplates[obsadaTeam.templateChoice];if(!Array.isArray(team))return;obsadaTeam.selected=[...new Set([...obsadaTeam.selected,...team])];}
-function obsadaTeamAddShift(){obsadaTeam.selected=[...new Set([...obsadaTeam.selected,...obsadaPlan.team])];}
+function obsadaTeamSelectTemplate(){
+ const team=obsadaPlan.state.teamTemplates[obsadaTeam.templateChoice];
+ if(!Array.isArray(team))return;
+ // Selecting a saved team REPLACES the Intelligence selection, not an append.
+ obsadaTeam.selected=[...new Set(team.map(v=>String(v||'').trim()).filter(Boolean))];
+ obsadaTeam.chooserOpen=false;
+}
+function obsadaTeamAddShift(){
+ obsadaTeam.templateChoice='';
+ obsadaTeam.selected=[...new Set(obsadaPlan.team.map(v=>String(v||'').trim()).filter(Boolean))];
+ obsadaTeam.chooserOpen=false;
+}
 function obsadaTeamDayStatus(value){
  const key=String(value||'').trim().toUpperCase();
  if(key==='WOLNY')return eMsg('Wolne','Выходной','Day off','Вихідний');
@@ -2959,6 +2969,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamAddTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamSelectTemplate,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).component('mr-obsada-date',mrObsadaDateField).mount('#app');
 

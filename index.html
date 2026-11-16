@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-intel-day-summary-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-latest-shifts-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -354,10 +354,9 @@
     </div>
     <div class="obs-team-intel-pickerbar">
      <button type="button" class="obs-team-intel-picker-toggle" @click="obsadaTeam.chooserOpen=!obsadaTeam.chooserOpen" :aria-expanded="obsadaTeam.chooserOpen">{{ eMsg('Pracownicy','Сотрудники','Employees','Працівники') }} ({{ obsadaTeam.selected.length }}) <span>{{ obsadaTeam.chooserOpen?'▴':'▾' }}</span></button>
-     <select v-model="obsadaTeam.templateChoice" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Zapisany zespół…','Сохранённая команда…','Saved team…','Збережена команда…') }}</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name">{{ name }} · {{ (obsadaPlan.state.teamTemplates[name]||[]).length }}</option></select>
-     <button type="button" :disabled="!obsadaTeam.templateChoice" @click="obsadaTeamAddTemplate()">{{ eMsg('Dodaj zespół','Добавить команду','Add team','Додати команду') }}</button>
-     <button type="button" @click="obsadaTeamAddShift()">{{ eMsg('Bieżąca zmiana','Текущая смена','Current shift','Поточна зміна') }}</button>
-     <button v-if="obsadaTeam.selected.length" type="button" @click="obsadaTeam.selected=[]">{{ eMsg('Wyczyść','Очистить','Clear','Очистити') }}</button>
+     <select v-model="obsadaTeam.templateChoice" @change="obsadaTeamSelectTemplate()" :aria-label="eMsg('Zapisany zespół','Сохранённая команда','Saved team','Збережена команда')"><option value="">{{ eMsg('Zapisany zespół…','Сохранённая команда…','Saved team…','Збережена команда…') }}</option><option v-for="name in obsadaPlan.templateNames" :key="name" :value="name">{{ name }} · {{ (obsadaPlan.state.teamTemplates[name]||[]).length }}</option></select>
+     <button type="button" @click="obsadaTeamAddShift()">{{ eMsg('Wybierz bieżącą zmianę','Выбрать текущую смену','Select current shift','Вибрати поточну зміну') }}</button>
+     <button v-if="obsadaTeam.selected.length" type="button" @click="obsadaTeam.selected=[];obsadaTeam.templateChoice=''">{{ eMsg('Wyczyść','Очистить','Clear','Очистити') }}</button>
     </div>
     <div v-if="obsadaTeam.selected.length" class="obs-team-intel-selected"><button type="button" v-for="login in obsadaTeam.selected" :key="login" @click="obsadaTeamToggle(login)" :title="eMsg('Usuń z analizy','Убрать из анализа','Remove from analysis','Прибрати з аналізу')">{{ login }} <span aria-hidden="true">×</span></button></div>
     <div v-if="obsadaTeam.chooserOpen" class="obs-team-intel-chooser"><input class="obs-team-intel-search" type="search" v-model="obsadaTeam.search" :placeholder="eMsg('Szukaj loginu lub nazwiska','Поиск логина или имени','Search login or name','Пошук логіна або імені')"><div class="obs-team-intel-people"><label v-for="login in obsadaTeamCandidates.slice(0,60)" :key="login" class="obs-team-intel-option" :class="{selected:obsadaTeam.selected.includes(login)}"><input type="checkbox" :checked="obsadaTeam.selected.includes(login)" @change="obsadaTeamToggle(login)"><span>{{ login }}</span><small v-if="pracownicyKpiLookup(login)?.name">{{ pracownicyKpiLookup(login).name }}</small></label></div><small v-if="obsadaTeamCandidates.length>60" class="obs-quiet">{{ eMsg('Wpisz login, aby zawęzić listę','Введи логин, чтобы сузить список','Search to narrow the list','Введіть логін для пошуку') }}</small></div>
@@ -365,7 +364,7 @@
    <div v-if="obsadaTeam.from>obsadaTeam.to" class="obs-warning">{{ eMsg('Data Od nie może być późniejsza niż Do.','Дата «От» не может быть позже «До».','From must not be later than To.','Дата «Від» не може бути пізніше «До».') }}</div>
    <p v-else-if="!obsadaTeam.selected.length" class="obs-quiet obs-team-intel-empty">{{ eMsg('Wybierz pracownika lub dodaj zapisany zespół.','Выбери сотрудника или добавь сохранённую команду.','Select an employee or add a saved team.','Виберіть працівника або додайте збережену команду.') }}</p>
    <template v-else>
-    <p class="obs-quiet obs-team-intel-note">{{ eMsg('Wczoraj','Вчера','Yesterday','Вчора') }}: {{ obsadaTeamSummary.yesterday }} · {{ eMsg('Przedwczoraj','Позавчера','Day before yesterday','Позавчора') }}: {{ obsadaTeamSummary.dayBeforeYesterday }}. {{ eMsg('Brak wpisu nie oznacza dnia wolnego.','Отсутствие записи не означает выходной.','No record does not imply a day off.','Відсутність запису не означає вихідний.') }}</p>
+    <p class="obs-quiet obs-team-intel-note">{{ eMsg('Ostatnie zmiany są wyświetlane niezależnie od wybranego okresu. Dni bez wpisów nie oznaczają dni wolnych.','Последние смены показаны независимо от выбранного периода. Дни без записей не считаются выходными.','Latest work shifts are shown regardless of the selected period. Missing records are not days off.','Останні зміни показано незалежно від періоду. Відсутні записи не означають вихідні.') }}</p>
     <p v-if="obsadaTeamReconciliationVisible.length" class="obs-quiet obs-intel-reconcile-note">{{ eMsg('Uwaga: rozbieżności między historią miesięczną a potwierdzonym planem. Sprawdź zakładkę Historia.','Внимание: месячная история и подтверждённый план расходятся. Подробности во вкладке «История».','Monthly history differs from confirmed plans. Review details in History.','Увага: місячна історія відрізняється від підтвердженого плану. Деталі в Історії.') }}</p><div class="obs-team-intel-cards"><article v-for="card in obsadaTeamSummary.cards" :key="card.login" class="obs-team-intel-card">
       <div class="obs-team-intel-card-head"><div><button type="button" @click="obsadaTeamOpenEmployee(card.login)" :title="eMsg('Profil pracownika','Карточка сотрудника','Employee profile','Профіль працівника')">{{ card.login }} ↗</button><small v-if="pracownicyKpiLookup(card.login)?.name">{{ pracownicyKpiLookup(card.login).name }}</small></div><strong>{{ obsada.formatHours(card.hours,uiLanguage) }} h</strong></div>
       <div class="obs-team-intel-stats" :aria-label="eMsg('Podsumowanie dni w wybranym okresie','Дни за выбранный период','Days in selected period','Дні за вибраний період')">
@@ -376,7 +375,13 @@
       </div>
       <div class="obs-team-intel-processes"><div v-for="proc in card.processes" :key="proc.process" class="obs-team-intel-process"><div class="obs-team-intel-process-label"><span :title="proc.process">{{ proc.process }}</span><b>{{ obsada.formatHours(proc.hours,uiLanguage) }} h</b></div><div class="obs-team-intel-track" role="meter" :aria-label="proc.process" :aria-valuenow="proc.hours" aria-valuemin="0" :aria-valuemax="Math.max(card.hours,proc.hours)"><span :style="{width:Math.min(100,100*proc.hours/Math.max(1,card.hours))+'%'}"></span></div></div></div>
       <p v-if="!card.hours" class="obs-quiet">{{ eMsg('Brak uwzględnianych godzin w okresie.','Нет учитываемых часов за период.','No counted hours in this period.','Немає врахованих годин за період.') }}</p>
-      <div class="obs-team-intel-days-list"><div><span>{{ eMsg('Wczoraj','Вчера','Yesterday','Вчора') }}</span><p v-if="card.yesterday.length"><span v-for="(v,i) in card.yesterday" :key="v.process">{{ i?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p><p v-else-if="card.yesterdayStatuses.length"><span v-for="(status,i) in card.yesterdayStatuses" :key="status">{{ i?', ':'' }}{{ obsadaTeamDayStatus(status) }}</span></p><p v-else>— {{ eMsg('brak wpisu','нет записи','no record','немає запису') }}</p></div><div><span>{{ eMsg('Przedwczoraj','Позавчера','Day before','Позавчора') }}</span><p v-if="card.dayBeforeYesterday.length"><span v-for="(v,i) in card.dayBeforeYesterday" :key="v.process">{{ i?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p><p v-else-if="card.dayBeforeYesterdayStatuses.length"><span v-for="(status,i) in card.dayBeforeYesterdayStatuses" :key="status">{{ i?', ':'' }}{{ obsadaTeamDayStatus(status) }}</span></p><p v-else>— {{ eMsg('brak wpisu','нет записи','no record','немає запису') }}</p></div></div>
+      <div class="obs-team-intel-days-list" :aria-label="eMsg('Ostatnie zmiany','Последние смены','Latest shifts','Останні зміни')">
+       <div v-for="(shift,i) in card.lastShifts" :key="shift.date">
+        <span :title="shift.date">{{ i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня') }} <time :datetime="shift.date">{{ shift.date.slice(8,10)+'.'+shift.date.slice(5,7) }}</time></span>
+        <p><span v-for="(v,j) in shift.processes" :key="v.process">{{ j?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p>
+       </div>
+       <div v-if="!card.lastShifts.length"><span>{{ eMsg('Ostatnie','Последние','Recent','Останні') }}</span><p>{{ eMsg('Brak wpisów pracy','Нет записей о работе','No work records','Немає записів роботи') }}</p></div>
+      </div>
     </article></div>
    </template>
   </template>
@@ -2817,9 +2822,9 @@
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
 <script src="js/obsada-planner.js?v=3.25.0-obsada-folder-date-1"></script>
-<script src="js/obsada-team-intelligence.js?v=3.25.0-intel-day-summary-1"></script>
+<script src="js/obsada-team-intelligence.js?v=3.25.0-latest-shifts-1"></script>
 <script src="js/obsada-unified-history.js?v=3.25.0-unified-history-1"></script>
-<script src="js/app.js?v=3.25.0-unified-history-1"></script>
+<script src="js/app.js?v=3.25.0-team-filter-replace-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
