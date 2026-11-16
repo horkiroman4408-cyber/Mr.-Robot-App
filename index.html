@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-latest-shifts-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-latest-shifts-2">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -375,12 +375,13 @@
       </div>
       <div class="obs-team-intel-processes"><div v-for="proc in card.processes" :key="proc.process" class="obs-team-intel-process"><div class="obs-team-intel-process-label"><span :title="proc.process">{{ proc.process }}</span><b>{{ obsada.formatHours(proc.hours,uiLanguage) }} h</b></div><div class="obs-team-intel-track" role="meter" :aria-label="proc.process" :aria-valuenow="proc.hours" aria-valuemin="0" :aria-valuemax="Math.max(card.hours,proc.hours)"><span :style="{width:Math.min(100,100*proc.hours/Math.max(1,card.hours))+'%'}"></span></div></div></div>
       <p v-if="!card.hours" class="obs-quiet">{{ eMsg('Brak uwzględnianych godzin w okresie.','Нет учитываемых часов за период.','No counted hours in this period.','Немає врахованих годин за період.') }}</p>
-      <div class="obs-team-intel-days-list" :aria-label="eMsg('Ostatnie zmiany','Последние смены','Latest shifts','Останні зміни')">
-       <div v-for="(shift,i) in card.lastShifts" :key="shift.date">
-        <span :title="shift.date">{{ i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня') }} <time :datetime="shift.date">{{ shift.date.slice(8,10)+'.'+shift.date.slice(5,7) }}</time></span>
-        <p><span v-for="(v,j) in shift.processes" :key="v.process">{{ j?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p>
+      <div class="obs-team-intel-days-list" :aria-label="eMsg('Ostatnia aktywność','Последняя активность','Recent activity','Остання активність')">
+       <div v-for="(event,i) in card.lastActivities" :key="event.date">
+        <span :title="event.date">{{ i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня') }} <time :datetime="event.date">{{ event.date.slice(8,10)+'.'+event.date.slice(5,7) }}</time></span>
+        <p v-if="event.kind==='work'"><span v-for="(v,j) in event.processes" :key="v.process">{{ j?', ':'' }}{{ v.process }} {{ obsada.formatHours(v.hours,uiLanguage) }} h</span></p>
+        <p v-else>{{ event.status==='dayOff'?eMsg('Wolne','Выходной','Day off','Вихідний'):event.status==='leave'?eMsg('Urlop','Отпуск','Leave','Відпустка'):eMsg('Zwolnienie lekarskie','Больничный','Sick leave','Лікарняний') }}</p>
        </div>
-       <div v-if="!card.lastShifts.length"><span>{{ eMsg('Ostatnie','Последние','Recent','Останні') }}</span><p>{{ eMsg('Brak wpisów pracy','Нет записей о работе','No work records','Немає записів роботи') }}</p></div>
+       <div v-if="!card.lastActivities.length"><span>{{ eMsg('Ostatnie','Последние','Recent','Останні') }}</span><p>{{ eMsg('Brak wpisów','Нет записей','No records','Немає записів') }}</p></div>
       </div>
     </article></div>
    </template>
@@ -2822,7 +2823,7 @@
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.25.0-obsada-file-exchange-1"></script>
 <script src="js/obsada-planner.js?v=3.25.0-obsada-folder-date-1"></script>
-<script src="js/obsada-team-intelligence.js?v=3.25.0-latest-shifts-1"></script>
+<script src="js/obsada-team-intelligence.js?v=3.25.0-recent-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.25.0-unified-history-1"></script>
 <script src="js/app.js?v=3.25.0-team-filter-replace-1"></script>
 <script src="js/pwa-register.js"></script>

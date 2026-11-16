@@ -35,23 +35,39 @@ function summarize(rows,selected,from,to,referenceDay=today()){
  const cards=employees.map(login=>{
   const all=kept.filter(r=>r.login===login),byProcess=new Map();
   for(const r of all){const hrs=Number(r.hours),name=String(r.process||'').trim();if(!name)continue;byProcess.set(name,(byProcess.get(name)||0)+hrs);}
-  // Last two dates with counted work, across the whole locally saved history.
-  // Neither day-off/leave statuses nor unconfirmed future planning count as shifts.
-  // Monthly XLSX supplies a work date but not a precise shift boundary, so
-  // one date is the best available unit when grouping historical entries.
+  // Last two known events across the locally saved history. Work takes
+  // precedence over a conflicting status on the same calendar date;
+  // never assume a missing record means a day off.
   const recentByDay=new Map();
   for(const r of valid){
    if(r.login!==login)continue;
    const date=String(r.date||'');
    const name=String(r.process||'').trim();
    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!name)continue;
+   // A monthly XLSX gives a date and total, not proof that today's shift
+   // already started. Use today's confirmed local hours if present, but defer
+   // imported work for today until tomorrow. Never show future dates here.
+   if(date>referenceDay||(r.kind==='work'&&date===referenceDay))continue;
    if(!recentByDay.has(date))recentByDay.set(date,new Map());
    const processes=recentByDay.get(date);
    processes.set(name,(processes.get(name)||0)+Number(r.hours));
   }
-  const lastShifts=[...recentByDay.entries()].sort((a,b)=>b[0].localeCompare(a[0])).slice(0,2)
-   .map(([date,processes])=>({date,processes:[...processes].map(([process,hours])=>({process,hours}))
-    .sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process))}));
+  const latestEvents=new Map([...recentByDay].map(([date,processes])=>[date,{
+   date,kind:'work',processes:[...processes].map(([process,hours])=>({process,hours}))
+    .sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process))
+  }]));
+  // Show recorded leave/day off/sickness between actual shifts, including
+  // today's explicit status. Do not present future leave as a past event.
+  const statusPriority={dayOff:1,leave:2,sick:3};
+  for(const r of dayStatuses){
+   if(r.login!==login||r.date>referenceDay||!/^\d{4}-\d{2}-\d{2}$/.test(String(r.date||'')))continue;
+   const category=statusCategory(r.status||r.process);
+   if(!category)continue;
+   const prior=latestEvents.get(r.date);
+   if(prior?.kind==='work'||(prior&&statusPriority[prior.status]>=statusPriority[category]))continue;
+   latestEvents.set(r.date,{date:r.date,kind:'status',status:category,processes:[]});
+  }
+  const lastActivities=[...latestEvents.values()].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,2);
   const daysByStatus={dayOff:new Set(),leave:new Set(),sick:new Set()};
   for(const r of dayStatuses){
    if(r.login!==login||r.date<from||r.date>to)continue;
@@ -61,7 +77,7 @@ function summarize(rows,selected,from,to,referenceDay=today()){
   const processes=[...byProcess].map(([process,hours])=>({process,hours,lastDate:all.filter(r=>r.process===process).map(r=>r.date).sort().at(-1)||''})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));
   return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,
    days:new Set(all.map(r=>r.date)).size,dayOffDays:daysByStatus.dayOff.size,
-   leaveDays:daysByStatus.leave.size,sickDays:daysByStatus.sick.size,lastShifts};
+   leaveDays:daysByStatus.leave.size,sickDays:daysByStatus.sick.size,lastActivities};
  });
  const procMap=new Map();for(const card of cards)for(const v of card.processes)procMap.set(v.process,(procMap.get(v.process)||0)+v.hours);
  return {cards,processes:[...procMap].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(x=>x[0]),from,to};
