@@ -1,15 +1,17 @@
-Mr. Robot 3.24.0 + Bridge 0.3.22 (single GitHub upload package)
+Mr. Robot v3.26.0 · Obsada: Planowanie i zespoły
 
-Upload all files from this ZIP preserving their relative paths (ZIP root = repository root).
-The ZIP includes the downloadable extension archive at:
-  downloads/OpenReports-Bridge-v0.3.22.zip
-and current update metadata:
-  extension/openreports-bridge/latest.json
-  extension/openreports-bridge/history.json
+Aktualizacja punktowa (tylko zmienione pliki). Rozpakuj ZIP i wgraj pliki
+w odpowiednie ścieżki repozytorium GitHub, zachowując strukturę katalogów.
+GitHub nie rozpakowuje przesłanych ZIP automatycznie.
 
-After GitHub Pages finishes deploying, open Mr. Robot Settings > Bridge and check the available version is 0.3.22. Download it from Settings and replace the unpacked Edge extension files, then click Reload in edge://extensions. Do not install a duplicate extension.
+Planowanie: zarządzanie zespołami i składami przeniesione do górnej części.
+Usunięto powielone przyciski i kontrolkę Cofnij pod osią godzin.
+Obliczenia godzin i struktura XLSX pozostają bez zmian.
 
-Obsada: updated theme-safe text contrast for Light/Dark/Graphite/Ivory, preserving STAN, process allocations, workers, SharePoint link management and manual refresh. No scheduled refresh.
+Zmieniono wersję aplikacji (strona, ustawienia, PWA, CHANGELOG, README).
+Wersja rozszerzenia OpenReports/SharePoint Bridge jest niezależna i nie
+została zmieniona ani dołączona do tej paczki.
 
-Note: GitHub's web upload does not unzip ZIP contents. Extract this package locally and upload its inner files/folders, preserving paths. For binary downloads/OpenReports-Bridge-v0.3.22.zip, upload the ZIP file itself, do NOT extract it inside the GitHub repository.
-No GitHub changes were made automatically.
+Po publikacji sprawdź godziny dwóch równoległych zespołów, zapis do XLSX
+oraz dodawanie i usuwanie pracowników na kopii bazy.
+Nie wykonano żadnych commitów ani push do repozytorium.

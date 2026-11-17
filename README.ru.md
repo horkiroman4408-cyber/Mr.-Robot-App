@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.25.0-blue)
+![версия](https://img.shields.io/badge/version-3.26.0-blue)
 [![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -120,8 +120,6 @@ Mr. Robot — браузерное приложение для работы со
 
 ---
 
-**Обмен базами Obsada:** выбери `Downloads` или `Downloads/MrRobot` через «Локальная база / Папки MrRobot», чтобы создать `OpenReports`, `SharePoint`, `Obsada`, `Import` и `Backup`. Полный `MrRobot_Obsada_Baza.xlsx` коллеги можно сравнить и объединить без SharePoint; конфликты рассматриваются отдельно, перед объединением создаётся резервная копия.
-
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** — одно расширение Edge/Chrome с двумя интеграциями: **OpenReports** для отчётов WMS и **SharePoint** для ручного обновления Excel в Obsada. У каждого подключения свои разрешения и папка загрузки. Настройка находится в **Mr. Robot → Настройки → Bridge → Доступ и папки**. Для SharePoint вставь ссылку на Excel в Obsada, один раз разреши доступ и выбери `Downloads/MrRobot/SharePoint`; далее нажимай **Odśwież dane**.
@@ -229,12 +227,9 @@ KPI Аудит (`Audit_ECM_KPI`) и KPI Scalanie (`Pick_ECM_KPI`) доступн
 
 ---
 
-### Obsada · расстановка по процессам (v3.25.0)
+### Obsada · расстановка по процессам (v3.24.0)
 
 Новый модуль **Obsada** в главном меню. Загрузи `Grafik procesowy (godziny).xlsx` для просмотра STAN по часам, истории по месяцам и Intelligence по учтённым часам. Файл обрабатывается локально. Автосинхронизация OneDrive/Power BI **пока не реализована**. Пустые будущие интервалы не означают отсутствия сотрудника.
-
-**Планирование в v3.25.0:** выбери час и назначь сотрудника на процесс. Назначение действует до конца смены и заменяет все последующие назначения этого сотрудника, сохраняя предыдущие часы. Можно сохранить постоянные команды и добавлять их целиком без дублирования логинов. Шаблоны сохраняются в IndexedDB и необязательном листе `SZABLONY_ZESPOLOW` файла `MrRobot_Obsada_Baza.xlsx`; прежние базы продолжают открываться. Завершённые часы учитываются автоматически, а пересекающиеся данные SharePoint не удваиваются. Обновление SharePoint остаётся ручным.
-
 
 ## ⚙️ Как оно устроено (под капотом)
 

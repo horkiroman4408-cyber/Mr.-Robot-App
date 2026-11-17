@@ -331,7 +331,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 
 #app .obs-plan-remove{border:none;background:transparent;color:var(--obs-accent);font-size:11px;font-weight:700;cursor:pointer;margin:5px 0}
 
-/* Obsada Planowanie v3.25.0 · compact two-panel workspace (no changes to Podgląd). */
+/* Obsada Planowanie v3.26.0 · compact two-panel workspace (no changes to Podgląd). */
 #app .obs-plan-workspace{padding:18px 20px 22px}
 #app .obs-plan-topline{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
 #app .obs-plan-topline .obs-section-title{margin:0 0 5px}
@@ -502,7 +502,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-history-bulk{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:9px 0 14px;font-size:12px;font-weight:650;color:var(--obs-text)}
 #app .obs-history-bulk button{border:1px solid var(--obs-border);border-radius:9px;padding:7px 10px;font:inherit;font-size:11px;background:var(--mr-c104,rgba(120,120,120,.07));color:var(--obs-text);cursor:pointer}
 
-/* Obsada v3.25.0: single-hour editing and reusable teams. Scoped to Planowanie only. */
+/* Obsada v3.26.0: single-hour editing and reusable teams. Scoped to Planowanie only. */
 #app .obs-plan-workspace .obs-plan-fields{grid-template-columns:minmax(160px,1.25fr) minmax(140px,1fr);max-width:520px}
 #app .obs-plan-workspace .obs-confirm-panel{padding:8px 12px;margin:9px 0}
 #app .obs-plan-workspace .obs-plan-statsline{margin:9px 0 2px;gap:12px}
@@ -645,7 +645,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 .obs-merge-conflict>span{min-width:0;overflow-wrap:anywhere}
 .obs-merge-conflict select{min-width:130px;max-width:48%;padding:5px;border-radius:7px;border:1px solid var(--obs-border,rgba(120,120,120,.3));background:var(--obs-surface,#fff);color:inherit}
 
-/* STAN hourly review and historical reconciliation · v3.25.0 */
+/* STAN hourly review and historical reconciliation · v3.26.0 */
 .obs-stan-review{margin:10px 0;padding:14px 16px;border-left:3px solid #b94f5c}
 .obs-stan-review-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}
 .obs-stan-review-list{max-height:270px;overflow:auto;overscroll-behavior:contain;margin:10px 0}
@@ -999,3 +999,20 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 
 #app .obs-day-save-new-team{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:9px;border-radius:10px;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(186,76,96,.075));font-size:11px;color:var(--obs-text)}
 #app .obs-day-save-new-team button{padding:7px 10px;border-radius:9px;background:var(--obs-accent);color:#fff;border:0;cursor:pointer}
+
+/* v3.26.0: one team-management area; the hour panel is for assignment only. */
+.obs-day-roster-tools{margin-top:10px}
+.obs-day-roster-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid var(--obs-border,rgba(130,130,140,.23));border-radius:12px;padding:10px 13px;background:var(--obs-panel,transparent);color:inherit;font:inherit;text-align:left;cursor:pointer}
+.obs-day-roster-toggle:hover{border-color:var(--obs-accent,#b94f5c)}
+.obs-day-roster-toggle .obs-chevron{margin-left:auto;display:inline-block;transition:transform .22s ease}
+.obs-day-roster-toggle .obs-chevron.expanded{transform:rotate(180deg)}
+.obs-day-roster-editor{padding:12px 4px 4px;display:grid;gap:12px}
+.obs-day-roster-heading{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.obs-day-roster-members{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:6px;max-height:240px;overflow:auto}
+.obs-day-roster-member{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:10px;background:var(--obs-soft,rgba(128,128,128,.07));min-width:0}
+.obs-day-roster-member span{font-weight:600;font-size:.82rem}
+.obs-day-roster-member small{font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.7;min-width:0;flex:1}
+.obs-day-roster-member button{border:0;background:transparent;color:inherit;cursor:pointer;font-size:1.1rem;line-height:1;padding:3px 6px;border-radius:7px}
+.obs-day-roster-member button:hover{background:rgba(185,79,92,.13)}
+@media(max-width:600px){.obs-day-roster-members{grid-template-columns:1fr}.obs-day-roster-editor{padding-inline:0}}
+@media(prefers-reduced-motion:reduce){.obs-day-roster-toggle .obs-chevron{transition:none}}

@@ -5,7 +5,7 @@
 > **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.25.0-blue)
+![version](https://img.shields.io/badge/version-3.26.0-blue)
 [![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -120,8 +120,6 @@ The calculations follow fixed rules defined in code, so the same input produces 
 
 ---
 
-**Obsada local database exchange:** choose `Downloads` or `Downloads/MrRobot` in Local Database / MrRobot folders to create `OpenReports`, `SharePoint`, `Obsada`, `Import` and `Backup`. A colleague’s full `MrRobot_Obsada_Baza.xlsx` can be previewed and merged without SharePoint; each conflict is reviewed, the previous local database is backed up and the incoming file is retained. Existing databases remain readable.
-
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** is one optional Edge/Chrome extension with two integrations: **OpenReports** for WMS reports and **SharePoint** for refreshing the Obsada Excel workbook manually. Each integration uses its own access permissions and download folder. Configure both under **Mr. Robot → Settings → Bridge → Access and folders**. For SharePoint, paste the Excel share link in Obsada, grant permission once and choose `Downloads/MrRobot/SharePoint`; later use **Refresh data**.
@@ -229,12 +227,9 @@ The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists a
 
 ---
 
-### Obsada · process staffing (v3.25.0)
+### Obsada · process staffing (v3.24.0)
 
 Use **Obsada** from the main menu. Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
-
-**Planning in v3.25.0:** Select one hour and assign a worker to a process. The assignment continues through the end of the shift, replacing later assignments for that worker while preserving earlier hours. Save reusable team rosters, then add a complete team to a shift without duplicate logins. Saved teams are kept in IndexedDB and the optional `SZABLONY_ZESPOLOW` sheet of `MrRobot_Obsada_Baza.xlsx`; older local databases can still be read. Completed hours are classified automatically, and overlapping SharePoint history is not counted twice. SharePoint updates remain manual.
-
 
 ## ⚙️ How it's built (Under the Hood)
 

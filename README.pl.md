@@ -5,7 +5,7 @@
 > **Od raportów magazynowych do gotowych wyników — prosto w Twojej przeglądarce.** Instalowalna aplikacja webowa, która zastępuje makra Excela, copy-paste z VLOOKUP-iem i codzienne półgodzinne rytuały.
 
 ![status](https://img.shields.io/badge/status-working%20prototype-success)
-![wersja](https://img.shields.io/badge/version-3.25.0-blue)
+![wersja](https://img.shields.io/badge/version-3.26.0-blue)
 [![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![działa](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
@@ -120,8 +120,6 @@ Obliczenia trzymają się stałych reguł zapisanych w kodzie: to samo wejście 
 
 ---
 
-**Wymiana baz Obsada:** wybierz `Downloads` lub `Downloads/MrRobot` w Baza lokalna / Foldery MrRobot, aby przygotować `OpenReports`, `SharePoint`, `Obsada`, `Import` i `Backup`. Cały plik `MrRobot_Obsada_Baza.xlsx` kolegi można porównać i scalić bez SharePoint, z wyborem w razie konfliktów oraz kopią bezpieczeństwa.
-
 ## 🔌 Mr. Robot Bridge
 
 **Mr. Robot Bridge** to jedno rozszerzenie Edge/Chrome z dwiema integracjami: **OpenReports** do raportów WMS i **SharePoint** do ręcznego odświeżania pliku Excel w Obsada. Każda integracja ma osobne uprawnienia i folder pobierania. Ustawisz je w **Mr. Robot → Ustawienia → Bridge → Dostęp i foldery**. Dla SharePoint wklej link do pliku w Obsada, jednorazowo zezwól na dostęp i wybierz `Downloads/MrRobot/SharePoint`; później użyj **Odśwież dane**.
@@ -229,12 +227,9 @@ Karta Hub wyróżnia **Przestoje · ARTLTT · Kreseczki**, a ekran Inne oznacza 
 
 ---
 
-### Obsada · obsada procesów (v3.25.0)
+### Obsada · obsada procesów (v3.24.0)
 
 Nowy moduł **Obsada** w menu głównym. Wczytaj `Grafik procesowy (godziny).xlsx` i sprawdź STAN na całą zmianę, historię miesięcy i Intelligence na podstawie zapisanych godzin. Plik jest przetwarzany lokalnie. Synchronizacja OneDrive/Power BI **nie jest jeszcze zaimplementowana**. Puste przyszłe godziny nie oznaczają nieobecności.
-
-**Planowanie w v3.25.0:** wybierz godzinę i przypisz pracownika do procesu. Przydział trwa do końca zmiany i zastępuje późniejsze przydziały tej osoby, nie zmieniając wcześniejszych godzin. Można zapisywać zespoły i dodawać cały skład do zmiany bez duplikatów. Szablony są przechowywane w IndexedDB oraz opcjonalnym arkuszu `SZABLONY_ZESPOLOW` pliku `MrRobot_Obsada_Baza.xlsx`; starsze bazy nadal można odczytać. Godziny zakończone są klasyfikowane automatycznie, a nakładające się wpisy SharePoint nie są liczone podwójnie. Odświeżanie SharePoint pozostaje ręczne.
-
 
 ## ⚙️ Jak to działa od środka
 
