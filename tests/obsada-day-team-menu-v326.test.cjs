@@ -1,0 +1,33 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const html=fs.readFileSync(path.join(__dirname,'..','index.html'),'utf8');
+const planner=require('../js/obsada-planner.js');
+const oldTimer=global.setInterval,oldConfirm=global.confirm;
+global.setInterval=()=>0;global.confirm=()=>true;
+(async()=>{
+ const obj=planner.create({reactive:x=>x,computed:f=>({get value(){return f()}}),source:()=>({employees:[],intervals:[]}),sourceName:()=>'',roster:()=>[{id:'A',name:'Anna'},{id:'B',name:'Bela'}],language:()=> 'en'});
+ obj.state.day='2099-11-17';obj.state.shift='18-06';obj.state.shiftTeams={'2099-11-17|18-06':['A'],'2099-11-17|14-22':['B']};obj.state.teamTemplates={'Agency':['A'],'LPP':['B']};
+ const originalTemplates=JSON.stringify(obj.state.teamTemplates);
+ assert.equal(obj.openDayTeamRoster('14-22'),true);
+ assert.equal(obj.state.shift,'14-22');assert.equal(obj.state.teamRosterOpen,true);
+ obj.closeDayTeamEditor();assert.equal(obj.state.teamRosterOpen,false);
+ assert.equal(obj.openDayTeamSchedule('18-06'),true);
+ obj.state.dayTeamNewShift='06-18';
+ await obj.changeDayTeamSchedule(); // Node lacks IndexedDB; assert in-memory updates, not persistence status
+ assert.deepEqual(obj.state.shiftTeams['2099-11-17|06-18'],['A']);
+ assert.equal(obj.state.shiftTeams['2099-11-17|18-06'],undefined);
+ assert.equal(JSON.stringify(obj.state.teamTemplates),originalTemplates);
+ const before=JSON.stringify(obj.state.shiftTeams);
+ obj.state.records=planner.applyAssignment([],{day:'2099-11-17',shift:'14-22',from:0,to:2,login:'B',process:'PACK'});
+ obj.openDayTeamSchedule('14-22');obj.state.dayTeamNewShift='06-14';
+ assert.equal(await obj.changeDayTeamSchedule(),false);
+ assert.equal(obj.state.error,'TEAM_SCHEDULE_HAS_ASSIGNMENTS');
+ assert.equal(JSON.stringify(obj.state.shiftTeams),before);
+ assert.equal(obj.state.records.length,2);
+ assert.equal((html.match(/class="obs-day-team-more"/g)||[]).length,1);
+ assert.equal((html.match(/class="obs-day-roster-toggle"/g)||[]).length,0);
+ assert.match(html,/obsadaPlan\.openDayTeamRoster\(item\.value\)/);
+ assert.match(html,/obsadaPlan\.openDayTeamSchedule\(item\.value\)/);
+ assert.match(html,/obsadaPlan\.removeDayTeam\(item\.value\)/);
+ console.log('PASS day team menu, modal roster, safe schedule move, template and assignment protection');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{global.setInterval=oldTimer;global.confirm=oldConfirm});

@@ -1054,3 +1054,23 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .obs-day-teams-manage:hover{border-color:var(--obs-accent)}
 #app .obs-day-teams-header-actions .obs-day-teams-add{background:var(--obs-accent);border-color:var(--obs-accent);color:white}
 @media(max-width:480px){#app .obs-day-teams-header-actions{width:100%}#app .obs-day-teams-header-actions button{flex:1}}
+
+/* v3.26.0: day team actions stay in cards; shift roster editor is a modal. */
+#app .obs-day-team{overflow:visible;position:relative;min-width:0}
+#app .obs-day-team-actions{position:relative;display:flex;align-items:stretch;border-left:1px solid var(--obs-border)}
+#app .obs-day-team-more{min-width:38px;padding:0 10px;border:0;border-radius:0 12px 12px 0;background:transparent;color:var(--obs-muted);font-size:19px;font-weight:700;letter-spacing:1px;cursor:pointer}
+#app .obs-day-team-more:hover,#app .obs-day-team-more[aria-expanded=true]{color:var(--obs-text);background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-day-team-menu{position:absolute;right:0;top:calc(100% + 5px);z-index:30;min-width:215px;display:grid;gap:3px;padding:5px;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);box-shadow:0 10px 32px rgba(0,0,0,.18)}
+#app .obs-day-team-menu button{width:100%;text-align:left;border:0;border-radius:8px;padding:10px;font:inherit;font-size:12px;color:var(--obs-text);background:transparent;cursor:pointer}
+#app .obs-day-team-menu button:hover{background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-day-team-menu .obs-day-menu-danger{color:var(--obs-accent)}
+#app .obs-day-team-dialog{width:min(100%,620px);gap:16px}
+#app .obs-day-team-dialog .obs-day-roster-members{max-height:min(38vh,290px)}
+#app .obs-day-team-dialog .obs-day-roster-heading{gap:10px}
+#app .obs-day-team-dialog .obs-plan-team-picker{max-height:220px;overflow:auto}
+#app .obs-day-dialog-done{align-self:flex-end;min-height:36px;padding:8px 17px;border:1px solid var(--obs-accent);border-radius:10px;background:var(--obs-accent);color:white;font:inherit;font-weight:650;cursor:pointer}
+#app .obs-day-team-dialog>label{display:grid;gap:7px;font-size:12px}
+#app .obs-day-schedule-actions{display:flex;justify-content:flex-end;gap:8px}
+#app .obs-day-schedule-actions>button:first-child{padding:8px 14px;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-surface);color:var(--obs-text);cursor:pointer}
+#app .obs-day-schedule-actions .obs-day-dialog-done{align-self:auto}
+#app .obs-day-schedule-actions button:disabled{opacity:.45;cursor:not-allowed}
