@@ -1,14 +1,15 @@
-Mr. Robot v3.26.0 — Obsada saved team management UI fix
+Mr. Robot v3.26.0 - Obsada: contextual employee actions and early departure
 
-Install this patch OVER the already installed Mr. Robot v3.26.0.
-Copy the included files into the matching paths at the repository root.
-Do not delete any other app files. Bridge extension is unchanged.
+Apply over the latest v3.26.0 Shared Hour Switch FIX. Copy files into the same relative paths.
+Application version stays 3.26.0. Bridge version is unchanged. No GitHub commits.
 
-Saved team editor: "Zarządzaj / Управление" beside "Dodaj zespół".
-Create a saved team, edit the name and members and save both in one action.
-Daily shift memberships and historical assignments are NOT modified when saving the template.
-Select an existing saved team and its schedule to add it to a given day.
-A separate "Edit this shift roster" remains available when the current day's membership needs changing.
+- Left employee list: click an employee for actions; no per-row three-dots. Added Absent filter.
+- Process employee chip: three-dots menu replaces the remove cross; actions are move, early departure, KPI, remove assignment.
+- Early departure from the NEXT hour after the selected worked hour. The worker stays in the team but becomes absent during the marked intervals.
+- Read-only Staffing excludes absent employees from process cards and all three working headcounts, including STAN fallback.
+- Return from a selected future hour retains the previous absence interval in STATUSY (format WCZESNIEJSZE_WYJSCIE@HH:mm~HH:mm). Earlier historical markers remain supported.
+- Assignments cannot be made during marked absences. Future hours are preserved as editable after return.
+- STATUSY is the existing XLSX sheet; no new worksheets or changed Bridge protocol.
 
-Includes a targeted test: node tests/obsada-template-editor-v326.test.cjs
-Automated checks were not a full browser/Edge end-to-end test.
+Tests: node tests/obsada-early-departure-menu-v326.test.cjs
+Important: visual QA in Edge and full regression suite not completed; test on a backup of the local database.

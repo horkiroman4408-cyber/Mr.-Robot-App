@@ -1074,3 +1074,15 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .obs-day-schedule-actions>button:first-child{padding:8px 14px;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-surface);color:var(--obs-text);cursor:pointer}
 #app .obs-day-schedule-actions .obs-day-dialog-done{align-self:auto}
 #app .obs-day-schedule-actions button:disabled{opacity:.45;cursor:not-allowed}
+
+/* v3.26.0 - contextual employee actions, all themes */
+#app .obs-plan-absent-row .obs-plan-staff-chip{opacity:.7;cursor:pointer}
+#app .obs-plan-absence-label{color:var(--obs-accent);font-weight:600}
+#app .obs-plan-person-menu-wrap{position:relative;overflow:visible}
+#app .obs-plan-person-menu-wrap .obs-plan-person-remove{width:30px;min-width:30px;font-size:16px;letter-spacing:1px;cursor:pointer}
+#app .obs-plan-process-popup{position:absolute;right:0;top:calc(100% + 5px);width:max-content;max-width:min(280px,85vw);z-index:120;display:flex;flex-direction:column;gap:2px;padding:6px;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);color:var(--obs-text);box-shadow:0 14px 32px rgba(0,0,0,.18)}
+#app .obs-plan-process-popup button{display:block;text-align:left;width:100%;min-height:32px;white-space:normal;padding:8px 10px;border:0;border-radius:8px;background:transparent;color:inherit;font:inherit;font-size:12px;cursor:pointer}
+#app .obs-plan-process-popup button:hover,#app .obs-plan-process-popup button:focus-visible{background:var(--mr-c104,rgba(186,76,96,.075));outline:none}
+#app .obs-plan-process-popup button.obs-day-menu-danger{color:var(--obs-accent)}
+#app .obs-plan-person-menu-wrap:has(.obs-plan-process-popup){z-index:15}
+#app .obs-plan-processgrid .obs-roster-card:has(.obs-plan-process-popup){z-index:20;animation:none}
