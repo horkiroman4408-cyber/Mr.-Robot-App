@@ -975,7 +975,7 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 @media(prefers-reduced-motion:reduce){#app .obs-share-sync-reference .obs-share-sync-controls>.obs-bridge-refresh{transition:none}}
 
 /* Obsada: day/shift team management, UI only; assignments and work-hours untouched. */
-#app .obs-day-teams{display:grid;gap:10px;padding:10px 0 12px;border-top:1px solid var(--obs-border)}
+#app .obs-day-teams{display:grid;gap:10px;padding:10px 0 12px;border-top:0}
 #app .obs-day-teams-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--obs-text);font-size:13px}
 #app .obs-day-teams-add,#app .obs-day-team-form-actions button{border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);padding:8px 12px;border-radius:10px;font:inherit;cursor:pointer}
 #app .obs-day-teams-list{display:flex;flex-wrap:wrap;gap:8px}

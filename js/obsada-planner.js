@@ -279,9 +279,13 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(!Number.isFinite(Number(timestamp)))return false;
   const stamp=Number(timestamp);
   const hour=sharedTimeline.value.find(h=>h.start===stamp);if(!hour)return false;
-  let code=state.shift,index=shiftHourForTimestamp(state.day,code,stamp);
-  if(index<0){code=hour.shifts[0];index=shiftHourForTimestamp(state.day,code,stamp);}
-  if(index<0)return false;
+  // Follow the most recently started active shift when moving along the shared
+  // timeline. Keeping the old shift throughout overlaps made the UI appear
+  // stuck on the previous team when the next shift began.
+  const active=hour.shifts.map(code=>({code,index:shiftHourForTimestamp(state.day,code,stamp),start:makeSlots(state.day,code)[0]?.start})).filter(x=>x.index>=0);
+  if(!active.length)return false;
+  active.sort((a,b)=>b.start-a.start || (a.code===state.shift?-1:b.code===state.shift?1:0));
+  const {code,index}=active[0];
   if(code!==state.shift){state.shift=code;state.selectedLogin='';state.staffFilter='all';state.visibleWorkers=45;}
   state.from=index;state.to=index+1;return true;
  }

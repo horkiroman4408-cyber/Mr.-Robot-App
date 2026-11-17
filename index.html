@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-day-team-menu-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-shared-hours-2">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -331,7 +331,7 @@
     </div>
     <div class="obs-day-teams" aria-live="polite">
      <div class="obs-day-teams-title"><strong>{{ eMsg('Zespoły na ten dzień','Команды на этот день','Teams for this day','Команди на цей день') }}</strong><div class="obs-day-teams-header-actions"><button type="button" class="obs-day-teams-manage" :aria-expanded="obsadaPlan.state.templateManagerOpen" @click="obsadaPlan.state.templateManagerOpen=!obsadaPlan.state.templateManagerOpen;obsadaPlan.chooseTemplateForManagement()">{{ eMsg('Zarządzaj','Управление','Manage','Керування') }}</button><button type="button" class="obs-day-teams-add" @click="obsadaPlan.state.teamSetupOpen=!obsadaPlan.state.teamSetupOpen">+ {{ eMsg('Dodaj zespół','Добавить команду','Add team','Додати команду') }}</button></div></div>
-     <div class="obs-day-teams-list"><div v-for="item in obsadaPlan.dayTeams" :key="item.value" class="obs-day-team" :class="{active:obsadaPlan.state.shift===item.value}">
+     <div class="obs-day-teams-list"><div v-for="item in obsadaPlan.dayTeams" :key="item.value" class="obs-day-team" :class="{active:obsadaPlan.sharedTimeline.some(hour=>hour.start===obsadaPlan.selectedSlot?.start && hour.shifts.includes(item.value))}">
       <button type="button" class="obs-day-team-select" @click="obsadaPlan.selectDayShift(item.value);obsadaPlan.state.dayTeamMenu=''" ><strong>{{ item.name||item.label }}</strong><small v-if="item.name">{{ item.label }} · {{ item.count }}</small><small v-else>{{ item.count }} {{ eMsg('osób','сотрудников','people','працівників') }}</small></button>
       <div class="obs-day-team-actions"><button type="button" class="obs-day-team-more" :aria-expanded="obsadaPlan.state.dayTeamMenu===item.value" :aria-label="eMsg('Opcje zespołu','Действия с командой','Team options','Дії з командою')+' '+(item.name||item.label)" @click.stop="obsadaPlan.state.dayTeamMenu=obsadaPlan.state.dayTeamMenu===item.value?'':item.value">···</button>
        <div v-if="obsadaPlan.state.dayTeamMenu===item.value" class="obs-day-team-menu" role="group" :aria-label="eMsg('Opcje zespołu','Действия с командой','Team options','Дії з командою')">
@@ -2960,7 +2960,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-day-team-menu-1"></script>
+<script src="js/obsada-planner.js?v=3.26.0-shared-hours-2"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
