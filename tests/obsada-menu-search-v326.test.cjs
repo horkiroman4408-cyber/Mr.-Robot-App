@@ -1,0 +1,25 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
+const old=global.setInterval;global.setInterval=()=>0;
+const mod=require('../js/obsada-planner.js');
+const p=mod.create({reactive:x=>x,computed:f=>({get value(){return f()}}),roster:()=>[],source:()=>({employees:[],intervals:[]}),sourceName:()=>'',language:()=> 'ru'});
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+const css=fs.readFileSync(path.join(__dirname,'../css/obsada-module.css'),'utf8');
+(async()=>{try{
+ p.state.day='2099-11-17';p.state.shift='14-22';p.state.shiftTeams={'2099-11-17|14-22':['PDTEST1']};
+ p.state.additionalProcesses=['AUDYT','ROZKŁADANIE','ROZKŁADANIE PO SCALANIU'];
+ p.state.processFilter='ROZKŁADANIE';
+ assert.equal(p.processCards.value.length,2);
+ await p.selectProcessSuggestion('ROZKŁADANIE');
+ assert.equal(p.state.processFilter,'');assert.equal(p.state.processDropdownOpen,false);
+ assert.equal(p.state.showAllProcesses,true);
+ assert.equal(p.processCards.value.length,3);
+ assert.equal(p.state.processHighlight,'ROZKŁADANIE');
+ p.state.processFilter='AUDYT';await p.addProcess('AUDYT');assert.equal(p.state.processFilter,'');
+ assert.match(html,/obsadaPlan\.state\.actionPanel==='menu'/);
+ assert.match(html,/obsadaPlan\.state\.actionPanel='form'/);
+ assert.equal((html.match(/@click="employeeOpen\(obsadaPlan\.state\.actionLogin\);obsadaPlan\.closeWorkerActions\(\)"/g)||[]).length,1);
+ assert.match(html,/obs-process-just-found/);assert.match(css,/obs-worker-action-menu/);
+ p.openWorkerActions('PDTEST1');assert.equal(p.state.actionPanel,'menu');p.closeWorkerActions();assert.equal(p.state.actionLogin,'');
+ console.log('PASS compact actions, one KPI action, process selection clears filter, cards restored, highlight');
+}finally{global.setInterval=old}})().catch(e=>{console.error(e);process.exitCode=1});

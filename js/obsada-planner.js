@@ -187,7 +187,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
+ const state=reactive({day:localDate(),shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionPanel:'menu',processHighlight:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -339,10 +339,10 @@ function create({reactive,computed,roster,source,sourceName,language}){
  });
 
  function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
- function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';return true;}
+ function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';state.actionPanel='form';return true;}
  function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
  function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
- function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';return true;}
+ function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';state.actionPanel='form';return true;}
  function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
  function focusAssignment(person){
   if(person.day!==state.day||person.shift!==state.shift){
@@ -663,7 +663,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
  async function confirmRemoval(scope){if(!state.removingLogin)return false;const login=state.removingLogin;state.removingLogin='';return removeRange(login,scope);}
  function openWorkerActions(login){
   const member=norm(login);if(!member)return false;
-  state.actionLogin=member;state.actionSelected=[member];state.actionType='WOLNY';
+  state.actionLogin=member;state.actionPanel='menu';state.actionSelected=[member];state.actionType='WOLNY';
   state.actionFrom=state.day;state.actionTo=state.day;state.actionHour=state.from;
   state.error='';return true;
  }
@@ -672,7 +672,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(set.has(login))set.delete(login);else set.add(login);
   state.actionSelected=[...set];
  }
- function closeWorkerActions(){state.actionLogin='';state.actionSelected=[];}
+ function closeWorkerActions(){state.actionLogin='';state.actionPanel='menu';state.actionSelected=[];}
  async function applyDayStatus(){
   if(!canEditShift())return false;
   const logins=[...new Set(state.actionSelected.map(norm).filter(Boolean))],type=state.actionType;
@@ -743,15 +743,25 @@ function create({reactive,computed,roster,source,sourceName,language}){
  }
  function startDrag(event,login){event.dataTransfer.setData('text/plain',login);event.dataTransfer.effectAllowed='move';state.selectedLogin=login;}
  async function drop(event,process){event.preventDefault();const login=event.dataTransfer.getData('text/plain')||state.selectedLogin;await assign(login,process);}
- async function addProcess(name){if(!canEditShift())return false;
+ async function addProcess(name){
   const typed=norm(name).replace(/\s+/g,' ');if(!typed||typed.length>90)return false;
   const match=findProcessMatch(processCatalog.value,typed);
+  if(!match&&!canEditShift())return false;
   const label=match||processKey(typed);
   if(!findProcessMatch(processes.value,label)){
    snapshot('process');state.additionalProcesses.push(label);await save();
   }
   if(state.hiddenProcesses.includes(processKey(label))){snapshot('show-process');state.hiddenProcesses=state.hiddenProcesses.filter(x=>x!==processKey(label));await save();}
-  state.newProcess='';state.processFilter=label;state.processDropdownOpen=false;state.showAllProcesses=true;
+  state.newProcess='';state.processFilter='';state.processDropdownOpen=false;state.showAllProcesses=true;
+  state.processHighlight=processKey(label);
+  if(typeof window!=='undefined'&&typeof document!=='undefined'){
+   window.requestAnimationFrame(()=>{
+    const grid=document.querySelector('.obs-plan-processgrid');
+    const card=grid&&[...grid.querySelectorAll('[data-obs-process]')].find(el=>el.getAttribute('data-obs-process')===processKey(label));
+    card?.scrollIntoView({behavior:'smooth',block:'nearest'});
+   });
+   window.setTimeout(()=>{if(state.processHighlight===processKey(label))state.processHighlight='';},1800);
+  }
   return true;
  }
  async function hideProcess(name){if(!canEditShift())return false;
