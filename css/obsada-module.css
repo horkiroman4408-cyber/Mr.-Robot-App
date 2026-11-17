@@ -1016,3 +1016,41 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 .obs-day-roster-member button:hover{background:rgba(185,79,92,.13)}
 @media(max-width:600px){.obs-day-roster-members{grid-template-columns:1fr}.obs-day-roster-editor{padding-inline:0}}
 @media(prefers-reduced-motion:reduce){.obs-day-roster-toggle .obs-chevron{transition:none}}
+/* Saved team management: self-contained editor, never mutates a shift roster until applied there. */
+#app .obs-day-template-tools{background:transparent;border:0;padding:0;margin:4px 0 0}
+#app .obs-day-template-tools .obs-team-template-details{border:1px solid var(--obs-border);border-radius:12px;padding:0;overflow:visible;background:var(--obs-surface)}
+#app .obs-day-template-tools .obs-team-template-details>summary{display:flex;align-items:center;padding:11px 13px;font-size:12px;color:var(--obs-text);font-weight:650;list-style:none;cursor:pointer}
+#app .obs-day-template-tools .obs-team-template-details>summary::-webkit-details-marker{display:none}
+#app .obs-day-template-tools .obs-team-template-details>summary:after{content:'⌄';margin-left:auto;color:var(--obs-muted);transition:transform .2s ease;font-size:16px;line-height:1}
+#app .obs-day-template-tools .obs-team-template-details[open]>summary:after{transform:rotate(180deg)}
+#app .obs-day-template-tools .obs-team-template-details[open]{display:block}
+#app .obs-template-editor{display:grid;gap:12px;padding:14px;border-top:1px solid var(--obs-border)}
+#app .obs-template-editor label{display:grid;gap:5px;color:var(--obs-muted);font-size:11px;min-width:0}
+#app .obs-template-editor input{width:100%;min-width:0;box-sizing:border-box;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);border-radius:10px;padding:10px 12px;font:inherit;font-size:12px}
+#app .obs-template-editor-top{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+#app .obs-template-editor-top label{flex:1 1 190px}
+#app .obs-template-new{flex:0 0 auto;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);padding:10px 12px;border-radius:10px;cursor:pointer}
+#app .obs-template-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;color:var(--obs-text)}
+#app .obs-template-editor-heading span{font-size:11px;color:var(--obs-muted)}
+#app .obs-template-editor-members{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:6px;max-height:210px;overflow-y:auto}
+#app .obs-template-editor-member{display:flex;align-items:center;gap:6px;border-radius:9px;padding:7px 9px;background:var(--obs-soft);min-width:0}
+#app .obs-template-editor-member>span{font-size:11px;font-weight:650;flex-shrink:0}
+#app .obs-template-editor-member small{font-size:10px;min-width:0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--obs-muted)}
+#app .obs-template-editor-member button{border:0;background:transparent;color:var(--obs-muted);font-size:17px;line-height:1;cursor:pointer}
+#app .obs-template-editor-candidates{display:grid;gap:2px;max-height:170px;overflow-y:auto;border:1px solid var(--obs-border);border-radius:10px;padding:4px}
+#app .obs-template-editor-candidates button{display:flex;gap:8px;align-items:center;border:0;border-radius:7px;padding:8px;background:transparent;color:var(--obs-text);cursor:pointer;text-align:left}
+#app .obs-template-editor-candidates button:hover{background:var(--obs-soft)}
+#app .obs-template-editor-candidates button small{flex:1;color:var(--obs-muted)}
+#app .obs-template-editor-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+#app .obs-template-editor-actions button{border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);border-radius:10px;padding:9px 12px;font-size:11px;font-weight:650;cursor:pointer}
+#app .obs-template-editor-actions .obs-template-delete{margin-right:auto;color:var(--obs-accent)}
+#app .obs-template-editor-actions .obs-template-save{background:var(--obs-accent);border-color:var(--obs-accent);color:white}
+#app .obs-template-editor-actions button:disabled{opacity:.45;cursor:default}
+@media(max-width:480px){#app .obs-template-editor{padding:10px;gap:10px}#app .obs-template-editor-members{grid-template-columns:1fr}#app .obs-template-editor-actions .obs-template-save{flex:1}}
+@media(prefers-reduced-motion:reduce){#app .obs-day-template-tools .obs-team-template-details>summary:after{transition:none}}
+
+#app .obs-day-teams-header-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+#app .obs-day-teams-manage{border:1px solid var(--obs-border);background:transparent;color:var(--obs-text);padding:8px 12px;border-radius:10px;font:inherit;cursor:pointer}
+#app .obs-day-teams-manage:hover{border-color:var(--obs-accent)}
+#app .obs-day-teams-header-actions .obs-day-teams-add{background:var(--obs-accent);border-color:var(--obs-accent);color:white}
+@media(max-width:480px){#app .obs-day-teams-header-actions{width:100%}#app .obs-day-teams-header-actions button{flex:1}}

@@ -1,0 +1,30 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const root=path.join(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const planner=require('../js/obsada-planner.js');
+const oldInterval=global.setInterval;
+global.setInterval=()=>0;
+(async()=>{
+ const p=planner.create({reactive:x=>x,computed:fn=>({get value(){return fn()}}),source:()=>({employees:[],intervals:[]}),sourceName:()=>'',roster:()=>[{id:'AA',name:'Alice'},{id:'BB',name:'Bob'},{id:'CC',name:'Charlie'}],language:()=> 'ru'});
+ p.state.day='2026-12-12';p.state.shift='18-06';p.state.teamTemplates={'Agencja':['AA','BB'],'LPP':['CC']};p.state.shiftTeams={'2026-12-12|18-06':['AA','BB']};
+ p.state.records=[{day:'2026-12-12',shift:'18-06',login:'AA',slot:0,process:'AUDYT'}];
+ const previousAssignments=JSON.stringify(p.state.records), previousShift=JSON.stringify(p.state.shiftTeams);
+ p.state.selectedTemplate='Agencja';p.chooseTemplateForManagement();
+ assert.equal(p.state.templateDraftName,'Agencja');assert.deepEqual(p.state.templateDraftMembers,['AA','BB']);
+ p.removeTemplateDraftMember('BB');p.addTemplateDraftMember('CC');p.state.templateDraftName='New Agencja';
+ assert.deepEqual(p.state.teamTemplates.Agencja,['AA','BB'],'draft must not change saved template before commit');
+ await p.saveTemplateDraft();
+ assert.deepEqual(p.state.teamTemplates['New Agencja'],['AA','CC']);assert.equal(p.state.teamTemplates.Agencja,undefined);
+ assert.equal(JSON.stringify(p.state.records),previousAssignments,'historical assignments stay unchanged');
+ assert.equal(JSON.stringify(p.state.shiftTeams),previousShift,'existing day membership stays unchanged');
+ p.newTeamTemplate();p.state.templateDraftName='LPP';p.addTemplateDraftMember('AA');
+ assert.equal(await p.saveTemplateDraft(),false,'duplicate names rejected');assert.equal(p.state.templateDraftError,'DUPLICATE_NAME');
+ p.state.templateDraftName='New Team';await p.saveTemplateDraft(); // save may report false without browser storage in Node; in-memory state must update
+ assert.deepEqual(p.state.teamTemplates['New Team'],['AA']);
+ assert.equal((html.match(/class="obs-day-teams-add"/g)||[]).length,1);
+ assert.match(html,/saveTemplateDraft\(\)/);assert.match(html,/templateDraftMembers/);
+ assert.ok(!html.includes('obs-day-save-new-team'));
+ console.log('PASS template rename/membership atomic update, duplicate handling, existing shifts and hours preserved, single add control');
+})().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{global.setInterval=oldInterval});
