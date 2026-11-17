@@ -1,0 +1,45 @@
+'use strict';
+const assert=require('node:assert/strict');
+const oldTimer=global.setInterval, oldConfirm=global.confirm;
+global.setInterval=()=>0;
+global.confirm=()=>true;
+const p=require('../js/obsada-planner.js');
+const obj=p.create({reactive:x=>x,computed:f=>({get value(){return f()}}),source:()=>({employees:[],intervals:[]}),sourceName:()=>'',roster:()=>[],language:()=> 'en'});
+const day='2099-11-17';
+obj.state.day=day;
+obj.state.shift='18-06';
+obj.state.shiftTeams={[`${day}|18-06`]:['A','B'],[`${day}|14-22`]:['C']};
+obj.state.teamTemplates={'Night':['A','B'],'Afternoon':['C']};
+let records=p.applyAssignment([],{day,shift:'18-06',from:0,to:12,login:'A',process:'AUDYT'});
+records=p.applyAssignment(records,{day,shift:'14-22',from:0,to:8,login:'C',process:'PACK'});
+obj.state.records=records;
+const original=p.sheetRows(obj.state.records).assignments;
+assert.equal(obj.dayTeams.value.length,2);
+assert.equal(obj.dayTeams.value.find(t=>t.value==='18-06').name,'Night');
+assert.equal(obj.dayTeams.value.find(t=>t.value==='14-22').name,'Afternoon');
+const stamp=p.makeSlots(day,'18-06')[0].start;
+obj.chooseSharedHour(stamp);
+assert.equal(obj.displayedAssignments.value.length,2,'two workers from two schedules in common hour');
+assert.deepEqual(p.sheetRows(obj.state.records).assignments,original,'selecting hour must not change stored assignments');
+obj.selectDayShift('14-22');
+assert.deepEqual(p.sheetRows(obj.state.records).assignments,original,'selecting a schedule must not alter XLSX assignments');
+const shiftsBefore=Object.keys(obj.state.teamTemplates);
+const already=awaitPromise(obj.removeDayTeam('14-22'));
+function awaitPromise(prom){return prom;}
+already.then(()=>{
+ assert.equal(obj.state.records.filter(r=>r.shift==='14-22').length,0,'future shift assignments can be removed');
+ assert.equal(obj.state.records.filter(r=>r.shift==='18-06').length,12,'other team must remain untouched');
+ assert.deepEqual(Object.keys(obj.state.teamTemplates),shiftsBefore,'saved templates must remain');
+ const past='2020-11-17';
+ obj.state.day=past;obj.state.shift='18-06';obj.state.shiftTeams={[`${past}|18-06`]:['A']};
+ obj.state.records=p.applyAssignment([],{day:past,shift:'18-06',from:0,to:2,login:'A',process:'AUDYT'});
+ return obj.removeDayTeam('18-06').then(result=>{
+  assert.equal(result,false);
+  assert.equal(obj.state.error,'TEAM_HAS_COMPLETED_HOURS');
+  assert.equal(obj.state.records.length,2,'finished assignments protected');
+  const combined=p.applyAssignment(p.applyAssignment([],{day:'2099-11-17',shift:'18-06',from:0,to:4,login:'A',process:'AUDYT'}),{day:'2099-11-17',shift:'14-22',from:0,to:8,login:'C',process:'PACK'});
+  const before=p.finishedHourCount(combined,p.makeSlots('2099-11-17','18-06')[1].end);
+  assert.equal(before,p.finishedHourCount(combined,p.makeSlots('2099-11-17','18-06')[1].end),'hour calculation remains deterministic');
+  console.log('PASS: day-team controls, combined overlap, no XLSX changes when switching, future removal, completed-hour protection');
+ });
+}).catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{global.setInterval=oldTimer;global.confirm=oldConfirm;process.exit(process.exitCode||0)});

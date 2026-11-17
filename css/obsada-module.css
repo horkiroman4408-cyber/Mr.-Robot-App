@@ -391,12 +391,12 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-team-picker{padding:8px;margin-top:8px;margin-bottom:12px;border:1px solid var(--obs-border);border-radius:12px;display:flex;flex-direction:column;gap:5px;max-height:290px;overflow:auto}
 #app .obs-plan-team-picker input{border:1px solid var(--obs-border);border-radius:8px;padding:9px;background:var(--obs-surface);color:var(--obs-text);font-size:12px;width:100%}
 #app .obs-plan-team-picker button{display:flex;align-items:center;gap:10px;text-align:left;width:100%;padding:8px;border-radius:8px;color:var(--obs-text);font-size:11px;background:var(--obs-surface)}
-#app .obs-plan-team-picker button:hover{background:var(--obs-soft)}
+#app .obs-plan-team-picker button:hover{background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-plan-team-picker button small{min-width:0;flex:1;color:var(--obs-muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 #app .obs-plan-teamrow{display:flex;align-items:stretch;gap:4px}
 #app .obs-plan-teamrow .obs-plan-staff-chip{flex:1;min-width:0}
 #app .obs-plan-team-remove,#app .obs-plan-person-remove{width:27px;flex:none;display:grid;place-items:center;border:1px solid transparent;border-radius:9px;color:var(--obs-muted);font-size:17px;background:transparent}
-#app .obs-plan-team-remove:hover,#app .obs-plan-person-remove:hover{border-color:var(--obs-accent);color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-plan-team-remove:hover,#app .obs-plan-person-remove:hover{border-color:var(--obs-accent);color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-plan-person-row{display:inline-flex;align-items:center;max-width:100%;border:1px solid var(--obs-border);border-radius:9px;padding-right:2px;gap:0}
 #app .obs-plan-person-row .obs-person-button{border:0}
 @keyframes obs-plan-pulse{50%{opacity:.35}}
@@ -435,7 +435,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-plan-delete-heading p,#app .obs-plan-delete-hint{font-size:12px;color:var(--obs-muted);margin:5px 0}
 #app .obs-plan-delete-close{background:transparent;border:1px solid var(--obs-border);color:var(--obs-text);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:20px}
 #app .obs-plan-delete-option{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;border:1px solid var(--obs-border);color:var(--obs-text);background:var(--obs-surface);border-radius:10px;padding:12px;cursor:pointer;font-size:12px;font-weight:650}
-#app .obs-plan-delete-option:hover{border-color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-plan-delete-option:hover{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-plan-delete-option small{color:var(--obs-muted);font-size:11px;font-weight:400;white-space:nowrap}
 #app .obs-plan-delete-cancel{align-self:flex-end;border:none;background:transparent;color:var(--obs-muted);padding:9px;cursor:pointer}
 
@@ -470,7 +470,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-share-sync-actions{grid-column:3;grid-row:1;justify-self:end;min-width:0}
 #app .obs-share-sync-actions .obs-bridge-refresh{min-height:42px;white-space:nowrap}
 #app .obs-local-db-open{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:9px 15px;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-surface);color:var(--obs-text);font-size:12px;font-weight:750;line-height:1.2;cursor:pointer;white-space:nowrap;transition:border-color .18s,background .18s}
-#app .obs-local-db-open:hover,#app .obs-local-db-open[aria-expanded=true]{border-color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-local-db-open:hover,#app .obs-local-db-open[aria-expanded=true]{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-plan-database-standalone{margin:0!important;padding:18px 20px!important;gap:14px}
 #app .obs-db-heading{display:flex;align-items:center;justify-content:space-between;gap:10px}
 #app .obs-db-heading strong{font-size:15px;font-weight:750;color:var(--obs-text)}
@@ -551,7 +551,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 /* Obsada Intelligence · selected-team comparison; inherits all four theme tokens. */
 #app .obs-team-modes{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
 #app .obs-team-modes button,#app .obs-team-intel-presets button,#app .obs-team-intel-select-head button{border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);border-radius:9px;padding:9px 12px;cursor:pointer;font-size:11px;font-weight:650}
-#app .obs-team-modes button.active,#app .obs-team-intel-presets button.active{border-color:var(--obs-accent);background:var(--obs-soft);color:var(--obs-text)}
+#app .obs-team-modes button.active,#app .obs-team-intel-presets button.active{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-text)}
 #app .obs-team-intel-controls,#app .obs-team-intel-compare{border:1px solid var(--obs-border);background:var(--obs-surface);border-radius:15px;padding:14px;margin:10px 0 16px}
 #app .obs-team-intel-head,#app .obs-team-intel-select-head,#app .obs-team-intel-compare-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:var(--obs-text)}
 #app .obs-team-intel-head>div{display:grid;gap:5px}
@@ -565,7 +565,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-search{display:block;width:100%;box-sizing:border-box;margin:10px 0}
 #app .obs-team-intel-people{display:flex;gap:6px;flex-wrap:wrap;max-height:150px;overflow:auto;align-content:flex-start}
 #app .obs-team-intel-option{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--obs-border);border-radius:9px;background:var(--obs-surface);padding:7px 9px;color:var(--obs-text);font-size:11px;cursor:pointer}
-#app .obs-team-intel-option.selected{border-color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-team-intel-option.selected{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-team-intel-option small{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--obs-muted)}
 #app .obs-team-intel-option input{accent-color:var(--obs-accent)}
 #app .obs-team-intel-note,#app .obs-team-intel-empty{margin:12px 0}
@@ -580,7 +580,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-process>div:first-child{display:flex;justify-content:space-between;gap:10px;font-size:11px}
 #app .obs-team-intel-process>div:first-child span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #app .obs-team-intel-process b{white-space:nowrap}
-#app .obs-team-intel-track{height:5px;background:var(--obs-soft);border-radius:9px;overflow:hidden;margin-top:5px}
+#app .obs-team-intel-track{height:5px;background:var(--mr-c104,rgba(186,76,96,.075));border-radius:9px;overflow:hidden;margin-top:5px}
 #app .obs-team-intel-track span{display:block;height:100%;background:var(--obs-accent);border-radius:9px}
 #app .obs-team-intel-days-list{border-top:1px solid var(--obs-border);padding-top:10px;margin-top:12px;display:grid;gap:8px}
 #app .obs-team-intel-days-list>div{display:grid;grid-template-columns:90px minmax(0,1fr);gap:7px;font-size:10px}
@@ -601,7 +601,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-picker-toggle{font-weight:750}
 #app .obs-team-intel-picker-toggle span{margin-left:7px;color:var(--obs-muted)}
 #app .obs-team-intel-selected{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
-#app .obs-team-intel-selected button{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--obs-border);background:var(--obs-soft);color:var(--obs-text);border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer}
+#app .obs-team-intel-selected button{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-text);border-radius:8px;padding:5px 7px;font-size:10px;cursor:pointer}
 #app .obs-team-intel-selected span{color:var(--obs-accent);font-size:13px}
 #app .obs-team-intel-chooser{border:1px solid var(--obs-border);border-radius:11px;padding:8px;margin-top:9px}
 #app .obs-team-intel-people{max-height:130px}
@@ -621,7 +621,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 /* Obsada Intelligence: navigable calendar periods and readable process bars */
 #app .obs-team-intel-calendar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 #app .obs-team-intel-calendar .obs-team-intel-presets{margin-right:0}
-#app .obs-team-intel-calendar-nav{display:flex;align-items:center;gap:12px;background:var(--obs-soft);border:1px solid var(--obs-border);border-radius:11px;padding:4px;min-width:260px;justify-content:space-between}
+#app .obs-team-intel-calendar-nav{display:flex;align-items:center;gap:12px;background:var(--mr-c104,rgba(186,76,96,.075));border:1px solid var(--obs-border);border-radius:11px;padding:4px;min-width:260px;justify-content:space-between}
 #app .obs-team-intel-calendar-nav button{display:grid;place-items:center;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:8px;color:var(--obs-text);font-size:22px;line-height:1;padding:4px 10px;cursor:pointer}
 #app .obs-team-intel-calendar-nav button:disabled{opacity:.28;cursor:default}
 #app .obs-team-intel-calendar-nav span{font-size:12px;font-weight:650;color:var(--obs-text);text-align:center}
@@ -631,7 +631,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-team-intel-process-label{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11px}
 #app .obs-team-intel-process-label span{min-width:0;overflow-wrap:anywhere}
 #app .obs-team-intel-process-label b{white-space:nowrap;font-size:11px;font-variant-numeric:tabular-nums}
-#app .obs-team-intel-track{height:5px;margin-top:4px;background:var(--obs-soft);border-radius:10px;overflow:hidden}
+#app .obs-team-intel-track{height:5px;margin-top:4px;background:var(--mr-c104,rgba(186,76,96,.075));border-radius:10px;overflow:hidden}
 #app .obs-team-intel-track span{display:block;height:100%;border-radius:10px;background:var(--obs-accent)}
 @media(max-width:650px){#app .obs-team-intel-calendar-nav{width:100%;min-width:0}}
 
@@ -717,11 +717,11 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 
 /* Obsada worker actions: compact, accessible, theme-aware. */
 #app .obs-plan-worker-actions{width:29px;flex:none;cursor:pointer;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);border-radius:9px;font-size:18px;line-height:1}
-#app .obs-plan-worker-actions:hover{background:var(--obs-soft);border-color:var(--obs-accent)}
+#app .obs-plan-worker-actions:hover{background:var(--mr-c104,rgba(186,76,96,.075));border-color:var(--obs-accent)}
 #app .obs-plan-action-dialog{width:min(100%,490px)}
 #app .obs-action-type-row{display:flex;flex-wrap:wrap;gap:6px}
 #app .obs-action-type-row button{padding:8px 10px;border-radius:9px;border:1px solid var(--obs-border);background:transparent;color:var(--obs-text);font:inherit;font-size:12px;cursor:pointer}
-#app .obs-action-type-row button.active{border-color:var(--obs-accent);background:var(--obs-soft);color:var(--obs-accent)}
+#app .obs-action-type-row button.active{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-accent)}
 #app .obs-action-dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 #app .obs-action-dates label,#app .obs-action-hour{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--obs-text)}
 #app .obs-action-hour select{padding:10px;border-radius:9px;border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text)}
@@ -729,7 +729,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 #app .obs-action-multi summary{cursor:pointer}
 #app .obs-action-people{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:170px;overflow-y:auto;margin-top:10px}
 #app .obs-action-people label{display:flex;gap:5px;align-items:center;min-width:0;overflow-wrap:anywhere}
-#app .obs-action-primary{border-color:var(--obs-accent)!important;color:var(--obs-accent)!important;background:var(--obs-soft)!important}
+#app .obs-action-primary{border-color:var(--obs-accent)!important;color:var(--obs-accent)!important;background:var(--mr-c104,rgba(186,76,96,.075))!important}
 @media(max-width:420px){#app .obs-action-dates,#app .obs-action-people{grid-template-columns:1fr}}
 
 /* Parallel-shift controls: contained, theme-aware, responsive. */
@@ -813,7 +813,7 @@ html[data-theme="ivory"] #app .app-card[data-app="obsada"]{--obs-hub-caption:#6d
 
 /* Intelligence: additive team selection, with removable team tags. */
 #app .obs-team-intel-team-tags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:9px}
-#app .obs-team-intel-team-tag{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--obs-border);background:var(--obs-soft);border-radius:9px;padding:3px 5px 3px 9px;color:var(--obs-text);font-size:11px;max-width:100%}
+#app .obs-team-intel-team-tag{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(186,76,96,.075));border-radius:9px;padding:3px 5px 3px 9px;color:var(--obs-text);font-size:11px;max-width:100%}
 #app .obs-team-intel-team-tag>span{min-width:0;overflow-wrap:anywhere}
 #app .obs-team-intel-team-tag button{border:0;background:transparent;color:var(--obs-muted);font-size:17px;line-height:1;cursor:pointer;padding:4px 6px;border-radius:6px}
 #app .obs-team-intel-team-tag button:hover,#app .obs-team-intel-team-tag button:focus-visible{color:var(--obs-accent);background:var(--obs-surface)}
@@ -862,7 +862,7 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 /* Obsada Intelligence: two aligned recent-activity tiles (view-only, no hour logic). */
 #app .obs-team-intel-card{display:flex;flex-direction:column;min-width:0}
 #app .obs-team-intel-days-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;margin-top:auto;padding-top:11px;border-top:1px solid var(--obs-border)}
-#app .obs-team-intel-days-list>.obs-team-intel-activity{display:flex;flex-direction:column;min-width:0;gap:8px;padding:9px 10px;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-soft);font-size:11px;color:var(--obs-text)}
+#app .obs-team-intel-days-list>.obs-team-intel-activity{display:flex;flex-direction:column;min-width:0;gap:8px;padding:9px 10px;border:1px solid var(--obs-border);border-radius:10px;background:var(--mr-c104,rgba(186,76,96,.075));font-size:11px;color:var(--obs-text)}
 #app .obs-team-intel-activity-head{display:flex;align-items:baseline;justify-content:space-between;gap:7px;min-width:0;font-size:10px;line-height:1.3}
 #app .obs-team-intel-activity-head strong{font-size:10px;font-weight:700;color:var(--obs-text)}
 #app .obs-team-intel-activity-head time{font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--obs-muted);margin:0}
@@ -878,7 +878,7 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 #app .obs-db-compact{margin:12px 0 16px;border:1px solid var(--obs-border);background:var(--obs-surface);border-radius:15px;color:var(--obs-text);overflow:visible}
 #app .obs-db-compact-head{display:flex;align-items:center;gap:10px;padding:9px 13px}
 #app .obs-db-compact-toggle{flex:1;min-width:0;display:flex;align-items:center;text-align:left;gap:11px;border:0;background:transparent;color:var(--obs-text);font:inherit;cursor:pointer;padding:0;min-height:40px}
-#app .obs-db-compact-icon{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:var(--obs-soft);color:var(--obs-accent);font-size:19px}
+#app .obs-db-compact-icon{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-accent);font-size:19px}
 #app .obs-db-compact-heading{min-width:0;display:flex;flex-direction:column;gap:3px}
 #app .obs-db-compact-heading>strong{font-size:13px;font-weight:750}
 #app .obs-db-compact-status{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;line-height:1.35;color:var(--obs-muted,var(--obs-text))}
@@ -890,7 +890,7 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 #app .obs-db-compact-body{padding:11px 13px 12px;border-top:1px solid var(--obs-border)}
 #app .obs-db-exchange-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 #app .obs-db-exchange-card{min-width:0;display:grid;grid-template-columns:29px minmax(0,1fr) auto;align-items:center;gap:10px;padding:14px;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);transition:border-color .18s ease,background .18s ease}
-#app .obs-db-exchange-card:hover{border-color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-db-exchange-card:hover{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
 #app .obs-db-exchange-symbol{display:flex;align-items:center;justify-content:center;color:var(--obs-accent);width:29px;height:29px}
 #app .obs-db-exchange-content{min-width:0;display:flex;flex-direction:column;gap:4px}
 #app .obs-db-exchange-content strong{font-size:12px;color:var(--obs-text);font-weight:750;line-height:1.4}
@@ -915,7 +915,7 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 #app .obs-share-sync-sep{opacity:.6}
 #app .obs-share-sync-identity .obs-share-sync-main .obs-quiet{font-size:10.5px;margin-top:3px}
 #app .obs-share-sync-settings{margin-left:auto;flex:none;width:36px;height:36px;min-width:36px;display:grid;place-items:center;padding:0;border-radius:10px;line-height:1}
-#app .obs-share-sync-settings[aria-expanded=true]{background:var(--obs-soft);border-color:var(--obs-accent);color:var(--obs-accent)}
+#app .obs-share-sync-settings[aria-expanded=true]{background:var(--mr-c104,rgba(186,76,96,.075));border-color:var(--obs-accent);color:var(--obs-accent)}
 #app .obs-share-sync-controls{display:flex;align-items:end;gap:10px;width:100%;min-width:0;padding-top:10px;border-top:1px solid var(--obs-border)}
 #app .obs-share-sync-controls .obs-stan-date-set{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr);gap:10px;flex:1;min-width:0;width:auto;justify-self:auto}
 #app .obs-share-sync-controls .obs-stan-date-set label{min-width:0;font-size:11px}
@@ -942,17 +942,17 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 #app .obsada-module .obs-share-sync{padding:15px 16px;border-radius:19px}
 #app .obsada-module .obs-share-sync-reference{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;grid-template-columns:none!important}
 #app .obs-share-sync-reference .obs-share-sync-identity{align-self:stretch;width:100%;min-height:45px;gap:12px}
-#app .obs-share-sync-reference .obs-share-sync-icon{background:var(--obs-soft);color:var(--obs-accent);width:41px;height:41px;border-radius:12px}
+#app .obs-share-sync-reference .obs-share-sync-icon{background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-accent);width:41px;height:41px;border-radius:12px}
 #app .obs-share-sync-reference .obs-share-sync-main{display:flex;flex-direction:column;gap:4px}
 #app .obs-share-sync-name{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
 #app .obs-share-sync-name strong{font-size:13px;font-weight:750;line-height:1.35}
-#app .obs-share-sync-chip{font-size:10px;font-weight:730;line-height:1.3;padding:3px 7px;border-radius:7px;background:var(--obs-soft);color:var(--obs-muted)}
+#app .obs-share-sync-chip{font-size:10px;font-weight:730;line-height:1.3;padding:3px 7px;border-radius:7px;background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-muted)}
 #app .obs-share-sync-chip.is-connected{color:#087d45;background:rgba(29,185,105,.13)}
 html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.is-connected{color:#4de497;background:rgba(35,178,103,.16)}
 #app .obs-share-sync-reference .obs-share-sync-main .obs-quiet{font-size:11px;margin:0;line-height:1.45}
 #app .obs-share-sync-reference .obs-share-sync-settings{margin-left:auto;min-width:34px;width:34px;height:34px;border:0;background:transparent;box-shadow:none;color:var(--obs-muted);border-radius:9px;flex-shrink:0}
-#app .obs-share-sync-reference .obs-share-sync-settings[aria-expanded=true]{color:var(--obs-text);background:var(--obs-soft)}
-#app .obs-share-sync-reference .obs-share-sync-settings:hover{background:var(--obs-soft);color:var(--obs-accent)}
+#app .obs-share-sync-reference .obs-share-sync-settings[aria-expanded=true]{color:var(--obs-text);background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-share-sync-reference .obs-share-sync-settings:hover{background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-accent)}
 #app .obs-share-sync-reference .obs-share-sync-controls{margin-top:13px;padding-top:13px;border-top:1px solid var(--obs-border);display:flex;align-items:end;gap:12px;width:100%}
 #app .obs-share-sync-reference .obs-share-sync-controls .obs-stan-date-set{flex:1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 #app .obs-share-sync-reference .obs-stan-date-set label{display:flex;flex-direction:column;gap:5px;color:var(--obs-muted);font-size:12px;font-weight:650}
@@ -973,3 +973,29 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 @media(max-width:720px){#app .obs-share-sync-reference .obs-share-sync-controls{flex-wrap:wrap}#app .obs-share-sync-reference .obs-share-sync-controls .obs-stan-date-set{flex-basis:100%;width:100%}#app .obs-share-sync-reference .obs-share-sync-controls>.obs-bridge-refresh{width:100%}}
 @media(max-width:420px){#app .obs-share-sync-reference .obs-share-sync-controls .obs-stan-date-set{grid-template-columns:1fr}#app .obs-share-sync-config-v2 .obs-share-sync-config-bottom{align-items:stretch}#app .obs-share-sync-config-v2 .obs-share-sync-config-primary{width:100%}}
 @media(prefers-reduced-motion:reduce){#app .obs-share-sync-reference .obs-share-sync-controls>.obs-bridge-refresh{transition:none}}
+
+/* Obsada: day/shift team management, UI only; assignments and work-hours untouched. */
+#app .obs-day-teams{display:grid;gap:10px;padding:10px 0 12px;border-top:1px solid var(--obs-border)}
+#app .obs-day-teams-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--obs-text);font-size:13px}
+#app .obs-day-teams-add,#app .obs-day-team-form-actions button{border:1px solid var(--obs-border);background:var(--obs-surface);color:var(--obs-text);padding:8px 12px;border-radius:10px;font:inherit;cursor:pointer}
+#app .obs-day-teams-list{display:flex;flex-wrap:wrap;gap:8px}
+#app .obs-day-team{display:flex;align-items:stretch;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface);overflow:hidden}
+#app .obs-day-team.active{border-color:var(--obs-accent)}
+#app .obs-day-team-select{display:grid;gap:3px;min-width:145px;padding:10px 12px;text-align:left;border:0;background:transparent;color:var(--obs-text);cursor:pointer}
+#app .obs-day-team-select strong{font-size:12px}#app .obs-day-team-select small{font-size:11px;color:var(--obs-muted)}
+#app .obs-day-team-remove{border:0;border-left:1px solid var(--obs-border);background:transparent;color:var(--obs-muted);padding:0 12px;font-size:18px;cursor:pointer}
+#app .obs-day-team-remove:hover{color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-day-team-form{display:flex;align-items:end;flex-wrap:wrap;gap:10px;padding:12px;border:1px solid var(--obs-border);border-radius:12px;background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-day-team-form>label{display:grid;gap:6px;flex:1;min-width:160px;font-size:12px;color:var(--obs-text)}
+#app .obs-day-team-form>label>input{min-height:38px;padding:8px 10px;border-radius:10px;background:var(--obs-surface);border:1px solid var(--obs-border);color:var(--obs-text)}
+#app .obs-day-team-modes{width:100%;display:flex;gap:5px}#app .obs-day-team-modes button{padding:7px 10px;border:1px solid var(--obs-border);border-radius:8px;background:transparent;color:var(--obs-text);cursor:pointer}
+#app .obs-day-team-modes button.active{border-color:var(--obs-accent);background:var(--mr-c104,rgba(186,76,96,.075))}
+#app .obs-day-team-form>.obs-quiet{width:100%;margin:0}#app .obs-day-team-form-actions{display:flex;gap:6px}
+#app .obs-day-team-form-actions .obs-day-team-confirm{background:var(--obs-accent);border-color:var(--obs-accent);color:#fff}
+#app .obs-day-team-form-actions button:disabled{opacity:.45;cursor:not-allowed}
+#app .obs-day-template-tools{padding-top:4px}#app .obs-day-template-tools>details{margin-top:4px}
+@media(max-width:700px){#app .obs-day-teams-list{display:grid;grid-template-columns:1fr 1fr}#app .obs-day-team-select{min-width:0}#app .obs-day-team-form>label{min-width:100%}}
+@media(max-width:420px){#app .obs-day-teams-list{grid-template-columns:1fr}#app .obs-day-team{width:100%}#app .obs-day-team-select{flex:1}}
+
+#app .obs-day-save-new-team{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:9px;border-radius:10px;border:1px solid var(--obs-border);background:var(--mr-c104,rgba(186,76,96,.075));font-size:11px;color:var(--obs-text)}
+#app .obs-day-save-new-team button{padding:7px 10px;border-radius:9px;background:var(--obs-accent);color:#fff;border:0;cursor:pointer}
