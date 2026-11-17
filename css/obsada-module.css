@@ -873,3 +873,31 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 #app .obs-team-intel-days-list .obs-team-intel-activity-status{margin:0;line-height:1.4;font-size:11px;color:var(--obs-text)}
 #app .obs-team-intel-activity-empty{grid-column:1/-1}
 @media(max-width:350px){#app .obs-team-intel-days-list{grid-template-columns:1fr}}
+
+/* Obsada: compact database status + two purposeful exchange actions. */
+#app .obs-db-compact{margin:12px 0 16px;border:1px solid var(--obs-border);background:var(--obs-surface);border-radius:15px;color:var(--obs-text);overflow:visible}
+#app .obs-db-compact-head{display:flex;align-items:center;gap:10px;padding:10px 13px}
+#app .obs-db-compact-toggle{flex:1;min-width:0;display:flex;align-items:center;text-align:left;gap:11px;border:0;background:transparent;color:var(--obs-text);font:inherit;cursor:pointer;padding:0;min-height:42px}
+#app .obs-db-compact-icon{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border-radius:11px;background:var(--obs-soft);color:var(--obs-accent);font-size:20px}
+#app .obs-db-compact-heading{min-width:0;display:flex;flex-direction:column;gap:4px}
+#app .obs-db-compact-heading>strong{font-size:13px;font-weight:750}
+#app .obs-db-compact-status{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:11px;line-height:1.35;color:var(--obs-muted,var(--obs-text))}
+#app .obs-db-compact-chevron{margin-left:auto;color:var(--obs-text);font-size:16px;opacity:.75}
+#app .obs-db-compact-toggle:hover .obs-db-compact-heading>strong{color:var(--obs-accent)}
+#app .obs-db-compact-toggle:focus-visible,#app .obs-db-exchange-card summary:focus-visible{outline:2px solid var(--obs-accent);outline-offset:3px;border-radius:8px}
+#app .obs-db-compact-body{padding:12px 13px 14px;border-top:1px solid var(--obs-border)}
+#app .obs-db-exchange-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#app .obs-db-exchange-card{min-width:0;border:1px solid var(--obs-border);border-radius:13px;background:var(--obs-surface);transition:border-color .18s,background .18s}
+#app .obs-db-exchange-card:hover,#app .obs-db-exchange-card[open]{border-color:var(--obs-accent);background:var(--obs-soft)}
+#app .obs-db-exchange-card summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:25px minmax(0,1fr);column-gap:8px;row-gap:5px;align-content:start;padding:13px;min-height:92px}
+#app .obs-db-exchange-card summary::-webkit-details-marker{display:none}
+#app .obs-db-exchange-symbol{grid-row:1 / 3;display:flex;align-items:center;justify-content:center;color:var(--obs-accent);font-size:20px;font-weight:700}
+#app .obs-db-exchange-card summary strong{font-size:12px;color:var(--obs-text);font-weight:750;line-height:1.4}
+#app .obs-db-exchange-card summary span:last-child{font-size:11px;line-height:1.5;color:var(--obs-muted,var(--obs-text));opacity:.8}
+#app .obs-db-exchange-detail{padding:0 13px 13px;display:grid;gap:10px;font-size:11px;line-height:1.55;color:var(--obs-text)}
+#app .obs-db-exchange-detail p{margin:0;color:var(--obs-muted,var(--obs-text))}
+#app .obs-db-exchange-action{justify-self:start;display:inline-flex;align-items:center;justify-content:center;min-height:35px;padding:8px 12px;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:10px;color:var(--obs-text);font:inherit;font-weight:700;font-size:11px;cursor:pointer;max-width:100%;box-sizing:border-box}
+#app .obs-db-exchange-action:hover{border-color:var(--obs-accent);color:var(--obs-accent)}
+#app .obs-db-exchange-merge{margin-top:12px;padding:12px;border:1px solid var(--obs-border);border-radius:12px}
+@media(max-width:560px){#app .obs-db-compact-head{align-items:flex-start;flex-wrap:wrap}#app .obs-db-exchange-grid{grid-template-columns:minmax(0,1fr)}#app .obs-db-exchange-card summary{min-height:72px}#app .obs-db-compact-head>.obs-bridge-small-btn{margin-left:49px}}
+@media(prefers-reduced-motion:reduce){#app .obs-db-exchange-card{transition:none}}
