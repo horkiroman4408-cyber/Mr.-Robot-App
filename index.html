@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-db-exchange-ui-2">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-sharepoint-compact-v2">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -205,19 +205,21 @@
 </header>
 <main class="px-6 pb-12 max-w-6xl mx-auto w-full space-y-5">
  <section class="obs-surface obs-share-sync" aria-label="SharePoint synchronization">
-  <div class="obs-share-sync-head">
-   <div class="obs-share-sync-icon" aria-hidden="true">↻</div>
-   <div class="obs-share-sync-main"><strong>SharePoint · Grafik procesowy</strong>
-    <div class="obs-quiet">{{ obsadaBridge.connected?(obsadaBridge.sourceConfigured?eMsg('Źródło połączone','Источник подключён','Source connected','Джерело підключено'):eMsg('Ustaw źródło w konfiguracji','Укажи источник в настройках','Configure the source','Налаштуйте джерело')):eMsg('Bridge nie jest połączony','Bridge не подключён','Bridge disconnected','Bridge не підключено') }}</div>
-    <div class="obs-quiet">{{ obsadaPlan.state.stanSnapshot?.updatedAt?eMsg('STAN · data zmiany','STAN · дата смены','STAN · shift date','STAN · дата зміни')+': '+(obsadaPlan.state.stanSnapshot.day||eMsg('Nieokreślona','Не указана','Not specified','Не вказана'))+' · '+eMsg('Pobrano','Получен','Downloaded','Отримано')+': '+new Date(obsadaPlan.state.stanSnapshot.updatedAt).toLocaleString():eMsg('Brak zsynchronizowanego STAN','Нет сохранённого STAN','No synchronized STAN','Немає синхронізованого STAN') }} · {{ obsadaPlan.state.importedHistory.length }} {{ eMsg('wpisów historii','записей истории','history records','записів історії') }}</div>
+  <div class="obs-share-sync-head obs-share-sync-v2">
+   <div class="obs-share-sync-identity">
+    <div class="obs-share-sync-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.7 9a7 7 0 0 1 12-2l2.3 2"/><path d="M18.3 15a7 7 0 0 1-12 2L4 15"/></svg></div>
+    <div class="obs-share-sync-main"><strong>Grafik procesowy</strong>
+     <div class="obs-share-sync-meta"><span>SharePoint</span><span class="obs-share-sync-sep" aria-hidden="true">·</span><span>{{ obsadaBridge.connected?(obsadaBridge.sourceConfigured?eMsg('Połączono','Подключено','Connected','Підключено'):eMsg('Skonfiguruj źródło','Настроить источник','Configure source','Налаштувати джерело')):eMsg('Bridge niepołączony','Bridge не подключён','Bridge disconnected','Bridge не підключено') }}</span></div>
+     <div class="obs-quiet">{{ obsadaPlan.state.stanSnapshot?.updatedAt?eMsg('Ostatni STAN','Последний STAN','Latest STAN','Останній STAN')+': '+new Date(obsadaPlan.state.stanSnapshot.updatedAt).toLocaleString(uiLanguage==='pl'?'pl-PL':uiLanguage==='uk'?'uk-UA':uiLanguage==='en'?'en-GB':'ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):eMsg('STAN jeszcze niepobrany','STAN ещё не загружен','STAN not downloaded','STAN ще не завантажено') }}</div>
+    </div>
+    <button type="button" class="obs-bridge-config-btn obs-share-sync-settings" :aria-expanded="obsadaBridge.editing" :aria-label="eMsg('Ustawienia SharePoint','Настройки SharePoint','SharePoint settings','Налаштування SharePoint')" @click="obsadaBridge.editing=!obsadaBridge.editing;obsadaBridge.error=''" :title="eMsg('Ustawienia źródła','Настройки источника','Source settings','Налаштування джерела')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06-2 2-.06-.06A1.7 1.7 0 0 0 15.9 19l-.14.06V21h-3v-.09A1.7 1.7 0 0 0 11.4 19l-.14-.06L9 21l-2-2 2-2a1.7 1.7 0 0 0-.2-1.8L8.7 15H6v-3h2.7l.06-.2a1.7 1.7 0 0 0 .24-1.8L7 8l2-2 2 2a1.7 1.7 0 0 0 1.8-.2L13 7.7V5h3v2.7l.2.06A1.7 1.7 0 0 0 18 8l2-2 2 2-2 2a1.7 1.7 0 0 0 .2 1.8l.1.2H22v3h-2.6Z" transform="translate(-2 -1) scale(.95)"/></svg></button>
    </div>
-   <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
-    <label>{{ eMsg('STAN · data zmiany','STAN · дата смены','STAN · shift date','STAN · дата зміни') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
-    <label>{{ eMsg('Grafik STAN','График STAN','STAN shift','Графік STAN') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.stanShift" :disabled="obsadaBridge.busy" required><option value="" disabled>{{ eMsg('Wybierz','Выбрать','Select','Оберіть') }}</option><option v-for="opt in obsadaPlan.shifts" :key="opt.value" :value="opt.value">{{ opt.label }}</option></mr-obsada-select></label>
-   </div>
-   <div class="obs-share-sync-actions">
-    <button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsadaBridge.setupBusy || obsada.state.loading" @click="obsadaBridgeRefresh"><span aria-hidden="true">↻</span> {{ obsadaBridge.busy?eMsg('Synchronizowanie…','Синхронизация…','Synchronizing…','Синхронізація…'):eMsg('Synchronizuj SharePoint','Синхронизировать SharePoint','Sync SharePoint','Синхронізувати SharePoint') }}</button>
-    <button type="button" class="obs-bridge-config-btn" :aria-expanded="obsadaBridge.editing" @click="obsadaBridge.editing=!obsadaBridge.editing;obsadaBridge.error=''" :title="eMsg('Konfiguracja źródła','Настройки источника','Source settings','Налаштування джерела')">⚙</button>
+   <div class="obs-share-sync-controls">
+    <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
+     <label>{{ eMsg('Data STAN','Дата STAN','STAN date','Дата STAN') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
+     <label>{{ eMsg('Grafik','График','Shift','Графік') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.stanShift" :disabled="obsadaBridge.busy" required><option value="" disabled>{{ eMsg('Wybierz','Выбрать','Select','Оберіть') }}</option><option v-for="opt in obsadaPlan.shifts" :key="opt.value" :value="opt.value">{{ opt.label }}</option></mr-obsada-select></label>
+    </div>
+    <button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsadaBridge.setupBusy || obsada.state.loading" @click="obsadaBridgeRefresh"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.7 9a7 7 0 0 1 12-2l2.3 2"/><path d="M18.3 15a7 7 0 0 1-12 2L4 15"/></svg>{{ obsadaBridge.busy?eMsg('Synchronizowanie…','Синхронизация…','Synchronizing…','Синхронізація…'):eMsg('Synchronizuj','Синхронизировать','Synchronize','Синхронізувати') }}</button>
    </div>
   </div>
   <div v-if="obsadaPlan.state.stanChanges.length" class="obs-surface obs-stan-review" role="region" :aria-label="eMsg('Porównanie STAN','Сравнение STAN','STAN comparison','Порівняння STAN')">
@@ -228,11 +230,14 @@
    <div class="obs-stan-review-actions"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaPlan.state.busy || !obsadaPlan.stanSelectedCount" @click="obsadaPlan.applyStanReview()">{{ eMsg('Zastosuj','Применить','Apply','Застосувати') }} ({{ obsadaPlan.stanSelectedCount }})</button><button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.dismissStanReview()">{{ eMsg('Zachowaj lokalne i zamknij','Оставить локальные и закрыть','Keep local and close','Залишити локальні й закрити') }}</button></div>
   </div>
   <div v-if="obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted" class="obs-bridge-permission"><span>{{ eMsg('Zezwól na dostęp SharePoint','Разреши доступ к SharePoint','Grant SharePoint access','Надайте доступ SharePoint') }}</span><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.permissionPending" @click="obsadaBridgePermissionOpen">{{ eMsg('Zezwól','Разрешить','Allow','Дозволити') }}</button></div>
-  <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config">
-   <label class="obs-bridge-input-label" for="obs-sharepoint-link">SharePoint · URL</label>
-   <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.setupBusy || !obsadaBridge.link" @click="obsadaBridgeSaveSource">{{ eMsg('Zapisz link','Сохранить ссылку','Save link','Зберегти посилання') }}</button></div>
-   <div class="obs-bridge-config-footer"><span class="obs-quiet">Downloads/MrRobot/SharePoint</span><button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button></div>
-   <div class="obs-share-backup"><label class="obs-upload">{{ eMsg('Wczytaj XLSX ręcznie (awaryjnie)','Загрузить XLSX вручную (резерв)','Manual XLSX upload (backup)','Ручне завантаження XLSX (резерв)') }}<input type="file" accept=".xlsx,.xls" :disabled="obsada.state.loading" @change="obsadaManualSyncFile($event)"></label><span class="obs-quiet">{{ eMsg('Bez Bridge. Zapisuje historię i STAN do bazy lokalnej.','Без Bridge: сохранит историю и STAN в локальной базе.','Without Bridge: stores history and STAN locally.','Без Bridge: зберігає історію та STAN локально.') }}</span></div>
+  <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config obs-share-sync-config-v2">
+   <div class="obs-share-sync-config-title"><strong>{{ eMsg('Źródło SharePoint','Источник SharePoint','SharePoint source','Джерело SharePoint') }}</strong><button type="button" class="obs-share-sync-config-close" v-if="obsadaBridge.sourceConfigured" @click="obsadaBridge.editing=false" :aria-label="eMsg('Zamknij','Закрыть','Close','Закрити')">×</button></div>
+   <label class="obs-bridge-input-label" for="obs-sharepoint-link">{{ eMsg('Link do pliku XLSX','Ссылка на XLSX','XLSX file link','Посилання на XLSX') }}</label>
+   <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.setupBusy || !obsadaBridge.link" @click="obsadaBridgeSaveSource">{{ eMsg('Zapisz','Сохранить','Save','Зберегти') }}</button></div>
+   <div class="obs-share-sync-config-bottom">
+    <label class="obs-share-sync-manual">{{ eMsg('Wczytaj XLSX ręcznie','Загрузить XLSX вручную','Upload XLSX manually','Завантажити XLSX вручну') }}<input type="file" accept=".xlsx,.xls" :disabled="obsada.state.loading" @change="obsadaManualSyncFile($event)"></label>
+    <button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button>
+   </div>
   </div>
  </section>
    <div class="obs-db-compact" id="obsada-local-database">

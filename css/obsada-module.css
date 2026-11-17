@@ -903,3 +903,36 @@ html[data-theme="light"] .mr-obs-control-layer.obsada-module{--obs-accent:#b54a5
 @media(max-width:560px){#app .obs-db-compact-head{align-items:flex-start;flex-wrap:wrap}#app .obs-db-exchange-grid{grid-template-columns:minmax(0,1fr)}#app .obs-db-exchange-card{grid-template-columns:26px minmax(0,1fr) auto;gap:8px;padding:11px}#app .obs-db-exchange-action{grid-column:3;justify-self:end}#app .obs-db-compact-head>.obs-bridge-small-btn{margin-left:47px}}
 @media(max-width:390px){#app .obs-db-exchange-card{grid-template-columns:26px minmax(0,1fr)}#app .obs-db-exchange-action{grid-column:2;justify-self:start}}
 @media(prefers-reduced-motion:reduce){#app .obs-db-exchange-card,#app .obs-db-compact-chevron{transition:none}}
+
+/* Obsada: SharePoint minimal v2. Header / work row / discreet source settings. */
+#app .obs-share-sync{padding:14px 16px;overflow:visible}
+#app .obs-share-sync-v2{display:flex;flex-direction:column;gap:11px;align-items:stretch}
+#app .obs-share-sync-identity{display:flex;align-items:center;gap:11px;width:100%;min-width:0}
+#app .obs-share-sync-identity .obs-share-sync-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;padding:0;flex:none}
+#app .obs-share-sync-identity .obs-share-sync-main{flex:1;min-width:0;padding:0;display:block}
+#app .obs-share-sync-identity .obs-share-sync-main strong{font-size:13px;line-height:1.4}
+#app .obs-share-sync-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:3px;font-size:11px;color:var(--obs-muted)}
+#app .obs-share-sync-sep{opacity:.6}
+#app .obs-share-sync-identity .obs-share-sync-main .obs-quiet{font-size:10.5px;margin-top:3px}
+#app .obs-share-sync-settings{margin-left:auto;flex:none;width:36px;height:36px;min-width:36px;display:grid;place-items:center;padding:0;border-radius:10px;line-height:1}
+#app .obs-share-sync-settings[aria-expanded=true]{background:var(--obs-soft);border-color:var(--obs-accent);color:var(--obs-accent)}
+#app .obs-share-sync-controls{display:flex;align-items:end;gap:10px;width:100%;min-width:0;padding-top:10px;border-top:1px solid var(--obs-border)}
+#app .obs-share-sync-controls .obs-stan-date-set{display:grid;grid-template-columns:minmax(150px,1fr) minmax(150px,1fr);gap:10px;flex:1;min-width:0;width:auto;justify-self:auto}
+#app .obs-share-sync-controls .obs-stan-date-set label{min-width:0;font-size:11px}
+#app .obs-share-sync-controls .obs-stan-date-set mr-obsada-date,#app .obs-share-sync-controls .obs-stan-date-set mr-obsada-select{display:block;width:100%;min-width:0}
+#app .obs-share-sync-controls>.obs-bridge-refresh{min-height:39px;display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;white-space:nowrap;padding:9px 15px;border-radius:10px;box-shadow:none;font-size:12px}
+#app .obs-share-sync-config-v2{margin-top:13px;padding:12px 0 0;display:grid;gap:9px;border-top:1px solid var(--obs-border)}
+#app .obs-share-sync-config-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#app .obs-share-sync-config-title strong{font-size:12px;color:var(--obs-text)}
+#app .obs-share-sync-config-close{width:26px;height:26px;display:grid;place-items:center;background:transparent;border:1px solid var(--obs-border);border-radius:8px;color:var(--obs-muted);font-size:19px;cursor:pointer}
+#app .obs-share-sync-config-v2 .obs-bridge-input-line{display:flex;gap:8px}
+#app .obs-share-sync-config-v2 .obs-bridge-input-line input{min-height:37px}
+#app .obs-share-sync-config-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:4px}
+#app .obs-share-sync-manual{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:8px 11px;border:1px solid var(--obs-border);border-radius:9px;background:var(--obs-surface);color:var(--obs-text);font-size:11px;font-weight:650;cursor:pointer;min-height:34px}
+#app .obs-share-sync-manual:hover{border-color:var(--obs-accent)}
+#app .obs-share-sync-manual input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+#app .obs-share-sync-config-bottom .obs-bridge-remove{margin:0}
+@media(min-width:900px){#app .obs-share-sync-v2{display:grid;grid-template-columns:minmax(230px,1fr) minmax(420px,1.5fr);align-items:end;gap:16px}#app .obs-share-sync-controls{padding-top:0;border:0}#app .obs-share-sync-identity{align-self:center}}
+@media(max-width:620px){#app .obs-share-sync-controls{flex-wrap:wrap}#app .obs-share-sync-controls .obs-stan-date-set{width:100%;flex-basis:100%}#app .obs-share-sync-controls>.obs-bridge-refresh{width:100%}}
+@media(max-width:390px){#app .obs-share-sync-controls .obs-stan-date-set{grid-template-columns:1fr}#app .obs-share-sync-config-v2 .obs-bridge-input-line{flex-wrap:wrap}#app .obs-share-sync-config-v2 .obs-bridge-input-line input{flex-basis:100%}}
+@media(prefers-reduced-motion:reduce){#app .obs-share-sync-settings{transition:none}}
