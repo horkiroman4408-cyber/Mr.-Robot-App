@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-worker-menu-search-2">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-next-day-print-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -198,6 +198,7 @@
   <nav class="obs-tabs" :aria-label="eMsg('Widoki Obsada','Вкладки Obsada','Obsada views','Вкладки Obsada')">
    <button :class="{active:obsada.state.tab==='today'}" @click="obsada.state.tab='today'">{{ eMsg('Obsada','Расстановка','Staffing','Розподіл') }}</button>
    <button :class="{active:obsada.state.tab==='planning'}" @click="obsada.state.tab='planning'">{{ eMsg('Planowanie','Планирование','Planning','Планування') }}</button>
+   <button :class="{active:obsada.state.tab==='nextday'}" @click="obsada.state.tab='nextday'">{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</button>
    <button :class="{active:obsada.state.tab==='history'}" @click="obsada.state.tab='history'">{{ eMsg('Historia','История','History','Історія') }}</button>
    <button :class="{active:obsada.state.tab==='intelligence'}" @click="obsada.state.tab='intelligence'">Intelligence</button>
   </nav>
@@ -494,6 +495,26 @@
    </div>
   </section>
  </template>
+ <section v-else-if="obsada.state.tab==='nextday'" class="obs-surface obs-tomorrow-section">
+  <div class="obs-headline"><div><h2 class="obs-section-title">{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</h2><p class="obs-quiet">{{ eMsg('Wydruk z zapisanych przydziałów w Planowanie. Bez zmiany bazy.','Печатный список из сохранённого плана. База не меняется.','Printable list from saved assignments. Your database is not changed.','Список для друку зі збереженого плану. База не змінюється.') }}</p></div><span class="obs-pill">{{ obsadaPlan.tomorrowPlan.total }} {{ eMsg('osób','сотрудников','people','працівників') }}</span></div>
+  <div class="obs-tomorrow-controls">
+   <label>{{ eMsg('Data planu','Дата плана','Plan date','Дата плану') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.printDay"></mr-obsada-date></label>
+   <label>{{ eMsg('Zespoły','Команды','Teams','Команди') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printShift"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="sh in obsadaPlan.shifts.filter(s=>obsadaPlan.tomorrowPlanAvailableShifts.includes(s.value))" :key="sh.value" :value="sh.value">{{ sh.label }}</option></mr-obsada-select></label>
+   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij nieobecnych','Показать отсутствующих','Include absent workers','Показати відсутніх') }}</label>
+   <button type="button" class="obs-bridge-small-btn primary obs-tomorrow-print" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.printTomorrowPlan()">▤ {{ eMsg('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF') }}</button>
+  </div>
+  <div v-if="obsadaPlan.state.error==='PRINT_POPUP_BLOCKED'" class="obs-warning" role="alert">{{ eMsg('Zezwól na otwieranie okien wyskakujących, aby wydrukować plan.','Разреши всплывающие окна для печати списка.','Allow pop-ups to print the plan.','Дозвольте спливні вікна, щоб надрукувати план.') }}</div>
+  <div v-if="!obsadaPlan.tomorrowPlan.teams.length" class="obs-tomorrow-empty"><strong>{{ eMsg('Brak zapisanego planu na ten dzień','Нет сохранённого плана на эту дату','No saved plan for this date','Немає збереженого плану на цю дату') }}</strong><p class="obs-quiet">{{ eMsg('Dodaj zespół i przydziały w Planowanie. Lista pojawi się automatycznie.','Добавь команду и назначения в Планировании, и список появится автоматически.','Add a team and assignments in Planning to populate the list.','Додайте команду й призначення в Плануванні, і список з’явиться автоматично.') }}</p><button type="button" class="obs-bridge-small-btn" @click="obsada.state.tab='planning';obsadaPlan.state.day=obsadaPlan.state.printDay">{{ eMsg('Otwórz Planowanie','Открыть Планирование','Open Planning','Відкрити Планування') }}</button></div>
+  <template v-else>
+   <div class="obs-tomorrow-report-head"><div><span>INCYDENTY</span><h3>{{ eMsg('PLAN OBSADY','ПЛАН РАССТАНОВКИ','STAFFING PLAN','ПЛАН РОЗСТАНОВКИ') }}</h3></div><strong>{{ obsadaPlan.state.printDay.split('-').reverse().join('.') }}</strong></div>
+   <div class="obs-tomorrow-grid" :class="{'is-one':obsadaPlan.tomorrowPlan.teams.length===1}">
+    <article v-for="item in obsadaPlan.tomorrowPlan.teams" :key="item.shift" class="obs-tomorrow-team"><header><div><strong>{{ item.name }}</strong><small>{{ item.label }}</small></div><span>{{ item.total }} {{ eMsg('osób','чел.','people','осіб') }}</span></header>
+     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span><small>{{ part.from }}–{{ part.to }}</small></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span><small>{{ part.from }}–{{ part.to }}</small></div></div></div></div>
+    </article>
+   </div>
+   <p class="obs-quiet obs-tomorrow-note">{{ eMsg('Podgląd planu. Godziny są planowane, niepotwierdzone. Drukowanie otwiera osobny arkusz A4.','Предпросмотр плана. Часы запланированы, но не подтверждены. Печать откроет отдельный лист A4.','Plan preview, not confirmed worked hours. Printing opens a separate A4 sheet.','Перегляд плану, а не підтверджених годин. Друк відкриває аркуш A4.') }}</p>
+  </template>
+ </section>
  <section v-else class="obs-surface">
   <div class="obs-headline"><div><h2 class="obs-section-title">{{ obsada.state.tab==='history'?eMsg('Historia procesów','История процессов','Process history','Історія процесів'):eMsg('Intelligence · analiza godzin','Intelligence · анализ часов','Intelligence · hour analysis','Intelligence · аналіз годин') }}</h2><p class="obs-quiet">{{ eMsg('Lokalna baza i historia z XLSX · plany odróżnione od pracy.','Локальная база и история XLSX · планы отдельно от работы.','Local database and XLSX history · plans are separate from work.','Локальна база та історія XLSX · плани окремо.') }}</p></div><span class="obs-pill">{{ obsadaPlan.state.importedHistory.length }} {{ eMsg('w bazie','в базе','in database','у базі') }}</span></div>
   <div v-if="!obsadaPlan.state.importedHistory.length && obsada.state.model" class="obs-warning">{{ eMsg('Historia z wczytanego XLSX jest tymczasowo widoczna. Aby zachować ją w bazie, użyj Importuj historię.','История XLSX пока отображается временно. Для сохранения в базу импортируй её.','Loaded XLSX history is temporarily visible. Import it to keep it in the local database.','Історія XLSX поки тимчасова. Імпортуйте її до бази.') }} <button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.importFromCurrent()">{{ eMsg('Importuj historię','Импортировать историю','Import history','Імпортувати історію') }}</button></div>
@@ -2979,7 +3000,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-worker-menu-search-2"></script>
+<script src="js/obsada-planner.js?v=3.26.0-next-day-print-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
