@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-db-exchange-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.25.0-db-exchange-ui-2">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -242,7 +242,7 @@
       <span class="obs-db-compact-heading"><strong>{{ eMsg('Baza lokalna','Локальная база','Local database','Локальна база') }}</strong>
        <span class="obs-db-compact-status" role="status"><span class="obs-share-sync-dot" :class="'is-'+obsadaPlan.syncKind" aria-hidden="true"></span>
        <span>{{ obsadaPlan.syncKind==='synced'?eMsg('Excel zapisany','Excel сохранён','Excel saved','Excel збережено'):obsadaPlan.syncKind==='saving'?eMsg('Zapisywanie…','Сохранение…','Saving…','Збереження…'):obsadaPlan.syncKind==='no-folder'?eMsg('Wybierz folder MrRobot','Выбери папку MrRobot','Choose MrRobot folder','Оберіть папку MrRobot'):obsadaPlan.syncKind==='error'?eMsg('Błąd zapisu Excel','Ошибка сохранения Excel','Excel save error','Помилка збереження Excel'):eMsg('Zapisano w przeglądarce','Сохранено в браузере','Saved in browser','Збережено у браузері') }}</span><span v-if="obsadaPlan.syncKind==='synced' && obsadaPlan.syncTimeText" class="obs-quiet">· {{ obsadaPlan.syncTimeText }}</span></span>
-      </span><span class="obs-db-compact-chevron" aria-hidden="true">{{ obsadaPlan.state.showDatabase?'⌃':'⌄' }}</span>
+      </span><span class="obs-db-compact-chevron" :class="{'is-open':obsadaPlan.state.showDatabase}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
      </button>
      <button v-if="obsadaPlan.syncKind==='no-folder' || obsadaPlan.state.status==='FOLDER_PERMISSION_REQUIRED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.chooseFolder()">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Обрати папку') }}</button>
      <button v-else-if="obsadaPlan.state.status==='EXTERNAL_CHANGES_DETECTED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.resolveConflictWithBackup()">{{ eMsg('Napraw zapis','Исправить запись','Fix save','Виправити запис') }}</button>
@@ -250,16 +250,16 @@
     </div>
     <div v-if="obsadaPlan.state.showDatabase" id="obsada-db-exchange-actions" class="obs-db-compact-body">
      <div class="obs-db-exchange-grid">
-      <details class="obs-db-exchange-card">
-       <summary><span class="obs-db-exchange-symbol" aria-hidden="true">↗</span><strong>{{ eMsg('Przekaż koledze','Передать коллеге','Share with colleague','Передати колезі') }}</strong><span>{{ eMsg('Utwórz kopię bazy XLSX do wysłania','Создать копию базы XLSX для отправки','Create an XLSX copy to send','Створити копію бази XLSX для надсилання') }}</span></summary>
-       <div class="obs-db-exchange-detail"><p>{{ eMsg('Robot przygotuje aktualną kopię. Twoja baza pozostanie bez zmian.','Robot создаст актуальную копию. Твоя база не изменится.','Robot will create a current copy. Your database stays unchanged.','Robot створить актуальну копію. Ваша база не зміниться.') }}</p>
-       <button type="button" class="obs-db-exchange-action" @click="obsadaPlan.download()">{{ eMsg('Pobierz kopię XLSX','Скачать копию XLSX','Download XLSX copy','Завантажити копію XLSX') }}</button></div>
-      </details>
-      <details class="obs-db-exchange-card">
-       <summary><span class="obs-db-exchange-symbol" aria-hidden="true">↙</span><strong>{{ eMsg('Odbierz od kolegi','Получить от коллеги','Receive from colleague','Отримати від колеги') }}</strong><span>{{ eMsg('Wybierz jego XLSX i połącz dane','Выбрать его XLSX и объединить записи','Choose their XLSX and merge records','Обрати його XLSX та об’єднати записи') }}</span></summary>
-       <div class="obs-db-exchange-detail"><p>{{ eMsg('Wybierz plik MrRobot_Obsada_Baza.xlsx otrzymany od kolegi, np. z folderu Pobrane. Przed połączeniem sprawdzisz konflikty.','Выбери полученный от коллеги файл MrRobot_Obsada_Baza.xlsx, например из «Загрузок». Перед объединением проверь конфликты.','Choose the MrRobot_Obsada_Baza.xlsx received from your colleague, for example from Downloads. Review conflicts before merging.','Обери файл MrRobot_Obsada_Baza.xlsx від колеги, наприклад із Завантажень. Перевір конфлікти перед об’єднанням.') }}</p>
-       <label class="obs-plan-import obs-db-exchange-action">{{ eMsg('Wybierz XLSX','Выбрать XLSX','Choose XLSX','Обрати XLSX') }}<input type="file" accept=".xlsx" @change="obsadaPlan.previewColleagueFile($event)"></label></div>
-      </details>
+      <div class="obs-db-exchange-card">
+       <div class="obs-db-exchange-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0-4 4m4-4 4 4"/><path d="M5 16v4h14v-4"/></svg></div>
+       <div class="obs-db-exchange-content"><strong>{{ eMsg('Przekaż koledze','Передать коллеге','Share with colleague','Передати колезі') }}</strong><span>{{ eMsg('Pobierz kopię bazy XLSX do wysłania','Скачать копию базы XLSX для отправки','Download an XLSX copy to share','Завантажити копію XLSX для передачі') }}</span></div>
+       <button type="button" class="obs-db-exchange-action" @click="obsadaPlan.download()">{{ eMsg('Pobierz XLSX','Скачать XLSX','Download XLSX','Завантажити XLSX') }}</button>
+      </div>
+      <div class="obs-db-exchange-card">
+       <div class="obs-db-exchange-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M5 16v4h14v-4"/></svg></div>
+       <div class="obs-db-exchange-content"><strong>{{ eMsg('Odbierz od kolegi','Получить от коллеги','Receive from colleague','Отримати від колеги') }}</strong><span>{{ eMsg('Wybierz XLSX i sprawdź dane przed połączeniem','Выбрать XLSX и проверить данные перед объединением','Choose XLSX and review before merging','Обрати XLSX та перевірити перед об’єднанням') }}</span></div>
+       <label class="obs-db-exchange-action obs-db-exchange-file">{{ eMsg('Wybierz XLSX','Выбрать XLSX','Choose XLSX','Обрати XLSX') }}<input type="file" accept=".xlsx" @change="obsadaPlan.previewColleagueFile($event)"></label>
+      </div>
      </div>
      <div v-if="obsadaPlan.state.mergePreview || obsadaPlan.state.mergeMessage" class="obs-merge-review obs-db-exchange-merge">
       <template v-if="obsadaPlan.state.mergePreview">

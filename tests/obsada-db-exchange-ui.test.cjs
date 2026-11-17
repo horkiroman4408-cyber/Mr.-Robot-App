@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict');
+const fs=require('node:fs');const path=require('node:path');
+const base=path.resolve(__dirname,'..');const html=fs.readFileSync(path.join(base,'index.html'),'utf8');const css=fs.readFileSync(path.join(base,'css/obsada-module.css'),'utf8');const sw=fs.readFileSync(path.join(base,'sw.js'),'utf8');
+assert.match(html,/obs-db-compact-chevron[^>]+:class="\{'is-open':obsadaPlan.state.showDatabase\}"/);
+assert.match(html,/obs-db-compact-chevron[^]*?<svg viewBox="0 0 24 24"/);
+assert.doesNotMatch(html,/showDatabase\?'⌃':'⌄'/);
+assert.match(css,/obs-db-compact-chevron\.is-open\{transform:rotate\(180deg\)\}/);
+assert.match(html,/@click="obsadaPlan.download\(\)"/);
+assert.match(html,/@change="obsadaPlan.previewColleagueFile\(\$event\)"/);
+assert.match(html,/@click="obsadaPlan.applyColleagueMerge\(\)"/);
+assert.match(html,/class="obs-db-exchange-file"|class="obs-db-exchange-action obs-db-exchange-file"/);
+assert.equal((html.match(/class="obs-db-exchange-card"/g)||[]).length,2);
+assert.match(css,/@media\(max-width:560px\)/);
+assert.match(sw,/v3\.25\.0-obsada-db-exchange-ui-20261117/);
+for(const x of ['Przekaż koledze','Передать коллеге','Share with colleague','Передати колезі','Odbierz od kolegi','Получить от коллеги','Receive from colleague','Отримати від колеги'])assert.ok(html.includes(x),x);
+console.log('Obsada db exchange UI: PASS');
