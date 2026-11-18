@@ -89,7 +89,7 @@ function summarize(rows,selected,from,to,referenceDay=today(),now=Date.now()){
    const category=statusCategory(r.status||r.process);
    if(category)daysByStatus[category].add(r.date);
   }
-  const processes=[...byProcess].map(([process,hours])=>({process,hours,lastDate:all.filter(r=>r.process===process).map(r=>r.date).sort().at(-1)||''})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));
+  const processes=[...byProcess].map(([process,hours])=>({process,hours,days:new Set(all.filter(r=>r.process===process).map(r=>r.date)).size,lastDate:all.filter(r=>r.process===process).map(r=>r.date).sort().at(-1)||''})).sort((a,b)=>b.hours-a.hours||a.process.localeCompare(b.process));
   return {login,hours:processes.reduce((n,r)=>n+r.hours,0),processes,
    days:new Set(all.map(r=>r.date)).size,dayOffDays:daysByStatus.dayOff.size,
    leaveDays:daysByStatus.leave.size,sickDays:daysByStatus.sick.size,lastActivities};
