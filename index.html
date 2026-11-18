@@ -58,6 +58,12 @@
 @media(max-width:720px){.mr-mdt-operator-list,.mr-mdt-loc-list{grid-template-columns:1fr}.mr-mdt-loc-card.is-expanded{grid-column:auto}.mr-mdt-summary{gap:6px}.mr-mdt-summary>div{padding:10px;flex-direction:column;align-items:flex-start}.mr-mdt-summary strong{font-size:20px}.mr-mdt-summary small{text-align:left}.mr-mdt-op-card{padding:12px}}
 @media(prefers-reduced-motion:reduce){.mr-mdt-op-card{transition:none}}
 </style>
+<style>
+.obs-tomorrow-grid.has-absent{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:12px;align-items:start}
+.obs-tomorrow-grid.has-absent.is-one{grid-template-columns:minmax(0,1fr) minmax(0,.8fr)}
+.obs-tomorrow-absent header{background:#eef0f3}
+@media(max-width:850px){.obs-tomorrow-grid.has-absent,.obs-tomorrow-grid.has-absent.is-one{grid-template-columns:1fr}}
+</style>
 </head><body><div id="app" v-cloak class="relative min-h-full flex flex-col" style="z-index:10;">
 <div v-if="view!=='settings'" class="theme-toolbar"><button type="button" class="settings-entry" @click="openSettings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" aria-hidden="true"><path d="m9 3-.7 2.2-2 .9L4 5.5 1.7 9.7 3.4 11v2l-1.7 1.3L4 18.5l2.3-.6 2 .9L9 21h6l.7-2.2 2-.9 2.3.6 2.3-4.2-1.7-1.3v-2l1.7-1.3L20 5.5l-2.3.6-2-.9L15 3z"/><circle cx="12" cy="12" r="3.1"/></svg><span>{{ tr('Ustawienia') }}</span></button></div>
 <button v-if="view === 'hub'" class="changelog-pill" @click="view = 'changelog'" :title="tr(hasUnreadChangelog ? 'Dostępne są nowe wpisy!' : 'Co nowego')"><span class="ico-wrap">✨</span><span>{{ tr(3) }}</span><span v-if="hasUnreadChangelog" class="badge" style="padding: 0 8px; font-size: 0.65rem; letter-spacing: 0.5px;">{{ tr(4) }}</span></button>
@@ -500,17 +506,21 @@
   <div class="obs-tomorrow-controls">
    <label>{{ eMsg('Data planu','Дата плана','Plan date','Дата плану') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.printDay"></mr-obsada-date></label>
    <label>{{ eMsg('Zespoły','Команды','Teams','Команди') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printShift"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="sh in obsadaPlan.shifts.filter(s=>obsadaPlan.tomorrowPlanAvailableShifts.includes(s.value))" :key="sh.value" :value="sh.value">{{ sh.label }}</option></mr-obsada-select></label>
-   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij nieobecnych','Показать отсутствующих','Include absent workers','Показати відсутніх') }}</label>
+   <label>{{ eMsg('Zmiana do eksportu','Смена для экспорта','Export shift','Зміна для експорту') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printExportShift"><option value="I">Zmiana I</option><option value="II">Zmiana II</option></mr-obsada-select></label>
+   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij WOLNY / URLOP','Показывать выходные / отпуска','Include days off / leave','Показувати вихідні / відпустки') }}</label>
+   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowTimes">{{ eMsg('Pokaż godziny procesów','Показывать часы процессов','Show process hours','Показувати години процесів') }}</label>
+   <button type="button" class="obs-bridge-small-btn obs-tomorrow-excel" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.exportTomorrowExcel()">⬇ {{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button>
    <button type="button" class="obs-bridge-small-btn primary obs-tomorrow-print" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.printTomorrowPlan()">▤ {{ eMsg('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF') }}</button>
   </div>
   <div v-if="obsadaPlan.state.error==='PRINT_POPUP_BLOCKED'" class="obs-warning" role="alert">{{ eMsg('Zezwól na otwieranie okien wyskakujących, aby wydrukować plan.','Разреши всплывающие окна для печати списка.','Allow pop-ups to print the plan.','Дозвольте спливні вікна, щоб надрукувати план.') }}</div>
   <div v-if="!obsadaPlan.tomorrowPlan.teams.length" class="obs-tomorrow-empty"><strong>{{ eMsg('Brak zapisanego planu na ten dzień','Нет сохранённого плана на эту дату','No saved plan for this date','Немає збереженого плану на цю дату') }}</strong><p class="obs-quiet">{{ eMsg('Dodaj zespół i przydziały w Planowanie. Lista pojawi się automatycznie.','Добавь команду и назначения в Планировании, и список появится автоматически.','Add a team and assignments in Planning to populate the list.','Додайте команду й призначення в Плануванні, і список з’явиться автоматично.') }}</p><button type="button" class="obs-bridge-small-btn" @click="obsada.state.tab='planning';obsadaPlan.state.day=obsadaPlan.state.printDay">{{ eMsg('Otwórz Planowanie','Открыть Планирование','Open Planning','Відкрити Планування') }}</button></div>
   <template v-else>
    <div class="obs-tomorrow-report-head"><div><span>INCYDENTY</span><h3>{{ eMsg('PLAN OBSADY','ПЛАН РАССТАНОВКИ','STAFFING PLAN','ПЛАН РОЗСТАНОВКИ') }}</h3></div><strong>{{ obsadaPlan.state.printDay.split('-').reverse().join('.') }}</strong></div>
-   <div class="obs-tomorrow-grid" :class="{'is-one':obsadaPlan.tomorrowPlan.teams.length===1}">
+   <div class="obs-tomorrow-grid" :class="{'is-one':obsadaPlan.tomorrowPlan.teams.length===1,'has-absent':obsadaPlan.tomorrowPlan.absentPeople.length>0}">
     <article v-for="item in obsadaPlan.tomorrowPlan.teams" :key="item.shift" class="obs-tomorrow-team"><header><div><strong>{{ item.name }}</strong><small>{{ item.label }}</small></div><span>{{ item.total }} {{ eMsg('osób','чел.','people','осіб') }}</span></header>
-     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span><small>{{ part.from }}–{{ part.to }}</small></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span><small>{{ part.from }}–{{ part.to }}</small></div></div></div></div>
+     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></div></div></div>
     </article>
+    <article v-if="obsadaPlan.tomorrowPlan.absentPeople.length" class="obs-tomorrow-team obs-tomorrow-absent"><header><div><strong>{{ eMsg('Nieobecni','Отсутствуют','Absent','Відсутні') }}</strong><small>WOLNY / URLOP</small></div></header><div class="obs-tomorrow-table"><div v-for="person in obsadaPlan.tomorrowPlan.absentPeople" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div class="obs-tomorrow-process">{{ person.status }}</div></div></div></article>
    </div>
    <p class="obs-quiet obs-tomorrow-note">{{ eMsg('Podgląd planu. Godziny są planowane, niepotwierdzone. Drukowanie otwiera osobny arkusz A4.','Предпросмотр плана. Часы запланированы, но не подтверждены. Печать откроет отдельный лист A4.','Plan preview, not confirmed worked hours. Printing opens a separate A4 sheet.','Перегляд плану, а не підтверджених годин. Друк відкриває аркуш A4.') }}</p>
   </template>
@@ -3000,7 +3010,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-print-refined-4"></script>
+<script src="js/obsada-planner.js?v=3.26.0-tomorrow-shift-absence-6"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
