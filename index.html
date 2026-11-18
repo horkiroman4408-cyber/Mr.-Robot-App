@@ -513,7 +513,6 @@
    <label>{{ eMsg('Data planu','Дата плана','Plan date','Дата плану') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.printDay"></mr-obsada-date></label>
    <label>{{ eMsg('Zespoły','Команды','Teams','Команди') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printShift"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="sh in obsadaPlan.shifts.filter(s=>obsadaPlan.tomorrowPlanAvailableShifts.includes(s.value))" :key="sh.value" :value="sh.value">{{ sh.label }}</option></mr-obsada-select></label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij WOLNY / URLOP','Показывать выходные / отпуска','Include days off / leave','Показувати вихідні / відпустки') }}</label>
-   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowTimes">{{ eMsg('Pokaż godziny procesów','Показывать часы процессов','Show process hours','Показувати години процесів') }}</label>
    <div class="obs-tomorrow-actions">
    <button type="button" class="obs-bridge-small-btn obs-tomorrow-excel" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.exportTomorrowExcel()">⬇ {{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button>
    <button type="button" class="obs-bridge-small-btn primary obs-tomorrow-print" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.printTomorrowPlan()">▤ {{ eMsg('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF') }}</button>
@@ -525,7 +524,7 @@
    <div class="obs-tomorrow-report-head"><div><span>INCYDENTY</span><h3>{{ eMsg('PLAN OBSADY','ПЛАН РАССТАНОВКИ','STAFFING PLAN','ПЛАН РОЗСТАНОВКИ') }}</h3></div><strong>{{ obsadaPlan.state.printDay.split('-').reverse().join('.') }}</strong></div>
    <div class="obs-tomorrow-grid" :class="{'is-one':obsadaPlan.tomorrowPlan.teams.length===1,'has-absent':obsadaPlan.tomorrowPlan.absentPeople.length>0}">
     <article v-for="item in obsadaPlan.tomorrowPlan.teams" :key="item.shift" class="obs-tomorrow-team"><header><div><strong>{{ item.name }}</strong><small>{{ item.label }}</small></div><span>{{ item.total }} {{ eMsg('osób','чел.','people','осіб') }}</span></header>
-     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></div></div></div>
+     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span></div></div></div></div>
     </article>
     <article v-if="obsadaPlan.tomorrowPlan.absentPeople.length" class="obs-tomorrow-team obs-tomorrow-absent"><header><div><strong>{{ eMsg('Nieobecni','Отсутствуют','Absent','Відсутні') }}</strong><small>WOLNY / URLOP</small></div></header><div class="obs-tomorrow-table"><div v-for="person in obsadaPlan.tomorrowPlan.absentPeople" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div class="obs-tomorrow-process">{{ person.status }}</div></div></div></article>
    </div>
@@ -3017,7 +3016,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-incydenty-unified-export-1"></script>
+<script src="js/obsada-planner.js?v=3.26.0-no-hours-center-print-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
