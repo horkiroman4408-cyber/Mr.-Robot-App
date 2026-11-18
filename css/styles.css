@@ -1895,3 +1895,9 @@ html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9
 .mr-stock-history-item{font-weight:550}
 @media(prefers-reduced-motion:reduce){.mr-stock-chevron svg,.mr-stock-repeat-head{transition:none}}
 @media(max-width:580px){.mr-stock-repeat-head{padding:12px 11px}.mr-stock-repeat-actions{gap:7px}.mr-stock-history{padding:11px}.mr-stock-timeline .mr-stock-history-row{padding-right:0}}
+
+/* Theme-contrast corrections: bright category chips need dark foregrounds. */
+.grp-chip.active[data-grp="inne"],.grp-chip.active[data-grp="sinsay"],
+.grp-chip.active[data-rodz="Zwroty"] {color:#172332}
+.grp-chip.active[data-grp="inne"] .cnt,.grp-chip.active[data-grp="sinsay"] .cnt,
+.grp-chip.active[data-rodz="Zwroty"] .cnt {color:inherit}

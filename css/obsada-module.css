@@ -1140,3 +1140,36 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
  #app .obs-top-connection-row>.obs-share-sync,
  #app .obs-top-connection-row>.obs-db-compact{grid-column:1}
 }
+
+/* v3.26 · Theme-safe tomorrow preview. Does not affect separate A4 print document. */
+#app .obsada-module .obs-tomorrow-section,
+#app .obsada-module .obs-tomorrow-team {color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-team {background:var(--obs-surface);border-color:var(--obs-border)}
+#app .obsada-module .obs-tomorrow-team>header {background:var(--mr-c104,rgba(127,132,150,.075));color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-team.obs-tomorrow-absent>header {background:var(--mr-c104,rgba(127,132,150,.11));color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-worker {border-color:var(--obs-border);color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-report-head {border-color:var(--obs-border);color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-check input[type=checkbox] {accent-color:var(--obs-accent)}
+#app .obsada-module .obs-tomorrow-controls .obs-tomorrow-print {background:var(--module-button,var(--obs-accent));color:#fff;border-color:transparent}
+#app .obsada-module .obs-tomorrow-controls .obs-tomorrow-print:disabled {opacity:.55}
+
+/* One unified data-management surface with two independently operated sources. */
+#app .obs-top-connection-row {background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:20px;box-shadow:0 10px 34px rgba(12,28,54,.045);padding:14px 16px;gap:0 18px}
+#app .obs-top-connection-row>.obs-share-sync {background:transparent;border:0;border-radius:0;box-shadow:none;padding:0;margin:0}
+#app .obs-top-connection-row>.obs-db-compact {background:transparent;border:0;border-radius:0;box-shadow:none;margin:0;padding:0}
+#app .obs-top-connection-row .obs-db-compact-head {padding:4px 0;min-height:47px}
+#app .obs-top-connection-row .obs-share-sync-identity {min-height:47px}
+#app .obs-top-connection-row .obs-db-compact-body {padding:13px 0 0;margin-top:10px;border-color:var(--obs-border)}
+#app .obs-top-connection-row .obs-db-compact:has(.obs-db-compact-body) {border-top:1px solid var(--obs-border);margin-top:13px;padding-top:13px}
+#app .obs-top-connection-row>.obs-share-sync:has(.obs-stan-review,.obs-share-sync-config-v2,.obs-bridge-permission) {padding-bottom:12px}
+@media(min-width:1051px){
+ #app .obs-top-connection-row>.obs-db-compact:not(:has(.obs-db-compact-body)) {border-left:1px solid var(--obs-border);padding-left:18px}
+}
+@media(max-width:1050px){
+ #app .obs-top-connection-row {gap:12px;padding:13px 15px}
+ #app .obs-top-connection-row>.obs-db-compact {border-top:1px solid var(--obs-border);padding-top:10px}
+}
+@media(max-width:560px){
+ #app .obs-top-connection-row {padding:12px;border-radius:16px}
+ #app .obs-top-connection-row .obs-db-compact-head {min-height:42px}
+}
