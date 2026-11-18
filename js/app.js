@@ -749,9 +749,9 @@ push([r.login,r.items,r.time,r.perHour],[base({font:font({bold:true}),alignment:
 const ws=XLSX.utils.aoa_to_sheet(rows);
 for(let r=0;r<rows.length;r++)for(let c=0;c<COLS;c++){const ref=XLSX.utils.encode_cell({r,c});if(!ws[ref])ws[ref]={t:'s',v:''};const st=styles[r][c];if(st&&Object.keys(st).length){const{numFmt,...rest}=st;ws[ref].s=rest;if(numFmt&&ws[ref].t==='n'){ws[ref].z=numFmt;ws[ref].s.numFmt=numFmt;}}}
 ws['!cols']=[{wch:18},{wch:18},{wch:34},{wch:28}];ws['!rows']=heights;ws['!merges']=merges;
+
 const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'RAPORT');XLSX.writeFile(wb,'MrRobot_Norms_Wszystko.xlsx');showToast('Wygenerowano plik');}
 
-// Print-only KPI report. Uses the same filtered rows and thresholds as "Pobierz wszystko".
 function kpiPrintGlobalReport(){
  const sections=[];
  const add=(title,records,norm)=>{if(records.length)sections.push({title,records:[...records].sort((a,b)=>b.perHour-a.perHour),norm:Number(norm)||0});};
@@ -765,49 +765,70 @@ function kpiPrintGlobalReport(){
  if(!popup){showToast(({pl:'Zezwól na wyskakujące okna, aby wydrukować KPI.',ru:'Разреши всплывающие окна для печати KPI.',en:'Allow pop-ups to print KPI.',uk:'Дозвольте спливні вікна для друку KPI.'})[uiLanguage.value||'pl']);return false;}
  const lang=uiLanguage.value||'pl';
  const txt=(pl,ru,en,uk)=>({pl,ru,en,uk}[lang]||pl);
- const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const format=(x,digits)=>{const n=Number(x);return Number.isFinite(n)?n.toLocaleString('pl-PL',{minimumFractionDigits:digits,maximumFractionDigits:digits}):'—';};
+ const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const fmt=(x,d=0)=>{const n=Number(x);return Number.isFinite(n)?n.toLocaleString('pl-PL',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';};
  const now=new Date();const p2=n=>String(n).padStart(2,'0');const day=`${p2(now.getDate())}.${p2(now.getMonth()+1)}.${now.getFullYear()}`;
- const total=sections.reduce((n,sec)=>n+sec.records.length,0);
- // Long reports use two columns; the on-page fit check refuses to shrink below readable font sizes.
- const twoColumns=total>23||sections.length>3&&total>18;
- const t=(pl,ru,en,uk)=>escape(txt(pl,ru,en,uk));
- const content=sections.map(sec=>{
-  const below=sec.records.filter(r=>Number(r.perHour)<sec.norm).length;
-  return `<section class="process"><div class="process-head"><strong>${escape(sec.title)}</strong><span>${t('Norma','Норма','Target','Норма')}: ${escape(format(sec.norm,0))} szt./h</span><span>${t('Poniżej normy','Ниже нормы','Below target','Нижче норми')}: ${below} / ${sec.records.length}</span></div><table><colgroup><col style="width:24%"><col style="width:18%"><col style="width:27%"><col style="width:31%"></colgroup><thead><tr><th>LOGIN</th><th>${t('SZTUKI','ШТУКИ','ITEMS','ШТУКИ')}</th><th>${t('CZAS (h)','ВРЕМЯ (ч)','HOURS','ЧАС (г)')}</th><th>KPI (szt./h)</th></tr></thead><tbody>${sec.records.map(r=>{const below=Number(r.perHour)<sec.norm;return `<tr><td class="login">${escape(r.login)}</td><td>${format(r.items,0)}</td><td>${format(r.time,2)}</td><td class="score ${below?'below':'above'}">${format(r.perHour,2)}</td></tr>`;}).join('')}</tbody></table></section>`;
+ const totalRows=sections.reduce((n,s)=>n+s.records.length,0);
+ const twoColumns=sections.length>=4 || totalRows>20;
+ const scoreTone=(value,norm)=>{
+  const v=Number(value), n=Number(norm)||0;
+  if(!Number.isFinite(v))return {bg:'#eef2f6',fg:'#22354a'};
+  if(n<=0)return {bg:'#dff4e6',fg:'#0f5b2e'};
+  const ratio=Math.max(0,Math.min(1, v/n));
+  const hue=4 + ratio*118;
+  const sat=60;
+  const light=92 - ratio*10;
+  const textLight=28 - ratio*4;
+  return {bg:`hsl(${hue} ${sat}% ${light}%)`,fg:`hsl(${hue} ${Math.min(74,sat+10)}% ${Math.max(18,textLight)}%)`};
+ };
+ const processHtml=sections.map(sec=>{
+  const good=sec.records.filter(r=>Number(r.perHour)>=sec.norm).length;
+  const rows=sec.records.map(r=>{
+   const tone=scoreTone(r.perHour,sec.norm);
+   return `<tr><td class="login">${esc(r.login)}</td><td>${fmt(r.items,0)}</td><td>${fmt(r.time,2)}</td><td class="score" style="background:${tone.bg};color:${tone.fg}">${fmt(r.perHour,2)}</td></tr>`;
+  }).join('');
+  return `<section class="process-card"><div class="process-summary"><div class="process-name">${esc(sec.title)}</div><div class="process-meta"><span class="meta-chip"><span class="meta-icon">◎</span>${esc(txt('Norma','Норма','Target','Норма'))}: ${fmt(sec.norm,0)} szt./h</span><span class="meta-divider" aria-hidden="true"></span><span class="meta-chip"><span class="meta-icon">◌</span>${esc(txt('W normie','В норме','On target','У нормі'))}: ${good} / ${sec.records.length}</span></div></div><table><colgroup><col style="width:25%"><col style="width:18%"><col style="width:27%"><col style="width:30%"></colgroup><thead><tr><th>LOGIN</th><th>${esc(txt('LICZBA SZTUK','КОЛ-ВО ШТУК','NUMBER OF ITEMS','КІЛЬКІСТЬ ШТУК'))}</th><th>${esc(txt('CZAS W PROCESIE (h)','ВРЕМЯ В ПРОЦЕССЕ (ч)','TIME IN PROCESS (h)','ЧАС У ПРОЦЕСІ (г)'))}</th><th>KPI (szt./h)</th></tr></thead><tbody>${rows}</tbody></table></section>`;
  }).join('');
- const html=`<!doctype html><html lang="${escape(lang)}"><head><meta charset="utf-8"><title>INCYDENTY · RAPORT KPI · ${day}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+ const sectionsMeta=sections.map(s=>s.title).join(', ');
+ const html=`<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><title>INCYDENTY · RAPORT KPI · ${day}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
  @page{size:A4 landscape;margin:8mm}
  *,*::before,*::after{box-sizing:border-box}
- html,body{margin:0;padding:0;background:#fff;color:#19283c;font-family:Inter,"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
- .actions{max-width:281mm;margin:12px auto 8px;display:flex;align-items:center;gap:12px;font:13px "Segoe UI",Arial,sans-serif}
- .actions button{background:#fff;border:1px solid #9aa9bc;padding:9px 16px;border-radius:7px;font:inherit;cursor:pointer;color:#19283c}
- .warning{display:none;color:#a61c29;line-height:1.4;font-size:12px}
- .sheet{width:281mm;height:194mm;margin:0 auto;overflow:hidden;background:white}
- .titlebar{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid #bcc8d6;padding:1mm 0 3mm;gap:10mm;margin-bottom:3.2mm}
- .titlebar .brand{font-size:12pt;letter-spacing:.07em;font-weight:800;color:#16283f}
- .titlebar h1{font-size:16pt;font-weight:650;letter-spacing:.03em;margin:1mm 0 0;color:#203854}
- .date{font-size:12pt;font-weight:750;white-space:nowrap}
- .meta{font-size:9pt;color:#5b6d82;margin-top:1mm;text-align:right}
- .sections{display:grid;grid-template-columns:${twoColumns?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)'};gap:3mm;align-items:start}
- .process{min-width:0;border:1px solid #d8e0ea;border-radius:2.7mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
- .process-head{display:flex;align-items:center;justify-content:space-between;gap:2mm;background:#e9eff5;padding:1.7mm 2.5mm;color:#1d304a;white-space:nowrap}
- .process-head strong{font-size:${twoColumns?'11.5':'12.5'}pt;font-weight:800;overflow:hidden;text-overflow:ellipsis}
- .process-head span{font-size:${twoColumns?'8.4':'9.5'}pt;font-weight:650}
+ html,body{margin:0;padding:0;background:#ffffff;color:#15263b;font-family:Inter,"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ body{padding:0 14px 20px}
+ .actions{max-width:281mm;margin:10px auto 8px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;font:13px "Segoe UI",Arial,sans-serif}
+ .actions button{display:inline-flex;align-items:center;gap:8px;background:#fff;border:1px solid #c4cfdb;padding:9px 16px;border-radius:999px;font:inherit;font-weight:700;cursor:pointer;color:#15263b}
+ .warning{display:none;color:#a33238;line-height:1.4;font-size:12px}
+ .sheet{width:281mm;height:194mm;margin:0 auto;overflow:hidden;background:#fff;border-radius:0}
+ .topbar{display:flex;align-items:center;justify-content:space-between;gap:10mm;margin-bottom:4mm;padding:4mm 5mm;border-radius:6mm;background:linear-gradient(135deg,#0e2442 0%,#14355f 55%,#0d2748 100%);color:#fff}
+ .brandline{display:flex;align-items:center;gap:4mm;min-width:0}
+ .brandicon{width:16mm;height:16mm;border-radius:4mm;border:1px solid rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);flex:0 0 auto}
+ .brandicon svg{width:10mm;height:10mm}
+ .brandtitle{display:flex;align-items:center;gap:4mm;min-width:0;flex-wrap:nowrap}
+ .brandtitle .main{font-size:17pt;font-weight:900;letter-spacing:.02em;white-space:nowrap}
+ .brandtitle .sep{width:.55mm;height:12mm;background:rgba(255,255,255,.72);border-radius:999px;flex:0 0 auto}
+ .brandtitle .sub{font-size:14pt;font-weight:850;letter-spacing:.02em;white-space:nowrap}
+ .topside{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:1.6mm;min-width:0}
+ .datechip{display:inline-flex;align-items:center;gap:2.5mm;font-size:10.5pt;font-weight:850;white-space:nowrap}
+ .datechip svg{width:5.2mm;height:5.2mm;flex:0 0 auto}
+ .sectionsmeta{font-size:8.7pt;opacity:.96;line-height:1.2;max-width:92mm}
+ .sections-grid{display:grid;grid-template-columns:${twoColumns?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)'};gap:4mm;align-items:start}
+ .process-card{border:1px solid #c9d3de;border-radius:5mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid;background:#fff}
+ .process-summary{display:flex;align-items:center;justify-content:space-between;gap:4mm;padding:1.8mm 2mm 1.5mm 1.8mm;background:#f8fafc;border-bottom:1px solid #d9e2eb}
+ .process-name{display:flex;align-items:center;min-width:43mm;max-width:54mm;padding:2.4mm 5.4mm;border-radius:0 0 3.4mm 0;background:linear-gradient(135deg,#102741 0%,#17365f 100%);color:#fff;font-size:${twoColumns?'11.2':'12.2'}pt;font-weight:900;letter-spacing:.02em}
+ .process-meta{display:flex;align-items:center;justify-content:flex-end;gap:3mm;flex:1;min-width:0;flex-wrap:nowrap}
+ .meta-divider{width:.45mm;height:8mm;background:#c4ced8;border-radius:999px;flex:0 0 auto}
+ .meta-chip{display:inline-flex;align-items:center;gap:1.4mm;font-size:${twoColumns?'8.3':'9.2'}pt;font-weight:760;color:#14263d;white-space:nowrap}
+ .meta-icon{font-size:${twoColumns?'8.8':'10'}pt;line-height:1;opacity:.9}
  table{width:100%;border-collapse:collapse;table-layout:fixed}
- th{background:#f3f6f9;color:#233953;font-weight:700;font-size:${twoColumns?'8.4':'9.5'}pt;text-align:center;padding:1.5mm 1mm;border-bottom:1px solid #d9e0e8}
- td{font-size:${twoColumns?'9.4':'10.5'}pt;line-height:1.2;padding:1.5mm 1.3mm;border-bottom:1px solid #dee5ec;text-align:center;height:5.7mm;white-space:nowrap}
- tbody tr:nth-child(even){background:#f5f7fa}
+ th{background:#f1f5f9;color:#17293e;font-weight:800;font-size:${twoColumns?'8.2':'9.2'}pt;text-align:center;padding:1.8mm 1.2mm;border-bottom:1px solid #d9e2eb}
+ td{font-size:${twoColumns?'9.2':'10.3'}pt;line-height:1.2;padding:1.7mm 1.4mm;border-bottom:1px solid #e1e7ee;text-align:center;height:${twoColumns?'5.4':'5.8'}mm;white-space:nowrap}
+ tbody tr:nth-child(even){background:#f8fafc}
  tbody tr:last-child td{border-bottom:0}
- td.login{text-align:left;font-weight:800;letter-spacing:.01em;padding-left:2.2mm}
- td.score{font-weight:800}
- td.score.below{background:#f8cdd1;color:#86111c}
- td.score.above{background:#d4f2da;color:#11642e}
- @media print{.actions{display:none!important}.sheet{margin:0;width:281mm;height:194mm}body{width:281mm;height:194mm}.sections{gap:3mm}}
- @media screen{body{padding:0 15px 20px}.sheet{box-shadow:0 10px 34px #16283f1c;border:1px solid #e0e5eb}.actions{position:sticky;top:0;background:#fff;z-index:5;padding:5px 0}}
- </style></head><body><div class="actions"><button id="print" type="button">${t('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF')}</button><span class="warning" id="warning">${t('Raport nie mieści się czytelnie na jednym A4. Zawęź filtry KPI i spróbuj ponownie.','Отчёт не помещается на один A4 без уменьшения шрифта. Сузь фильтры KPI и попробуй снова.','Report exceeds one readable A4 page. Narrow the KPI filters and try again.','Звіт не вміщується на один читабельний аркуш A4. Звузьте фільтри KPI.')}</span></div><main class="sheet" id="sheet"><header class="titlebar"><div><div class="brand">INCYDENTY</div><h1>RAPORT KPI</h1></div><div><div class="date">${day}</div><div class="meta">${escape(sections.map(s=>s.title).join(' · '))}</div></div></header><div class="sections" id="sections">${content}</div></main><script>
- (function(){const sheet=document.getElementById('sheet'),sections=document.getElementById('sections'),button=document.getElementById('print'),warning=document.getElementById('warning');function measure(){const overflow=sheet.scrollHeight>sheet.clientHeight+2||sections.getBoundingClientRect().bottom>sheet.getBoundingClientRect().bottom-2;button.disabled=overflow;warning.style.display=overflow?'inline':'none';}button.addEventListener('click',function(){measure();if(!button.disabled)window.print();});window.addEventListener('load',measure);window.addEventListener('beforeprint',measure);measure();})();
- </script></body></html>`;
+ td.login{text-align:left;font-weight:850;padding-left:2.5mm;letter-spacing:.01em}
+ td.score{font-weight:900}
+ @media print{body{padding:0}.actions{display:none!important}.sheet{margin:0;width:281mm;height:194mm}}
+ @media screen{.sheet{box-shadow:0 10px 34px rgba(22,40,63,.12);border:1px solid #e0e5eb}.actions{position:sticky;top:0;background:#fff;z-index:5;padding:5px 0}}
+ </style></head><body><div class="actions"><button id="print" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/></svg>${esc(txt('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF'))}</button><span class="warning" id="warning">${esc(txt('Raport nie mieści się czytelnie na jednym A4. Zawęź filtry KPI i spróbuj ponownie.','Отчёт не помещается на один A4 без уменьшения шрифта. Сузь фильтры KPI и попробуй снова.','Report does not fit clearly on one A4 page. Narrow the KPI filters and try again.','Звіт не вміщується на один читабельний аркуш A4. Звузьте фільтри KPI та спробуйте ще раз.'))}</span></div><main class="sheet" id="sheet"><header class="topbar"><div class="brandline"><div class="brandicon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><rect x="5" y="11" width="3" height="7" rx="1.1" fill="currentColor" stroke="none"/><rect x="10.5" y="7" width="3" height="11" rx="1.1" fill="currentColor" stroke="none"/><rect x="16" y="4" width="3" height="14" rx="1.1" fill="currentColor" stroke="none"/></svg></div><div class="brandtitle"><span class="main">INCYDENTY</span><span class="sep" aria-hidden="true"></span><span class="sub">RAPORT KPI</span></div></div><div class="topside"><div class="datechip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>${day}</div><div class="sectionsmeta">${esc(txt('Sekcje','Секции','Sections','Секції'))}: ${esc(sectionsMeta)}</div></div></header><div class="sections-grid" id="sections">${processHtml}</div></main><script>(function(){const sheet=document.getElementById('sheet'),sections=document.getElementById('sections'),button=document.getElementById('print'),warning=document.getElementById('warning');function measure(){const overflow=sheet.scrollHeight>sheet.clientHeight+2||sections.getBoundingClientRect().bottom>sheet.getBoundingClientRect().bottom-2;button.disabled=overflow;warning.style.display=overflow?'inline':'none';}button.addEventListener('click',function(){measure();if(!button.disabled)window.print();});window.addEventListener('load',measure);window.addEventListener('beforeprint',measure);measure();})();</script></body></html>`;
  popup.document.open();popup.document.write(html);popup.document.close();popup.focus();return true;
 }
 
