@@ -1124,3 +1124,19 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 .obs-tomorrow-empty{border:1px dashed var(--obs-border,#d9e1ea);border-radius:14px;padding:27px;text-align:center}
 .obs-tomorrow-empty p{margin:9px 0 16px}
 @media(max-width:760px){.obs-tomorrow-grid{grid-template-columns:minmax(0,1fr)}.obs-tomorrow-print{margin-left:0}.obs-tomorrow-controls>label{flex:1 1 170px}.obs-tomorrow-team>header{padding:10px}}
+
+/* Obsada: compact shared top row for SharePoint Grafik and local database. */
+#app .obs-top-connection-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:12px;align-items:start}
+#app .obs-top-connection-row>.obs-share-sync{min-width:0;margin:0}
+#app .obs-top-connection-row>.obs-db-compact{min-width:0;margin:0}
+#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls{gap:8px}
+#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls .obs-stan-date-set{gap:8px}
+#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls>.obs-bridge-refresh{padding-inline:12px}
+/* Expanded content stays readable at full width, instead of being squeezed into a half-column. */
+#app .obs-top-connection-row>.obs-db-compact:has(.obs-db-compact-body),
+#app .obs-top-connection-row>.obs-share-sync:has(.obs-stan-review,.obs-share-sync-config-v2,.obs-bridge-permission){grid-column:1/-1}
+@media(max-width:1050px){
+ #app .obs-top-connection-row{grid-template-columns:minmax(0,1fr)}
+ #app .obs-top-connection-row>.obs-share-sync,
+ #app .obs-top-connection-row>.obs-db-compact{grid-column:1}
+}

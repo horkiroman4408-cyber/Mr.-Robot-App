@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-next-day-print-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-compact-row-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -211,6 +211,7 @@
  </div>
 </header>
 <main class="px-6 pb-12 max-w-6xl mx-auto w-full space-y-5">
+ <div class="obs-top-connection-row">
  <section class="obs-surface obs-share-sync" aria-label="SharePoint synchronization">
   <div class="obs-share-sync-head obs-share-sync-v2 obs-share-sync-reference">
    <div class="obs-share-sync-identity">
@@ -288,6 +289,7 @@
      </div>
     </div>
    </div>
+ </div>
   <div v-if="obsadaBridge.error" class="obs-warning" role="alert">{{ obsadaBridge.error }}</div>
   <div v-if="obsadaBridge.message" class="obs-bridge-ok" role="status">{{ obsadaBridge.message }}</div>
  <div v-if="obsadaPlan.state.error && (obsada.state.tab==='planning'||obsada.state.tab==='history')" class="obs-warning" role="alert">{{ obsadaPlan.state.error }}</div>
