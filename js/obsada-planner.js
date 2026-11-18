@@ -71,6 +71,7 @@ function assignFromHour(records,{day,shift,from,login,process}){return applyAssi
 const ABSENCE_SOURCE='Planowanie';
 const ABSENCE_TYPES=new Set(['WOLNY','URLOP']);
 const EARLY_EXIT_PREFIX='WCZESNIEJSZE_WYJSCIE@';
+const LATE_ARRIVAL_PREFIX='SPOZNIENIE@';
 // Historical records use @HH:mm; resumed departures use @HH:mm~HH:mm.
 // Both stay in the existing STATUSY sheet and preserve the elapsed absence.
 function departureBounds(status,day,shift){
@@ -82,10 +83,36 @@ function departureBounds(status,day,shift){
  return first?{from:first.start,to:last?last.start:Infinity,label:start}:null;
 }
 function statusAtHour(status,day,shift,timestamp){
- if(ABSENCE_TYPES.has(status))return status;
- const bounds=departureBounds(status,day,shift);
- return bounds&&timestamp>=bounds.from&&timestamp<bounds.to?'early':'';
+ // Accept separate same-day events so late arrival and early departure coexist.
+ const events=Array.isArray(status)?status:[status];
+ if(events.some(value=>ABSENCE_TYPES.has(value)))return events.find(value=>ABSENCE_TYPES.has(value));
+ const slots=makeSlots(day,shift);
+ for(const value of events){
+  if(String(value||'').startsWith(LATE_ARRIVAL_PREFIX)){
+   const detail=String(value).slice(LATE_ARRIVAL_PREFIX.length);
+   const sep=detail.indexOf('|');
+   if(sep>=0&&detail.slice(0,sep)!==shift)continue;
+   const arrival=slots.find(x=>x.from===(sep>=0?detail.slice(sep+1):detail));
+   if(arrival&&timestamp>=slots[0].start&&timestamp<arrival.start)return 'late';
+  }
+  const bounds=departureBounds(value,day,shift);
+  if(bounds&&timestamp>=bounds.from&&timestamp<bounds.to)return 'early';
+ }
+ return '';
 }
+// Unlike a whole-day status, interval events never replace one another.
+function updateIntervalStatus(statuses,login,date,prefix,value){
+ return [...statuses.filter(r=>!(r.source===ABSENCE_SOURCE&&r.login===login&&r.date===date&&String(r.status||'').startsWith(prefix))),...(value?[{date,login,status:value,source:ABSENCE_SOURCE}]:[])];
+}
+function updateShiftLateStatus(statuses,login,date,shift,hour){
+ const keep=statuses.filter(r=>{
+  if(r.source!==ABSENCE_SOURCE||r.login!==login||r.date!==date||!String(r.status||'').startsWith(LATE_ARRIVAL_PREFIX))return true;
+  const detail=String(r.status).slice(LATE_ARRIVAL_PREFIX.length);
+  return detail.includes('|')&&detail.split('|')[0]!==shift;
+ });
+ return hour?[...keep,{date,login,source:ABSENCE_SOURCE,status:LATE_ARRIVAL_PREFIX+shift+'|'+hour}]:keep;
+}
+
 function absenceDates(start,end){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(start)||!/^\d{4}-\d{2}-\d{2}$/.test(end)||start>end)throw Error('INVALID_ABSENCE_RANGE');
  const a=new Date(start+'T12:00:00'),b=new Date(end+'T12:00:00');
@@ -230,13 +257,14 @@ function create({reactive,computed,roster,source,sourceName,language}){
    const template=Object.entries(state.teamTemplates).find(([name,users])=>Array.isArray(users)&&users.length===members.length&&users.every(login=>members.includes(login)));
    const people=[];
    for(const login of members){
-    const status=state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login)?.status||'';
+    const statuses=state.importedStatuses.filter(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login).map(r=>r.status);
+    const status=statuses.find(v=>ABSENCE_TYPES.has(v))||'';
     const bySlot=new Map(state.records.filter(r=>r.day===day&&r.shift===shift&&r.login===login).map(r=>[Number(r.slot),norm(r.process)]));
     const segments=[];
     for(const slot of slots){
-     const absent=statusAtHour(status,day,shift,slot.start);
+     const absent=statusAtHour(statuses,day,shift,slot.start);
      const process=absent?'':(bySlot.get(slot.index)||'');
-     const label=absent?(status.startsWith(EARLY_EXIT_PREFIX)?'EARLY_EXIT':status):process;
+     const label=absent?(absent==='early'?'EARLY_EXIT':absent==='late'?'LATE_ARRIVAL':absent):process;
      if(!label)continue;
      const last=segments[segments.length-1];
      if(last&&last.key===label&&last.end===slot.start){last.end=slot.end;last.to=slot.to;}
@@ -578,9 +606,13 @@ function create({reactive,computed,roster,source,sourceName,language}){
  const team=computed(()=>[...new Set([...(state.shiftTeams[teamKey.value]||[]),...state.records.filter(r=>r.day===state.day&&r.shift===state.shift).map(r=>r.login)])].sort((a,b)=>a.localeCompare(b)));
  const localAbsence=(login,day=state.day)=>state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login&&ABSENCE_TYPES.has(r.status))?.status||'';
  const earlyExit=(login,day=state.day)=>state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login&&r.status.startsWith(EARLY_EXIT_PREFIX))?.status.slice(EARLY_EXIT_PREFIX.length).split('~')[0]||'';
+ const lateArrival=(login,day=state.day,shift=state.shift)=>{
+  const row=state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login&&String(r.status||'').startsWith(LATE_ARRIVAL_PREFIX)&&(!String(r.status).slice(LATE_ARRIVAL_PREFIX.length).includes('|')||String(r.status).slice(LATE_ARRIVAL_PREFIX.length).split('|')[0]===shift));
+  return row?String(row.status).slice(LATE_ARRIVAL_PREFIX.length).split('|').pop():'';
+ };
  function isWorkerAbsentAt(login,day,shift,timestamp){
-  const status=state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login);
-  return statusAtHour(status?.status,day,shift,timestamp);
+  const statuses=state.importedStatuses.filter(r=>r.source===ABSENCE_SOURCE&&r.date===day&&r.login===login).map(r=>r.status);
+  return statusAtHour(statuses,day,shift,timestamp);
  }
  function staffStatus(person){return isWorkerAbsentAt(person.login,person.day,person.shift,selectedSlot.value?.start);}
  function canAssignPerson(person){return !staffStatus(person);}
@@ -914,7 +946,30 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(typeof root.confirm==='function'&&!root.confirm(({ru:'С '+slot.from+' оформить ранний уход? Текущий час и предыдущие рабочие часы сохранятся.',pl:'Oznaczyć wcześniejsze wyjście od '+slot.from+'? Bieżąca i wcześniejsze godziny pozostaną.',en:'Mark early departure from '+slot.from+'? The selected and earlier work hours stay.',uk:'Позначити ранній вихід від '+slot.from+'? Поточна та попередні години зберігаються.'}[language?.()]||'Confirm early departure?')))return false;
   snapshot('early-exit');
   state.records=cutAfterHour(state.records,{day:state.day,shift:state.shift,login,from});
-  state.importedStatuses=updateLocalAbsences(state.importedStatuses,[login],[state.day],EARLY_EXIT_PREFIX+slot.from);
+  state.importedStatuses=updateIntervalStatus(state.importedStatuses,login,state.day,EARLY_EXIT_PREFIX,EARLY_EXIT_PREFIX+slot.from);
+  state.error='';closeWorkerActions();await save();return state.status!=='BROWSER_SAVE_FAILED';
+ }
+ async function markLateArrival(){
+  const login=norm(state.actionLogin),index=Number(state.actionHour),allSlots=slots.value;
+  const slot=allSlots[index];
+  if(!login||!Number.isInteger(index)||index<=0||!slot){state.error='LATE_ARRIVAL_INVALID_HOUR';return false;}
+  if(localAbsence(login)){state.error='LATE_ARRIVAL_DAY_OFF';return false;}
+  const old=lateArrival(login);
+  if(old===slot.from){state.error='';closeWorkerActions();return true;}
+  const removed=state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&r.login===login&&r.slot<index);
+  if(typeof root.confirm==='function'){
+   const msg={pl:`Zapisac spóźnienie od ${slot.from}? ${removed.length} wcześniejszych przydziałów zostanie usuniętych. Późniejsze zostaną zachowane.`,ru:`Установить опоздание до ${slot.from}? Предыдущие назначения (${removed.length}) будут сняты, более поздние сохранятся.`,en:`Mark late arrival at ${slot.from}? ${removed.length} earlier assignments will be removed. Later ones stay.`,uk:`Позначити запізнення до ${slot.from}? Попередні призначення (${removed.length}) буде знято, пізніші збережено.`}[language?.()]||'Confirm late arrival?';
+   if(!root.confirm(msg))return false;
+  }
+  snapshot('late-arrival');
+  state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.login===login&&r.slot<index));
+  state.importedStatuses=updateShiftLateStatus(state.importedStatuses,login,state.day,state.shift,slot.from);
+  state.error='';closeWorkerActions();await save();return state.status!=='BROWSER_SAVE_FAILED';
+ }
+ async function clearLateArrival(){
+  const login=norm(state.actionLogin);if(!login||!lateArrival(login))return false;
+  snapshot('clear-late-arrival');
+  state.importedStatuses=updateShiftLateStatus(state.importedStatuses,login,state.day,state.shift,'');
   state.error='';closeWorkerActions();await save();return state.status!=='BROWSER_SAVE_FAILED';
  }
  async function clearWorkerStatus(){
@@ -928,7 +983,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const login=norm(state.actionLogin);if(!login)return false;
   const selected=slots.value[state.actionHour];if(!selected)return false;
   const date=state.day;
-  const status=state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.login===login&&r.date===date);
+  const status=state.importedStatuses.find(r=>r.source===ABSENCE_SOURCE&&r.login===login&&r.date===date&&(ABSENCE_TYPES.has(r.status)||String(r.status||'').startsWith(EARLY_EXIT_PREFIX)));
   if(!status)return false;
   if(status.status.startsWith(EARLY_EXIT_PREFIX)){
    const bounds=departureBounds(status.status,date,state.shift);
@@ -938,7 +993,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    snapshot('resume-worker');
    // Keep the elapsed absence interval for History / Intelligence.
    const updated=selected.start===bounds.from?'':EARLY_EXIT_PREFIX+earlyExit(login,date)+'~'+selected.from;
-   state.importedStatuses=updateLocalAbsences(state.importedStatuses,[login],[date],updated);
+   state.importedStatuses=updateIntervalStatus(state.importedStatuses,login,date,EARLY_EXIT_PREFIX,updated);
   }else{
    snapshot('resume-worker');
    state.importedStatuses=state.importedStatuses.filter(r=>!(r.source===ABSENCE_SOURCE&&r.login===login&&r.date===date));
@@ -1334,7 +1389,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,setOtherDepartmentProcess,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,setOtherDepartmentProcess,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,markLateArrival,clearLateArrival,lateArrival,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
 root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline,rosterAtTimestamp,splitRosterDepartments};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;

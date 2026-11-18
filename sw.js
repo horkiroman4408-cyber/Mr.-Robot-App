@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.26.0-kpi-icon-glow-20261118-1';
+const CACHE_REVISION = 'v3.26.0-obsada-late-arrival-20261118-1';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -26,7 +26,7 @@ const PRECACHE_URLS = [
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.26.0-local-sync-conflict-ui-1',
   'js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1',
-  'js/obsada-planner.js?v=3.26.0-export-selector-1',
+  'js/obsada-planner.js?v=3.26.0-late-arrival-1',
   'js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1',
   'js/obsada-unified-history.js?v=3.26.0-worker-actions-1',
   './',
