@@ -1220,3 +1220,11 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .obs-export-footer>div{display:flex;gap:8px;flex-shrink:0}
 @media(max-width:600px){#app .obs-export-overlay{padding:8px;align-items:flex-end}#app .obs-export-dialog{max-height:calc(100dvh - 16px);border-radius:15px}#app .obs-export-head{padding:14px 14px 10px}#app .obs-export-filterbar{padding:0 14px 12px;grid-template-columns:1fr}#app .obs-export-toolbar{padding:9px 14px}#app .obs-export-list{padding:5px 14px 10px}#app .obs-export-worker{align-items:flex-start}#app .obs-export-single{text-align:left}#app .obs-export-footer{padding:12px 14px;align-items:stretch;flex-direction:column}#app .obs-export-footer>div{justify-content:flex-end}}
 @media(prefers-reduced-motion:reduce){#app .obs-export-overlay{backdrop-filter:none}}
+
+/* Three independent display groups in Obsada, including functional staff. */
+#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+#app .obsada-module .obs-readonly-dropzone-functional{margin-top:14px;border-top:1px solid var(--obs-border);padding-top:14px}
+#app .obsada-module .obs-today-stat-functional{border-color:var(--obs-border)}
+#app .obsada-module .obs-roster-dept-actions{flex-wrap:wrap;justify-content:flex-end}
+@media(max-width:940px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:1fr}}
