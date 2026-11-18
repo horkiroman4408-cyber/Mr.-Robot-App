@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-next-day-print-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-export-selector-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -61,7 +61,7 @@
 <style>
 .obs-tomorrow-grid.has-absent{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,.8fr);gap:12px;align-items:start}
 .obs-tomorrow-grid.has-absent.is-one{grid-template-columns:minmax(0,1fr) minmax(0,.8fr)}
-.obs-tomorrow-absent header{background:#eef0f3}
+/* Absence preview header colors are theme-aware in css/obsada-module.css. */
 @media(max-width:850px){.obs-tomorrow-grid.has-absent,.obs-tomorrow-grid.has-absent.is-one{grid-template-columns:1fr}}
 </style>
 </head><body><div id="app" v-cloak class="relative min-h-full flex flex-col" style="z-index:10;">
@@ -211,6 +211,7 @@
  </div>
 </header>
 <main class="px-6 pb-12 max-w-6xl mx-auto w-full space-y-5">
+ <div class="obs-top-connection-row">
  <section class="obs-surface obs-share-sync" aria-label="SharePoint synchronization">
   <div class="obs-share-sync-head obs-share-sync-v2 obs-share-sync-reference">
    <div class="obs-share-sync-identity">
@@ -220,6 +221,24 @@
     </div>
     <button type="button" class="obs-bridge-config-btn obs-share-sync-settings" :aria-expanded="obsadaBridge.editing" :aria-label="eMsg('Ustawienia SharePoint','Настройки SharePoint','SharePoint settings','Налаштування SharePoint')" @click="obsadaBridge.editing=!obsadaBridge.editing;obsadaBridge.error=''" :title="eMsg('Ustawienia źródła','Настройки источника','Source settings','Налаштування джерела')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--obs-surface)"/><circle cx="16" cy="17" r="2" fill="var(--obs-surface)"/></svg></button>
    </div>
+  </div>
+ </section>
+   <div class="obs-db-compact" id="obsada-local-database">
+    <div class="obs-db-compact-head">
+     <button type="button" class="obs-db-compact-toggle" :aria-expanded="obsadaPlan.state.showDatabase" aria-controls="obsada-db-exchange-actions" @click="obsadaPlan.state.showDatabase=!obsadaPlan.state.showDatabase">
+      <span class="obs-db-compact-icon" aria-hidden="true">▤</span>
+      <span class="obs-db-compact-heading"><strong>{{ eMsg('Baza lokalna','Локальная база','Local database','Локальна база') }}</strong>
+       <span class="obs-db-compact-status" role="status"><span class="obs-share-sync-dot" :class="'is-'+obsadaPlan.syncKind" aria-hidden="true"></span>
+       <span>{{ obsadaPlan.syncKind==='synced'?eMsg('Excel zapisany','Excel сохранён','Excel saved','Excel збережено'):obsadaPlan.syncKind==='saving'?eMsg('Zapisywanie…','Сохранение…','Saving…','Збереження…'):obsadaPlan.syncKind==='no-folder'?eMsg('Wybierz folder MrRobot','Выбери папку MrRobot','Choose MrRobot folder','Оберіть папку MrRobot'):obsadaPlan.syncKind==='error'?eMsg('Błąd zapisu Excel','Ошибка сохранения Excel','Excel save error','Помилка збереження Excel'):eMsg('Zapisano w przeglądarce','Сохранено в браузере','Saved in browser','Збережено у браузері') }}</span><span v-if="obsadaPlan.syncKind==='synced' && obsadaPlan.syncTimeText" class="obs-quiet">· {{ obsadaPlan.syncTimeText }}</span></span>
+      </span><span class="obs-db-compact-chevron" :class="{'is-open':obsadaPlan.state.showDatabase}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+     </button>
+     <button v-if="obsadaPlan.syncKind==='no-folder' || obsadaPlan.state.status==='FOLDER_PERMISSION_REQUIRED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.chooseFolder()">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Обрати папку') }}</button>
+     <button v-else-if="obsadaPlan.state.status==='EXTERNAL_CHANGES_DETECTED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.resolveConflictWithBackup()">{{ eMsg('Napraw zapis','Исправить запись','Fix save','Виправити запис') }}</button>
+     <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
+    </div>
+   </div>
+  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || !obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-top-source-details">
+  <div v-if="obsadaBridge.editing" class="obs-top-source-controls">
    <div class="obs-share-sync-controls">
     <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
      <label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
@@ -245,21 +264,8 @@
     <button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button>
    </div>
   </div>
- </section>
-   <div class="obs-db-compact" id="obsada-local-database">
-    <div class="obs-db-compact-head">
-     <button type="button" class="obs-db-compact-toggle" :aria-expanded="obsadaPlan.state.showDatabase" aria-controls="obsada-db-exchange-actions" @click="obsadaPlan.state.showDatabase=!obsadaPlan.state.showDatabase">
-      <span class="obs-db-compact-icon" aria-hidden="true">▤</span>
-      <span class="obs-db-compact-heading"><strong>{{ eMsg('Baza lokalna','Локальная база','Local database','Локальна база') }}</strong>
-       <span class="obs-db-compact-status" role="status"><span class="obs-share-sync-dot" :class="'is-'+obsadaPlan.syncKind" aria-hidden="true"></span>
-       <span>{{ obsadaPlan.syncKind==='synced'?eMsg('Excel zapisany','Excel сохранён','Excel saved','Excel збережено'):obsadaPlan.syncKind==='saving'?eMsg('Zapisywanie…','Сохранение…','Saving…','Збереження…'):obsadaPlan.syncKind==='no-folder'?eMsg('Wybierz folder MrRobot','Выбери папку MrRobot','Choose MrRobot folder','Оберіть папку MrRobot'):obsadaPlan.syncKind==='error'?eMsg('Błąd zapisu Excel','Ошибка сохранения Excel','Excel save error','Помилка збереження Excel'):eMsg('Zapisano w przeglądarce','Сохранено в браузере','Saved in browser','Збережено у браузері') }}</span><span v-if="obsadaPlan.syncKind==='synced' && obsadaPlan.syncTimeText" class="obs-quiet">· {{ obsadaPlan.syncTimeText }}</span></span>
-      </span><span class="obs-db-compact-chevron" :class="{'is-open':obsadaPlan.state.showDatabase}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
-     </button>
-     <button v-if="obsadaPlan.syncKind==='no-folder' || obsadaPlan.state.status==='FOLDER_PERMISSION_REQUIRED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.chooseFolder()">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Обрати папку') }}</button>
-     <button v-else-if="obsadaPlan.state.status==='EXTERNAL_CHANGES_DETECTED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.resolveConflictWithBackup()">{{ eMsg('Napraw zapis','Исправить запись','Fix save','Виправити запис') }}</button>
-     <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
-    </div>
-    <div v-if="obsadaPlan.state.showDatabase" id="obsada-db-exchange-actions" class="obs-db-compact-body">
+  </div>
+    <div v-if="obsadaPlan.state.showDatabase" id="obsada-db-exchange-actions" class="obs-db-compact-body obs-top-db-details">
      <div class="obs-db-exchange-grid">
       <div class="obs-db-exchange-card">
        <div class="obs-db-exchange-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0-4 4m4-4 4 4"/><path d="M5 16v4h14v-4"/></svg></div>
@@ -287,7 +293,7 @@
       <p v-if="obsadaPlan.state.mergeMessage" class="obs-bridge-ok" role="status">{{ obsadaPlan.state.mergeMessage }}</p>
      </div>
     </div>
-   </div>
+ </div>
   <div v-if="obsadaBridge.error" class="obs-warning" role="alert">{{ obsadaBridge.error }}</div>
   <div v-if="obsadaBridge.message" class="obs-bridge-ok" role="status">{{ obsadaBridge.message }}</div>
  <div v-if="obsadaPlan.state.error && (obsada.state.tab==='planning'||obsada.state.tab==='history')" class="obs-warning" role="alert">{{ obsadaPlan.state.error }}</div>
@@ -506,11 +512,33 @@
   <div class="obs-tomorrow-controls">
    <label>{{ eMsg('Data planu','Дата плана','Plan date','Дата плану') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.printDay"></mr-obsada-date></label>
    <label>{{ eMsg('Zespoły','Команды','Teams','Команди') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printShift"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="sh in obsadaPlan.shifts.filter(s=>obsadaPlan.tomorrowPlanAvailableShifts.includes(s.value))" :key="sh.value" :value="sh.value">{{ sh.label }}</option></mr-obsada-select></label>
-   <label>{{ eMsg('Zmiana do eksportu','Смена для экспорта','Export shift','Зміна для експорту') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printExportShift"><option value="I">Zmiana I</option><option value="II">Zmiana II</option></mr-obsada-select></label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij WOLNY / URLOP','Показывать выходные / отпуска','Include days off / leave','Показувати вихідні / відпустки') }}</label>
-   <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowTimes">{{ eMsg('Pokaż godziny procesów','Показывать часы процессов','Show process hours','Показувати години процесів') }}</label>
-   <button type="button" class="obs-bridge-small-btn obs-tomorrow-excel" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.exportTomorrowExcel()">⬇ {{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button>
+   <div class="obs-tomorrow-actions">
+   <button type="button" class="obs-bridge-small-btn obs-tomorrow-excel" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.openTomorrowExport()">⬇ {{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button>
    <button type="button" class="obs-bridge-small-btn primary obs-tomorrow-print" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.printTomorrowPlan()">▤ {{ eMsg('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF') }}</button>
+   </div>
+  </div>
+  <div v-if="obsadaPlan.state.exportOpen" class="obs-export-overlay" @click.self="obsadaPlan.closeTomorrowExport()">
+   <section class="obs-export-dialog" role="dialog" aria-modal="true" :aria-label="eMsg('Wybór do eksportu Excel','Выбор для экспорта Excel','Choose Excel export entries','Вибір для експорту Excel')" @keydown.esc="obsadaPlan.closeTomorrowExport()">
+    <header class="obs-export-head"><div><h3>{{ eMsg('Przygotowanie eksportu Excel','Подготовка экспорта Excel','Prepare Excel export','Підготовка експорту Excel') }}</h3><p>{{ eMsg('Zaznacz pracowników i procesy tylko dla tego pliku. Plan pozostanie bez zmian.','Отметь сотрудников и процессы только для этого файла. План не изменится.','Select employees and processes for this file only. Your plan stays unchanged.','Виберіть працівників і процеси лише для цього файлу. План не зміниться.') }}</p></div><button type="button" class="obs-export-close" @click="obsadaPlan.closeTomorrowExport()" :aria-label="eMsg('Zamknij','Закрыть','Close','Закрити')">×</button></header>
+    <div class="obs-export-filterbar">
+     <input type="search" v-model="obsadaPlan.state.exportSearch" :placeholder="eMsg('Szukaj loginu lub procesu','Поиск логина или процесса','Search login or process','Пошук логіну чи процесу')" :aria-label="eMsg('Szukaj','Поиск','Search','Пошук')">
+     <select v-model="obsadaPlan.state.exportTeam" :aria-label="eMsg('Zespół','Команда','Team','Команда')"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="team in obsadaPlan.tomorrowPlan.teams" :key="team.shift" :value="team.shift">{{ team.name }}</option></select>
+    </div>
+    <div class="obs-export-toolbar"><span>{{ eMsg('Wybrano','Выбрано','Selected','Вибрано') }}: <strong>{{ obsadaPlan.exportSelectedCount }} / {{ obsadaPlan.exportCandidates.total }}</strong></span><div><button type="button" @click="obsadaPlan.toggleVisibleExport(true)">{{ eMsg('Zaznacz widocznych','Выбрать видимых','Select visible','Вибрати видимих') }}</button><button type="button" @click="obsadaPlan.toggleVisibleExport(false)">{{ eMsg('Odznacz widocznych','Снять с видимых','Deselect visible','Зняти з видимих') }}</button></div></div>
+    <div class="obs-export-list">
+     <div v-if="obsadaPlan.exportVisiblePeople.length" class="obs-export-group-title">{{ eMsg('Pracownicy','Сотрудники','Employees','Працівники') }}</div>
+     <div v-for="person in obsadaPlan.exportVisiblePeople" :key="'worker'+person.login" class="obs-export-worker" :class="{'is-disabled':!obsadaPlan.exportWorkerChecked(person)}">
+      <label class="obs-export-worker-main"><input type="checkbox" :checked="obsadaPlan.exportWorkerChecked(person)" @change="obsadaPlan.setExportWorker(person,$event.target.checked)"><strong>{{ person.login }}</strong><small>{{ person.teams.map(t=>t.label).join(' · ') }}</small></label>
+      <div v-if="person.processes.length>1" class="obs-export-parts"><label v-for="process in person.processes" :key="process"><input type="checkbox" :disabled="!obsadaPlan.exportWorkerChecked(person)" :checked="obsadaPlan.exportPartChecked(person,process)" @change="obsadaPlan.setExportPart(person,process,$event.target.checked)">{{ process }}</label></div>
+      <span v-else class="obs-export-single">{{ person.processes[0] || eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span>
+     </div>
+     <div v-if="obsadaPlan.exportVisibleAbsent.length" class="obs-export-group-title">{{ eMsg('WOLNY / URLOP','Выходные / отпуска','Days off / leave','Вихідні / відпустки') }}</div>
+     <div v-for="person in obsadaPlan.exportVisibleAbsent" :key="'absent'+person.login" class="obs-export-worker"><label class="obs-export-worker-main"><input type="checkbox" :checked="obsadaPlan.exportWorkerChecked(person)" @change="obsadaPlan.setExportWorker(person,$event.target.checked)"><strong>{{ person.login }}</strong></label><span class="obs-export-single">{{ person.status }}</span></div>
+     <p v-if="!obsadaPlan.exportVisiblePeople.length&&!obsadaPlan.exportVisibleAbsent.length" class="obs-quiet obs-export-empty">{{ eMsg('Brak wyników','Ничего не найдено','No matches','Нічого не знайдено') }}</p>
+    </div>
+    <footer class="obs-export-footer"><span>{{ eMsg('Wybór zapamiętany tylko dla eksportu','Выбор запоминается только для экспорта','Selection saved for export only','Вибір збережено лише для експорту') }}</span><div><button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.closeTomorrowExport()">{{ eMsg('Anuluj','Отмена','Cancel','Скасувати') }}</button><button type="button" class="obs-bridge-small-btn primary" :disabled="!obsadaPlan.exportSelectedCount" @click="obsadaPlan.confirmTomorrowExport()">⬇ {{ eMsg('Eksportuj wybranych','Экспортировать выбранных','Export selected','Експортувати вибраних') }}</button></div></footer>
+   </section>
   </div>
   <div v-if="obsadaPlan.state.error==='PRINT_POPUP_BLOCKED'" class="obs-warning" role="alert">{{ eMsg('Zezwól na otwieranie okien wyskakujących, aby wydrukować plan.','Разреши всплывающие окна для печати списка.','Allow pop-ups to print the plan.','Дозвольте спливні вікна, щоб надрукувати план.') }}</div>
   <div v-if="!obsadaPlan.tomorrowPlan.teams.length" class="obs-tomorrow-empty"><strong>{{ eMsg('Brak zapisanego planu na ten dzień','Нет сохранённого плана на эту дату','No saved plan for this date','Немає збереженого плану на цю дату') }}</strong><p class="obs-quiet">{{ eMsg('Dodaj zespół i przydziały w Planowanie. Lista pojawi się automatycznie.','Добавь команду и назначения в Планировании, и список появится автоматически.','Add a team and assignments in Planning to populate the list.','Додайте команду й призначення в Плануванні, і список з’явиться автоматично.') }}</p><button type="button" class="obs-bridge-small-btn" @click="obsada.state.tab='planning';obsadaPlan.state.day=obsadaPlan.state.printDay">{{ eMsg('Otwórz Planowanie','Открыть Планирование','Open Planning','Відкрити Планування') }}</button></div>
@@ -518,7 +546,7 @@
    <div class="obs-tomorrow-report-head"><div><span>INCYDENTY</span><h3>{{ eMsg('PLAN OBSADY','ПЛАН РАССТАНОВКИ','STAFFING PLAN','ПЛАН РОЗСТАНОВКИ') }}</h3></div><strong>{{ obsadaPlan.state.printDay.split('-').reverse().join('.') }}</strong></div>
    <div class="obs-tomorrow-grid" :class="{'is-one':obsadaPlan.tomorrowPlan.teams.length===1,'has-absent':obsadaPlan.tomorrowPlan.absentPeople.length>0}">
     <article v-for="item in obsadaPlan.tomorrowPlan.teams" :key="item.shift" class="obs-tomorrow-team"><header><div><strong>{{ item.name }}</strong><small>{{ item.label }}</small></div><span>{{ item.total }} {{ eMsg('osób','чел.','people','осіб') }}</span></header>
-     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span><small v-if="obsadaPlan.state.printShowTimes">{{ part.from }}–{{ part.to }}</small></div></div></div></div>
+     <div class="obs-tomorrow-table"><div v-for="person in item.people" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div><template v-if="person.parts.length"><div v-for="(part,j) in person.parts" :key="j" class="obs-tomorrow-process"><span>{{ part.key }}</span></div></template><span v-else class="obs-tomorrow-muted">{{ eMsg('Bez przydziału','Без назначения','Unassigned','Без призначення') }}</span><div v-if="obsadaPlan.state.printShowAbsent" v-for="(part,j) in person.absences" :key="'absence'+j" class="obs-tomorrow-process obs-tomorrow-muted"><span>{{ part.key==='EARLY_EXIT'?eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід'):part.key }}</span></div></div></div></div>
     </article>
     <article v-if="obsadaPlan.tomorrowPlan.absentPeople.length" class="obs-tomorrow-team obs-tomorrow-absent"><header><div><strong>{{ eMsg('Nieobecni','Отсутствуют','Absent','Відсутні') }}</strong><small>WOLNY / URLOP</small></div></header><div class="obs-tomorrow-table"><div v-for="person in obsadaPlan.tomorrowPlan.absentPeople" :key="person.login" class="obs-tomorrow-worker"><b>{{ person.login }}</b><div class="obs-tomorrow-process">{{ person.status }}</div></div></div></article>
    </div>
@@ -3010,11 +3038,11 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-tomorrow-single-team-columns-7"></script>
+<script src="js/obsada-planner.js?v=3.26.0-export-selector-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
-<script src="js/app.js?v=3.26.0-kpi-print-columns-1"></script>
+<script src="js/app.js?v=3.26.0-merge-obsada-kpi-1"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>
 <script src="js/mrbot-dialogue-data.js"></script>
