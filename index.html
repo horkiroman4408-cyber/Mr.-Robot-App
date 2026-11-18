@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-theme-audit-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-obsada-top-controls-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -221,6 +221,23 @@
     </div>
     <button type="button" class="obs-bridge-config-btn obs-share-sync-settings" :aria-expanded="obsadaBridge.editing" :aria-label="eMsg('Ustawienia SharePoint','Настройки SharePoint','SharePoint settings','Налаштування SharePoint')" @click="obsadaBridge.editing=!obsadaBridge.editing;obsadaBridge.error=''" :title="eMsg('Ustawienia źródła','Настройки источника','Source settings','Налаштування джерела')"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--obs-surface)"/><circle cx="16" cy="17" r="2" fill="var(--obs-surface)"/></svg></button>
    </div>
+  </div>
+ </section>
+   <div class="obs-db-compact" id="obsada-local-database">
+    <div class="obs-db-compact-head">
+     <button type="button" class="obs-db-compact-toggle" :aria-expanded="obsadaPlan.state.showDatabase" aria-controls="obsada-db-exchange-actions" @click="obsadaPlan.state.showDatabase=!obsadaPlan.state.showDatabase">
+      <span class="obs-db-compact-icon" aria-hidden="true">▤</span>
+      <span class="obs-db-compact-heading"><strong>{{ eMsg('Baza lokalna','Локальная база','Local database','Локальна база') }}</strong>
+       <span class="obs-db-compact-status" role="status"><span class="obs-share-sync-dot" :class="'is-'+obsadaPlan.syncKind" aria-hidden="true"></span>
+       <span>{{ obsadaPlan.syncKind==='synced'?eMsg('Excel zapisany','Excel сохранён','Excel saved','Excel збережено'):obsadaPlan.syncKind==='saving'?eMsg('Zapisywanie…','Сохранение…','Saving…','Збереження…'):obsadaPlan.syncKind==='no-folder'?eMsg('Wybierz folder MrRobot','Выбери папку MrRobot','Choose MrRobot folder','Оберіть папку MrRobot'):obsadaPlan.syncKind==='error'?eMsg('Błąd zapisu Excel','Ошибка сохранения Excel','Excel save error','Помилка збереження Excel'):eMsg('Zapisano w przeglądarce','Сохранено в браузере','Saved in browser','Збережено у браузері') }}</span><span v-if="obsadaPlan.syncKind==='synced' && obsadaPlan.syncTimeText" class="obs-quiet">· {{ obsadaPlan.syncTimeText }}</span></span>
+      </span><span class="obs-db-compact-chevron" :class="{'is-open':obsadaPlan.state.showDatabase}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+     </button>
+     <button v-if="obsadaPlan.syncKind==='no-folder' || obsadaPlan.state.status==='FOLDER_PERMISSION_REQUIRED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.chooseFolder()">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Обрати папку') }}</button>
+     <button v-else-if="obsadaPlan.state.status==='EXTERNAL_CHANGES_DETECTED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.resolveConflictWithBackup()">{{ eMsg('Napraw zapis','Исправить запись','Fix save','Виправити запис') }}</button>
+     <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
+    </div>
+   </div>
+  <div class="obs-top-controls">
    <div class="obs-share-sync-controls">
     <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
      <label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
@@ -229,6 +246,7 @@
     <button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsadaBridge.setupBusy || obsada.state.loading" @click="obsadaBridgeRefresh"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.7 9a7 7 0 0 1 12-2l2.3 2"/><path d="M18.3 15a7 7 0 0 1-12 2L4 15"/></svg>{{ obsadaBridge.busy?eMsg('Synchronizowanie…','Синхронизация…','Synchronizing…','Синхронізація…'):eMsg('Synchronizuj','Синхронизировать','Synchronize','Синхронізувати') }}</button>
    </div>
   </div>
+  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || !obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-top-source-details">
   <div v-if="obsadaPlan.state.stanChanges.length" class="obs-surface obs-stan-review" role="region" :aria-label="eMsg('Porównanie STAN','Сравнение STAN','STAN comparison','Порівняння STAN')">
    <div class="obs-stan-review-head"><div><strong>{{ eMsg('Szybkie porównanie STAN','Быстрая сверка STAN','Quick STAN review','Швидка звірка STAN') }}</strong><p class="obs-quiet">{{ obsadaPlan.state.stanReviewDay }} · {{ obsadaPlan.state.stanReviewShift }} · {{ obsadaPlan.state.stanChanges.length }} {{ eMsg('różnic','различий','differences','розбіжностей') }}</p></div><span class="obs-stan-selected-count">{{ eMsg('Wybrano','Выбрано','Selected','Вибрано') }}: {{ obsadaPlan.stanSelectedCount }} / {{ obsadaPlan.state.stanChanges.length }}</span></div>
    <p class="obs-quiet">{{ eMsg('Puste godziny STAN nie usuwają wpisów. Minione godziny nie są zaznaczane automatycznie.','Пустые часы STAN ничего не удаляют. Прошедшие часы не выбираются автоматически.','Blank STAN hours do not delete assignments. Elapsed hours are not selected by default.','Порожні години STAN нічого не видаляють. Минулі години не вибираються автоматично.') }}</p>
@@ -246,21 +264,8 @@
     <button v-if="obsadaBridge.sourceConfigured" type="button" class="obs-bridge-remove" @click="obsadaBridgeClearSource">{{ eMsg('Usuń link','Удалить ссылку','Remove link','Видалити посилання') }}</button>
    </div>
   </div>
- </section>
-   <div class="obs-db-compact" id="obsada-local-database">
-    <div class="obs-db-compact-head">
-     <button type="button" class="obs-db-compact-toggle" :aria-expanded="obsadaPlan.state.showDatabase" aria-controls="obsada-db-exchange-actions" @click="obsadaPlan.state.showDatabase=!obsadaPlan.state.showDatabase">
-      <span class="obs-db-compact-icon" aria-hidden="true">▤</span>
-      <span class="obs-db-compact-heading"><strong>{{ eMsg('Baza lokalna','Локальная база','Local database','Локальна база') }}</strong>
-       <span class="obs-db-compact-status" role="status"><span class="obs-share-sync-dot" :class="'is-'+obsadaPlan.syncKind" aria-hidden="true"></span>
-       <span>{{ obsadaPlan.syncKind==='synced'?eMsg('Excel zapisany','Excel сохранён','Excel saved','Excel збережено'):obsadaPlan.syncKind==='saving'?eMsg('Zapisywanie…','Сохранение…','Saving…','Збереження…'):obsadaPlan.syncKind==='no-folder'?eMsg('Wybierz folder MrRobot','Выбери папку MrRobot','Choose MrRobot folder','Оберіть папку MrRobot'):obsadaPlan.syncKind==='error'?eMsg('Błąd zapisu Excel','Ошибка сохранения Excel','Excel save error','Помилка збереження Excel'):eMsg('Zapisano w przeglądarce','Сохранено в браузере','Saved in browser','Збережено у браузері') }}</span><span v-if="obsadaPlan.syncKind==='synced' && obsadaPlan.syncTimeText" class="obs-quiet">· {{ obsadaPlan.syncTimeText }}</span></span>
-      </span><span class="obs-db-compact-chevron" :class="{'is-open':obsadaPlan.state.showDatabase}" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
-     </button>
-     <button v-if="obsadaPlan.syncKind==='no-folder' || obsadaPlan.state.status==='FOLDER_PERMISSION_REQUIRED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.chooseFolder()">{{ eMsg('Wybierz folder','Выбрать папку','Choose folder','Обрати папку') }}</button>
-     <button v-else-if="obsadaPlan.state.status==='EXTERNAL_CHANGES_DETECTED'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.resolveConflictWithBackup()">{{ eMsg('Napraw zapis','Исправить запись','Fix save','Виправити запис') }}</button>
-     <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
-    </div>
-    <div v-if="obsadaPlan.state.showDatabase" id="obsada-db-exchange-actions" class="obs-db-compact-body">
+  </div>
+    <div v-if="obsadaPlan.state.showDatabase" id="obsada-db-exchange-actions" class="obs-db-compact-body obs-top-db-details">
      <div class="obs-db-exchange-grid">
       <div class="obs-db-exchange-card">
        <div class="obs-db-exchange-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m0 0-4 4m4-4 4 4"/><path d="M5 16v4h14v-4"/></svg></div>
@@ -288,7 +293,6 @@
       <p v-if="obsadaPlan.state.mergeMessage" class="obs-bridge-ok" role="status">{{ obsadaPlan.state.mergeMessage }}</p>
      </div>
     </div>
-   </div>
  </div>
   <div v-if="obsadaBridge.error" class="obs-warning" role="alert">{{ obsadaBridge.error }}</div>
   <div v-if="obsadaBridge.message" class="obs-bridge-ok" role="status">{{ obsadaBridge.message }}</div>
@@ -511,8 +515,10 @@
    <label>{{ eMsg('Zmiana do eksportu','Смена для экспорта','Export shift','Зміна для експорту') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printExportShift"><option value="I">Zmiana I</option><option value="II">Zmiana II</option></mr-obsada-select></label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij WOLNY / URLOP','Показывать выходные / отпуска','Include days off / leave','Показувати вихідні / відпустки') }}</label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowTimes">{{ eMsg('Pokaż godziny procesów','Показывать часы процессов','Show process hours','Показувати години процесів') }}</label>
+   <div class="obs-tomorrow-actions">
    <button type="button" class="obs-bridge-small-btn obs-tomorrow-excel" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.exportTomorrowExcel()">⬇ {{ eMsg('Eksport Excel','Экспорт Excel','Export Excel','Експорт Excel') }}</button>
    <button type="button" class="obs-bridge-small-btn primary obs-tomorrow-print" :disabled="!obsadaPlan.tomorrowPlan.teams.length" @click="obsadaPlan.printTomorrowPlan()">▤ {{ eMsg('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF') }}</button>
+   </div>
   </div>
   <div v-if="obsadaPlan.state.error==='PRINT_POPUP_BLOCKED'" class="obs-warning" role="alert">{{ eMsg('Zezwól na otwieranie okien wyskakujących, aby wydrukować plan.','Разреши всплывающие окна для печати списка.','Allow pop-ups to print the plan.','Дозвольте спливні вікна, щоб надрукувати план.') }}</div>
   <div v-if="!obsadaPlan.tomorrowPlan.teams.length" class="obs-tomorrow-empty"><strong>{{ eMsg('Brak zapisanego planu na ten dzień','Нет сохранённого плана на эту дату','No saved plan for this date','Немає збереженого плану на цю дату') }}</strong><p class="obs-quiet">{{ eMsg('Dodaj zespół i przydziały w Planowanie. Lista pojawi się automatycznie.','Добавь команду и назначения в Планировании, и список появится автоматически.','Add a team and assignments in Planning to populate the list.','Додайте команду й призначення в Плануванні, і список з’явиться автоматично.') }}</p><button type="button" class="obs-bridge-small-btn" @click="obsada.state.tab='planning';obsadaPlan.state.day=obsadaPlan.state.printDay">{{ eMsg('Otwórz Planowanie','Открыть Планирование','Open Planning','Відкрити Планування') }}</button></div>

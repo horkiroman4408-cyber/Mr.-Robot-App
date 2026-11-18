@@ -1125,22 +1125,6 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 .obs-tomorrow-empty p{margin:9px 0 16px}
 @media(max-width:760px){.obs-tomorrow-grid{grid-template-columns:minmax(0,1fr)}.obs-tomorrow-print{margin-left:0}.obs-tomorrow-controls>label{flex:1 1 170px}.obs-tomorrow-team>header{padding:10px}}
 
-/* Obsada: compact shared top row for SharePoint Grafik and local database. */
-#app .obs-top-connection-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:12px;align-items:start}
-#app .obs-top-connection-row>.obs-share-sync{min-width:0;margin:0}
-#app .obs-top-connection-row>.obs-db-compact{min-width:0;margin:0}
-#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls{gap:8px}
-#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls .obs-stan-date-set{gap:8px}
-#app .obs-top-connection-row .obs-share-sync-reference .obs-share-sync-controls>.obs-bridge-refresh{padding-inline:12px}
-/* Expanded content stays readable at full width, instead of being squeezed into a half-column. */
-#app .obs-top-connection-row>.obs-db-compact:has(.obs-db-compact-body),
-#app .obs-top-connection-row>.obs-share-sync:has(.obs-stan-review,.obs-share-sync-config-v2,.obs-bridge-permission){grid-column:1/-1}
-@media(max-width:1050px){
- #app .obs-top-connection-row{grid-template-columns:minmax(0,1fr)}
- #app .obs-top-connection-row>.obs-share-sync,
- #app .obs-top-connection-row>.obs-db-compact{grid-column:1}
-}
-
 /* v3.26 · Theme-safe tomorrow preview. Does not affect separate A4 print document. */
 #app .obsada-module .obs-tomorrow-section,
 #app .obsada-module .obs-tomorrow-team {color:var(--obs-text)}
@@ -1173,3 +1157,37 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
  #app .obs-top-connection-row {padding:12px;border-radius:16px}
  #app .obs-top-connection-row .obs-db-compact-head {min-height:42px}
 }
+
+/* v3.26 · Unified Obsada source controls: stable headings, full-width shared actions. */
+#app .obs-top-connection-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;column-gap:22px;row-gap:0;padding:14px 17px;background:var(--obs-surface);border:1px solid var(--obs-border);border-radius:18px;box-shadow:0 8px 26px rgba(12,28,54,.035);min-width:0}
+#app .obs-top-connection-row>.obs-share-sync,#app .obs-top-connection-row>.obs-db-compact{min-width:0;margin:0;padding:0;background:transparent;border:0;border-radius:0;box-shadow:none}
+#app .obs-top-connection-row .obs-share-sync-reference{display:block!important;margin:0!important}
+#app .obs-top-connection-row .obs-share-sync-identity,#app .obs-top-connection-row .obs-db-compact-head{min-height:44px;display:flex;align-items:center;padding:0}
+#app .obs-top-connection-row .obs-share-sync-icon,#app .obs-top-connection-row .obs-db-compact-icon{width:37px;height:37px;flex:0 0 37px;border-radius:11px}
+#app .obs-top-connection-row .obs-db-compact-toggle{min-height:44px}
+#app .obs-top-connection-row>.obs-db-compact{border-left:1px solid var(--obs-border);padding-left:22px}
+#app .obs-top-controls{grid-column:1/-1;min-width:0;margin-top:13px;padding-top:12px;border-top:1px solid var(--obs-border)}
+#app .obs-top-controls .obs-share-sync-controls{margin:0;padding:0;border:0;width:100%;display:flex;align-items:end;gap:12px;min-width:0}
+#app .obs-top-controls .obs-stan-date-set{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1 1 0;width:auto;min-width:0;max-width:660px}
+#app .obs-top-controls .obs-stan-date-set label{min-width:0;display:flex;flex-direction:column;gap:5px;color:var(--obs-muted);font-size:11px;font-weight:650}
+#app .obs-top-controls .obs-stan-date-set :is(mr-obsada-date,mr-obsada-select){display:block;min-width:0;width:100%}
+#app .obs-top-controls .obs-bridge-refresh{flex:none;min-height:39px;display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:9px 15px;border:0;border-radius:999px;background:var(--obs-text);color:var(--obs-surface);font-size:12px;font-weight:750;box-shadow:none}
+#app .obs-top-source-details,#app .obs-top-db-details{grid-column:1/-1;min-width:0;padding:14px 0 0;margin-top:14px;border-top:1px solid var(--obs-border)}
+#app .obs-top-source-details .obs-share-sync-config-v2{margin:0}
+#app .obs-top-source-details .obs-stan-review{margin:0 0 12px}
+#app .obs-top-db-details .obs-db-exchange-grid{min-width:0}
+#app .obs-top-db-details{background:transparent;color:var(--obs-text)}
+#app .obsada-module .obs-tomorrow-actions{display:flex;align-items:center;gap:9px;margin-left:auto;flex:0 0 auto}
+#app .obsada-module .obs-tomorrow-actions .obs-tomorrow-print{margin-left:0}
+#app .obsada-module .obs-tomorrow-actions>button{min-height:38px;white-space:nowrap}
+@media(max-width:760px){
+ #app .obs-top-connection-row{grid-template-columns:minmax(0,1fr);padding:13px 14px}
+ #app .obs-top-connection-row>.obs-db-compact{grid-column:1;border-left:0;border-top:1px solid var(--obs-border);padding:10px 0 0;margin-top:10px}
+ #app .obs-top-controls{margin-top:11px;padding-top:12px}
+ #app .obs-top-controls .obs-share-sync-controls{flex-wrap:wrap}
+ #app .obs-top-controls .obs-stan-date-set{max-width:none;flex-basis:100%}
+ #app .obs-top-controls .obs-bridge-refresh{width:100%}
+ #app .obsada-module .obs-tomorrow-actions{margin-left:0;flex-wrap:wrap}
+}
+@media(max-width:400px){#app .obs-top-controls .obs-stan-date-set{grid-template-columns:minmax(0,1fr)}#app .obsada-module .obs-tomorrow-actions{width:100%}#app .obsada-module .obs-tomorrow-actions>button{flex:1}}
+@media(prefers-reduced-motion:reduce){#app .obs-top-connection-row .obs-bridge-refresh{transition:none}}
