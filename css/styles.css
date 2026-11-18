@@ -1911,3 +1911,47 @@ html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9
 @media(max-width:620px){#app .kpi-header-actions{grid-column:1/-1;grid-row:auto;justify-self:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#app .kpi-header-actions>button{width:100%;padding:.52rem .45rem;font-size:.72rem}}
 html.mr-mobile-lite #app .kpi-header-actions{grid-column:1/-1;grid-row:auto;justify-self:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 html.mr-mobile-lite #app .kpi-header-actions>button{width:100%;padding:.52rem .45rem;font-size:.72rem}
+
+
+/* KPI v3.26.0: stable navigation width across all six tabs.
+   Desktop gets the space formerly consumed by the dynamic module title;
+   compact widths use a full-width second row instead of a cut-off scroll rail. */
+@media (min-width:1121px){
+ #app .kpi-header-row{
+  display:grid;
+  grid-template-columns:max-content 150px minmax(0,1fr) max-content;
+  column-gap:8px;row-gap:8px;align-items:center;
+ }
+ #app .kpi-header-row>.flex.items-center.gap-4.shrink-0{
+  min-width:0;width:150px;gap:9px;
+ }
+ #app .kpi-header-row>.flex.items-center.gap-4.shrink-0>div:last-child{min-width:0}
+ #app .kpi-header-row h1{font-size:17px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ #app .kpi-header-row>.segment-control{
+  grid-column:3;grid-row:1;min-width:0;width:100%;
+  display:flex;align-items:center;justify-content:space-around;
+  overflow:visible;flex-wrap:nowrap;border-radius:999px;
+ }
+ #app .kpi-header-row>.segment-control>.segment-btn{
+  flex:0 1 auto;min-width:0;padding:9px 9px;font-size:11.5px;line-height:1.2;
+  justify-content:center;white-space:nowrap;
+ }
+ #app .kpi-header-row>.kpi-header-actions{grid-column:4;grid-row:1;display:flex;gap:6px;flex-wrap:nowrap}
+ #app .kpi-header-actions .kpi-action-btn{min-height:35px;padding:7px 10px;font-size:11.5px;gap:5px}
+}
+@media (min-width:721px) and (max-width:1120px){
+ #app .kpi-header-row{
+  display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;
+  gap:9px 12px;align-items:center;
+ }
+ #app .kpi-header-row>.flex.items-center.gap-4.shrink-0{grid-column:2;grid-row:1;min-width:0}
+ #app .kpi-header-row>.kpi-header-actions{grid-column:3;grid-row:1;display:flex;flex-wrap:nowrap}
+ #app .kpi-header-row>.segment-control{
+  grid-column:1/-1;grid-row:2;width:100%;max-width:none;min-width:0;
+  display:flex;justify-content:space-around;overflow:visible;flex-wrap:nowrap;
+ }
+ #app .kpi-header-row>.segment-control>.segment-btn{
+  min-width:0;flex:1 1 auto;justify-content:center;white-space:nowrap;
+  font-size:12px;padding:9px 10px;
+ }
+}
