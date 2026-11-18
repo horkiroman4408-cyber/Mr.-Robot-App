@@ -751,6 +751,66 @@ for(let r=0;r<rows.length;r++)for(let c=0;c<COLS;c++){const ref=XLSX.utils.encod
 ws['!cols']=[{wch:18},{wch:18},{wch:34},{wch:28}];ws['!rows']=heights;ws['!merges']=merges;
 const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'RAPORT');XLSX.writeFile(wb,'MrRobot_Norms_Wszystko.xlsx');showToast('Wygenerowano plik');}
 
+// Print-only KPI report. Uses the same filtered rows and thresholds as "Pobierz wszystko".
+function kpiPrintGlobalReport(){
+ const sections=[];
+ const add=(title,records,norm)=>{if(records.length)sections.push({title,records:[...records].sort((a,b)=>b.perHour-a.perHour),norm:Number(norm)||0});};
+ add('AUDYT',kpiAuditFilteredByGroup.value,kpiNormThreshold.value);
+ add('SCALANIE',kpiScalanieFilteredByGroup.value,kpiScalanieNormThreshold.value);
+ add('ROZKŁADANIE',kpiRozkFilteredByGroup.value.filter(r=>r.rodzaj===null),kpiRozkNormThreshold.value);
+ add('NADWE',kpiNvFilteredByGroup.value.filter(r=>r.rodzaj==='NADWE'),kpiNvNormThreshold.value);
+ add('VAS',kpiNvFilteredByGroup.value.filter(r=>r.rodzaj==='VAS'),kpiNvNormThreshold.value);
+ if(!sections.length){showToast('Brak danych');return false;}
+ const popup=window.open('','_blank');
+ if(!popup){showToast(({pl:'Zezwól na wyskakujące okna, aby wydrukować KPI.',ru:'Разреши всплывающие окна для печати KPI.',en:'Allow pop-ups to print KPI.',uk:'Дозвольте спливні вікна для друку KPI.'})[uiLanguage.value||'pl']);return false;}
+ const lang=uiLanguage.value||'pl';
+ const txt=(pl,ru,en,uk)=>({pl,ru,en,uk}[lang]||pl);
+ const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const format=(x,digits)=>{const n=Number(x);return Number.isFinite(n)?n.toLocaleString('pl-PL',{minimumFractionDigits:digits,maximumFractionDigits:digits}):'—';};
+ const now=new Date();const p2=n=>String(n).padStart(2,'0');const day=`${p2(now.getDate())}.${p2(now.getMonth()+1)}.${now.getFullYear()}`;
+ const total=sections.reduce((n,sec)=>n+sec.records.length,0);
+ // Long reports use two columns; the on-page fit check refuses to shrink below readable font sizes.
+ const twoColumns=total>23||sections.length>3&&total>18;
+ const t=(pl,ru,en,uk)=>escape(txt(pl,ru,en,uk));
+ const content=sections.map(sec=>{
+  const below=sec.records.filter(r=>Number(r.perHour)<sec.norm).length;
+  return `<section class="process"><div class="process-head"><strong>${escape(sec.title)}</strong><span>${t('Norma','Норма','Target','Норма')}: ${escape(format(sec.norm,0))} szt./h</span><span>${t('Poniżej normy','Ниже нормы','Below target','Нижче норми')}: ${below} / ${sec.records.length}</span></div><table><colgroup><col style="width:24%"><col style="width:18%"><col style="width:27%"><col style="width:31%"></colgroup><thead><tr><th>LOGIN</th><th>${t('SZTUKI','ШТУКИ','ITEMS','ШТУКИ')}</th><th>${t('CZAS (h)','ВРЕМЯ (ч)','HOURS','ЧАС (г)')}</th><th>KPI (szt./h)</th></tr></thead><tbody>${sec.records.map(r=>{const below=Number(r.perHour)<sec.norm;return `<tr><td class="login">${escape(r.login)}</td><td>${format(r.items,0)}</td><td>${format(r.time,2)}</td><td class="score ${below?'below':'above'}">${format(r.perHour,2)}</td></tr>`;}).join('')}</tbody></table></section>`;
+ }).join('');
+ const html=`<!doctype html><html lang="${escape(lang)}"><head><meta charset="utf-8"><title>INCYDENTY · RAPORT KPI · ${day}</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+ @page{size:A4 landscape;margin:8mm}
+ *,*::before,*::after{box-sizing:border-box}
+ html,body{margin:0;padding:0;background:#fff;color:#19283c;font-family:Inter,"Segoe UI",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .actions{max-width:281mm;margin:12px auto 8px;display:flex;align-items:center;gap:12px;font:13px "Segoe UI",Arial,sans-serif}
+ .actions button{background:#fff;border:1px solid #9aa9bc;padding:9px 16px;border-radius:7px;font:inherit;cursor:pointer;color:#19283c}
+ .warning{display:none;color:#a61c29;line-height:1.4;font-size:12px}
+ .sheet{width:281mm;height:194mm;margin:0 auto;overflow:hidden;background:white}
+ .titlebar{display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid #bcc8d6;padding:1mm 0 3mm;gap:10mm;margin-bottom:3.2mm}
+ .titlebar .brand{font-size:12pt;letter-spacing:.07em;font-weight:800;color:#16283f}
+ .titlebar h1{font-size:16pt;font-weight:650;letter-spacing:.03em;margin:1mm 0 0;color:#203854}
+ .date{font-size:12pt;font-weight:750;white-space:nowrap}
+ .meta{font-size:9pt;color:#5b6d82;margin-top:1mm;text-align:right}
+ .sections{display:grid;grid-template-columns:${twoColumns?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)'};gap:3mm;align-items:start}
+ .process{min-width:0;border:1px solid #d8e0ea;border-radius:2.7mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid}
+ .process-head{display:flex;align-items:center;justify-content:space-between;gap:2mm;background:#e9eff5;padding:1.7mm 2.5mm;color:#1d304a;white-space:nowrap}
+ .process-head strong{font-size:${twoColumns?'11.5':'12.5'}pt;font-weight:800;overflow:hidden;text-overflow:ellipsis}
+ .process-head span{font-size:${twoColumns?'8.4':'9.5'}pt;font-weight:650}
+ table{width:100%;border-collapse:collapse;table-layout:fixed}
+ th{background:#f3f6f9;color:#233953;font-weight:700;font-size:${twoColumns?'8.4':'9.5'}pt;text-align:center;padding:1.5mm 1mm;border-bottom:1px solid #d9e0e8}
+ td{font-size:${twoColumns?'9.4':'10.5'}pt;line-height:1.2;padding:1.5mm 1.3mm;border-bottom:1px solid #dee5ec;text-align:center;height:5.7mm;white-space:nowrap}
+ tbody tr:nth-child(even){background:#f5f7fa}
+ tbody tr:last-child td{border-bottom:0}
+ td.login{text-align:left;font-weight:800;letter-spacing:.01em;padding-left:2.2mm}
+ td.score{font-weight:800}
+ td.score.below{background:#f8cdd1;color:#86111c}
+ td.score.above{background:#d4f2da;color:#11642e}
+ @media print{.actions{display:none!important}.sheet{margin:0;width:281mm;height:194mm}body{width:281mm;height:194mm}.sections{gap:3mm}}
+ @media screen{body{padding:0 15px 20px}.sheet{box-shadow:0 10px 34px #16283f1c;border:1px solid #e0e5eb}.actions{position:sticky;top:0;background:#fff;z-index:5;padding:5px 0}}
+ </style></head><body><div class="actions"><button id="print" type="button">${t('Drukuj / PDF','Печать / PDF','Print / PDF','Друк / PDF')}</button><span class="warning" id="warning">${t('Raport nie mieści się czytelnie na jednym A4. Zawęź filtry KPI i spróbuj ponownie.','Отчёт не помещается на один A4 без уменьшения шрифта. Сузь фильтры KPI и попробуй снова.','Report exceeds one readable A4 page. Narrow the KPI filters and try again.','Звіт не вміщується на один читабельний аркуш A4. Звузьте фільтри KPI.')}</span></div><main class="sheet" id="sheet"><header class="titlebar"><div><div class="brand">INCYDENTY</div><h1>RAPORT KPI</h1></div><div><div class="date">${day}</div><div class="meta">${escape(sections.map(s=>s.title).join(' · '))}</div></div></header><div class="sections" id="sections">${content}</div></main><script>
+ (function(){const sheet=document.getElementById('sheet'),sections=document.getElementById('sections'),button=document.getElementById('print'),warning=document.getElementById('warning');function measure(){const overflow=sheet.scrollHeight>sheet.clientHeight+2||sections.getBoundingClientRect().bottom>sheet.getBoundingClientRect().bottom-2;button.disabled=overflow;warning.style.display=overflow?'inline':'none';}button.addEventListener('click',function(){measure();if(!button.disabled)window.print();});window.addEventListener('load',measure);window.addEventListener('beforeprint',measure);measure();})();
+ </script></body></html>`;
+ popup.document.open();popup.document.write(html);popup.document.close();popup.focus();return true;
+}
+
 // ==================== PRACOWNICY (Grafik.xlsx) ====================
 const BUS_TO_SHIFT = { 'A':'AB', 'B':'AB', 'C':'CD', 'D':'CD', '1':'AB', '2':'CD' };
 
@@ -2988,7 +3048,7 @@ kpiOnAuditFile,kpiOnAuditDrop,kpiResetAudit,kpiExportAudit,
 kpiOnScalanieFile,kpiOnScalanieDrop,kpiResetScalanie,kpiExportScalanie,
 kpiOnRozkFile,kpiOnRozkDrop,kpiResetRozk,kpiExportRozk,
 kpiOnNvFile,kpiOnNvDrop,kpiResetNv,kpiExportNv,kpiNvColorFor,kpiNvCellStyle,
-kpiAnyLoaded,kpiCanGlobalExport,kpiExportGlobalXlsx,
+kpiAnyLoaded,kpiCanGlobalExport,kpiExportGlobalXlsx,kpiPrintGlobalReport,
 mpScannerInput,mpScannerLookup,mpScannerResult,mpScannerCameraOpen,mpScannerCameraBusy,mpScannerError,mpScannerSearch,mpScannerCopy,mpScannerStart,mpScannerStop,
 toteStatsOpen,toteMp,toteRs,toteOptions,toteFilters,toteResults,toteStats,toteSearched,toteCanSearch,
 toteStatsMp,toteStatsRs,toteMpLoaded,toteRsLoaded,

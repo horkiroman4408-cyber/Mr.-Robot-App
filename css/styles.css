@@ -1901,3 +1901,14 @@ html[data-theme="ivory"].mr-mobile-lite .mr-mobile-restore-button{background:#f9
 .grp-chip.active[data-rodz="Zwroty"] {color:#172332}
 .grp-chip.active[data-grp="inne"] .cnt,.grp-chip.active[data-grp="sinsay"] .cnt,
 .grp-chip.active[data-rodz="Zwroty"] .cnt {color:inherit}
+
+/* KPI: side-by-side XLSX and A4 print controls; theme-aware across all modes. */
+#app .kpi-header-actions{display:flex;align-items:center;justify-self:end;gap:8px;flex-wrap:wrap}
+#app .kpi-header-actions .save-all-btn{justify-self:auto}
+#app .kpi-print-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:.55rem 1rem;border:1px solid var(--mr-c81,rgba(148,163,184,.28));border-radius:999px;background:var(--mr-c21,#fff);color:var(--mr-c11,#1c1c1e);font-size:.82rem;font-weight:600;font-family:inherit;white-space:nowrap;cursor:pointer;min-height:37px}
+#app .kpi-print-btn:hover:not(:disabled){border-color:var(--mr-c16,#0a84ff)}
+#app .kpi-print-btn:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:840px){#app .kpi-header-actions{grid-column:3;grid-row:1}}
+@media(max-width:620px){#app .kpi-header-actions{grid-column:1/-1;grid-row:auto;justify-self:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}#app .kpi-header-actions>button{width:100%;padding:.55rem .5rem;font-size:.72rem}}
+html.mr-mobile-lite #app .kpi-header-actions{grid-column:1/-1;grid-row:auto;justify-self:stretch;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+html.mr-mobile-lite #app .kpi-header-actions>button{width:100%;padding:.55rem .5rem;font-size:.72rem}
