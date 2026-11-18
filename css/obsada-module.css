@@ -1228,3 +1228,49 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .obsada-module .obs-roster-dept-actions{flex-wrap:wrap;justify-content:flex-end}
 @media(max-width:940px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#app .obsada-module .obs-readonly-department-stats{grid-template-columns:1fr}}
+
+
+/* Minimal Intelligence: compact default state, expandable period/process and employee selection.
+   All colors inherit Obsada tokens across the supported themes. */
+#app .obs-intel-minimal{display:grid;gap:10px;padding:12px;margin:10px 0 15px}
+#app .obs-intel-minimal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+#app .obs-intel-minimal-head>div{display:grid;gap:3px;min-width:0}
+#app .obs-intel-minimal-head strong{font-size:13px;color:var(--obs-text)}
+#app .obs-intel-minimal-head small{font-size:10px;color:var(--obs-muted)}
+#app .obs-intel-minimal-filter,#app .obs-intel-minimal-picker{min-width:0;border:1px solid var(--obs-border);border-radius:12px;background:var(--obs-surface)}
+#app .obs-intel-minimal-filter-trigger,#app .obs-intel-minimal-picker-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-width:0;padding:12px 14px;color:var(--obs-text);cursor:pointer;list-style:none;text-align:left}
+#app .obs-intel-minimal-filter-trigger::-webkit-details-marker{display:none}
+#app .obs-intel-minimal-filter-trigger::marker{content:''}
+#app .obs-intel-minimal-filter-values{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;flex:1;min-width:0}
+#app .obs-intel-minimal-filter-values>span{min-width:0;display:grid;gap:3px}
+#app .obs-intel-minimal-filter-values small{font-size:10px;color:var(--obs-muted);font-weight:650}
+#app .obs-intel-minimal-filter-values strong{font-size:12px;font-weight:750;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#app .obs-intel-minimal-filter-edit{display:inline-flex;gap:6px;align-items:center;flex:none;color:var(--obs-muted);font-size:11px;font-weight:700}
+#app .obs-intel-minimal-chevron{font-size:17px;line-height:1;color:var(--obs-muted)}
+#app .obs-intel-minimal-filter[open] .obs-intel-minimal-filter-edit .obs-intel-minimal-chevron{transform:rotate(180deg)}
+#app .obs-intel-minimal-filter-body,#app .obs-intel-minimal-picker-body{border-top:1px solid var(--obs-border);padding:12px 14px}
+#app .obs-intel-minimal-filter-body{display:grid;gap:11px}
+#app .obs-intel-minimal-label{font-size:10px;font-weight:750;color:var(--obs-muted)}
+#app .obs-intel-minimal-filter-body .obs-team-intel-range{margin:0}
+#app .obs-intel-minimal-filter-body .obs-team-intel-process-filter{display:grid;gap:5px;max-width:480px;min-width:0}
+#app .obs-intel-minimal-filter-body .obs-team-intel-process-filter>label{font-size:10px;color:var(--obs-muted);font-weight:750}
+#app .obs-intel-minimal-picker-trigger{background:transparent;border:0;font:inherit}
+#app .obs-intel-minimal-picker-icon{flex:0 0 auto;display:grid;place-items:center;width:32px;height:32px;border-radius:9px;background:var(--mr-c104,rgba(186,76,96,.075));color:var(--obs-accent);font-size:20px}
+#app .obs-intel-minimal-picker-text{min-width:0;flex:1;display:grid;gap:3px}
+#app .obs-intel-minimal-picker-text strong{font-size:12px;font-weight:750}
+#app .obs-intel-minimal-picker-text small{font-size:10px;color:var(--obs-muted)}
+#app .obs-intel-minimal-picker-body{display:grid;gap:10px}
+#app .obs-intel-minimal-picker-body .obs-team-intel-chooser{margin:0}
+#app .obs-intel-minimal-picker-body .obs-team-intel-selected{margin:0;max-height:110px;overflow:auto}
+#app .obs-intel-minimal-picker-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--obs-muted);font-size:11px}
+#app .obs-intel-minimal-picker-footer button{background:var(--obs-accent);border:1px solid var(--obs-accent);color:#fff;border-radius:9px;font:inherit;font-weight:700;font-size:11px;padding:9px 14px;cursor:pointer}
+#app .obs-intel-minimal-filter-trigger:focus-visible,#app .obs-intel-minimal-picker-trigger:focus-visible{outline:2px solid var(--obs-accent);outline-offset:2px}
+@media(max-width:650px){
+ #app .obs-intel-minimal-filter-trigger,#app .obs-intel-minimal-picker-trigger{padding:11px}
+ #app .obs-intel-minimal-filter-values{gap:8px}
+ #app .obs-intel-minimal-filter-edit span:not(.obs-intel-minimal-chevron){display:none}
+ #app .obs-intel-minimal-filter-body,#app .obs-intel-minimal-picker-body{padding:11px}
+ #app .obs-intel-minimal-picker-body .obs-team-intel-pickerbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+ #app .obs-intel-minimal-picker-body .obs-team-intel-pickerbar>mr-obsada-select{grid-column:1/-1}
+}
+@media(prefers-reduced-motion:reduce){#app .obs-intel-minimal-filter-trigger,#app .obs-intel-minimal-picker-trigger{transition:none}}
