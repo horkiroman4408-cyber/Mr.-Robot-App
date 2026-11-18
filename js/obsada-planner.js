@@ -333,7 +333,10 @@ function create({reactive,computed,roster,source,sourceName,language}){
   for(let pair=0;pair<report.teams.length;pair+=2){
    const selected=report.teams.slice(pair,pair+2);
    const includeAbsent=state.printShowAbsent&&report.absentPeople.length>0;
-   const ncols=includeAbsent?8:5;
+   // Export only the selected teams: A/B for one, A/B + D/E for two.
+   // An optional absence block uses the next pair after a spacer column.
+   const absentStart=includeAbsent?(selected.length===1?3:6):-1;
+   const ncols=selected.length*2+(selected.length-1)+(includeAbsent?3:0);
    const longest=Math.max(...selected.map(t=>t.people.length),includeAbsent?report.absentPeople.length:0,0);
    const rows=[Array(ncols).fill(''),Array(ncols).fill('')];
    rows[0][0]=`INCYDENTY ${shift} ZMIANA`;
@@ -342,23 +345,24 @@ function create({reactive,computed,roster,source,sourceName,language}){
     const a=selected[0]?.people[i],b=selected[1]?.people[i],abs=includeAbsent?report.absentPeople[i]:null;
     const row=Array(ncols).fill('');
     row[0]=a?.login||'';row[1]=a?textFor(a):'';
-    row[3]=b?.login||'';row[4]=b?textFor(b):'';
-    if(abs){row[6]=abs.login;row[7]=abs.status;}
+    if(selected.length>1){row[3]=b?.login||'';row[4]=b?textFor(b):'';}
+    if(abs){row[absentStart]=abs.login;row[absentStart+1]=abs.status;}
     rows.push(row);
    }
    const ws=xlsx.utils.aoa_to_sheet(rows);
    ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}}];
-   ws['!cols']=[{wch:15},{wch:31},{wch:3},{wch:15},{wch:31},...(includeAbsent?[{wch:3},{wch:15},{wch:14}]:[])];
-   ws['!rows']=rows.map((row,i)=>({hpt:i<2?25:Math.max(21,15*Math.max(1,String(row[1]||'').split('\n').length,String(row[4]||'').split('\n').length))}));
-   for(let r=0;r<rows.length;r++)for(const c of (includeAbsent?[0,1,3,4,6,7]:[0,1,3,4])){
+   ws['!cols']=[{wch:15},{wch:31},...(selected.length>1?[{wch:3},{wch:15},{wch:31}]:[]),...(includeAbsent?[{wch:3},{wch:15},{wch:14}]:[])];
+   ws['!rows']=rows.map((row,i)=>({hpt:i<2?25:Math.max(21,15*Math.max(...[1,...(selected.length>1?[4]:[]),...(includeAbsent?[absentStart+1]:[])].map(c=>Math.max(1,String(row[c]||'').split('\n').length))))}));
+   const usedCols=[0,1,...(selected.length>1?[3,4]:[]),...(includeAbsent?[absentStart,absentStart+1]:[])];
+   for(let r=0;r<rows.length;r++)for(const c of usedCols){
     const cell=ws[xlsx.utils.encode_cell({r,c})];if(!cell)continue;
     const header=r<2;
-    cell.s={font:{name:'Arial',sz:header?15:11,bold:header||c===0||c===3||c===6,color:{rgb:'17283F'}},
+    cell.s={font:{name:'Arial',sz:header?15:11,bold:header||c===0||(selected.length>1&&c===3)||(includeAbsent&&c===absentStart),color:{rgb:'17283F'}},
      fill:{patternType:'solid',fgColor:{rgb:header?'A9C8E6':r%2===0?'FFFFFF':'F1F3F6'}},
-     alignment:{vertical:'center',horizontal:header?'center':[1,4,7].includes(c)?'left':'center',wrapText:true},
+     alignment:{vertical:'center',horizontal:header?'center':[1,...(selected.length>1?[4]:[]),...(includeAbsent?[absentStart+1]:[])].includes(c)?'left':'center',wrapText:true},
      border:{bottom:{style:'thin',color:{rgb:'BFC8D4'}},left:{style:'thin',color:{rgb:'BFC8D4'}},right:{style:'thin',color:{rgb:'BFC8D4'}}}};
    }
-   ws['!printArea']=`A1:${includeAbsent?'H':'E'}${rows.length}`;
+   ws['!printArea']=`A1:${xlsx.utils.encode_col(ncols-1)}${rows.length}`;
    ws['!pageSetup']={orientation:'landscape',paperSize:9,fitToWidth:1,fitToHeight:1};
    xlsx.utils.book_append_sheet(book,ws,pair?`STAN ${pair/2+1}`:'STAN');
   }
