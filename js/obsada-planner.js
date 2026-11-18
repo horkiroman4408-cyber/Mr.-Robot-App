@@ -577,10 +577,10 @@ function create({reactive,computed,roster,source,sourceName,language}){
  });
 
  function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
- function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';state.actionPanel='form';return true;}
+ function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';if(type==='late'){const saved=lateArrival(person.login,person.day,person.shift);const idx=slots.value.findIndex(slot=>slot.from===saved);state.actionHour=idx>0?idx:Math.min(Math.max(1,state.from+1),slots.value.length-1);}state.actionPanel='form';return true;}
  function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
  function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
- function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';state.actionPanel='form';return true;}
+ function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';if(type==='late'){const saved=lateArrival(person.login,person.day,person.shift);const idx=slots.value.findIndex(slot=>slot.from===saved);state.actionHour=idx>0?idx:Math.min(Math.max(1,state.from+1),slots.value.length-1);}state.actionPanel='form';return true;}
  function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
  function focusAssignment(person){
   if(person.day!==state.day||person.shift!==state.shift){

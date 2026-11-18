@@ -502,6 +502,7 @@
       <button type="button" class="obs-plan-person-remove" :aria-expanded="obsadaPlan.state.processMenuLogin===person.login" :title="eMsg('Opcje przydziału','Действия с назначением','Assignment actions','Дії з призначенням')" @click.stop="obsadaPlan.openProcessMenu(person)">···</button>
       <div v-if="obsadaPlan.state.processMenuLogin===person.login" class="obs-plan-process-popup" role="menu">
        <button type="button" role="menuitem" @click="obsadaPlan.state.processMenuLogin='';obsadaPlan.focusAssignment(person)">{{ eMsg('Przenieś do innego procesu','Перенести на другой процесс','Move to another process','Перенести на інший процес') }}</button>
+       <button type="button" role="menuitem" @click="obsadaPlan.openProcessActions(person,'late')">{{ eMsg('Spóźnienie','Опоздание','Late arrival','Запізнення') }}</button>
        <button type="button" role="menuitem" @click="obsadaPlan.openProcessActions(person,'early')">{{ eMsg('Wcześniejsze wyjście','Ранний уход','Early departure','Ранній вихід') }}</button>
        <button type="button" role="menuitem" @click="employeeOpen(person.login);obsadaPlan.state.processMenuLogin=''">{{ eMsg('Otwórz kartę KPI','Открыть карточку KPI','Open KPI profile','Відкрити картку KPI') }}</button>
        <button type="button" role="menuitem" class="obs-day-menu-danger" @click="obsadaPlan.removeProcessPerson(person)">{{ eMsg('Usuń z procesu','Убрать с процесса','Remove from process','Прибрати з процесу') }}</button>
@@ -3045,7 +3046,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-late-arrival-1"></script>
+<script src="js/obsada-planner.js?v=3.26.0-late-process-menu-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
