@@ -1962,7 +1962,7 @@ html.mr-mobile-lite #app .kpi-header-actions>button{width:100%;padding:.52rem .4
 @media (min-width:1121px){
  #app .kpi-header-row{grid-template-columns:max-content 215px minmax(0,1fr) max-content;column-gap:8px}
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0{
-  width:215px;max-width:215px;min-width:0;gap:8px;overflow:hidden;
+  width:215px;max-width:215px;min-width:0;gap:8px;overflow:visible;
  }
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0>.shrink-0:last-child{
   flex:1 1 auto!important;min-width:0!important;width:auto;overflow:hidden;
@@ -1975,7 +1975,7 @@ html.mr-mobile-lite #app .kpi-header-actions>button{width:100%;padding:.52rem .4
  #app .kpi-header-row>.segment-control>.segment-btn{padding-left:6px;padding-right:6px;font-size:11px;}
 }
 @media (min-width:721px) and (max-width:1120px){
- #app .kpi-header-row>.flex.items-center.gap-4.shrink-0{min-width:0;max-width:100%;overflow:hidden}
+ #app .kpi-header-row>.flex.items-center.gap-4.shrink-0{min-width:0;max-width:100%;overflow:visible}
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0>.shrink-0:last-child{flex:1 1 auto!important;min-width:0!important;overflow:hidden}
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0 h1{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
