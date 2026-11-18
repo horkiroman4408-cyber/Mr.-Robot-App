@@ -774,12 +774,18 @@ function kpiPrintGlobalReport(){
   const v=Number(value), n=Number(norm)||0;
   if(!Number.isFinite(v))return {bg:'#eef2f6',fg:'#22354a'};
   if(n<=0)return {bg:'#dff4e6',fg:'#0f5b2e'};
-  const ratio=Math.max(0,Math.min(1, v/n));
-  const hue=4 + ratio*118;
-  const sat=60;
-  const light=92 - ratio*10;
-  const textLight=28 - ratio*4;
-  return {bg:`hsl(${hue} ${sat}% ${light}%)`,fg:`hsl(${hue} ${Math.min(74,sat+10)}% ${Math.max(18,textLight)}%)`};
+  const ratio=Math.max(0,v/n);
+  // Distinct, readable tones BELOW the threshold. Green is reserved for >= 100% of norm.
+  // Interpolate within each below-norm band, without displaying percentages in the report.
+  const stops=ratio<1
+   ?[[0,[246,153,162]],[0.70,[247,164,170]],[0.80,[249,193,132]],[0.90,[250,224,146]],[0.999,[252,237,174]]]
+   :[[1,[204,239,190]],[1.12,[170,228,157]],[1.30,[140,217,146]]];
+  let i=0;
+  while(i<stops.length-2 && ratio>stops[i+1][0]) i++;
+  const [a,ca]=stops[i], [b,cb]=stops[i+1];
+  const t=Math.max(0,Math.min(1,(ratio-a)/(b-a)));
+  const rgb=ca.map((ch,k)=>Math.round(ch+(cb[k]-ch)*t));
+  return {bg:`rgb(${rgb.join(',')})`,fg:'#203047'};
  };
  const processHtml=sections.map(sec=>{
   const good=sec.records.filter(r=>Number(r.perHour)>=sec.norm).length;
@@ -814,7 +820,7 @@ function kpiPrintGlobalReport(){
  .sections-grid{display:grid;grid-template-columns:${twoColumns?'repeat(2,minmax(0,1fr))':'minmax(0,1fr)'};gap:4mm;align-items:start}
  .process-card{border:1px solid #c9d3de;border-radius:5mm;overflow:hidden;break-inside:avoid;page-break-inside:avoid;background:#fff}
  .process-summary{display:flex;align-items:center;justify-content:space-between;gap:4mm;padding:1.8mm 2mm 1.5mm 1.8mm;background:#f8fafc;border-bottom:1px solid #d9e2eb}
- .process-name{display:flex;align-items:center;min-width:43mm;max-width:54mm;padding:2.4mm 5.4mm;border-radius:0 0 3.4mm 0;background:linear-gradient(135deg,#102741 0%,#17365f 100%);color:#fff;font-size:${twoColumns?'11.2':'12.2'}pt;font-weight:900;letter-spacing:.02em}
+ .process-name{display:flex;align-items:center;min-width:43mm;max-width:54mm;padding:2.4mm 5.4mm;border-radius:3.4mm;background:linear-gradient(135deg,#102741 0%,#17365f 100%);color:#fff;font-size:${twoColumns?'11.2':'12.2'}pt;font-weight:900;letter-spacing:.02em}
  .process-meta{display:flex;align-items:center;justify-content:flex-end;gap:3mm;flex:1;min-width:0;flex-wrap:nowrap}
  .meta-divider{width:.45mm;height:8mm;background:#c4ced8;border-radius:999px;flex:0 0 auto}
  .meta-chip{display:inline-flex;align-items:center;gap:1.4mm;font-size:${twoColumns?'8.3':'9.2'}pt;font-weight:760;color:#14263d;white-space:nowrap}
