@@ -304,11 +304,20 @@ function create({reactive,computed,roster,source,sourceName,language}){
  });
  // Export-only selection. Does not modify planned hours, database records or PDF.
  const EXPORT_PREF_KEY='mr_obsada_excel_selection_v1';
+ const PRINT_PREF_KEY='mr_obsada_print_selection_v1';
  function readExportPrefs(){
   try{const raw=JSON.parse(root.localStorage?.getItem(EXPORT_PREF_KEY)||'{}');return {excludedWorkers:raw.excludedWorkers&&typeof raw.excludedWorkers==='object'?raw.excludedWorkers:{},excludedProcesses:raw.excludedProcesses&&typeof raw.excludedProcesses==='object'?raw.excludedProcesses:{}};}
   catch(_){return {excludedWorkers:{},excludedProcesses:{}};}
  }
  const exportPrefs=readExportPrefs();
+ function readPrintPrefs(){
+  try{const raw=JSON.parse(root.localStorage?.getItem(PRINT_PREF_KEY)||'{}');return {excludedWorkers:raw.excludedWorkers&&typeof raw.excludedWorkers==='object'?raw.excludedWorkers:{},excludedProcesses:raw.excludedProcesses&&typeof raw.excludedProcesses==='object'?raw.excludedProcesses:{}};}
+  catch(_){return {excludedWorkers:{},excludedProcesses:{}};}
+ }
+ const printPrefs=readPrintPrefs();
+ state.exportMode='excel';
+ state.printExcludedWorkers=printPrefs.excludedWorkers;
+ state.printExcludedProcesses=printPrefs.excludedProcesses;
  state.exportOpen=false;
  state.exportSearch='';
  state.exportTeam='all';
@@ -317,6 +326,12 @@ function create({reactive,computed,roster,source,sourceName,language}){
  function rememberExportPrefs(){
   try{root.localStorage?.setItem(EXPORT_PREF_KEY,JSON.stringify({excludedWorkers:state.exportExcludedWorkers,excludedProcesses:state.exportExcludedProcesses}));}catch(_){/* private browsing or storage disabled */}
  }
+ function rememberPrintPrefs(){
+  try{root.localStorage?.setItem(PRINT_PREF_KEY,JSON.stringify({excludedWorkers:state.printExcludedWorkers,excludedProcesses:state.printExcludedProcesses}));}catch(_){/* private browsing or storage disabled */}
+ }
+ const selectionWorkers=()=>state.exportMode==='print'?state.printExcludedWorkers:state.exportExcludedWorkers;
+ const selectionProcesses=()=>state.exportMode==='print'?state.printExcludedProcesses:state.exportExcludedProcesses;
+ const rememberSelection=()=>state.exportMode==='print'?rememberPrintPrefs():rememberExportPrefs();
  const exportCandidates=computed(()=>{
   const report=tomorrowPlan.value, people=new Map();
   for(const team of report.teams)for(const person of team.people){
@@ -340,19 +355,24 @@ function create({reactive,computed,roster,source,sourceName,language}){
  });
  function exportWorkerKey(p){return (p.absent?'absent:':'worker:')+p.login;}
  function exportPartKey(login,process){return JSON.stringify([login,process]);}
- function exportWorkerChecked(p){return state.exportExcludedWorkers[exportWorkerKey(p)]!==true;}
- function exportPartChecked(p,process){return state.exportExcludedProcesses[exportPartKey(p.login,process)]!==true;}
- function setExportWorker(p,checked){const key=exportWorkerKey(p);if(checked)delete state.exportExcludedWorkers[key];else state.exportExcludedWorkers[key]=true;rememberExportPrefs();}
- function setExportPart(p,process,checked){const key=exportPartKey(p.login,process);if(checked)delete state.exportExcludedProcesses[key];else state.exportExcludedProcesses[key]=true;rememberExportPrefs();}
+ function exportWorkerChecked(p){return selectionWorkers()[exportWorkerKey(p)]!==true;}
+ function exportPartChecked(p,process){return selectionProcesses()[exportPartKey(p.login,process)]!==true;}
+ function setExportWorker(p,checked){const map=selectionWorkers(),key=exportWorkerKey(p);if(checked)delete map[key];else map[key]=true;rememberSelection();}
+ function setExportPart(p,process,checked){const map=selectionProcesses(),key=exportPartKey(p.login,process);if(checked)delete map[key];else map[key]=true;rememberSelection();}
  function toggleVisibleExport(checked){for(const p of [...exportVisiblePeople.value,...exportVisibleAbsent.value])setExportWorker(p,checked);}
  function openTomorrowExport(){
   if(!tomorrowPlan.value.teams.length)return false;
-  state.exportSearch='';state.exportTeam='all';state.exportOpen=true;return true;
+  state.exportMode='excel';state.exportSearch='';state.exportTeam='all';state.exportOpen=true;return true;
+ }
+ function openTomorrowPrint(){
+  if(!tomorrowPlan.value.teams.length)return false;
+  state.exportMode='print';state.exportSearch='';state.exportTeam='all';state.exportOpen=true;return true;
  }
  function closeTomorrowExport(){state.exportOpen=false;}
  const exportSelectedCount=computed(()=>[...exportCandidates.value.workers,...exportCandidates.value.absent].filter(p=>exportWorkerChecked(p)&&(p.absent||!p.processes.length||p.processes.some(name=>exportPartChecked(p,name)))).length);
  function confirmTomorrowExport(){
-  const ok=exportTomorrowExcel();if(ok)state.exportOpen=false;return ok;
+  const ok=state.exportMode==='print'?printTomorrowPlan(true):exportTomorrowExcel();
+  if(ok)state.exportOpen=false;return ok;
  }
  const tomorrowPlanAvailableShifts=computed(()=>{
   const codes=new Set();
@@ -360,9 +380,20 @@ function create({reactive,computed,roster,source,sourceName,language}){
   for(const r of state.records)if(r.day===state.printDay)codes.add(r.shift);
   return [...codes];
  });
- function printTomorrowPlan(){
-  const report=tomorrowPlan.value;
-  if(!report.teams.length)return false;
+ function printTomorrowPlan(selectedOnly=false){
+  const original=tomorrowPlan.value;
+  const keep=(p)=>state.printExcludedWorkers[exportWorkerKey(p)]!==true;
+  const keepProcess=(login,key)=>state.printExcludedProcesses[exportPartKey(login,key)]!==true;
+  const report=selectedOnly?{
+   ...original,
+   teams:original.teams.map(team=>({...team,people:team.people.filter(person=>keep({login:person.login,absent:false})).map(person=>({
+    ...person,
+    parts:person.parts.filter(part=>keepProcess(person.login,part.key)),
+    absences:person.absences.filter(part=>keepProcess(person.login,part.key))
+   })).filter(person=>person.parts.length||person.absences.length||(!original.teams.some(t=>t.people.some(p=>p.login===person.login&&(p.parts.length||p.absences.length)))))})).filter(team=>team.people.length),
+   absentPeople:original.absentPeople.filter(person=>keep({login:person.login,absent:true}))
+  }:original;
+  if(!report.teams.length&&!report.absentPeople.length)return false;
   const lang=language?.()||'pl';
   const translate=(pl,ru,en,uk)=>({pl,ru,en,uk}[lang]||pl);
   const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -379,7 +410,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
   .document-header h1{font-size:27px;line-height:1.06;letter-spacing:.025em;font-weight:800;margin:0;color:#17283f}
   .document-header .subhead{font-size:21px;line-height:1.2;letter-spacing:.015em;font-weight:750;margin-top:5px;color:#233a56}
   .document-header:after{content:"";display:block;width:46px;height:3px;border-radius:5px;background:#9cacbe;margin:13px auto 0}
-  .grid{display:grid;grid-template-columns:${report.absentPeople.length?'minmax(0,1fr) minmax(0,1fr) minmax(0,.74fr)':`repeat(${Math.min(report.teams.length,2)},minmax(0,1fr))`};gap:8px;align-items:start}
+  .grid{display:grid;grid-template-columns:${report.absentPeople.length&&report.teams.length?'minmax(0,1fr) minmax(0,1fr) minmax(0,.74fr)' : report.absentPeople.length?'minmax(0,1fr)':`repeat(${Math.max(1,Math.min(report.teams.length,2))},minmax(0,1fr))`};gap:8px;align-items:start}
   .team{min-width:0;border:1px solid #d9e1ea;border-radius:12px;overflow:hidden;break-inside:auto;background:#fff}
   .team h2{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px;line-height:1.2;font-weight:750;background:#eaf0f6;padding:11px 10px;margin:0;color:#1c3049;break-after:avoid}
   .team h2 span{min-width:0;overflow-wrap:anywhere}
@@ -1416,7 +1447,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,isFunctionalProcess,setOtherDepartmentProcess,setProcessDisplayGroup,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,markLateArrival,clearLateArrival,lateArrival,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
+ return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,openTomorrowPrint,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,isFunctionalProcess,setOtherDepartmentProcess,setProcessDisplayGroup,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,markLateArrival,clearLateArrival,lateArrival,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,applyColleagueMerge,cancelColleagueMerge};
 }
 root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline,rosterAtTimestamp,splitRosterDepartments};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
