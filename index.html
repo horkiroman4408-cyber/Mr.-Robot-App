@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-obsada-top-controls-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-stan-settings-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -237,7 +237,8 @@
      <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
     </div>
    </div>
-  <div class="obs-top-controls">
+  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || !obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-top-source-details">
+  <div v-if="obsadaBridge.editing" class="obs-top-source-controls">
    <div class="obs-share-sync-controls">
     <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
      <label>{{ eMsg('Data zmiany','Дата смены','Shift date','Дата зміни') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.stanDate" :disabled="obsadaBridge.busy"></mr-obsada-date></label>
@@ -246,7 +247,6 @@
     <button type="button" class="obs-bridge-refresh" :disabled="obsadaBridge.busy || obsadaBridge.setupBusy || obsada.state.loading" @click="obsadaBridgeRefresh"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.7 9a7 7 0 0 1 12-2l2.3 2"/><path d="M18.3 15a7 7 0 0 1-12 2L4 15"/></svg>{{ obsadaBridge.busy?eMsg('Synchronizowanie…','Синхронизация…','Synchronizing…','Синхронізація…'):eMsg('Synchronizuj','Синхронизировать','Synchronize','Синхронізувати') }}</button>
    </div>
   </div>
-  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || !obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-top-source-details">
   <div v-if="obsadaPlan.state.stanChanges.length" class="obs-surface obs-stan-review" role="region" :aria-label="eMsg('Porównanie STAN','Сравнение STAN','STAN comparison','Порівняння STAN')">
    <div class="obs-stan-review-head"><div><strong>{{ eMsg('Szybkie porównanie STAN','Быстрая сверка STAN','Quick STAN review','Швидка звірка STAN') }}</strong><p class="obs-quiet">{{ obsadaPlan.state.stanReviewDay }} · {{ obsadaPlan.state.stanReviewShift }} · {{ obsadaPlan.state.stanChanges.length }} {{ eMsg('różnic','различий','differences','розбіжностей') }}</p></div><span class="obs-stan-selected-count">{{ eMsg('Wybrano','Выбрано','Selected','Вибрано') }}: {{ obsadaPlan.stanSelectedCount }} / {{ obsadaPlan.state.stanChanges.length }}</span></div>
    <p class="obs-quiet">{{ eMsg('Puste godziny STAN nie usuwają wpisów. Minione godziny nie są zaznaczane automatycznie.','Пустые часы STAN ничего не удаляют. Прошедшие часы не выбираются автоматически.','Blank STAN hours do not delete assignments. Elapsed hours are not selected by default.','Порожні години STAN нічого не видаляють. Минулі години не вибираються автоматично.') }}</p>
