@@ -1352,3 +1352,24 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .obs-intel-modal-quick-actions{display:flex;flex-wrap:wrap;gap:7px}
 #app .obs-intel-minimal-picker-body>.obs-team-intel-search{margin:0;width:100%;min-width:0;box-sizing:border-box;font-size:12px;padding:11px}
 #app .obs-intel-minimal-picker-body .obs-team-intel-chooser{min-height:80px}
+
+/* Unified Intelligence filter modal: employees live inside the same window. */
+#app .obs-intel-unified-count{color:var(--obs-muted);font-size:11px;white-space:nowrap;font-weight:650}
+#app .obs-intel-minimal-filter-trigger{gap:12px;flex-wrap:wrap}
+#app .obs-intel-minimal-filter-body{width:min(510px,calc(100vw - 28px));max-height:min(88dvh,760px);overflow-y:auto;align-content:start}
+#app .obs-intel-unified-people{min-width:0;border:1px solid var(--obs-border);border-radius:10px;background:var(--obs-surface);overflow:visible}
+#app .obs-intel-unified-people-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;cursor:pointer;list-style:none;font-size:12px;font-weight:700;color:var(--obs-text)}
+#app .obs-intel-unified-people-summary::-webkit-details-marker{display:none}
+#app .obs-intel-unified-people-summary>span:last-child{font-size:11px;color:var(--obs-muted);white-space:nowrap}
+#app .obs-intel-unified-people[open] .obs-intel-unified-people-summary{border-bottom:1px solid var(--obs-border)}
+#app .obs-intel-unified-people-content{display:grid;gap:10px;padding:11px;min-width:0}
+#app .obs-intel-unified-people-content .obs-team-intel-chooser{padding:0;margin:0;border:0;background:transparent;min-height:0}
+#app .obs-intel-unified-people-content .obs-team-intel-people{display:grid;grid-template-columns:minmax(0,1fr);gap:3px;max-height:min(28dvh,190px);overflow-y:auto;align-content:start}
+#app .obs-intel-unified-people-content .obs-team-intel-option{display:flex;gap:9px;align-items:center;border:0;border-radius:8px;padding:7px 8px;min-width:0}
+#app .obs-intel-unified-people-content .obs-team-intel-option span{font-weight:700}
+#app .obs-intel-unified-people-content .obs-team-intel-option small{flex:1;min-width:0;text-align:left}
+#app .obs-intel-unified-people-content .obs-team-intel-search{margin:0;box-sizing:border-box;width:100%;min-width:0;padding:10px;font-size:12px}
+#app .obs-intel-unified-people-content .obs-intel-modal-team-label{font-size:11px;font-weight:750}
+#app .obs-intel-unified-people-content .obs-intel-modal-quick-actions{display:flex;flex-wrap:wrap;gap:7px}
+#app .obs-intel-minimal-filter-body .obs-intel-modal-actions{position:sticky;bottom:-18px;background:var(--obs-surface);z-index:1;padding-bottom:2px}
+@media(max-width:650px){#app .obs-intel-minimal-filter-body{max-height:calc(100dvh - 24px)}#app .obs-intel-unified-count{width:100%;text-align:right}#app .obs-intel-unified-people-content .obs-team-intel-people{max-height:26dvh}}
