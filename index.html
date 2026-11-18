@@ -512,7 +512,6 @@
   <div class="obs-tomorrow-controls">
    <label>{{ eMsg('Data planu','Дата плана','Plan date','Дата плану') }}<mr-obsada-date :lang="uiLanguage" v-model="obsadaPlan.state.printDay"></mr-obsada-date></label>
    <label>{{ eMsg('Zespoły','Команды','Teams','Команди') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printShift"><option value="all">{{ eMsg('Wszystkie zespoły','Все команды','All teams','Усі команди') }}</option><option v-for="sh in obsadaPlan.shifts.filter(s=>obsadaPlan.tomorrowPlanAvailableShifts.includes(s.value))" :key="sh.value" :value="sh.value">{{ sh.label }}</option></mr-obsada-select></label>
-   <label>{{ eMsg('Zmiana do eksportu','Смена для экспорта','Export shift','Зміна для експорту') }}<mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.printExportShift"><option value="I">Zmiana I</option><option value="II">Zmiana II</option></mr-obsada-select></label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowAbsent">{{ eMsg('Uwzględnij WOLNY / URLOP','Показывать выходные / отпуска','Include days off / leave','Показувати вихідні / відпустки') }}</label>
    <label class="obs-tomorrow-check"><input type="checkbox" v-model="obsadaPlan.state.printShowTimes">{{ eMsg('Pokaż godziny procesów','Показывать часы процессов','Show process hours','Показувати години процесів') }}</label>
    <div class="obs-tomorrow-actions">
@@ -3018,7 +3017,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-tomorrow-single-team-columns-7"></script>
+<script src="js/obsada-planner.js?v=3.26.0-incydenty-unified-export-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>

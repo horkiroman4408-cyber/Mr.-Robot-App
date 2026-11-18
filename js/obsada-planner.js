@@ -188,7 +188,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),printDay:nextDate(),printShift:'all',printExportShift:'I',printShowAbsent:false,printShowTimes:true,shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionPanel:'menu',processHighlight:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
+ const state=reactive({day:localDate(),printDay:nextDate(),printShift:'all',printShowAbsent:false,printShowTimes:true,shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionPanel:'menu',processHighlight:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -321,54 +321,59 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(!report.teams.length||!root.XLSX?.utils)return false;
   const xlsx=root.XLSX;
   const date=report.day.split('-').reverse().join('.');
-  const shift=state.printExportShift==='II'?'II':'I';
-  const book=xlsx.utils.book_new();
   const noProcess=({pl:'Bez przydziału',ru:'Без назначения',en:'Unassigned',uk:'Без призначення'})[language?.()||'pl']||'Bez przydziału';
   const displayPart=part=>part.key==='EARLY_EXIT'?'Wcześniejsze wyjście':part.key;
   const textFor=person=>{
    const parts=person.parts.map(p=>state.printShowTimes?`${displayPart(p)} ${p.from}–${p.to}`:displayPart(p));
-   const abs=person.absences.map(p=>state.printShowTimes?`${displayPart(p)} ${p.from}–${p.to}`:displayPart(p));
+   const abs=state.printShowAbsent?person.absences.map(p=>state.printShowTimes?`${displayPart(p)} ${p.from}–${p.to}`:displayPart(p)):[];
    return [...new Set([...parts,...abs])].join('\n')||noProcess;
   };
-  for(let pair=0;pair<report.teams.length;pair+=2){
-   const selected=report.teams.slice(pair,pair+2);
-   const includeAbsent=state.printShowAbsent&&report.absentPeople.length>0;
-   // Export only the selected teams: A/B for one, A/B + D/E for two.
-   // An optional absence block uses the next pair after a spacer column.
-   const absentStart=includeAbsent?(selected.length===1?3:6):-1;
-   const ncols=selected.length*2+(selected.length-1)+(includeAbsent?3:0);
-   const longest=Math.max(...selected.map(t=>t.people.length),includeAbsent?report.absentPeople.length:0,0);
-   const rows=[Array(ncols).fill(''),Array(ncols).fill('')];
-   rows[0][0]=`INCYDENTY ${shift} ZMIANA`;
-   rows[1][0]=`DATA ${date.replaceAll('.','/')}`;
-   for(let i=0;i<longest;i++){
-    const a=selected[0]?.people[i],b=selected[1]?.people[i],abs=includeAbsent?report.absentPeople[i]:null;
-    const row=Array(ncols).fill('');
-    row[0]=a?.login||'';row[1]=a?textFor(a):'';
-    if(selected.length>1){row[3]=b?.login||'';row[4]=b?textFor(b):'';}
-    if(abs){row[absentStart]=abs.login;row[absentStart+1]=abs.status;}
-    rows.push(row);
-   }
-   const ws=xlsx.utils.aoa_to_sheet(rows);
-   ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:ncols-1}},{s:{r:1,c:0},e:{r:1,c:ncols-1}}];
-   ws['!cols']=[{wch:15},{wch:31},...(selected.length>1?[{wch:3},{wch:15},{wch:31}]:[]),...(includeAbsent?[{wch:3},{wch:15},{wch:14}]:[])];
-   ws['!rows']=rows.map((row,i)=>({hpt:i<2?25:Math.max(21,15*Math.max(...[1,...(selected.length>1?[4]:[]),...(includeAbsent?[absentStart+1]:[])].map(c=>Math.max(1,String(row[c]||'').split('\n').length))))}));
-   const usedCols=[0,1,...(selected.length>1?[3,4]:[]),...(includeAbsent?[absentStart,absentStart+1]:[])];
-   for(let r=0;r<rows.length;r++)for(const c of usedCols){
-    const cell=ws[xlsx.utils.encode_cell({r,c})];if(!cell)continue;
-    const header=r<2;
-    cell.s={font:{name:'Arial',sz:header?15:11,bold:header||c===0||(selected.length>1&&c===3)||(includeAbsent&&c===absentStart),color:{rgb:'17283F'}},
-     fill:{patternType:'solid',fgColor:{rgb:header?'A9C8E6':r%2===0?'FFFFFF':'F1F3F6'}},
-     alignment:{vertical:'center',horizontal:header?'center':[1,...(selected.length>1?[4]:[]),...(includeAbsent?[absentStart+1]:[])].includes(c)?'left':'center',wrapText:true},
-     border:{bottom:{style:'thin',color:{rgb:'BFC8D4'}},left:{style:'thin',color:{rgb:'BFC8D4'}},right:{style:'thin',color:{rgb:'BFC8D4'}}}};
-   }
-   ws['!printArea']=`A1:${xlsx.utils.encode_col(ncols-1)}${rows.length}`;
-   ws['!pageSetup']={orientation:'landscape',paperSize:9,fitToWidth:1,fitToHeight:1};
-   xlsx.utils.book_append_sheet(book,ws,pair?`STAN ${pair/2+1}`:'STAN');
+  // One unified list for all selected teams, not separate columns per schedule.
+  // A login appearing in overlapping rosters is exported once, preserving all process entries.
+  const workers=new Map();
+  for(const team of report.teams)for(const person of team.people){
+   const value=textFor(person);
+   if(!workers.has(person.login))workers.set(person.login,[]);
+   const entries=workers.get(person.login);
+   for(const entry of value.split('\n'))if(entry&&!entries.includes(entry))entries.push(entry);
   }
-  xlsx.writeFile(book,`Stan Osobowy na ${date} Zmiana ${shift}.xlsx`,{bookType:'xlsx',cellStyles:true});
+  const people=[...workers].sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}));
+  const absent=state.printShowAbsent?report.absentPeople:[];
+  const showAbsent=absent.length>0;
+  // The screenshot's two working columns are A/B; optional absences use D/E.
+  const rows=[['INCYDENTY ZMIANA A/B','',...(showAbsent?['','','']:[])],
+   [`DATA ${date.replaceAll('.','/')}`,'',...(showAbsent?['','','']:[])]];
+  for(let i=0;i<Math.max(people.length,absent.length);i++){
+   const person=people[i],off=absent[i];
+   const row=showAbsent?Array(5).fill(''):Array(2).fill('');
+   if(person){row[0]=person[0];row[1]=person[1].join('\n');}
+   if(off){row[3]=off.login;row[4]=off.status;}
+   rows.push(row);
+  }
+  const ws=xlsx.utils.aoa_to_sheet(rows);
+  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:1}},{s:{r:1,c:0},e:{r:1,c:1}}];
+  ws['!cols']=showAbsent?[{wch:15},{wch:36},{wch:5},{wch:15},{wch:19}]:[{wch:15},{wch:36}];
+  ws['!rows']=rows.map((row,i)=>({hpt:i<2?23:Math.max(21,16*Math.max(1,String(row[1]||'').split('\n').length))}));
+  const border={style:'thin',color:{rgb:'222222'}};
+  for(let r=0;r<rows.length;r++)for(const c of (showAbsent?[0,1,3,4]:[0,1])){
+   const cell=ws[xlsx.utils.encode_cell({r,c})];
+   if(!cell)continue;
+   const header=r<2&&c<2;
+   cell.s={
+    font:{name:'Arial',sz:header?12:11,bold:header||c===0||c===3,color:{rgb:'111111'}},
+    fill:{patternType:'solid',fgColor:{rgb:header?'A9C9E8':'FFFFFF'}},
+    alignment:{vertical:'center',horizontal:header||c===1||c===4?'center':'left',wrapText:true},
+    border:{top:border,bottom:border,left:border,right:border}
+   };
+  }
+  ws['!printArea']=`A1:${showAbsent?'E':'B'}${rows.length}`;
+  ws['!pageSetup']={orientation:'portrait',paperSize:9,fitToWidth:1,fitToHeight:1};
+  const book=xlsx.utils.book_new();
+  xlsx.utils.book_append_sheet(book,ws,'STAN');
+  xlsx.writeFile(book,`Stan Osobowy Incydenty ${date}.xlsx`,{bookType:'xlsx',cellStyles:true});
   return true;
  }
+
  const dayTeams=computed(()=>shifts.filter(s=>{
   const key=shiftKey(state.day,s.value);
   return (state.shiftTeams[key]||[]).length>0||state.records.some(r=>r.day===state.day&&r.shift===s.value);
