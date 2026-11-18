@@ -462,6 +462,7 @@
       <template v-else-if="obsadaPlan.state.actionType==='early'">
        <p class="obs-quiet">{{ eMsg('Wybrana godzina zostaje przepracowana. Wyjście zacznie się od następnej godziny.', 'Выбранный час остаётся рабочим. Ранний уход начнётся со следующего часа.', 'The selected hour stays worked. Departure begins in the next hour.', 'Обрана година лишається робочою. Вихід починається з наступної години.') }}</p>
        <label class="obs-action-hour">{{ eMsg('Godzina pracy','Рабочий час','Worked hour','Робоча година') }} <mr-obsada-select :lang="uiLanguage" v-model.number="obsadaPlan.state.actionHour"><option v-for="slot in obsadaPlan.slots" :key="slot.index" :value="slot.index">{{ slot.from }}–{{ slot.to }}</option></mr-obsada-select></label>
+       <p v-if="obsadaPlan.slots[obsadaPlan.state.actionHour+1] && obsadaPlan.slots[obsadaPlan.state.actionHour+1].start < obsadaPlan.clockNow" class="obs-quiet" role="note">{{ eMsg('Korekta historii: zakończone godziny zostaną ponownie przeliczone.','Коррекция истории: прошедшие часы будут пересчитаны.','History correction: elapsed hours will be recalculated.','Виправлення історії: минулі години буде перераховано.') }}</p>
        <button type="button" class="obs-plan-delete-option obs-action-primary" :disabled="obsadaPlan.state.actionHour>=obsadaPlan.slots.length-1" @click="obsadaPlan.markEarlyExit()">{{ eMsg('Zapisz wcześniejsze wyjście','Сохранить ранний уход','Save early departure','Зберегти ранній вихід') }}</button>
       </template>
       <template v-else-if="obsadaPlan.state.actionType==='resume'">
@@ -470,7 +471,7 @@
        <button type="button" class="obs-plan-delete-option obs-action-primary" @click="obsadaPlan.resumeWorker()">{{ eMsg('Przywróć do pracy','Вернуть к работе','Resume work','Повернути до роботи') }}</button>
       </template>
      </div>
-     <p v-if="obsadaPlan.state.error" class="obs-warning" role="alert">{{ obsadaPlan.state.error==='LATE_ARRIVAL_INVALID_HOUR'?eMsg('Wybierz godzinę późniejszą niż początek zmiany.','Выбери час позже начала смены.','Choose an hour after the shift starts.','Оберіть годину пізніше початку зміни.'):obsadaPlan.state.error==='LATE_ARRIVAL_DAY_OFF'?eMsg('Pracownik ma ustawiony dzień wolny lub urlop.','Сотрудник отмечен как выходной или отпуск.','Worker is marked off or on leave.','Працівник має вихідний або відпустку.'):obsadaPlan.state.error==='EARLY_EXIT_ALREADY_SET'?eMsg('Wyjście już zapisane. Najpierw przywróć pracownika.','Ранний уход уже указан. Сначала верни сотрудника.','Departure already recorded; resume the worker first.','Ранній вихід уже записано; спочатку поверніть працівника.'):obsadaPlan.state.error==='EARLY_EXIT_PAST_HOUR'?eMsg('Nie można zmienić minionych godzin.','Нельзя менять прошедшие часы.','Past hours cannot be changed.','Минулі години змінювати не можна.'):obsadaPlan.state.error==='RESUME_PAST_HOUR'?eMsg('Powrót można zaplanować od przyszłej godziny.','Возврат можно назначить только с будущего часа.','Resume from a future hour.','Повернення доступне лише з майбутньої години.'):obsadaPlan.state.error==='ABSENCE_HAS_CONFIRMED_HOURS'?eMsg('W tych dniach są już potwierdzone godziny. Zmień historię przed oznaczeniem całego dnia jako wolny.','Есть уже подтверждённые часы. Сначала исправь историю, прежде чем ставить выходной или отпуск на весь день.','These dates already contain confirmed hours. Review the history before marking a full-day absence.','Є підтверджені години. Спочатку перевірте історію.'):obsadaPlan.state.error }}</p>
+     <p v-if="obsadaPlan.state.error" class="obs-warning" role="alert">{{ obsadaPlan.state.error==='LATE_ARRIVAL_INVALID_HOUR'?eMsg('Wybierz godzinę późniejszą niż początek zmiany.','Выбери час позже начала смены.','Choose an hour after the shift starts.','Оберіть годину пізніше початку зміни.'):obsadaPlan.state.error==='LATE_ARRIVAL_DAY_OFF'?eMsg('Pracownik ma ustawiony dzień wolny lub urlop.','Сотрудник отмечен как выходной или отпуск.','Worker is marked off or on leave.','Працівник має вихідний або відпустку.'):obsadaPlan.state.error==='EARLY_EXIT_ALREADY_SET'?eMsg('Wyjście już zapisane. Najpierw przywróć pracownika.','Ранний уход уже указан. Сначала верни сотрудника.','Departure already recorded; resume the worker first.','Ранній вихід уже записано; спочатку поверніть працівника.'):obsadaPlan.state.error }}</p>
      <button type="button" class="obs-plan-delete-cancel" @click="obsadaPlan.closeWorkerActions()">{{ eMsg('Zamknij','Закрыть','Close','Закрити') }}</button>
     </section>
    </div>
@@ -3053,7 +3054,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-print-selector-1"></script>
+<script src="js/obsada-planner.js?v=3.26.0-retro-history-correction-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-completed-activity-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>

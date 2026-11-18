@@ -621,9 +621,6 @@ function create({reactive,computed,roster,source,sourceName,language}){
  function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
  function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';if(type==='late'){const saved=lateArrival(person.login,person.day,person.shift);const idx=slots.value.findIndex(slot=>slot.from===saved);state.actionHour=idx>0?idx:Math.min(Math.max(1,state.from+1),slots.value.length-1);}state.actionPanel='form';return true;}
  function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
- function openProcessMenu(person){if(!focusAssignment(person))return false;state.processMenuLogin=state.processMenuLogin===person.login?'':person.login;return true;}
- function openProcessActions(person,type){if(!focusAssignment(person))return false;state.processMenuLogin='';openWorkerActions(person.login);state.actionType=type||'early';if(type==='late'){const saved=lateArrival(person.login,person.day,person.shift);const idx=slots.value.findIndex(slot=>slot.from===saved);state.actionHour=idx>0?idx:Math.min(Math.max(1,state.from+1),slots.value.length-1);}state.actionPanel='form';return true;}
- function removeProcessPerson(person){if(!focusAssignment(person))return false;state.processMenuLogin='';return chooseRemoval(person.login);}
  function focusAssignment(person){
   if(person.day!==state.day||person.shift!==state.shift){
    const timestamp=selectedSlot.value?.start;
@@ -945,7 +942,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
   snapshot('rename-template');const updated={...state.teamTemplates,[name]:state.teamTemplates[old]};delete updated[old];state.teamTemplates=updated;state.selectedTemplate=name;await save();return true;
  }
  async function addTeamMember(login){if(!canEditShift())return false;login=norm(login);if(!login||!initialWorkers.value.includes(login))return false;if(team.value.includes(login))return true;snapshot('add');state.shiftTeams={...state.shiftTeams,[teamKey.value]:[...(state.shiftTeams[teamKey.value]||[]),login]};state.teamSearch='';state.teamPicker=false;await save();return true;}
- async function removeTeamMember(login){if(!canEditShift())return false;login=norm(login);if(!team.value.includes(login))return false;const existing=state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&r.login===login);if(existing.some(r=>autoHourConfirmed(r))){state.error='TEAM_MEMBER_HAS_COMPLETED_HOURS';return false;}state.error='';if(existing.length&&typeof root.confirm==='function'&&!root.confirm(({ru:'Удалить сотрудника из смены и все его назначения на эту смену?',en:'Remove the worker from this shift and all assignments on this shift?',uk:'Прибрати працівника зі зміни та всі його призначення?',pl:'Usunąć pracownika ze zmiany i wszystkie jego przydziały?'}[language?.()]||'Usunąć pracownika ze zmiany i wszystkie jego przydziały?')))return false;snapshot('remove-team');state.shiftTeams={...state.shiftTeams,[teamKey.value]:(state.shiftTeams[teamKey.value]||[]).filter(x=>x!==login)};state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.login===login));state.selectedLogin=state.selectedLogin===login?'':state.selectedLogin;await save();return true;}
+ async function removeTeamMember(login){if(!canEditShift())return false;login=norm(login);if(!team.value.includes(login))return false;const existing=state.records.filter(r=>r.day===state.day&&r.shift===state.shift&&r.login===login);state.error='';if(existing.length&&typeof root.confirm==='function'&&!root.confirm(({ru:'Удалить сотрудника из смены и все его назначения на эту смену?',en:'Remove the worker from this shift and all assignments on this shift?',uk:'Прибрати працівника зі зміни та всі його призначення?',pl:'Usunąć pracownika ze zmiany i wszystkie jego przydziały?'}[language?.()]||'Usunąć pracownika ze zmiany i wszystkie jego przydziały?')))return false;snapshot('remove-team');state.shiftTeams={...state.shiftTeams,[teamKey.value]:(state.shiftTeams[teamKey.value]||[]).filter(x=>x!==login)};state.records=state.records.filter(r=>!(r.day===state.day&&r.shift===state.shift&&r.login===login));state.selectedLogin=state.selectedLogin===login?'':state.selectedLogin;await save();return true;}
  async function assign(login,process){if(!canEditShift())return false;login=norm(login);process=norm(process);if(!login||!process||state.from<0||state.from>=slots.value.length)return false;
   const allSlots=makeSlots(state.day,state.shift);
   if(isWorkerAbsentAt(login,state.day,state.shift,allSlots[state.from].start)){state.error='ABSENCE_CLEAR_FIRST';return false;}
@@ -979,13 +976,12 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(!logins.length||!ABSENCE_TYPES.has(type))return false;
   try{
    const dates=absenceDates(state.actionFrom,state.actionTo);
-   // A full-day absence must never silently erase hours that have already elapsed.
-   const confirmed=state.records.filter(r=>logins.includes(r.login)&&dates.includes(r.day)&&autoHourConfirmed(r,clock.now));
-   if(confirmed.length)throw Error('ABSENCE_HAS_CONFIRMED_HOURS');
+   // Elapsed local assignments can be corrected. Imported SharePoint history stays
+   // untouched; the existing conflict confirmation asks before local hours are removed.
    const localConflicts=state.records.filter(r=>logins.includes(r.login)&&dates.includes(r.day));
    const importedConflicts=state.importedHistory.filter(r=>logins.includes(r.login)&&dates.includes(r.date)&&Number(r.hours)>0);
    if((localConflicts.length||importedConflicts.length)&&typeof root.confirm==='function'){
-    const msg={ru:'За выбранные даты есть рабочие записи. Будущие локальные назначения будут сняты. Импортированная история останется доступна для сверки. Продолжить?',pl:'W wybranych dniach istnieją wpisy pracy. Przyszłe przydziały lokalne zostaną usunięte, historia importowana pozostanie do weryfikacji. Kontynuować?',en:'These dates contain work records. Future local assignments will be removed; imported history stays for review. Continue?',uk:'За вибрані дати є записи роботи. Майбутні локальні призначення буде знято, імпортована історія залишиться для перевірки. Продовжити?'}[language?.()]||'Confirm absence?';
+    const msg={ru:'За выбранные даты есть рабочие записи. Локальные назначения, включая прошедшие часы, будут сняты. Импортированную историю нужно сверить отдельно. Продолжить?',pl:'W wybranych dniach istnieją wpisy pracy. Lokalne przydziały (także zakończone) zostaną usunięte, historia importowana pozostanie do weryfikacji. Kontynuować?',en:'These dates contain work records. Local assignments, including elapsed hours, will be removed; imported history remains for separate review. Continue?',uk:'За вибрані дати є записи роботи. Локальні призначення, включно із завершеними годинами, буде знято, імпортовану історію потрібно перевірити окремо. Продовжити?'}[language?.()]||'Confirm absence?';
     if(!root.confirm(msg))return false;
    }
    snapshot('absence');
@@ -999,9 +995,16 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const allSlots=slots.value,from=current+1,slot=allSlots[from];
   // The selected hour is worked. Absence begins at the next interval.
   if(!login||!Number.isInteger(current)||!slot){state.error='EARLY_EXIT_LAST_HOUR';return false;}
-  if(slot.start<clock.now){state.error='EARLY_EXIT_PAST_HOUR';return false;}
-  if(earlyExit(login)){state.error='EARLY_EXIT_ALREADY_SET';return false;}
-  if(typeof root.confirm==='function'&&!root.confirm(({ru:'С '+slot.from+' оформить ранний уход? Текущий час и предыдущие рабочие часы сохранятся.',pl:'Oznaczyć wcześniejsze wyjście od '+slot.from+'? Bieżąca i wcześniejsze godziny pozostaną.',en:'Mark early departure from '+slot.from+'? The selected and earlier work hours stay.',uk:'Позначити ранній вихід від '+slot.from+'? Поточна та попередні години зберігаються.'}[language?.()]||'Confirm early departure?')))return false;
+  const previous=earlyExit(login);
+  if(previous===slot.from){state.error='';closeWorkerActions();return true;}
+  const retrospective=slot.start<clock.now;
+  const importedConflict=state.importedHistory.some(r=>r.date===state.day&&r.login===login&&Number(r.hours)>0);
+  if(typeof root.confirm==='function'&&!root.confirm(({
+   ru:(retrospective?'Корректировка прошедших часов. ':'')+'С '+slot.from+' оформить ранний уход? Назначения после этого времени будут сняты. Ранее удалённые назначения автоматически не восстанавливаются.',
+   pl:(retrospective?'Korekta zakończonych godzin. ':'')+'Oznaczyć wcześniejsze wyjście od '+slot.from+'? Późniejsze przydziały zostaną usunięte; wcześniej usunięte nie wrócą automatycznie.',
+   en:(retrospective?'Correcting elapsed hours. ':'')+'Mark departure from '+slot.from+'? Later assignments are removed; previously removed entries will not be restored automatically.',
+   uk:(retrospective?'Виправлення минулих годин. ':'')+'Позначити ранній вихід від '+slot.from+'? Пізніші призначення буде знято; попередньо видалені не відновляться автоматично.'
+  }[language?.()]||'Confirm early departure?')+(importedConflict?({pl:' Historia SharePoint nie zostanie zmieniona: sprawdź różnice w Historii.',ru:' История SharePoint не изменится: проверь расхождения в Истории.',en:' SharePoint history stays unchanged: review differences in History.',uk:' Історія SharePoint не зміниться: перевірте розбіжності в Історії.'}[language?.()]||''):'')))return false;
   snapshot('early-exit');
   state.records=cutAfterHour(state.records,{day:state.day,shift:state.shift,login,from});
   state.importedStatuses=updateIntervalStatus(state.importedStatuses,login,state.day,EARLY_EXIT_PREFIX,EARLY_EXIT_PREFIX+slot.from);
@@ -1046,7 +1049,10 @@ function create({reactive,computed,roster,source,sourceName,language}){
   if(status.status.startsWith(EARLY_EXIT_PREFIX)){
    const bounds=departureBounds(status.status,date,state.shift);
    if(!bounds||selected.start<bounds.from){state.error='RESUME_BEFORE_DEPARTURE';return false;}
-   if(selected.start<clock.now){state.error='RESUME_PAST_HOUR';return false;}
+   if(selected.start<clock.now&&typeof root.confirm==='function'){
+    const msg={pl:'Korekta historii: wznowić pracę od '+selected.from+'? Wcześniej usuniętych przydziałów nie przywrócimy automatycznie.',ru:'Коррекция истории: вернуть к работе с '+selected.from+'? Ранее удалённые назначения автоматически не восстановятся.',en:'History correction: resume from '+selected.from+'? Previously deleted assignments are not restored automatically.',uk:'Виправлення історії: повернути до роботи з '+selected.from+'? Раніше видалені призначення не відновляться автоматично.'};
+    if(!root.confirm(msg[language?.()]||msg.pl))return false;
+   }
    if(selected.start>=bounds.to){state.error='ALREADY_WORKING';return false;}
    snapshot('resume-worker');
    // Keep the elapsed absence interval for History / Intelligence.
