@@ -268,31 +268,35 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const noProcess=translate('Bez przydziału','Без назначения','Unassigned','Без призначення');
   const displayDay=report.day.split('-').reverse().join('.');
   const html=`<!doctype html><html lang="${esc(lang)}"><head><meta charset="utf-8"><title>INCYDENTY · STAN · ${esc(displayDay)}</title><style>
-  @page{size:A4 portrait;margin:9mm}
+  @page{size:A4 portrait;margin:8mm}
   *{box-sizing:border-box}
   html,body{width:100%;margin:0;padding:0}
-  body{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#19253a;font-size:9.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .document-header{text-align:center;border-bottom:1px solid #aebac9;padding:3px 0 9px;margin-bottom:11px}
-  h1{font-size:15px;line-height:1.25;letter-spacing:.035em;font-weight:750;margin:0;color:#162b43}
-  .grid{display:grid;grid-template-columns:repeat(${Math.min(report.teams.length,2)},minmax(0,1fr));gap:9px;align-items:start}
-  .team{min-width:0;break-inside:auto}
-  .team h2{display:flex;align-items:center;justify-content:space-between;gap:5px;font-size:10px;line-height:1.3;font-weight:750;background:#edf2f7;border-bottom:1px solid #dce5ee;border-radius:3px 3px 0 0;padding:7px 7px;margin:0;color:#1c334f;break-after:avoid}
+  body{font-family:Inter,"Segoe UI",Arial,sans-serif;color:#19283c;font-size:11px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .document-header{text-align:center;padding:7px 0 15px;margin-bottom:13px}
+  .document-header h1{font-size:27px;line-height:1.06;letter-spacing:.025em;font-weight:800;margin:0;color:#17283f}
+  .document-header .subhead{font-size:21px;line-height:1.2;letter-spacing:.015em;font-weight:750;margin-top:5px;color:#233a56}
+  .document-header:after{content:"";display:block;width:46px;height:3px;border-radius:5px;background:#9cacbe;margin:13px auto 0}
+  .grid{display:grid;grid-template-columns:repeat(${Math.min(report.teams.length,2)},minmax(0,1fr));gap:10px;align-items:start}
+  .team{min-width:0;border:1px solid #d9e1ea;border-radius:12px;overflow:hidden;break-inside:auto;background:#fff}
+  .team h2{display:flex;align-items:center;justify-content:space-between;gap:4px;font-size:14px;line-height:1.2;font-weight:750;background:#eaf0f6;padding:11px 10px;margin:0;color:#1c3049;break-after:avoid}
   .team h2 span{min-width:0;overflow-wrap:anywhere}
-  .team h2 small{font-size:8.3px;color:#526880;font-weight:550;white-space:nowrap}
+  .team h2 small{font-size:10px;color:#53677e;font-weight:600;white-space:nowrap}
   table{width:100%;border-collapse:collapse;table-layout:fixed}
   tr{break-inside:avoid;page-break-inside:avoid}
-  td{padding:5px 5px;border-bottom:1px solid #e2e8ef;vertical-align:top;line-height:1.3}
-  td:first-child{width:66px;font-weight:750;font-size:8.5px;white-space:nowrap;color:#223852}
-  tr:nth-child(even){background:#f7f9fc}
-  .entry{display:block;line-height:1.32;margin:0 0 3px;overflow-wrap:anywhere;font-weight:500}
+  td{padding:9px 7px;border-bottom:1px solid #e0e6ef;vertical-align:top;line-height:1.36}
+  tr:last-child td{border-bottom:0}
+  td:first-child{width:83px;font-weight:800;font-size:11.5px;white-space:nowrap;color:#1e324c;letter-spacing:-.015em;border-right:1px solid #e0e6ef}
+  td:nth-child(2){padding-left:9px}
+  tr:nth-child(even){background:#f5f7fa}
+  .entry{display:block;line-height:1.42;margin:0 0 4px;overflow-wrap:anywhere;font-weight:650;font-size:11px}
   .entry:last-child{margin-bottom:0}
-  .entry small{font-size:8px;font-weight:400;color:#58708a;white-space:normal;margin-left:2px}
-  .muted{color:#8190a2;font-weight:400}
+  .entry small{display:inline;font-size:9.6px;font-weight:500;color:#62758a;white-space:normal;margin-left:2px}
+  .muted{color:#7e8da0;font-weight:450}
   button{font:inherit;padding:8px 14px;border:1px solid #8897aa;border-radius:6px;background:white;cursor:pointer}
-  @media print{.actions{display:none!important}html,body{width:auto}.grid{gap:8px}}
-  @media screen{body{max-width:800px;margin:22px auto;padding:0 14px}.actions{position:sticky;top:0;background:white;padding:10px 0 14px;z-index:5}}
-  @media screen and (max-width:500px){.grid{grid-template-columns:1fr}}
-  </style></head><body><div class="actions"><button onclick="window.print()">${esc(translate('Drukuj','Печать','Print','Друк'))}</button></div><header class="document-header"><h1>INCYDENTY · STAN · ${esc(displayDay)}</h1></header><main class="grid">${report.teams.map(team=>`<section class="team"><h2><span>${esc(team.name)}</span><small>${esc(team.label)}</small></h2><table><tbody>${team.people.map(person=>`<tr><td>${esc(person.login)}</td><td>${person.parts.length?person.parts.map(part=>`<span class="entry">${fmt(part)}</span>`).join(''):'<span class="muted">'+esc(noProcess)+'</span>'}${state.printShowAbsent&&person.absences.length?person.absences.map(part=>`<span class="entry muted">${fmt(part)}</span>`).join(''):''}</td></tr>`).join('')}</tbody></table></section>`).join('')}</main></body></html>`;
+  @media print{.actions{display:none!important}html,body{width:auto}.grid{gap:8px}.team{box-shadow:none}}
+  @media screen{body{max-width:810px;margin:20px auto;padding:0 12px}.actions{position:sticky;top:0;background:white;padding:8px 0 12px;z-index:5}}
+  @media screen and (max-width:550px){.grid{grid-template-columns:1fr}}
+  </style></head><body><div class="actions"><button onclick="window.print()">${esc(translate('Drukuj','Печать','Print','Друк'))}</button></div><header class="document-header"><h1>INCYDENTY</h1><div class="subhead">STAN - ${esc(displayDay)}</div></header><main class="grid">${report.teams.map(team=>`<section class="team"><h2><span>${esc(team.name)}</span><small>${esc(team.label)}</small></h2><table><tbody>${team.people.map(person=>`<tr><td>${esc(person.login)}</td><td>${person.parts.length?person.parts.map(part=>`<span class="entry">${fmt(part)}</span>`).join(''):'<span class="muted">'+esc(noProcess)+'</span>'}${state.printShowAbsent&&person.absences.length?person.absences.map(part=>`<span class="entry muted">${fmt(part)}</span>`).join(''):''}</td></tr>`).join('')}</tbody></table></section>`).join('')}</main></body></html>`;
   const win=root.open('','_blank');if(!win){state.error='PRINT_POPUP_BLOCKED';return false;}
   win.document.open();win.document.write(html);win.document.close();win.focus();return true;
  }
