@@ -455,36 +455,63 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const absent=exportCandidates.value.absent.filter(exportWorkerChecked);
   if(!people.length&&!absent.length)return false;
   const showAbsent=absent.length>0;
-  // The screenshot's two working columns are A/B; optional absences use D/E.
-  const rows=[['INCYDENTY ZMIANA A/B','',...(showAbsent?['','','']:[])],
-   [`DATA ${date.replaceAll('.','/')}`,'',...(showAbsent?['','','']:[])]];
-  for(let i=0;i<Math.max(people.length,absent.length);i++){
-   const person=people[i],off=absent[i];
-   const row=showAbsent?Array(5).fill(''):Array(2).fill('');
-   if(person){row[0]=person[0];row[1]=person[1];}
-   if(off){row[3]=off.login;row[4]=off.status;}
-   rows.push(row);
+  // Clean Office: identical A/B and optional D/E layout to the approved template.
+  // Do not change the selected people, assignment text, absences or sorting.
+  const ncols=showAbsent?5:2;
+  const maxRows=Math.max(people.length,absent.length);
+  const rows=Array.from({length:maxRows+4},()=>Array(ncols).fill(''));
+  rows[0][0]='INCYDENTY · STAN OSOBOWY';
+  rows[1][0]=`DATA ${date}   ·   ZMIANA A/B`;
+  rows[3][0]='PRACOWNICY · PROCES';
+  if(showAbsent)rows[3][3]='WOLNE I URLOPY';
+  for(let i=0;i<maxRows;i++){
+   const p=people[i],a=absent[i],row=rows[i+4];
+   if(p){row[0]=p[0];row[1]=p[1];}
+   if(a){row[3]=a.login;row[4]=a.status;}
   }
   const ws=xlsx.utils.aoa_to_sheet(rows);
-  ws['!merges']=[{s:{r:0,c:0},e:{r:0,c:1}},{s:{r:1,c:0},e:{r:1,c:1}}];
-  ws['!cols']=showAbsent?[{wch:15},{wch:36},{wch:5},{wch:15},{wch:19}]:[{wch:15},{wch:36}];
-  ws['!rows']=rows.map((row,i)=>({hpt:i<2?23:Math.max(21,16*Math.max(1,String(row[1]||'').split('\n').length))}));
-  const border={style:'thin',color:{rgb:'222222'}};
-  for(let r=0;r<rows.length;r++)for(const c of (showAbsent?[0,1,3,4]:[0,1])){
-   const cell=ws[xlsx.utils.encode_cell({r,c})];
-   if(!cell)continue;
-   const header=r<2&&c<2;
-   cell.s={
-    font:{name:'Arial',sz:header?12:11,bold:header||c===0||c===3,color:{rgb:'111111'}},
-    fill:{patternType:'solid',fgColor:{rgb:header?'A9C9E8':'FFFFFF'}},
-    alignment:{vertical:'center',horizontal:header||c===1||c===4?'center':'left',wrapText:true},
-    border:{top:border,bottom:border,left:border,right:border}
-   };
+  ws['!merges']=[
+   {s:{r:0,c:0},e:{r:0,c:ncols-1}},
+   {s:{r:1,c:0},e:{r:1,c:ncols-1}},
+   {s:{r:3,c:0},e:{r:3,c:1}},
+   ...(showAbsent?[{s:{r:3,c:3},e:{r:3,c:4}}]:[])
+  ];
+  ws['!cols']=showAbsent?[{wch:18},{wch:35},{wch:3},{wch:18},{wch:19}]:[{wch:18},{wch:35}];
+  ws['!rows']=rows.map((row,i)=>({hpt:i===0?37:i===1?28:i===2?13:i===3?28:
+   Math.max(23,14*Math.max(1,String(row[1]||'').split('\n').length))}));
+  const style=(fill,fontColor,bold,size,align)=>({
+   font:{name:'Aptos',sz:size,bold,color:{rgb:fontColor}},
+   fill:{patternType:'solid',fgColor:{rgb:fill}},
+   alignment:{vertical:'center',horizontal:align,wrapText:true}
+  });
+  const apply=(r,c,s)=>{
+   const address=xlsx.utils.encode_cell({r,c});
+   if(!ws[address])ws[address]={t:'s',v:''};
+   ws[address].s=s;
+  };
+  // Header extends over the full report width; section headings align as pairs.
+  for(let c=0;c<ncols;c++){
+   apply(0,c,style('DCEAF5','253C52',true,15,'center'));
+   apply(1,c,style('EFF5FA','526B82',true,10,'center'));
+  }
+  for(const c of [0,1])apply(3,c,style('D8E5F0','304E67',true,10,'center'));
+  if(showAbsent)for(const c of [3,4])apply(3,c,style('D8E5F0','304E67',true,10,'center'));
+  for(let i=0;i<maxRows;i++){
+   const r=i+4,fill=i%2===0?'FFFFFF':'F4F8FC';
+   for(const c of (showAbsent?[0,1,3,4]:[0,1])){
+    const isLogin=c===0||c===3;
+    apply(r,c,style(fill,isLogin?'28618F':'263345',isLogin,10,isLogin?'left':'center'));
+   }
   }
   ws['!printArea']=`A1:${showAbsent?'E':'B'}${rows.length}`;
-  ws['!pageSetup']={orientation:'portrait',paperSize:9,fitToWidth:1,fitToHeight:1};
+  ws['!pageSetup']={orientation:'portrait',paperSize:9,fitToWidth:1,fitToHeight:1,
+   margins:{left:0.25,right:0.25,top:0.35,bottom:0.35,header:0.1,footer:0.1}};
+  ws['!margins']={left:0.25,right:0.25,top:0.35,bottom:0.35,header:0.1,footer:0.1};
   const book=xlsx.utils.book_new();
   xlsx.utils.book_append_sheet(book,ws,'STAN');
+  // Excel print range; the bundled XLSX library writes named print ranges.
+  book.Workbook=book.Workbook||{};
+  book.Workbook.Names=[...(book.Workbook.Names||[]),{Name:'_xlnm.Print_Area',Sheet:0,Ref:`STAN!$A$1:$${showAbsent?'E':'B'}$${rows.length}`}];
   xlsx.writeFile(book,`Stan Osobowy Incydenty ${date}.xlsx`,{bookType:'xlsx',cellStyles:true});
   return true;
  }
