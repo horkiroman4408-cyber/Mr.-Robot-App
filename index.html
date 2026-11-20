@@ -283,6 +283,9 @@
        <strong>{{ obsadaPlan.state.mergeFileName }}</strong>
        <div class="obs-merge-stats"><span>{{ eMsg('Nowe godziny','Новые часы','New hours','Нові години') }}: {{ obsadaPlan.state.mergePreview.counts.newAssignments }}</span><span>{{ eMsg('Historia','История','History','Історія') }}: {{ obsadaPlan.state.mergePreview.counts.newHistory }}</span><span>{{ eMsg('Konflikty','Конфликты','Conflicts','Конфлікти') }}: {{ obsadaPlan.state.mergePreview.conflicts.length }}</span></div>
        <p v-if="obsadaPlan.state.mergePreview.conflicts.length" class="obs-quiet">{{ eMsg('Sprawdź konflikty. Domyślnie pozostają Twoje dane.','Проверь конфликты. По умолчанию остаются твои данные.','Review conflicts. Your data is kept by default.','Перевір конфлікти. Типово залишаються ваші дані.') }}</p>
+       <div v-if="obsadaPlan.state.mergePreview.conflicts.length" class="obs-plan-tools obs-merge-bulk-actions">
+        <button type="button" :disabled="obsadaPlan.state.mergeBusy" @click="obsadaPlan.state.mergePreview.conflicts.forEach(conflict => obsadaPlan.state.mergeChoices[conflict.id] = 'theirs')">{{ eMsg('Wybierz dane kolegi dla wszystkich','Выбрать данные коллеги для всех','Use colleague data for all','Обрати дані колеги для всіх') }}</button>
+       </div>
        <div v-if="obsadaPlan.state.mergePreview.conflicts.length" class="obs-merge-conflicts">
         <div v-for="conflict in obsadaPlan.state.mergePreview.conflicts" :key="conflict.id" class="obs-merge-conflict"><span :title="conflict.label">{{ obsadaPlan.mergeKindLabel(conflict.kind) }} · {{ conflict.label }}</span>
          <mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.mergeChoices[conflict.id]" :aria-label="conflict.label"><option value="mine">{{ eMsg('Moje dane','Мои данные','My data','Мої дані') }}</option><option value="theirs">{{ eMsg('Dane kolegi','Данные коллеги','Colleague data','Дані колеги') }}</option></mr-obsada-select></div>
