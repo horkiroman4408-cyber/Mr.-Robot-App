@@ -444,41 +444,55 @@ function create({reactive,computed,roster,source,sourceName,language}){
   const xlsx=root.XLSX;
   const date=report.day.split('-').reverse().join('.');
   const noProcess=({pl:'Bez przydziału',ru:'Без назначения',en:'Unassigned',uk:'Без призначення'})[language?.()||'pl']||'Bez przydziału';
-  const workers=[];
-  for(const person of exportCandidates.value.workers){
-   if(!exportWorkerChecked(person))continue;
-   const parts=person.processes.filter(name=>exportPartChecked(person,name));
-   if(person.processes.length&&!parts.length)continue;
-   workers.push([person.login,parts.join('\n')||noProcess]);
+  const workerByLogin=new Map(exportCandidates.value.workers.map(p=>[p.login,p]));
+  const sortLogin=(a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true});
+  // Keep each selected shift/team as its own block, exactly as in Plan na jutro.
+  // Only the Excel layout changes; the selection flags, database and roster do not.
+  const blocks=[];
+  for(const team of report.teams){
+   const people=[];
+   for(const person of team.people){
+    const worker=workerByLogin.get(person.login);
+    if(!worker||!exportWorkerChecked(worker))continue;
+    const teamProcesses=new Set([
+     ...person.parts.map(p=>p.key==='EARLY_EXIT'?'Wcześniejsze wyjście':p.key),
+     ...(state.printShowAbsent?person.absences.map(p=>p.key==='EARLY_EXIT'?'Wcześniejsze wyjście':p.key):[])
+    ]);
+    const parts=worker.processes.filter(name=>teamProcesses.has(name)&&exportPartChecked(worker,name));
+    if(worker.processes.length&&!parts.length)continue;
+    people.push([person.login,parts.join('\n')||noProcess]);
+   }
+   people.sort(sortLogin);
+   if(people.length)blocks.push({label:team.name||team.label||team.shift||'PRACOWNICY',people});
   }
-  const people=workers.sort((a,b)=>a[0].localeCompare(b[0],undefined,{numeric:true}));
-  const absent=exportCandidates.value.absent.filter(exportWorkerChecked);
-  if(!people.length&&!absent.length)return false;
-  const showAbsent=absent.length>0;
-  // Clean Office: identical A/B and optional D/E layout to the approved template.
-  // Do not change the selected people, assignment text, absences or sorting.
-  const ncols=showAbsent?5:2;
-  const maxRows=Math.max(people.length,absent.length);
+  const absent=exportCandidates.value.absent.filter(exportWorkerChecked).map(p=>[p.login,p.status]);
+  if(absent.length)blocks.push({label:'WOLNE I URLOPY',people:absent,absent:true});
+  if(!blocks.length)return false;
+  // Two data columns per block, separated by one narrow gutter: A:B / D:E / G:H.
+  const ncols=blocks.length*3-1;
+  const maxRows=Math.max(...blocks.map(b=>b.people.length));
   const rows=Array.from({length:maxRows+4},()=>Array(ncols).fill(''));
   rows[0][0]='INCYDENTY · STAN OSOBOWY';
   rows[1][0]=`DATA ${date}   ·   ZMIANA A/B`;
-  rows[3][0]='PRACOWNICY · PROCES';
-  if(showAbsent)rows[3][3]='WOLNE I URLOPY';
-  for(let i=0;i<maxRows;i++){
-   const p=people[i],a=absent[i],row=rows[i+4];
-   if(p){row[0]=p[0];row[1]=p[1];}
-   if(a){row[3]=a.login;row[4]=a.status;}
+  for(let i=0;i<blocks.length;i++){
+   const c=i*3,block=blocks[i];
+   rows[3][c]=block.label;
+   for(let r=0;r<block.people.length;r++){
+    rows[r+4][c]=block.people[r][0];
+    rows[r+4][c+1]=block.people[r][1];
+   }
   }
   const ws=xlsx.utils.aoa_to_sheet(rows);
   ws['!merges']=[
    {s:{r:0,c:0},e:{r:0,c:ncols-1}},
    {s:{r:1,c:0},e:{r:1,c:ncols-1}},
-   {s:{r:3,c:0},e:{r:3,c:1}},
-   ...(showAbsent?[{s:{r:3,c:3},e:{r:3,c:4}}]:[])
+   ...blocks.map((block,i)=>({s:{r:3,c:i*3},e:{r:3,c:i*3+1}}))
   ];
-  ws['!cols']=showAbsent?[{wch:18},{wch:35},{wch:3},{wch:18},{wch:19}]:[{wch:18},{wch:35}];
+  ws['!cols']=blocks.flatMap((block,i)=>[
+   {wch:16}, {wch:block.absent?17:30}, ...(i===blocks.length-1?[]:[{wch:3}])
+  ]);
   ws['!rows']=rows.map((row,i)=>({hpt:i===0?37:i===1?28:i===2?13:i===3?28:
-   Math.max(23,14*Math.max(1,String(row[1]||'').split('\n').length))}));
+   Math.max(23,14*Math.max(1,...blocks.map((block,j)=>String(row[j*3+1]||'').split('\n').length)))}));
   const style=(fill,fontColor,bold,size,align)=>({
    font:{name:'Aptos',sz:size,bold,color:{rgb:fontColor}},
    fill:{patternType:'solid',fgColor:{rgb:fill}},
@@ -489,29 +503,28 @@ function create({reactive,computed,roster,source,sourceName,language}){
    if(!ws[address])ws[address]={t:'s',v:''};
    ws[address].s=s;
   };
-  // Header extends over the full report width; section headings align as pairs.
   for(let c=0;c<ncols;c++){
    apply(0,c,style('DCEAF5','253C52',true,15,'center'));
    apply(1,c,style('EFF5FA','526B82',true,10,'center'));
   }
-  for(const c of [0,1])apply(3,c,style('D8E5F0','304E67',true,10,'center'));
-  if(showAbsent)for(const c of [3,4])apply(3,c,style('D8E5F0','304E67',true,10,'center'));
-  for(let i=0;i<maxRows;i++){
-   const r=i+4,fill=i%2===0?'FFFFFF':'F4F8FC';
-   for(const c of (showAbsent?[0,1,3,4]:[0,1])){
-    const isLogin=c===0||c===3;
-    apply(r,c,style(fill,isLogin?'28618F':'263345',isLogin,10,isLogin?'left':'center'));
+  for(let i=0;i<blocks.length;i++){
+   const c=i*3,block=blocks[i];
+   for(const col of [c,c+1])apply(3,col,style(block.absent?'E8EDF3':'D8E5F0',block.absent?'52677C':'304E67',true,10,'center'));
+   for(let r=0;r<block.people.length;r++){
+    const fill=r%2===0?'FFFFFF':'F4F8FC';
+    apply(r+4,c,style(fill,'28618F',true,10,'left'));
+    apply(r+4,c+1,style(fill,'263345',false,10,'center'));
    }
   }
-  ws['!printArea']=`A1:${showAbsent?'E':'B'}${rows.length}`;
+  const lastColumn=xlsx.utils.encode_col(ncols-1);
+  ws['!printArea']=`A1:${lastColumn}${rows.length}`;
   ws['!pageSetup']={orientation:'portrait',paperSize:9,fitToWidth:1,fitToHeight:1,
    margins:{left:0.25,right:0.25,top:0.35,bottom:0.35,header:0.1,footer:0.1}};
   ws['!margins']={left:0.25,right:0.25,top:0.35,bottom:0.35,header:0.1,footer:0.1};
   const book=xlsx.utils.book_new();
   xlsx.utils.book_append_sheet(book,ws,'STAN');
-  // Excel print range; the bundled XLSX library writes named print ranges.
   book.Workbook=book.Workbook||{};
-  book.Workbook.Names=[...(book.Workbook.Names||[]),{Name:'_xlnm.Print_Area',Sheet:0,Ref:`STAN!$A$1:$${showAbsent?'E':'B'}$${rows.length}`}];
+  book.Workbook.Names=[...(book.Workbook.Names||[]),{Name:'_xlnm.Print_Area',Sheet:0,Ref:`STAN!$A$1:$${lastColumn}$${rows.length}`}];
   xlsx.writeFile(book,`Stan Osobowy Incydenty ${date}.xlsx`,{bookType:'xlsx',cellStyles:true});
   return true;
  }
