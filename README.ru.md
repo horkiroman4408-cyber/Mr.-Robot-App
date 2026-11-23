@@ -7,11 +7,12 @@
   **Превращайте уже имеющиеся данные в понятные рабочие решения.**  
   Устанавливаемое local-first приложение для аналитики склада, планирования сотрудников, работы с локациями и отчётности.
 
-  [**Открыть приложение**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Модули](#модули) · [Установка](#установка) · [Для разработчиков](./DEVELOPMENT.md)
+  [**Открыть приложение**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Модули](#модули) · [Установка](#установка)
 
   [English](./README.md) · [Polski](./README.pl.md) · **Русский**
 
-  ![Версия](https://img.shields.io/badge/release-3.26.1-334155?style=flat-square) ![Платформа](https://img.shields.io/badge/platform-PWA-475569?style=flat-square) ![Языки](https://img.shields.io/badge/languages-4-475569?style=flat-square) ![Обработка](https://img.shields.io/badge/Excel-local--first-0F766E?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-3.26.1-486d99?style=flat-square) ![PWA](https://img.shields.io/badge/PWA-Installable-64748b?style=flat-square) ![Offline](https://img.shields.io/badge/Offline-Ready-398463?style=flat-square) ![Bridge](https://img.shields.io/badge/Bridge-0.3.29-716199?style=flat-square)  
+  ![Privacy](https://img.shields.io/badge/Privacy-Local%20Processing-397f84?style=flat-square) ![Updates](https://img.shields.io/badge/Updates-Automatic-537b62?style=flat-square) ![Excel](https://img.shields.io/badge/Excel-XLSX%20%2F%20CSV-44765d?style=flat-square) ![Languages](https://img.shields.io/badge/Languages-PL%20RU%20EN%20UK-64748b?style=flat-square)
 </div>
 
 ---
@@ -116,6 +117,20 @@
 | **ARTLTT** | Подготовка файлов LTT CSV из названий товаров |
 | **Kreseczki** | Локальная генерация и печать штрихкодов Code 128 |
 
+## Mr. Bot · Встроенный помощник
+
+Mr. Bot — **встроенный анимированный помощник** Mr. Robot, а не отдельный онлайн-сервис. Он помогает ориентироваться в приложении, объясняет складские термины, работу с отчётами и документированные правила. Диалоги и справочные материалы доступны офлайн на **PL, RU, EN и UK**.
+
+| Возможность | Что делает |
+|:---|:---|
+| **Спросить Mr. Bot** | Отвечает на предусмотренные вопросы о модулях, загрузке отчётов, фильтрах и типовых сценариях |
+| **База знаний и инструкции** | Объясняет задокументированные расчёты, процессы и работу инструментов |
+| **Анимированный помощник** | Реагирует на загрузку, обработку, успешное завершение, копирование и ошибки |
+| **Функции Intelligence** | Даёт контекстные пояснения в поддерживаемых разделах KPI, RS, MP и STOCK; Obsada Intelligence отдельно анализирует записанную историю сотрудников |
+
+> [!NOTE]
+> Офлайн-ответы Mr. Bot основаны на подготовленных знаниях и правилах диалога. Это **не облачный ИИ-чатбот**: он не просматривает корпоративные системы самостоятельно и не придумывает показатели отчётов без загруженных данных.
+
 ## Интеграции · Mr. Robot Bridge
 
 Bridge — **необязательное расширение Edge / Chrome**. Актуальная версия в репозитории — **0.3.29**. Расширение поддерживает два независимых подключения:
@@ -127,13 +142,20 @@ Bridge — **необязательное расширение Edge / Chrome**. 
 
 ```mermaid
 flowchart LR
-    A[Разрешённые Excel / WMS отчёты] --> B[Ручная загрузка или Bridge]
-    B --> C[Mr. Robot · обработка в браузере]
-    C --> D[Фильтры, карточки и анализ]
-    D --> E[XLSX / CSV / печать]
-    C <--> F[(Локальные данные браузера)]
-    G[SharePoint STAN] -->|скачанная копия| B
+    A[OpenReports WMS] -->|Разрешённые отчёты| B[Mr. Robot Bridge]
+    S[SharePoint STAN] -->|Скачанная копия| B
+    M[Ручной XLSX / CSV] --> C[Mr. Robot · локальная обработка]
+    B -->|Локальный импорт| C
+    C --> D[KPI и Intelligence]
+    C --> E[Obsada · план и история]
+    C --> F[RS и MP · анализ]
+    D --> X[Доступный экспорт и печать]
+    E --> X
+    F --> X
+    C <--> L[(Данные браузера)]
 ```
+
+**Как читать схему:** Она показывает возможные пути данных, а не автоматическую синхронизацию в реальном времени. Форматы экспорта зависят от модуля.
 
 **Настройка расширения**
 
@@ -155,18 +177,6 @@ flowchart LR
 | **iPhone** | Safari → **Поделиться** → **На экран «Домой»** |
 
 При первом запуске нужен интернет, чтобы сохранить ресурсы PWA. В дальнейшем уже закэшированные инструменты и локальные данные могут работать офлайн. **Новые отчёты WMS/SharePoint и обновления приложения по-прежнему требуют сети.** Хранилище браузера не заменяет резервную копию XLSX.
-
-<details>
-<summary><strong>Запуск из исходников</strong></summary>
-
-```bash
-git clone https://github.com/horkiroman4408-cyber/Mr.-Robot-App.git
-cd Mr.-Robot-App
-python3 -m http.server 8000
-```
-
-Открой `http://localhost:8000/`. Не запускай `index.html` напрямую через `file://`: браузер ограничивает там Service Workers и Web Workers.
-</details>
 
 ## Архитектура · Local-first
 
@@ -191,7 +201,6 @@ Mr.-Robot-App/
 └── sw.js                              Офлайн-кэш и обновления
 ```
 
-**Для разработчиков:** [DEVELOPMENT.md](./DEVELOPMENT.md) и [tests/](./tests/). История релизов находится в `js/changelog.js`. README рассказывает о продукте, а не перечисляет каждое небольшое исправление.
 
 ## Данные, приватность и ограничения
 
@@ -209,6 +218,5 @@ Mr.-Robot-App/
 
 ---
 <div align="center">
-  <strong>Mr. Robot · Меньше рутины. Больше ясности в каждой смене.</strong><br/>
-  <sub>© 2026 Raman Horki · Версия 3.26.1</sub>
+  <sub>© 2026 Raman Horki</sub>
 </div>

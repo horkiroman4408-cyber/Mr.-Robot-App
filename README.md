@@ -7,11 +7,12 @@
   **Better decisions from the data you already have.**  
   An installable, local-first application for warehouse analytics, staffing, inventory workflows and reporting.
 
-  [**Launch application**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Explore modules](#the-workspace) · [Install](#installation) · [Developer documentation](./DEVELOPMENT.md)
+  [**Launch application**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Explore modules](#the-workspace) · [Install](#installation)
 
   **English** · [Polski](./README.pl.md) · [Русский](./README.ru.md)
 
-  ![Version](https://img.shields.io/badge/release-3.26.1-334155?style=flat-square) ![Platform](https://img.shields.io/badge/platform-PWA-475569?style=flat-square) ![Languages](https://img.shields.io/badge/languages-4-475569?style=flat-square) ![Processing](https://img.shields.io/badge/Excel-local--first-0F766E?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-3.26.1-486d99?style=flat-square) ![PWA](https://img.shields.io/badge/PWA-Installable-64748b?style=flat-square) ![Offline](https://img.shields.io/badge/Offline-Ready-398463?style=flat-square) ![Bridge](https://img.shields.io/badge/Bridge-0.3.29-716199?style=flat-square)  
+  ![Privacy](https://img.shields.io/badge/Privacy-Local%20Processing-397f84?style=flat-square) ![Updates](https://img.shields.io/badge/Updates-Automatic-537b62?style=flat-square) ![Excel](https://img.shields.io/badge/Excel-XLSX%20%2F%20CSV-44765d?style=flat-square) ![Languages](https://img.shields.io/badge/Languages-PL%20RU%20EN%20UK-64748b?style=flat-square)
 </div>
 
 ---
@@ -116,6 +117,20 @@ Location filters cover relevant `MP1 / MP2 / MP3` cases where supported. Some to
 | **ARTLTT** | Produce operational LTT CSV files from product names |
 | **Kreseczki** | Generate and print Code 128 barcodes locally |
 
+## Mr. Bot · The in-app assistant
+
+Mr. Bot is Mr. Robot's **built-in, animated assistant**, not a separate web service. It offers contextual guidance around supported app functions, warehouse terminology and report interpretation, with an offline dialogue and documentation library available in **PL, RU, EN and UK**.
+
+| Part | What it does |
+|:---|:---|
+| **Ask Mr. Bot** | Answer supported questions about navigating modules, importing reports, filters and common workflows |
+| **Knowledge & guides** | Explain documented calculations, processes and where to find tools in the app |
+| **Animated companion** | React to actions such as loading, processing, completing, copying and errors with visual states |
+| **Intelligence features** | Provide contextual explanations alongside supported KPI, RS, MP and STOCK views; Obsada Intelligence separately summarizes recorded staff history |
+
+> [!NOTE]
+> Mr. Bot's offline answers use predefined knowledge and dialogue rules. It is **not a cloud AI chatbot**, does not independently browse corporate systems, and should not be treated as a source of new report figures without loaded data.
+
 ## Integrations · Mr. Robot Bridge
 
 Bridge is an **optional Edge / Chrome browser extension**, currently **v0.3.29** in this repository. It connects two distinct workflows:
@@ -127,13 +142,20 @@ Bridge is an **optional Edge / Chrome browser extension**, currently **v0.3.29**
 
 ```mermaid
 flowchart LR
-    A[Authorized Excel / WMS reports] --> B[Manual import or Bridge download]
-    B --> C[Mr. Robot · browser processing]
-    C --> D[Filters, cards and analysis]
-    D --> E[XLSX / CSV / print]
-    C <--> F[(Local browser storage)]
-    G[SharePoint STAN] -->|downloaded copy| B
+    A[OpenReports WMS] -->|Authorized reports| B[Mr. Robot Bridge]
+    S[SharePoint STAN] -->|Downloaded copy| B
+    M[Manual XLSX / CSV] --> C[Mr. Robot · in-browser processing]
+    B -->|Local import| C
+    C --> D[KPI and Intelligence]
+    C --> E[Obsada planning and history]
+    C --> F[RS and MP analysis]
+    D --> X[Supported exports and printing]
+    E --> X
+    F --> X
+    C <--> L[(Local browser storage)]
 ```
+
+**How to read the diagram:** It describes possible data paths, not an automatic live synchronization. Exports depend on the module.
 
 **Set up the extension**
 
@@ -155,18 +177,6 @@ flowchart LR
 | **iPhone** | Safari → **Share** → **Add to Home Screen** |
 
 The first visit requires an internet connection to cache the app. Previously cached local features may then run offline. **Fresh WMS/SharePoint data and app updates still require network access.** Browser storage is not a substitute for a backed-up XLSX file.
-
-<details>
-<summary><strong>Run the repository locally</strong></summary>
-
-```bash
-git clone https://github.com/horkiroman4408-cyber/Mr.-Robot-App.git
-cd Mr.-Robot-App
-python3 -m http.server 8000
-```
-
-Open `http://localhost:8000/`. Do not launch the application directly from `file://`: browser security limits Service Workers and Web Workers there.
-</details>
 
 ## Architecture · Local-first by design
 
@@ -191,7 +201,6 @@ Mr.-Robot-App/
 └── sw.js                              Caching and updates
 ```
 
-**For maintainers:** see [DEVELOPMENT.md](./DEVELOPMENT.md) and [tests/](./tests/). New release notes belong in `js/changelog.js`; this README describes the product rather than duplicating every patch.
 
 ## Data, privacy & operational boundaries
 
@@ -209,6 +218,5 @@ Created and maintained by **Raman Horki**. Contributions, feedback and reproduci
 
 ---
 <div align="center">
-  <strong>Mr. Robot · Build once. Work smarter every shift.</strong><br/>
-  <sub>© 2026 Raman Horki · Version 3.26.1</sub>
+  <sub>© 2026 Raman Horki</sub>
 </div>

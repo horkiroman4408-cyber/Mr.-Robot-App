@@ -7,11 +7,12 @@
   **Lepsze decyzje dzięki danym, które już masz.**  
   Instalowalna aplikacja local-first do analityki magazynowej, planowania obsady, pracy z lokalizacjami i raportowania.
 
-  [**Uruchom aplikację**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Poznaj moduły](#moduły) · [Instalacja](#instalacja) · [Dokumentacja techniczna](./DEVELOPMENT.md)
+  [**Uruchom aplikację**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [Poznaj moduły](#moduły) · [Instalacja](#instalacja)
 
   [English](./README.md) · **Polski** · [Русский](./README.ru.md)
 
-  ![Wersja](https://img.shields.io/badge/release-3.26.1-334155?style=flat-square) ![Platforma](https://img.shields.io/badge/platform-PWA-475569?style=flat-square) ![Języki](https://img.shields.io/badge/languages-4-475569?style=flat-square) ![Przetwarzanie](https://img.shields.io/badge/Excel-local--first-0F766E?style=flat-square)
+  ![Version](https://img.shields.io/badge/Version-3.26.1-486d99?style=flat-square) ![PWA](https://img.shields.io/badge/PWA-Installable-64748b?style=flat-square) ![Offline](https://img.shields.io/badge/Offline-Ready-398463?style=flat-square) ![Bridge](https://img.shields.io/badge/Bridge-0.3.29-716199?style=flat-square)  
+  ![Privacy](https://img.shields.io/badge/Privacy-Local%20Processing-397f84?style=flat-square) ![Updates](https://img.shields.io/badge/Updates-Automatic-537b62?style=flat-square) ![Excel](https://img.shields.io/badge/Excel-XLSX%20%2F%20CSV-44765d?style=flat-square) ![Languages](https://img.shields.io/badge/Languages-PL%20RU%20EN%20UK-64748b?style=flat-square)
 </div>
 
 ---
@@ -116,6 +117,20 @@ Filtry obejmują odpowiednie `MP1 / MP2 / MP3`, zależnie od narzędzia. Nie wsz
 | **ARTLTT** | Przygotowanie plików LTT CSV z nazw artykułów |
 | **Kreseczki** | Lokalny generator i druk kodów kreskowych Code 128 |
 
+## Mr. Bot · Asystent aplikacji
+
+Mr. Bot to **wbudowany, animowany asystent** Mr. Robot, a nie oddzielna usługa internetowa. Pomaga korzystać z funkcji aplikacji, objaśnia pojęcia magazynowe i zasady raportów, korzystając z lokalnych dialogów i dokumentacji w językach **PL, RU, EN i UK**.
+
+| Element | Działanie |
+|:---|:---|
+| **Zapytaj Mr. Bota** | Odpowiedzi na obsługiwane pytania o moduły, import raportów, filtry i codzienną pracę |
+| **Baza wiedzy i instrukcje** | Objaśnienia udokumentowanych obliczeń, procesów i sposobu korzystania z narzędzi |
+| **Animowany asystent** | Reakcje wizualne na ładowanie, przetwarzanie, sukces, kopiowanie czy błędy |
+| **Funkcje Intelligence** | Kontekstowe objaśnienia w obsługiwanych widokach KPI, RS, MP i STOCK; Obsada Intelligence osobno podsumowuje historię pracy |
+
+> [!NOTE]
+> Odpowiedzi Mr. Bota offline opierają się na przygotowanej wiedzy i regułach dialogu. **Nie jest to chatbot AI działający w chmurze**, nie przegląda samodzielnie systemów firmowych i nie tworzy nowych wyników bez wczytanych danych.
+
 ## Integracje · Mr. Robot Bridge
 
 Bridge to **opcjonalne rozszerzenie Edge / Chrome**, aktualnie w wersji **0.3.29** w tym repozytorium. Obsługuje dwa niezależne połączenia:
@@ -127,13 +142,20 @@ Bridge to **opcjonalne rozszerzenie Edge / Chrome**, aktualnie w wersji **0.3.29
 
 ```mermaid
 flowchart LR
-    A[Uprawnione raporty Excel / WMS] --> B[Ręczny import lub pobranie przez Bridge]
-    B --> C[Mr. Robot · przetwarzanie w przeglądarce]
-    C --> D[Filtry, karty i analiza]
-    D --> E[XLSX / CSV / druk]
-    C <--> F[(Lokalna pamięć przeglądarki)]
-    G[SharePoint STAN] -->|pobrana kopia| B
+    A[OpenReports WMS] -->|Uprawnione raporty| B[Mr. Robot Bridge]
+    S[SharePoint STAN] -->|Pobrana kopia| B
+    M[Ręcznie XLSX / CSV] --> C[Mr. Robot · przetwarzanie lokalne]
+    B -->|Lokalny import| C
+    C --> D[KPI i Intelligence]
+    C --> E[Obsada · plan i historia]
+    C --> F[RS i MP · analizy]
+    D --> X[Dostępny eksport i druk]
+    E --> X
+    F --> X
+    C <--> L[(Dane przeglądarki)]
 ```
+
+**Jak czytać schemat:** Przedstawia możliwe ścieżki danych, nie automatyczną synchronizację na żywo. Formaty eksportu zależą od modułu.
 
 **Konfiguracja rozszerzenia**
 
@@ -155,18 +177,6 @@ flowchart LR
 | **iPhone** | Safari → **Udostępnij** → **Do ekranu początkowego** |
 
 Pierwsze otwarcie wymaga internetu do zapisania zasobów PWA. Następnie wcześniej zapisane narzędzia i dane lokalne mogą działać offline. **Nowe raporty WMS/SharePoint oraz aktualizacje nadal wymagają sieci.** Dane w przeglądarce nie zastępują bezpiecznej kopii pliku XLSX.
-
-<details>
-<summary><strong>Uruchom repozytorium lokalnie</strong></summary>
-
-```bash
-git clone https://github.com/horkiroman4408-cyber/Mr.-Robot-App.git
-cd Mr.-Robot-App
-python3 -m http.server 8000
-```
-
-Otwórz `http://localhost:8000/`. Nie uruchamiaj aplikacji bezpośrednio przez `file://`: ograniczenia przeglądarki blokują tam Service Workers i Web Workers.
-</details>
 
 ## Architektura · Local-first
 
@@ -191,7 +201,6 @@ Mr.-Robot-App/
 └── sw.js                              Pamięć offline i aktualizacje
 ```
 
-**Dla osób rozwijających projekt:** [DEVELOPMENT.md](./DEVELOPMENT.md) i [tests/](./tests/). Nowe wydania opisuje `js/changelog.js`; README pokazuje produkt, nie listę każdej drobnej poprawki.
 
 ## Dane, prywatność i ograniczenia
 
@@ -209,6 +218,5 @@ Autorem projektu jest **Raman Horki**. Pomysły, informacje zwrotne i odtwarzaln
 
 ---
 <div align="center">
-  <strong>Mr. Robot · Usprawniaj pracę na każdej zmianie.</strong><br/>
-  <sub>© 2026 Raman Horki · Wersja 3.26.1</sub>
+  <sub>© 2026 Raman Horki</sub>
 </div>
