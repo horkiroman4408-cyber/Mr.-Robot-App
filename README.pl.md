@@ -65,7 +65,7 @@ W zależności od widoku można filtrować grupy, zmiany i daty, zapamiętywać 
 | **Planowanie** | Przydziały godzinowe, zespoły, grafiki, spóźnienia i wcześniejsze wyjścia |
 | **Plan na jutro** | Lista na kolejny dzień z podziałem na zespoły i nieobecności; Excel oraz druk |
 | **Historia** | Podgląd zapisów lokalnych i importowanych oraz rozbieżności |
-| **Intelligence** | Porównywanie godzin i dni pracy między pracownikami, zespołami i procesami |
+| **Analiza** | Porównywanie godzin i dni pracy między pracownikami, zespołami i procesami |
 
 **Planowanie w praktyce**
 
@@ -74,7 +74,7 @@ W zależności od widoku można filtrować grupy, zmiany i daty, zapamiętywać 
 - W lokalnym planie można korygować godziny, które już minęły; historia uwzględnia zakończone okresy pracy.
 - Plan na jutro respektuje wybranych pracowników i procesy. Zawiera osobne sekcje dla wybranych zespołów oraz `WOLNY` / `URLOP`, jeśli je uwzględniono.
 
-**Intelligence w praktyce**
+**Analiza w praktyce**
 
 Wybierz **tydzień, miesiąc lub własny zakres dat**, a potem pracowników lub zapisane zespoły. Możesz filtrować **jeden lub kilka procesów**: karty pokazują tylko wybrane procesy, sumują ich godziny i liczą dzień pracy na dwóch procesach tylko raz. **Ostatnia / Poprzednia** pokazują natomiast dwa ostatnie zakończone dni pracy ze *wszystkimi* procesami, niezależnie od filtra analizy. Statusy nieobecności pozostają osobnymi wskaźnikami.
 
@@ -126,7 +126,7 @@ Mr. Bot to **wbudowany, animowany asystent** Mr. Robot, a nie oddzielna usługa 
 | **Zapytaj Mr. Bota** | Odpowiedzi na obsługiwane pytania o moduły, import raportów, filtry i codzienną pracę |
 | **Baza wiedzy i instrukcje** | Objaśnienia udokumentowanych obliczeń, procesów i sposobu korzystania z narzędzi |
 | **Animowany asystent** | Reakcje wizualne na ładowanie, przetwarzanie, sukces, kopiowanie czy błędy |
-| **Funkcje Intelligence** | Kontekstowe objaśnienia w obsługiwanych widokach KPI, RS, MP i STOCK; Obsada Intelligence osobno podsumowuje historię pracy |
+| **Funkcje Intelligence** | Kontekstowe objaśnienia w obsługiwanych widokach KPI, RS, MP i STOCK; zakładka Analiza w Obsada osobno podsumowuje historię pracy |
 
 > [!NOTE]
 > Odpowiedzi Mr. Bota offline opierają się na przygotowanej wiedzy i regułach dialogu. **Nie jest to chatbot AI działający w chmurze**, nie przegląda samodzielnie systemów firmowych i nie tworzy nowych wyników bez wczytanych danych.

@@ -65,7 +65,7 @@ Depending on the view, you can filter groups, shifts and dates, adjust saved nor
 | **Planowanie** | Assign people to processes hour by hour; manage teams, shifts, late arrivals and early departures |
 | **Plan na jutro** | Prepare a next-day roster with team and absence sections; export to Excel or print |
 | **Historia** | Review local and imported records and inspect discrepancies |
-| **Intelligence** | Compare working hours and days across employees, teams and selected processes |
+| **Analysis (Analiza)** | Compare working hours and days across employees, teams and selected processes |
 
 **Planning in practice**
 
@@ -74,7 +74,7 @@ Depending on the view, you can filter groups, shifts and dates, adjust saved nor
 - Past hours can be corrected in the local plan. Completed hours are taken into account by the history logic.
 - Tomorrow's plan respects selected employees and processes, with separate sections for each chosen team and for `WOLNY` / `URLOP` when included.
 
-**Intelligence in practice**
+**Analysis in practice**
 
 Choose a **week, month or custom date range**, then select employees or saved teams. Filter by **one or several processes**: cards show only those processes, add their hours and count a day worked on two selected processes only once. **Ostatnia / Poprzednia** instead show the last two completed workdays across *all* processes, independently of the analysis filter. Absence-day indicators remain separate.
 
@@ -126,7 +126,7 @@ Mr. Bot is Mr. Robot's **built-in, animated assistant**, not a separate web serv
 | **Ask Mr. Bot** | Answer supported questions about navigating modules, importing reports, filters and common workflows |
 | **Knowledge & guides** | Explain documented calculations, processes and where to find tools in the app |
 | **Animated companion** | React to actions such as loading, processing, completing, copying and errors with visual states |
-| **Intelligence features** | Provide contextual explanations alongside supported KPI, RS, MP and STOCK views; Obsada Intelligence separately summarizes recorded staff history |
+| **Intelligence features** | Provide contextual explanations alongside supported KPI, RS, MP and STOCK views; the Obsada Analysis tab separately summarizes recorded staff history |
 
 > [!NOTE]
 > Mr. Bot's offline answers use predefined knowledge and dialogue rules. It is **not a cloud AI chatbot**, does not independently browse corporate systems, and should not be treated as a source of new report figures without loaded data.
