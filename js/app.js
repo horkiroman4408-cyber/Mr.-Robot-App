@@ -105,7 +105,7 @@ Vue.watch(()=>[obsadaPlan.state.day,obsadaPlan.state.shift,obsadaPlan.state.from
 // Warn when local changes are not yet synchronized to the user's Excel file.
 window.addEventListener('beforeunload',event=>{if(obsadaPlan.state.dirty||obsadaPlan.state.busy||obsadaPlan.state.status==='BROWSER_SAVE_FAILED'){event.preventDefault();event.returnValue='';}});
 // Local Obsada history: imported verified monthly hours and unverified planned hours are never merged into a single factual total.
-Vue.watch(()=>obsada.state.tab,(tab,previous)=>{if((tab==='intelligence'||tab==='history')&&previous!==tab)obsada.state.source='verified';});
+Vue.watch(()=>obsada.state.tab,(tab,previous)=>{if(previous!==tab){if(tab==='history')obsada.state.source='all';else if(tab==='intelligence')obsada.state.source='verified';}});
 const obsadaHistoryOptions=reactive({sourceDetail:'all',planStatus:'all',showExcluded:false,selected:[]});
 // Navigate from a reconciliation warning to the corresponding rows in the history table.
 // Use the combined source so neither the imported month total nor the local plan disappears.
