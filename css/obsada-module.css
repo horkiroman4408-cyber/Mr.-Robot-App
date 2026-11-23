@@ -187,6 +187,8 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obsada-module .obs-ou
 
 /* Obsada HUB: contextual, keyboard-accessible feature descriptions. */
 #app .obsada-wide{overflow:visible!important}
+/* Keep the hub hover gradient inside its rounded card while popovers remain visible. */
+#app .obsada-wide::before{border-radius:inherit}
 #app .obsada-wide-features{position:relative;isolation:isolate}
 #app .obsada-wide-feature{position:relative;cursor:default;min-height:0}
 #app .obsada-wide-feature:has(> .obsada-wide-feature-summary:hover),
