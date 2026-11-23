@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.0-intelligence-popup-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.1-obsada-five-sections-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -166,8 +166,10 @@
   </div>
   <div class="obsada-wide-features">
     <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">◷</span><div><b>STAN</b><small>{{ eMsg('Obsada według godzin','Расстановка по часам','Staffing by hour','Розподіл за годинами') }}</small></div></div>
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><div><b>{{ eMsg('Planowanie','Планирование','Planning','Планування') }}</b><small>{{ eMsg('Przydziały i zespoły','Назначения и команды','Assignments and teams','Призначення й команди') }}</small></div></div>
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▤</span><div><b>{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</b><small>{{ eMsg('Podgląd i eksport','Просмотр и экспорт','Preview and export','Перегляд та експорт') }}</small></div></div>
     <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><div><b>{{ eMsg('Historia','История','History','Історія') }}</b><small>{{ eMsg('Procesy pracowników','Процессы сотрудников','Employee processes','Процеси працівників') }}</small></div></div>
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▥</span><div><b>Intelligence</b><small>{{ eMsg('Analiza godzin','Анализ часов','Hours analysis','Аналіз годин') }}</small></div></div>
+    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▥</span><div><b>{{ eMsg('Analiza','Анализ','Analysis','Аналіз') }}</b><small>{{ eMsg('Analiza godzin','Анализ часов','Hours analysis','Аналіз годин') }}</small></div></div>
   </div>
   <div class="obsada-wide-action"><button type="button" class="launch-btn">{{ eMsg('Otwórz Obsada','Открыть Obsada','Open Obsada','Відкрити Obsada') }} <span class="arrow">→</span></button></div>
 </div>
@@ -595,7 +597,7 @@
   </template>
  </section>
  <section v-else class="obs-surface">
-  <div class="obs-headline"><div><h2 class="obs-section-title">{{ obsada.state.tab==='history'?eMsg('Historia procesów','История процессов','Process history','Історія процесів'):eMsg('Intelligence · analiza godzin','Intelligence · анализ часов','Intelligence · hour analysis','Intelligence · аналіз годин') }}</h2><p class="obs-quiet">{{ eMsg('Lokalna baza i historia z XLSX · plany odróżnione od pracy.','Локальная база и история XLSX · планы отдельно от работы.','Local database and XLSX history · plans are separate from work.','Локальна база та історія XLSX · плани окремо.') }}</p></div><span class="obs-pill">{{ obsadaPlan.state.importedHistory.length }} {{ eMsg('w bazie','в базе','in database','у базі') }}</span></div>
+  <div class="obs-headline"><div><h2 class="obs-section-title">{{ obsada.state.tab==='history'?eMsg('Historia procesów','История процессов','Process history','Історія процесів'):eMsg('Analiza · godziny pracy','Анализ · рабочие часы','Analysis · working hours','Аналіз · робочі години') }}</h2><p class="obs-quiet">{{ eMsg('Lokalna baza i historia z XLSX · plany odróżnione od pracy.','Локальная база и история XLSX · планы отдельно от работы.','Local database and XLSX history · plans are separate from work.','Локальна база та історія XLSX · плани окремо.') }}</p></div><span class="obs-pill">{{ obsadaPlan.state.importedHistory.length }} {{ eMsg('w bazie','в базе','in database','у базі') }}</span></div>
   <div v-if="!obsadaPlan.state.importedHistory.length && obsada.state.model" class="obs-warning">{{ eMsg('Historia z wczytanego XLSX jest tymczasowo widoczna. Aby zachować ją w bazie, użyj Importuj historię.','История XLSX пока отображается временно. Для сохранения в базу импортируй её.','Loaded XLSX history is temporarily visible. Import it to keep it in the local database.','Історія XLSX поки тимчасова. Імпортуйте її до бази.') }} <button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.importFromCurrent()">{{ eMsg('Importuj historię','Импортировать историю','Import history','Імпортувати історію') }}</button></div>
   <div v-if="!obsadaPlan.state.importedHistory.length && !obsada.state.model" class="obs-plan-importhint"><p class="obs-quiet">{{ eMsg('Wczytaj plik historii lub otwórz Planowanie → Baza lokalna.','Загрузи файл истории или открой Планирование → Локальная база.','Load a history workbook or open Planning → Local database.','Завантажте книгу або відкрийте Планування → База.') }}</p><label class="obs-plan-import">{{ eMsg('Importuj historię z XLSX','Импорт истории из XLSX','Import history XLSX','Імпорт історії з XLSX') }}<input type="file" accept=".xlsx,.xls" @change="obsadaPlan.importHistoryFile($event)"></label></div>
   <template v-if="obsada.state.tab==='intelligence'">
