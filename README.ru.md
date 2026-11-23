@@ -5,7 +5,7 @@
 > **От складских отчётов — к готовым результатам, прямо в браузере.** Устанавливаемое веб-приложение, которое заменяет макросы Excel, копипаст с VLOOKUP и получасовые ежедневные ритуалы.
 
 ![статус](https://img.shields.io/badge/status-working%20prototype-success)
-![версия](https://img.shields.io/badge/version-3.26.0-blue)
+![версия](https://img.shields.io/badge/version-3.26.1-blue)
 [![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
 ![работает](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
 ![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)

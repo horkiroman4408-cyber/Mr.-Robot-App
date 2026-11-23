@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.26.0</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
+<!DOCTYPE html><html lang="pl" class="h-full"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Mr. Robot v3.26.1</title><meta name="author" content="Raman Horki"><meta name="copyright" content="© 2026 Mr. Robot · Made by Raman Horki · LPP">
 <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1c1c1e" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Mr. Robot — Centrum narzędzi operacyjnych. Wszystko działa lokalnie w Twojej przeglądarce.">
@@ -658,13 +658,13 @@
       </div>
       <div class="obs-team-intel-processes"><div v-for="proc in card.processes.filter(proc=>!(Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length) || obsadaTeam.processFilter.includes(proc.process))" :key="proc.process" class="obs-team-intel-process"><div class="obs-team-intel-process-label"><span :title="proc.process">{{ proc.process }}</span><b>{{ obsada.formatHours(proc.hours,uiLanguage) }} h</b></div><div class="obs-team-intel-track" role="meter" :aria-label="proc.process" :aria-valuenow="proc.hours" aria-valuemin="0" :aria-valuemax="Math.max((Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length)?card.processes.filter(p=>obsadaTeam.processFilter.includes(p.process)).reduce((sum,p)=>sum+p.hours,0):card.hours,proc.hours)"><span :style="{width:Math.min(100,100*proc.hours/Math.max(1,(Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length)?card.processes.filter(p=>obsadaTeam.processFilter.includes(p.process)).reduce((sum,p)=>sum+p.hours,0):card.hours))+'%'}"></span></div></div></div>
       <p v-if="!card.hours && !(Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length)" class="obs-quiet">{{ eMsg('Brak uwzględnianych godzin w okresie.','Нет учитываемых часов за период.','No counted hours in this period.','Немає врахованих годин за період.') }}</p>
-      <div class="obs-team-intel-days-list" :aria-label="eMsg('Ostatnia aktywność','Последняя активность','Recent activity','Остання активність')">
-       <section v-for="(event,i) in card.lastActivities.filter(event=>!(Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length) || event.kind!=='work' || event.processes.some(proc=>obsadaTeam.processFilter.includes(proc.process)))" :key="event.date" class="obs-team-intel-activity" :aria-label="i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня')">
+      <div class="obs-team-intel-days-list" :aria-label="eMsg('Ostatnie dni pracy','Последние рабочие дни','Last working days','Останні робочі дні')">
+       <section v-for="(event,i) in card.lastActivities" :key="event.date" class="obs-team-intel-activity" :aria-label="i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня')">
         <div class="obs-team-intel-activity-head"><strong>{{ i===0?eMsg('Ostatnia','Последняя','Latest','Остання'):eMsg('Poprzednia','Предыдущая','Previous','Попередня') }}</strong><time :datetime="event.date" :title="event.date">{{ event.date.slice(8,10)+'.'+event.date.slice(5,7) }}</time></div>
-        <div v-if="event.kind==='work'" class="obs-team-intel-activity-processes"><div v-for="v in event.processes.filter(proc=>!(Array.isArray(obsadaTeam.processFilter) && obsadaTeam.processFilter.length) || obsadaTeam.processFilter.includes(proc.process))" :key="v.process" class="obs-team-intel-activity-process"><span :title="v.process">{{ v.process }}</span><b>{{ obsada.formatHours(v.hours,uiLanguage) }} h</b></div></div>
+        <div v-if="event.kind==='work'" class="obs-team-intel-activity-processes"><div v-for="v in event.processes" :key="v.process" class="obs-team-intel-activity-process"><span :title="v.process">{{ v.process }}</span><b>{{ obsada.formatHours(v.hours,uiLanguage) }} h</b></div></div>
         <p v-else class="obs-team-intel-activity-status">{{ event.status==='dayOff'?eMsg('Wolne','Выходной','Day off','Вихідний'):event.status==='leave'?eMsg('Urlop','Отпуск','Leave','Відпустка'):eMsg('Zwolnienie lekarskie','Больничный','Sick leave','Лікарняний') }}</p>
        </section>
-       <div v-if="!card.lastActivities.length" class="obs-team-intel-activity obs-team-intel-activity-empty"><div class="obs-team-intel-activity-head"><strong>{{ eMsg('Ostatnie','Последние','Recent','Останні') }}</strong></div><p class="obs-team-intel-activity-status">{{ eMsg('Brak wpisów','Нет записей','No records','Немає записів') }}</p></div>
+       <div v-if="!card.lastActivities.length" class="obs-team-intel-activity obs-team-intel-activity-empty"><div class="obs-team-intel-activity-head"><strong>{{ eMsg('Ostatnie','Последние','Recent','Останні') }}</strong></div><p class="obs-team-intel-activity-status">{{ eMsg('Brak zakończonych dni pracy','Нет завершённых рабочих дней','No completed workdays','Немає завершених робочих днів') }}</p></div>
       </div>
     </article></div>
    </template>
@@ -2335,7 +2335,7 @@
    <div class="settings-heading">
     <span class="settings-cog" aria-hidden="true"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="m9.5 3-.7 2.4-2 .9-2.2-.7-2.4 4.2 1.6 1.7v2.3L2.2 16l2.4 4.2 2.2-.7 2 .9.7 2.4h4.8l.7-2.4 2-.9 2.2.7 2.4-4.2-1.6-1.7V12l1.6-1.7-2.4-4.2-2.2.7-2-.9L14.3 3z" transform="translate(0 -1) scale(.98)"/><circle cx="12" cy="12" r="3.3"/></svg></span>
     <div><h1>{{ tr('Ustawienia') }}</h1><p>{{ tr('Dostosuj aplikację do swojej pracy') }}</p></div>
-    <span class="settings-version" aria-label="Mr. Robot 3.26.0">v3.26.0</span>
+    <span class="settings-version" aria-label="Mr. Robot 3.26.1">v3.26.1</span>
    </div>
   </header>
   <nav class="settings-nav" :aria-label="tr('Ustawienia')">
@@ -2560,7 +2560,7 @@
      <button type="button" class="settings-tool-action" :disabled="!mrMemoryItems.length" @click="openSettingsMemory">{{ mrMemoryItems.length ? tr('Otwórz menedżer plików') : tr('Brak zapisanych plików') }} <span v-if="mrMemoryItems.length" aria-hidden="true">→</span></button>
     </article>
     <article class="settings-tool-card glass-strong">
-     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.26.0</span></div>
+     <div class="settings-tool-top"><span class="settings-tool-icon updates" aria-hidden="true"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span><span class="settings-tool-meta">v3.26.1</span></div>
      <h3>{{ tr('Co nowego') }}</h3>
      <p>{{ tr('Historia wersji, poprawki i najważniejsze zmiany w aplikacji.') }}</p>
      <button type="button" class="settings-tool-action" @click="goFromSettings('changelog')">{{ tr('Zobacz historię zmian') }} <span aria-hidden="true">→</span></button>
@@ -3106,7 +3106,7 @@
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
 <script src="js/obsada-planner.js?v=3.26.0-merge-folder-help-1"></script>
-<script src="js/obsada-team-intelligence.js?v=3.26.0-intel-multiselect-1"></script>
+<script src="js/obsada-team-intelligence.js?v=3.26.0-last-workdays-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
 <script src="js/app.js?v=3.26.0-kpi-print-safe-margins-1"></script>
