@@ -1,380 +1,147 @@
+<div align="center">
+
 # Mr. Robot 🤖
 
-**[ ENG ](./README.md)** | **[ RUS ](./README.ru.md)** | **[ PL ](./README.pl.md)**
+### Warehouse Operations Intelligence
 
-> **From warehouse reports to usable results — right in your browser.** An installable web app that replaces Excel macros, VLOOKUP copy-paste and half-hour daily routines.
+**Turn complex warehouse reports into clear, actionable results, right in your browser.**
 
-![status](https://img.shields.io/badge/status-working%20prototype-success)
-![version](https://img.shields.io/badge/version-3.26.1-blue)
-[![Mr. Robot Bridge](https://img.shields.io/badge/Mr.%20Robot%20Bridge-v0.3.27-0d9488)](#-mr-robot-bridge)
-![runs in](https://img.shields.io/badge/runs%20in-your%20browser-0a84ff)
-![PWA](https://img.shields.io/badge/PWA-installable%20app-9333ea)
-![offline](https://img.shields.io/badge/offline-ready-success)
-![auto-update](https://img.shields.io/badge/auto--update-service%20worker-brightgreen?style=flat-square)
-![privacy](https://img.shields.io/badge/privacy-local%20processing-blue?style=flat-square)
-![languages](https://img.shields.io/badge/languages-PL%20%2F%20RU%20%2F%20EN%20%2F%20UK-42b883)
-![vue](https://img.shields.io/badge/vue-3-42b883)
+[**Open Mr. Robot**](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) · [**How to install**](#install--run) · [**Explore modules**](#modules) · [**Developer guide**](./DEVELOPMENT.md)
 
-> **Try it now:** [open the live version](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/) — it runs entirely in your browser. No install, no sign-up, no server. Like it? Install it as an app — it then works offline.
+**English** · [Polski](./README.pl.md) · [Русский](./README.ru.md)
+
+![Version](https://img.shields.io/badge/version-3.26.1-34495e) ![PWA](https://img.shields.io/badge/PWA-installable-2563eb) ![Languages](https://img.shields.io/badge/languages-PL%20%7C%20RU%20%7C%20EN%20%7C%20UK-64748b) ![Processing](https://img.shields.io/badge/report%20processing-local-16a34a)
+
+</div>
 
 ---
 
+## At a glance
 
+Mr. Robot is a browser-based, installable toolkit for everyday warehouse operations. It combines Excel analysis, performance metrics, staffing plans and repeatable exports in one workspace. Instead of opening multiple spreadsheets and repeating manual steps, you import your permitted reports, choose filters and work with structured results.
 
-## 📖 Table of Contents
+| Area | What it helps you do |
+| --- | --- |
+| **KPI & employees** | Analyze process performance, norms, staff records and training |
+| **Obsada** | Plan hourly staffing, review shifts, track work history and export rosters |
+| **RS** | Compare SKU, EAN, tote and audit data |
+| **MP** | Analyze shelf locations, STOCK, MDT, audit and consolidation |
+| **Inne** | Review downtime, generate barcode labels and prepare operational files |
+| **Mr. Robot Bridge** | Request supported OpenReports downloads and refresh a SharePoint Excel copy |
 
-- [What it is](#-what-it-is)
-- [Install it as an app](#-install-it-as-an-app)
-- [Always up to date](#-always-up-to-date)
-- [Why it exists](#-why-it-exists)
-- [Speed and performance](#-speed-and-performance)
-- [Mr. Robot Bridge](#-mr-robot-bridge)
-- [The Modules](#-the-modules-deep-dive)
-- [How it's built](#%EF%B8%8F-how-its-built-under-the-hood)
-- [Project structure](#-project-structure)
-- [Running it](#-running-it)
-- [For developers](#-for-developers)
-- [Helping each other](#-helping-each-other)
-- [What's next](#%EF%B8%8F-whats-next)
-- [Credit](#-credit)
-- [Author](#-author)
+> **Data handling:** Excel analysis and local databases run in your browser. Bridge actions involve the systems you are already authorized to use and require connectivity and permissions. No central Mr. Robot account is required.
 
----
+## Modules
 
-## 💡 What it is
+### KPI & employee intelligence
 
-Mr. Robot is a browser app that does warehouse file work: parsing reports, comparing two large spreadsheets, filtering locations, calculating KPIs, exporting clean results.
+Analyze employee results by process and period, compare norms and export reports. The tools cover **Audyt**, **Scalanie**, **Rozkładanie**, **NADWE / VAS**, and cross-process statistics. The employee area combines a staff directory, training registry and schedule information from imported workbooks. Supported employee IDs link reports to employee profiles.
 
-It's a working prototype. Not a concept, not a slide deck — you can open it right now and use it on real files.
+- Norm thresholds, performance summaries, rankings and colored outputs.
+- NADWE / VAS reports include items, recorded time and items per hour.
+- Filterable results and Excel exports, where available in each tool.
 
-Your reports are processed **locally, in your browser**. Report files are never uploaded to any application backend. (Loading the app itself and checking for updates does use the network — but your data doesn't.) Files you load are remembered (IndexedDB) and survive page reloads and app updates.
+### Obsada · hourly staffing and history
 
-It installs like a regular app: on the phone's home screen, on the desktop, in the dock. Once installed, it opens and works **without the internet** — the app code is cached inside the browser by a service worker.
+Obsada separates the **current SharePoint STAN copy** from the **local planning database**. Use it to assign people to processes across shifts and teams, including shifts crossing midnight. The local database stores assignments and history so past work can be reviewed later.
 
-The point isn't that it's the biggest or most polished tool. The point is that this is something one person can put together in a browser today — and that changes what a "quick internal tool" can look like.
+| View | Purpose |
+| --- | --- |
+| **Rozstawienie** | Read-only overview of staffing for the selected day/hour |
+| **Planowanie** | Maintain teams, shifts and hourly process assignments; correct past hours |
+| **Plan na jutro** | Review tomorrow's roster and export or print a team-based A4 plan |
+| **Historia** | Review saved and imported historical records |
+| **Intelligence** | Compare employee hours across a week, month or custom period |
 
----
+**Intelligence:** choose employees or saved teams and select one or several processes. Selected-process totals and working-day counts reflect the filter without counting the same day twice. **Ostatnia / Poprzednia** show the last two completed workdays, with all processes on those days, regardless of the analysis filter.
 
-## 📲 Install it as an app
+**Local database exchange:** send your XLSX to a colleague or receive theirs. Conflicts are reviewed before merging; you can choose the colleague's data for all conflicts and then adjust individual decisions. A backup and a copy of the received file are saved before merging. Keep folder access enabled, and review conflicts rather than overwriting records blindly.
 
-The live version is a **PWA** (Progressive Web App). Installing takes one tap and gives you a real app icon, its own window, and offline work:
+**Important:** SharePoint and local planning are different data sources. An imported workbook is a copy; it is not a live edit of the original online file. Reconciliation should be checked when the same employee hours exist in multiple sources.
 
-| Platform | How |
-|----------|-----|
-| **Android (Chrome)** | Open the site → menu **⋮** → **Install app** |
-| **iPhone (Safari)** | Open the site → Share → **Add to Home Screen** |
-| **Windows / macOS (Chrome, Edge)** | Click the install icon in the address bar |
+### RS · tote and audit analysis
 
-**Offline, explained honestly:** the first open needs the internet (the app downloads and caches itself). After that, no internet and no server are needed — the app runs from the browser cache. Internet is only needed again to receive updates. Your saved files live in the browser's storage, so they stay as long as the browser keeps that storage.
+Work with MP/RS data to locate totes from SKU/EAN information, review quantities and analyze audit results. Available workflows include **Tote Finder**, **AUDYT GEEK** (including RET analysis) and **Scalanie Geek** for grouping SKU and small-quantity totes.
 
----
+### MP · locations and stock operations
 
-## 🔄 Always up to date
+Tools include **AL_AUDYT**, **FORMATKA_59**, **GODZINY_MDT**, **STOCK**, **Scalanie** and **Konsolidacja**. Analyze shelf/location data, detect repeated STOCK closures and export or copy prepared results. Location-prefix filters (`MP1`, `MP2`, `MP3`) depend on the selected tool; FORMATKA_59 uses its own MP2-specific logic.
 
-You never re-download or re-install anything manually. Updates arrive like this:
+### Inne · everyday tools
 
-1. A new version is deployed to the site.
-2. The app notices it in the background and shows a banner: **"Update available / Zaktualizuj teraz"**.
-3. You click it — the new version activates. **Your loaded files, filters and data stay untouched.**
+- **Analiza przestojów:** review downtime intervals and supported employee IDs.
+- **ARTLTT:** prepare LTT CSV files from product names.
+- **Kreseczki:** generate and print Code 128 barcodes locally.
 
-The update is applied only when you click — an in-progress report is never interrupted. On the first launch, new users get a short welcome. After subsequent version updates, a one-time summary appears with a button to the full **What’s new** history. The ✨ badge still marks unread changelog entries.
+## Integrations · Mr. Robot Bridge
 
----
+Bridge is an optional **Edge / Chrome extension** for two separate connections:
 
-## 🔥 Why it exists
+1. **OpenReports:** trigger supported WMS reports, download XLSX files and use them in the corresponding Mr. Robot module.
+2. **SharePoint:** manually refresh an authorized online Excel source for Obsada. This downloads a copy; it does not modify the source workbook.
 
-If you've worked with warehouse reports, you know the pattern. A file arrives as `.xlsx`. Someone opens it in Excel, applies filters, copies columns into another file, runs a VBA macro — until the macro breaks after an Excel update. Then everyone does it slightly differently, and no two people get the same numbers.
+**Bridge version in this repository: `0.3.29`.** [Extension source](./extension/openreports-bridge/) · [Download archive](./downloads/OpenReports-Bridge-v0.3.29.zip)
 
-This prototype asks: what if that whole loop lived in a browser instead? What if the filters were defined once, in code, so everyone got the same result? What if a daily routine shrank to a couple of clicks?
+To install an unpacked extension, download and extract its archive, open `edge://extensions` or `chrome://extensions`, enable Developer mode and select **Load unpacked**. Configure permissions and download folders using **Settings → Bridge** in Mr. Robot. The SharePoint source link can be configured from the settings control in **Obsada → Grafik procesowy**.
 
-It's not a replacement for a real production system — it's a working sketch of what one might look like.
+Bridge does not replace the application's local Excel processors. It does not bypass corporate permissions or automatically sign you in. Unpacked extensions must be updated manually.
 
-### Open by design
-This isn't a closed internal tool. It's shared so it can grow both ways — from what other people know, and towards what other people need. If you've solved a similar problem in a smarter way, I'd like to hear about it. If something here saves you a week of trial and error, just take it.
+## Install & run
 
----
+**Use the hosted app:** [Open Mr. Robot](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/).
 
-## ⚡ Speed and performance
+| Device | Install |
+| --- | --- |
+| **Windows / macOS** | In Edge or Chrome, use the browser's *Install app* control |
+| **Android** | In Chrome, open the menu and choose *Install app* |
+| **iPhone** | In Safari, choose *Share → Add to Home Screen* |
 
-This is the part that matters most.
+On first use, load the app online so its PWA assets can be cached. Many local tools can then run offline with previously stored data. **OpenReports / SharePoint refreshes and updates still need network access.** Browser storage can be cleared by browser or device settings, so keep backups of important local XLSX databases.
 
-### The usual way
-| Task | The usual way |
-|------|---------------|
-| Open a big `.xlsx` report | Excel opens it slowly, sometimes freezes |
-| Apply filters and remap columns | Done by hand, error-prone |
-| Compare two large files | Copy-paste, VLOOKUP, waiting |
-| Produce a clean export | Reformatted manually every time |
-| Repeat it tomorrow | Same effort, every day |
+**Run from source:**
 
-### What Mr. Robot does instead
-| Task | Mr. Robot |
-|------|-----------|
-| Open a big `.xlsx` report | Parsed in a background thread — the UI stays responsive |
-| Filters and column mapping | Defined once in code — everyone gets the same result |
-| Compare two large files | In-memory hash maps — no VLOOKUP gymnastics |
-| Produce a clean export | One click → styled `.xlsx` or `.csv` |
-| Repeat it tomorrow | Files and filters are remembered |
-
-The calculations follow fixed rules defined in code, so the same input produces the same output for anyone who runs it — no more "my numbers differ from yours".
-
----
-
-## 🔌 Mr. Robot Bridge
-
-**Mr. Robot Bridge** is one optional Edge/Chrome extension with two integrations: **OpenReports** for WMS reports and **SharePoint** for refreshing the Obsada Excel workbook manually. Each integration uses its own access permissions and download folder. Configure both under **Mr. Robot → Settings → Bridge → Access and folders**. For SharePoint, paste the Excel share link in Obsada, grant permission once and choose `Downloads/MrRobot/SharePoint`; later use **Refresh data**.
-
-**One connection for Mr. Robot, not just for audits.** Mr. Robot Bridge is an optional Edge/Chrome extension that lets Mr. Robot request authorized XLSX reports directly from OpenReports-WMS. It is designed as a shared integration for current and future modules, while each module keeps its own existing Excel processor. Manual import and offline calculations remain available without the extension.
-
-**Currently connected:** `ECM_AI_Audit` → **AL_AUDYT / FORMATKA_59** and `ECM_STOCK_Items_after_receiving` → **GODZINY_MDT**, and `ECM_PICK_Lacks_during_picking` → **STOCK** (one day). Future reports can be added to the same Bridge rather than building separate extensions. Dates are selected in day/month/year order, and times use a 24-hour HH:MM:SS clock; some reports have additional parameters.
-
-**Installation in Edge / Chrome:** Open **Mr. Robot → Settings → Bridge**, download the ZIP and extract it. In Edge open `edge://extensions` or in Chrome `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json` (`extension/openreports-bridge` in the repository, or `extension` in the standalone ZIP if present). Refresh Mr. Robot to check connection status and version. Bridge opens OpenReports automatically if no tab exists, and waits for you to sign in on the website before resuming the request. The extension has its own release history and `latest.json` to check updates without changing the Mr. Robot version. Unpacked extensions must still be updated manually.
-
-Reports download to `Downloads/MrRobot/OpenReports`. Grant read access to this folder within Mr. Robot when requested. Bridge matches downloads to their report type; credentials are not stored by Bridge, and report processing remains local. Corporate browser policies may restrict extensions. A PWA cannot silently install an Edge extension, and unpacked extensions do not update automatically from GitHub.
-
-STOCK now uses ECM_PICK_Lacks_during_picking with one date and Data Source WMS ECM PODKARPACIE Prod.
-
-**Baza MP (Bridge v0.3.22):** `ECM_STOCK_MP_and_on_the_floor` shows MP/MP1/MP2/MP3 choices and sends MP%/MP1%/MP2%/MP3% location filters and brand selection. The downloaded XLSX uses the shared MP database in Scalanie/Konsolidacja and RS.
-
-KPI Audyt (`Audit_ECM_KPI`) and KPI Scalanie (`Pick_ECM_KPI`) are available through Bridge with independent date ranges and automatic `Pick Scal` selection.
-
-**Project files:** Extension source in [`extension/openreports-bridge/`](extension/openreports-bridge/), packaged installer in [`downloads/OpenReports-Bridge-v0.3.27.zip`](downloads/OpenReports-Bridge-v0.3.27.zip).
-
----
-
-## 🧩 The Modules (Deep Dive)
-
-
-
-
-The app is a hub with four sections. Each one replaces a recurring task.
-
-### 1. KPI Norms — employee performance
-Load `.xlsx` reports by drag and drop, combine them with a schedule file (`Grafik.xlsx`), filter by group, process or shift, and read the numbers.
-
-**Sub-modules:**
-- **Audyt** — KPI and INFO breakdown.
-- **Scalanie** — KPI for merging / picking.
-- **Rozkładanie** — KPI for distribution, with RSORT and Returns detection.
-- **NADWE / VAS** — KPI with two rows per login.
-- **Statistics** — one view across all processes: rankings, efficiency, median, average.
-- **Pracownicy (Employees)** — shared employee directory, training register, profiles, resignation history and monthly work schedules.
-
-**What it does well:**
-- Norm thresholds based on the median, adjustable per process.
-- Top-3 / Top-5 / Top-10 rankings.
-- Coloured Excel export with conditional formatting.
-- Filters built from the schedule file (group, process, shift).
-
-**NADWE / VAS, in detail:** The KPI screen includes **4. Normy pracowników** and **5. Raport NADWE / VAS**. The fifth section shows the same per-login summary used by **Pobierz NADWE/VAS** directly in the app. Columns cover **NUMBER OF ITEMS**, **TOTAL TIME IN THE MASK [H]**, and **ITEMS PER HOUR**, each split into NADWE and VAS. Existing filters and performance highlighting remain available; export is still supported. A user may have separate NADWE and VAS rows in the norms table, then one combined row in the report.
-
-**Employees and training:** The **Pracownicy** tab reuses the Grafik file already loaded in KPI; the training register (`.xlsx` / `.xlsm`) is loaded separately and remembered in the browser. Search employees by ID or name, inspect training history and trainers, and see current training entries from `Arkusz1`. Resignations from `REZYGNACJE` remain available even when an employee returns to the active schedule. Employee profiles can also open by clicking supported IDs in KPI tables, STOCK and downtime analysis.
-
-**Monthly schedule:** Each profile has a **Grafik** tab. Calendar entries come from the day columns of the shared Excel schedule, with neutral shift markers and distinct colors for `W` (day off), `U` (leave), `L4` / `1L4` (sick leave), `NN` (unexcused absence) and `NUN` (excused absence). Select the schedule's **month and year** explicitly because the file may cover the upcoming month without naming it in its headers. The selection is stored locally; changing it does not require re-importing the file.
-
-**Employee groups and identifiers:** KPI reports can be filtered by employee group, identified automatically from login prefixes. Related identifiers (`SPD → PD` and `S36 → 36`) are matched when opening employee profiles. Group labels remain visible independently of schedule availability; missing schedule records are indicated separately.
-
-### 2. RS — Tote Finder
-Compares two large databases in memory.
-
-**Sub-modules:**
-- **MP → RS Tote Finder** — matches EANs from MP to TOTE locations in RS.
-- **Search totes by EAN** — paste a list, get TOTE and inventory quantity.
-- **AUDYT GEEK** — reads a Stocktake order file and shows in-app audit summaries, including copying results and supported Excel export.
-- **Scalanie Geek** — groups SKU from the existing Baza RS and analyses quantities across tote with configurable thresholds.
-
-**Details that matter:**
-- Median or minimum-quantity strategy when picking a TOTE.
-- Multi-tote detection and filtering.
-- 2×2 pop-tote awareness.
-- Copy to clipboard and Excel export.
-
-**AUDYT GEEK → Tryb AUDYT RET:** The in-app stocktake summary has a first table for overall totals and a second table grouped by category. The RET summary includes counted totes/compartments/items, correct totes, incorrect compartments, incorrect totes and error rate, plus mixed-item locations, surplus, shortages, extra SKUs, major damage and the corresponding item counts. New error categories use rows with a non-empty **Exception reason**; repeated parent shelf locations are classified as mixed instead of being counted again as individual error types. The per-group **Kopiuj** action copies values horizontally, tab-separated, for pasting into Excel. Other audit modes retain their existing behaviour.
-
-### Scalanie Geek — SKU and tote analysis
-
-A new RS tool that uses the already-loaded **Baza RS** (no second import). It groups records by **SKU code** and computes tote row count, total quantity, maximum tote quantity, count of tote rows with quantity ≤ X, and sum of quantities in those rows. The two independent controls set **X** and optionally restrict SKUs to those with a maximum quantity **≥ Y**. Default values match the original VBA macro: X=3 and Y=10, with the maximum filter enabled. Results are sorted by small-tote quantity sum descending, can be searched/selected, and exported as `Scalanie_Geek_SKU_Analysis.xlsx` with the `SKU_Analysis` sheet. This is an analysis, not a physical tote-transfer planner.
-
-### 3. MP — Audit and merging
-**Sub-modules:**
-- **AL_AUDYT** — KPI and INFO from an audit report.
-- **FORMATKA_59** — quality control format with its own metrics.
-- **GODZINY_MDT** — MDT analysis, shelf 1/1, location lists.
-- **STOCK** — location reports grouped by receiving hours.
-  - **STOCK Intelligence (v3.23):** Closure overview counts events and unique locations across MP1/MP2/MP3 and other locations; optional PKECOM/S login exclusions and entire-file or selected-hour scope. The Repeats tab reveals repeated location closures, EANs, operators, quantities, and event history. This is read-only; normal STOCK processing and exports are unchanged.
-- **Scalanie** — filter locations by shelf, ABC, SKU range.
-- **Konsolidacja** — find small locations worth consolidating; detailed EAN cards also display TECHNICAL DESCRIPTION from the loaded MP file.
-
-**Notes:**
-- Where a VBA macro already existed, the logic is matched to it, so the numbers line up with what people were used to.
-- Clipboard copy is there so results can be pasted straight into Excel or a WMS.
-- CSV files are exported with the exact filenames downstream tools expect.
-
-**Recent Scalanie improvements:** The results view supports selecting locations and applying that selection consistently to both **Kopiuj** and CSV export. This is useful when a report contains more candidate locations than you want to send onward.
-
-**Audit location modes:** **MP → Audyt** supports two processing modes: one excludes `MP1` and `MP3`, while the other excludes `MP2` and allows selecting `MP1`, `MP3`, or both. These settings apply to **AL_AUDYT**, **GODZINY_MDT** and **STOCK**. **FORMATKA_59** keeps its dedicated **MP2-only** logic.
-
-**Scalanie / Konsolidacja location selection:** Both tools support selecting one or more location prefixes (`MP1`, `MP2`, `MP3`) before generating results. Results and exports follow the selected types.
-
-**Workflow shortcuts:** In **STOCK**, a supported employee ID under **Kto zamknął** opens the employee profile. **STOCK** and **GODZINY_MDT** can open **Kreseczki** directly, with a return path to the originating tool.
-
-### 4. Inne — everyday tools
-- **Analiza_Przestojów** — downtime analysis per USER ID, 8–300 minutes; supported employee IDs can open their profiles.
-- **ARTLTT** — paste product names and generate LTT CSV files.
-- **Kreseczki** — generate **Code 128** barcodes from entered text or numbers, preview the result, then **Drukuj** (print) or **Wyczyść** (clear). Generation runs locally and works offline. The current interface deliberately does **not** include PNG/SVG download buttons.
-
-The Hub highlights **Przestoje · ARTLTT · Kreseczki**; the Inne screen lists all three as active. Its barcode generator is part of the same visual interface, not an external website.
-
----
-
-### Obsada · process staffing (v3.24.0)
-
-Use **Obsada** from the main menu. Upload `Grafik procesowy (godziny).xlsx` to view the STAN shift timeline, monthly process history, and recorded-hour Intelligence. All processing stays in the browser. OneDrive/Power BI automatic syncing is **not yet implemented**. Blank future hours do not imply absence.
-
-## ⚙️ How it's built (Under the Hood)
-
-A few decisions that make it fast and maintainable:
-
-- **Web Workers for the heavy lifting.** Excel parsing runs off the main thread, so the interface never freezes on large files. Each module has its own worker file in `js/workers/`.
-- **Hash maps for cross-referencing**, which turns repeated lookups into linear-time work.
-- **Reactive in-memory state**, persisted to IndexedDB — a reload (or an app update) doesn't lose your files.
-- **Runtime Tailwind CSS.** Styles are compiled right in the browser — no build step, no Node, no npm install.
-- **PWA with an atomic, versioned cache.** The service worker precaches the whole app as one release; a broken deploy never goes live. Updates activate only after the user clicks the banner.
-- **Auto-deploy via GitHub Actions:** every push publishes to GitHub Pages and stamps a fresh cache revision, so users get the update banner automatically.
-- **4 interface languages** (Polish, Russian, English, Ukrainian), switchable in-app without losing data.
-
----
-
-## 🗂 Project structure
-
+```bash
+git clone https://github.com/horkiroman4408-cyber/Mr.-Robot-App.git
+cd Mr.-Robot-App
+python3 -m http.server 8000
 ```
+
+Open `http://localhost:8000/`. Use a local HTTP server rather than opening `index.html` via `file://`, which restricts Service Workers and Web Workers.
+
+## Architecture & project files
+
+Mr. Robot is a client-side **Vue 3 PWA**, with module-specific Web Workers for heavy workbook processing and **SheetJS** for XLSX files. Local browser storage uses **IndexedDB**; the Service Worker handles cached application assets and update delivery. Optional Bridge integrations connect to external systems only when configured.
+
+```text
 Mr.-Robot-App/
-├── index.html              # page skeleton + app markup (Vue templates)
-├── css/styles.css          # all styles
+├── index.html                  Vue application shell
+├── css/                        Application and module styles
 ├── js/
-│   ├── app.js              # ★ main application code (UI + logic)
-│   ├── changelog.js        # ★ "What's new" history
-│   ├── stock-intelligence.js  # STOCK read-only analysis: closures / repeats
-│   ├── i18n.js             # translations (PL / RU / EN / UK)
-│   ├── theme.js            # light / dark theme
-│   ├── data/shifts.js      # AB/CD shift lists
-│   ├── workers/            # background file processors, one per module
-│   │   ├── kpi.js          #   KPI Norms
-│   │   ├── tote.js         #   RS · Tote Finder
-│   │   ├── audyt.js        #   MP · Audit
-│   │   ├── mdt.js          #   MDT
-│   │   ├── stock.js        #   STOCK
-│   │   ├── przestoje.js    #   Downtime analysis
-│   │   ├── pracownicy.js   #   Schedule (employees)
-│   │   ├── geek.js         #   Stocktake order audit
-│   │   └── common.js       #   worker constructor
-│   └── vue.global.js, xlsx.js, cptable.js, vendor-tailwind.js   # libraries
-├── manifest.webmanifest    # PWA manifest (name, icons, standalone mode)
-├── sw.js                   # service worker: offline cache + updates
-├── icons/                  # app icons (192 / 512 / maskable)
-└── .github/workflows/pages.yml   # auto-deploy to GitHub Pages
+│   ├── app.js                  Main app state and behaviors
+│   ├── obsada-planner.js       Local staffing plans and XLSX exports
+│   ├── obsada-team-intelligence.js
+│   ├── obsada-merge.js         Database conflict reconciliation
+│   ├── changelog.js            In-app What's New
+│   └── workers/                Excel analysis workers
+├── extension/openreports-bridge/
+├── sw.js                       PWA cache and updates
+├── manifest.webmanifest
+└── .github/workflows/          Deployment workflows
 ```
 
-★ — the files you'll edit most often.
+For code changes, tests and release procedures, see [DEVELOPMENT.md](./DEVELOPMENT.md). User-facing release notes live inside **Co nowego / What's New** in the app, not in this README.
 
----
+## Privacy, permissions & limitations
 
-## 🏃 Running it
+- Import only reports you are permitted to access. Do not post real employee data or confidential XLSX reports in public issues.
+- Local data is held in the browser and, where configured, exported to a folder you choose. Losing access to that folder can prevent safe backup/merge until permission is restored.
+- Offline support does not mean that remote websites, new SharePoint files or OpenReports downloads work offline.
+- This is a practical operational tool, not a replacement for official WMS/HR records or organizational data policies.
 
-**Live version (easiest):**
-**[Open Mr. Robot](https://horkiroman4408-cyber.github.io/Mr.-Robot-App/)** — or install it as an app (see above).
+## Project & author
 
-**From source:**
-1. Clone or download this repository.
-2. Run a tiny local server inside the folder:
-   ```bash
-   python3 -m http.server 8000
-   ```
-3. Open `http://localhost:8000/`.
+**Created by Raman Horki.** Feedback, reproducible bug reports and ideas for improvements are welcome through the repository's issues. Please use anonymized test files when reporting problems.
 
-Why a server? Browsers don't allow service workers and web workers to run from files opened directly (`file://`). This is a browser security rule, not an app requirement — the hosted version needs nothing of the sort.
-
----
-
-## 🔧 For developers
-
-The short version of the workflow:
-
-1. Make changes (usually `js/app.js`, `css/styles.css`, `index.html`).
-2. Commit and push to `main`.
-3. GitHub Actions deploys to Pages automatically and stamps a new cache revision — every user gets the update banner. Nothing to bump by hand.
-
-For a notable release, also add an entry to `CHANGELOG_ALL` in `js/changelog.js` and update the version in `<title>`.
-
-The detailed maintenance guide (in Russian) lives in **[DEVELOPMENT.md](./DEVELOPMENT.md)**.
-
----
-
-## 🤝 Helping each other
-
-This repo is a prototype, shared openly. It can go both ways.
-
-### What this might give you
-If you're building something for warehouse or inventory work, here are the ideas most worth taking:
-- An installable web page that anyone can open beats a repo that needs Node, Docker and CI for a tool used by five people.
-- Parsing `.xlsx` is CPU-heavy. Moving it into a Web Worker keeps the UI smooth on huge files.
-- Two large files joined in memory beat every VLOOKUP you'll ever write.
-- IndexedDB makes a page reload feel like nothing happened.
-- Filters and formulas in code mean every person gets the same numbers.
-- If a routine takes twenty clicks, everyone will do it differently. If it takes one, everyone does it the same way.
-
-Use them, adapt them, rewrite them in your own stack. If any of this ends up in something you build — a note, a link back, or just a message saying hello would be genuinely appreciated. It's not required, but it does make the work feel worth sharing.
-
-### What would help this project
-If you'd like to help it grow, here's what's genuinely useful:
-- **Ideas.** A smarter way to filter, a module that's missing, a workflow this doesn't cover yet.
-- **Bug reports.** A file that doesn't parse right, a KPI that looks off, an edge case that breaks something.
-- **Pull requests.** Small fixes, new filters, or an entirely new sub-module.
-- **Feedback on the design.** What feels confusing, what feels slow, what feels wrong.
-- **Anonymized sample files.** Small, fake-data examples of report formats — please don't attach real employee data or confidential reports to public issues.
-- **Other languages.** The UI ships in Polish, Russian, English and Ukrainian; more are welcome.
-
-If you're working on something similar, open an issue and say hi. I'd rather compare notes than work in isolation.
-
----
-
-## 🛣️ What's next
-
-**Done so far:**
-- [x] KPI dashboard with statistics and rankings
-- [x] Multi-file cross-referencing (Tote Finder)
-- [x] In-app audit analysis without exporting to Excel
-- [x] Persistent file storage with IndexedDB
-- [x] Off-thread Excel parsing with Web Workers
-- [x] Background update checks
-- [x] PWA: install as an app, offline work
-- [x] Modular codebase (per-module workers, separate changelog)
-
-**Planned or under consideration:**
-- [ ] PDF export
-- [ ] Batch processing of multiple files
-- [ ] User-defined formulas and filters
-- [ ] Optional cloud sync (opt-in)
-
----
-
-## 🏆 Credit
-
-This prototype is shared openly so people can read it, learn from it and build on it.
-
-It builds on open-source work by others — notably [Vue.js](https://vuejs.org/) and [SheetJS](https://sheetjs.com/) — whose license notices are preserved in the source files. This repository itself doesn't yet declare a license; until it does, please treat the code as shared for reading and learning rather than as public domain.
-
-If you take code, ideas or whole modules from here and put them into something of your own, a small credit somewhere (a link, a name, a mention in your README) would be really nice. Not because it's owed, but because it's how small open projects stay motivated to keep sharing.
-
-If you'd rather just say hello and tell me what you built with it, that works too. Open an issue or reach out — I'd like to see it.
-
----
-
-## 👨‍💻 Author
-
-**Raman Horki**
-> *If you do the same thing twice — automate it.*
-
-Open to feedback and collaboration. If you have thoughts, open an issue in this repository.
+**License:** this repository does not currently publish a top-level license for the project. Public visibility does **not** mean the code is in the public domain or grants unrestricted reuse. Third-party components retain their respective license notices.
 
 © 2026 Mr. Robot · Made by Raman Horki
