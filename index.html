@@ -254,7 +254,7 @@
      <button v-else-if="obsadaPlan.syncKind==='error' || obsadaPlan.syncKind==='pending'" type="button" class="obs-bridge-small-btn" @click="obsadaPlan.syncIfAllowed(true)">{{ eMsg('Ponów zapis','Повторить запись','Retry save','Повторити запис') }}</button>
     </div>
    </div>
-  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || !obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-top-source-details">
+  <div v-if="obsadaPlan.state.stanChanges.length || (obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted) || obsadaBridge.editing" class="obs-top-source-details">
   <div v-if="obsadaBridge.editing" class="obs-top-source-controls">
    <div class="obs-share-sync-controls">
     <div class="obs-stan-date-set" role="group" :aria-label="eMsg('Data i grafik STAN','Дата и график STAN','STAN date and shift','Дата й графік STAN')">
@@ -272,7 +272,7 @@
    <div class="obs-stan-review-actions"><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaPlan.state.busy || !obsadaPlan.stanSelectedCount" @click="obsadaPlan.applyStanReview()">{{ eMsg('Zastosuj','Применить','Apply','Застосувати') }} ({{ obsadaPlan.stanSelectedCount }})</button><button type="button" class="obs-bridge-small-btn" @click="obsadaPlan.dismissStanReview()">{{ eMsg('Zachowaj lokalne i zamknij','Оставить локальные и закрыть','Keep local and close','Залишити локальні й закрити') }}</button></div>
   </div>
   <div v-if="obsadaBridge.connected && obsadaBridge.sourceConfigured && !obsadaBridge.permissionGranted" class="obs-bridge-permission"><span>{{ eMsg('Zezwól na dostęp SharePoint','Разреши доступ к SharePoint','Grant SharePoint access','Надайте доступ SharePoint') }}</span><button type="button" class="obs-bridge-small-btn primary" :disabled="obsadaBridge.permissionPending" @click="obsadaBridgePermissionOpen">{{ eMsg('Zezwól','Разрешить','Allow','Дозволити') }}</button></div>
-  <div v-if="!obsadaBridge.sourceConfigured || obsadaBridge.editing" class="obs-bridge-config obs-share-sync-config-v2">
+  <div v-if="obsadaBridge.editing" class="obs-bridge-config obs-share-sync-config-v2">
    <div class="obs-share-sync-config-title"><strong>{{ eMsg('Źródło SharePoint','Источник SharePoint','SharePoint source','Джерело SharePoint') }}</strong></div>
    <label class="obs-bridge-input-label" for="obs-sharepoint-link">{{ eMsg('Link do pliku XLSX','Ссылка на XLSX','XLSX file link','Посилання на XLSX') }}</label>
    <div class="obs-bridge-input-line"><input id="obs-sharepoint-link" v-model.trim="obsadaBridge.link" type="url" spellcheck="false" autocomplete="off" placeholder="https://lppsa-my.sharepoint.com/…" :disabled="obsadaBridge.setupBusy" @keydown.enter.prevent="obsadaBridgeSaveSource"></div>
