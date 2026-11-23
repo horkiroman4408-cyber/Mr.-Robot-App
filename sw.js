@@ -17,12 +17,12 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.26.1-history-source-help-20261123-1';
+const CACHE_REVISION = 'v3.26.1-hub-hover-help-20261123-1';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
 const PRECACHE_URLS = [
-  'css/obsada-module.css?v=3.26.1-source-help-1',
+  'css/obsada-module.css?v=3.26.1-hub-hover-help-1',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.26.0-local-sync-conflict-ui-1',
   'js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1',

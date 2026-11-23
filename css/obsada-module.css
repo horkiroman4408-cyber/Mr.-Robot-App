@@ -185,6 +185,32 @@ html[data-theme="ivory"] #app .obsada-module {--obs-muted:#75695d;}
 #app .obsada-module .obs-today-stat-other {color:var(--obs-text);}
 html:is([data-theme="dark"],[data-theme="graphite"]) #app .obsada-module .obs-outside-section {border-color:var(--obs-border);}
 
+/* Obsada HUB: contextual, keyboard-accessible feature descriptions. */
+#app .obsada-wide{overflow:visible!important}
+#app .obsada-wide-features{position:relative;isolation:isolate}
+#app .obsada-wide-feature{position:relative;cursor:default;min-height:0}
+#app .obsada-wide-feature:has(> .obsada-wide-feature-summary:hover),
+#app .obsada-wide-feature:focus-within,
+#app .obsada-wide-feature[open]{z-index:12;border-color:var(--module-accent);background:var(--module-soft)}
+#app .obsada-wide-feature-summary{display:flex;flex-direction:column;align-items:flex-start;gap:9px;width:100%;list-style:none;outline-offset:4px;cursor:help}
+#app .obsada-wide-feature-summary::-webkit-details-marker{display:none}
+#app .obsada-wide-feature-summary::marker{content:''}
+#app .obsada-wide-feature-summary:focus-visible{outline:2px solid var(--module-accent);border-radius:8px}
+#app .obsada-wide-feature-text{display:block;min-width:0}
+#app .obsada-wide-feature-popover{display:none;position:absolute;left:50%;bottom:calc(100% + 13px);transform:translateX(-50%);box-sizing:border-box;width:min(316px,78vw);max-width:calc(100vw - 32px);padding:16px 17px;z-index:30;border-radius:16px;border:1px solid var(--module-border);background:var(--mr-c106,#fff);color:var(--mr-c11,#20252d);box-shadow:0 18px 48px rgba(22,27,38,.19),0 3px 10px rgba(22,27,38,.08);text-align:left;line-height:1.5;pointer-events:none}
+#app .obsada-wide-feature-popover:after{content:'';position:absolute;bottom:-7px;left:calc(50% - 7px);width:14px;height:14px;background:inherit;border-right:1px solid var(--module-border);border-bottom:1px solid var(--module-border);transform:rotate(45deg)}
+#app .obsada-wide-feature-popover strong{display:block;color:var(--module-accent);font-size:13px;line-height:1.4;margin-bottom:6px}
+#app .obsada-wide-feature-popover p{font-size:12px;margin:0 0 10px;line-height:1.55;color:inherit}
+#app .obsada-wide-feature-popover ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+#app .obsada-wide-feature-popover li{position:relative;padding-left:15px;font-size:11px;color:inherit;opacity:.9}
+#app .obsada-wide-feature-popover li:before{content:'✓';position:absolute;left:0;top:0;color:var(--module-accent);font-weight:700}
+@media(hover:hover){#app .obsada-wide-feature:hover>.obsada-wide-feature-popover{display:block}#app .obsada-wide:hover .obsada-wide-feature:not(:hover):not([open]){transform:none;border-color:var(--module-border)}}
+#app .obsada-wide-feature:focus-within>.obsada-wide-feature-popover,#app .obsada-wide-feature[open]>.obsada-wide-feature-popover{display:block}
+@media(max-width:650px){#app .obsada-wide-feature-popover{left:50%;width:min(285px,calc(100vw - 68px))}#app .obsada-wide-feature-summary{gap:7px}}
+@media(hover:none){#app .obsada-wide-feature-popover{position:relative;display:none!important;left:auto;bottom:auto;transform:none;width:100%;max-width:100%;padding:10px 3px 2px;box-shadow:none;background:transparent;border:0;border-radius:0;pointer-events:auto}#app .obsada-wide-feature-popover:after{display:none}#app .obsada-wide-feature[open]>.obsada-wide-feature-popover{display:block!important}#app .obsada-wide-feature[open]{grid-column:span 3}#app .obsada-wide-feature[open] .obsada-wide-feature-summary{cursor:pointer}#app .obsada-wide-feature-popover strong{margin-bottom:4px}}
+@media(hover:none) and (max-width:380px){#app .obsada-wide-feature[open]{grid-column:1/-1}}
+html:is([data-theme="dark"],[data-theme="graphite"]) #app .obsada-wide-feature-popover{background:var(--mr-c106,#282d39);color:var(--mr-c11,#f0f2f6);box-shadow:0 18px 48px rgba(0,0,0,.45)}
+
 /* Obsada hub: legible descriptions across all four themes.
    Hub feature subtitles must not inherit --mr-c12 (too dark on dark surfaces).
    Scoped to Obsada's three homepage feature tiles only. */

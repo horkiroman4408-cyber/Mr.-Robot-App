@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.1-source-help-1">
+<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.26.1-hub-hover-help-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -165,11 +165,76 @@
     <p class="app-desc">{{ eMsg('Aktualny STAN, historia procesów i analiza godzin pracy.','Актуальный STAN, история процессов и анализ часов работы.','Current STAN, process history and work-hour analysis.','Актуальний STAN, історія процесів і аналіз годин роботи.') }}</p>
   </div>
   <div class="obsada-wide-features">
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">◷</span><div><b>STAN</b><small>{{ eMsg('Obsada według godzin','Расстановка по часам','Staffing by hour','Розподіл за годинами') }}</small></div></div>
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><div><b>{{ eMsg('Planowanie','Планирование','Planning','Планування') }}</b><small>{{ eMsg('Przydziały i zespoły','Назначения и команды','Assignments and teams','Призначення й команди') }}</small></div></div>
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▤</span><div><b>{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</b><small>{{ eMsg('Podgląd i eksport','Просмотр и экспорт','Preview and export','Перегляд та експорт') }}</small></div></div>
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><div><b>{{ eMsg('Historia','История','History','Історія') }}</b><small>{{ eMsg('Procesy pracowników','Процессы сотрудников','Employee processes','Процеси працівників') }}</small></div></div>
-    <div class="obsada-wide-feature"><span class="obsada-wide-feature-icon" aria-hidden="true">▥</span><div><b>{{ eMsg('Analiza','Анализ','Analysis','Аналіз') }}</b><small>{{ eMsg('Analiza godzin','Анализ часов','Hours analysis','Аналіз годин') }}</small></div></div>
+    <details class="obsada-wide-feature" @click.stop>
+      <summary class="obsada-wide-feature-summary" aria-label="Więcej informacji / More information">
+        <span class="obsada-wide-feature-icon" aria-hidden="true">◷</span><span class="obsada-wide-feature-text"><b>STAN</b><small>{{ eMsg('Obsada według godzin','Расстановка по часам','Staffing by hour','Розподіл за годинами') }}</small></span>
+      </summary>
+      <div class="obsada-wide-feature-popover" role="note">
+        <strong>STAN</strong>
+        <p>{{ eMsg('Sprawdź, kto pracuje na poszczególnych procesach w wybranej godzinie i zmianie.','Посмотри, кто работает на каждом процессе в выбранный час и смену.','See who is assigned to each process for the selected hour and shift.','Переглядай розподіл працівників за процесами для вибраної години й зміни.') }}</p>
+        <ul>
+          <li>{{ eMsg('Widok godzinowy obsady','Почасовая расстановка','Hourly staffing overview','Погодинний розподіл') }}</li>
+          <li>{{ eMsg('Podział na działy i procesy','Разделение по отделам и процессам','Department and process breakdown','Розподіл за відділами й процесами') }}</li>
+          <li>{{ eMsg('Odczyt z zapisanego planu lub STAN','Данные сохранённого плана или STAN','Saved plan or STAN snapshot','Дані з плану або STAN') }}</li>
+        </ul>
+      </div>
+    </details>
+    <details class="obsada-wide-feature" @click.stop>
+      <summary class="obsada-wide-feature-summary" aria-label="Więcej informacji / More information">
+        <span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><span class="obsada-wide-feature-text"><b>{{ eMsg('Planowanie','Планирование','Planning','Планування') }}</b><small>{{ eMsg('Przydziały i zespoły','Назначения и команды','Assignments and teams','Призначення й команди') }}</small></span>
+      </summary>
+      <div class="obsada-wide-feature-popover" role="note">
+        <strong>{{ eMsg('Planowanie','Планирование','Planning','Планування') }}</strong>
+        <p>{{ eMsg('Ułóż obsadę na kolejne godziny, przenoś pracowników między procesami i zarządzaj zespołami.','Распределяй сотрудников по часам и процессам, управляй командами и назначениями.','Assign staff across hours and processes and manage saved teams.','Плануй працівників за годинами й процесами та керуй командами.') }}</p>
+        <ul>
+          <li>{{ eMsg('Planowanie godzinowe','Почасовое планирование','Hour-by-hour assignments','Погодинні призначення') }}</li>
+          <li>{{ eMsg('Zapisane zespoły i procesy','Сохранённые команды и процессы','Saved teams and processes','Збережені команди й процеси') }}</li>
+          <li>{{ eMsg('Spóźnienia i wcześniejsze wyjścia','Опоздания и ранние уходы','Late arrivals and early departures','Запізнення та ранні виходи') }}</li>
+        </ul>
+      </div>
+    </details>
+    <details class="obsada-wide-feature" @click.stop>
+      <summary class="obsada-wide-feature-summary" aria-label="Więcej informacji / More information">
+        <span class="obsada-wide-feature-icon" aria-hidden="true">▤</span><span class="obsada-wide-feature-text"><b>{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</b><small>{{ eMsg('Podgląd i eksport','Просмотр и экспорт','Preview and export','Перегляд та експорт') }}</small></span>
+      </summary>
+      <div class="obsada-wide-feature-popover" role="note">
+        <strong>{{ eMsg('Plan na jutro','План на завтра','Tomorrow’s plan','План на завтра') }}</strong>
+        <p>{{ eMsg('Przygotuj zestawienie obsady na wybrany dzień z zapisanych przydziałów.','Подготовь список сотрудников на выбранный день по сохранённым назначениям.','Prepare a staffing list for a selected date from saved assignments.','Підготуй список працівників на вибраний день зі збережених призначень.') }}</p>
+        <ul>
+          <li>{{ eMsg('Wybór daty i zespołów','Выбор даты и команд','Choose date and teams','Вибір дати й команд') }}</li>
+          <li>{{ eMsg('Filtrowanie pracowników i procesów','Фильтры сотрудников и процессов','Filter staff and processes','Фільтри працівників і процесів') }}</li>
+          <li>{{ eMsg('Excel, PDF i druk A4','Excel, PDF и печать A4','Excel, PDF and A4 printing','Excel, PDF і друк A4') }}</li>
+        </ul>
+      </div>
+    </details>
+    <details class="obsada-wide-feature" @click.stop>
+      <summary class="obsada-wide-feature-summary" aria-label="Więcej informacji / More information">
+        <span class="obsada-wide-feature-icon" aria-hidden="true">▦</span><span class="obsada-wide-feature-text"><b>{{ eMsg('Historia','История','History','Історія') }}</b><small>{{ eMsg('Procesy pracowników','Процессы сотрудников','Employee processes','Процеси працівників') }}</small></span>
+      </summary>
+      <div class="obsada-wide-feature-popover" role="note">
+        <strong>{{ eMsg('Historia','История','History','Історія') }}</strong>
+        <p>{{ eMsg('Przeglądaj zapisy pracy według osób, dat i procesów oraz sprawdzaj źródła danych.','Просматривай записи сотрудников по датам и процессам и проверяй источники данных.','Review employee records by date and process, with their data sources.','Переглядай записи роботи за датами, процесами й джерелами даних.') }}</p>
+        <ul>
+          <li>{{ eMsg('Historia SharePoint','История SharePoint','SharePoint history','Історія SharePoint') }}</li>
+          <li>{{ eMsg('Historia z planowaniem','История вместе с планированием','History with planning','Історія з плануванням') }}</li>
+          <li>{{ eMsg('Kontrola różnic i wpisów','Проверка расхождений и записей','Review differences and records','Перевірка розбіжностей і записів') }}</li>
+        </ul>
+      </div>
+    </details>
+    <details class="obsada-wide-feature" @click.stop>
+      <summary class="obsada-wide-feature-summary" aria-label="Więcej informacji / More information">
+        <span class="obsada-wide-feature-icon" aria-hidden="true">▥</span><span class="obsada-wide-feature-text"><b>{{ eMsg('Analiza','Анализ','Analysis','Аналіз') }}</b><small>{{ eMsg('Analiza godzin','Анализ часов','Hours analysis','Аналіз годин') }}</small></span>
+      </summary>
+      <div class="obsada-wide-feature-popover" role="note">
+        <strong>{{ eMsg('Analiza','Анализ','Analysis','Аналіз') }}</strong>
+        <p>{{ eMsg('Porównuj zarejestrowane godziny i procesy pracowników oraz ich ostatnie dni pracy.','Сравнивай часы и процессы сотрудников, изучай последние рабочие дни.','Compare recorded hours and processes and review recent completed workdays.','Порівнюй години й процеси працівників та останні робочі дні.') }}</p>
+        <ul>
+          <li>{{ eMsg('Wybór okresu i pracowników','Выбор периода и сотрудников','Select period and employees','Вибір періоду й працівників') }}</li>
+          <li>{{ eMsg('Porównanie godzin według procesów','Сравнение часов по процессам','Compare hours by process','Порівняння годин за процесами') }}</li>
+          <li>{{ eMsg('Dwa ostatnie dni pracy','Два последних рабочих дня','Two latest completed workdays','Два останні робочі дні') }}</li>
+        </ul>
+      </div>
+    </details>
   </div>
   <div class="obsada-wide-action"><button type="button" class="launch-btn">{{ eMsg('Otwórz Obsada','Открыть Obsada','Open Obsada','Відкрити Obsada') }} <span class="arrow">→</span></button></div>
 </div>
