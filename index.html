@@ -290,8 +290,13 @@
         <div v-for="conflict in obsadaPlan.state.mergePreview.conflicts" :key="conflict.id" class="obs-merge-conflict"><span :title="conflict.label">{{ obsadaPlan.mergeKindLabel(conflict.kind) }} · {{ conflict.label }}</span>
          <mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.mergeChoices[conflict.id]" :aria-label="conflict.label"><option value="mine">{{ eMsg('Moje dane','Мои данные','My data','Мої дані') }}</option><option value="theirs">{{ eMsg('Dane kolegi','Данные коллеги','Colleague data','Дані колеги') }}</option></mr-obsada-select></div>
        </div>
-       <div class="obs-plan-tools"><button type="button" :disabled="obsadaPlan.state.mergeBusy || !obsadaPlan.state.folderName" @click="obsadaPlan.applyColleagueMerge()">{{ eMsg('Zapisz kopię i połącz','Сохранить копию и объединить','Back up and merge','Зберегти копію й об’єднати') }}</button><button type="button" @click="obsadaPlan.cancelColleagueMerge()">{{ eMsg('Anuluj','Отмена','Cancel','Скасувати') }}</button></div>
-       <p v-if="!obsadaPlan.state.folderName" class="obs-quiet">{{ eMsg('Najpierw połącz folder MrRobot.','Сначала подключи папку MrRobot.','Connect your MrRobot folder first.','Спочатку під’єднайте папку MrRobot.') }}</p>
+       <div v-if="obsadaPlan.state.mergeFolderAccess!=='granted'" class="obs-warning" role="alert">
+        <strong>{{ eMsg('Brak dostępu do folderu bazy','Нет доступа к папке базы','Database folder access required','Немає доступу до папки бази') }}</strong>
+        <p>{{ eMsg('Przed połączeniem baz Mr. Robot zapisuje kopię bezpieczeństwa. Wybierz istniejący folder MrRobot lub przywróć prawo zapisu. Lista konfliktów pozostanie otwarta.','Перед объединением Mr. Robot создаёт резервную копию. Выбери существующую папку MrRobot или восстанови разрешение на запись. Список конфликтов останется открытым.','Before merging, Mr. Robot creates a backup. Select your existing MrRobot folder or restore write permission. The conflict list stays open.','Перед об’єднанням Mr. Robot створює резервну копію. Оберіть папку MrRobot або відновіть право запису. Список конфліктів залишиться відкритим.') }}</p>
+        <button type="button" :disabled="obsadaPlan.state.mergeBusy" @click="obsadaPlan.reconnectMergeFolder()">{{ eMsg('Połącz folder','Подключить папку','Connect folder','Підключити папку') }}</button>
+       </div>
+       <p v-if="obsadaPlan.state.error" class="obs-warning" role="alert">{{ obsadaPlan.state.error==='LOCAL_CHANGED_REPREVIEW_FILE'?eMsg('Baza zmieniła się po wczytaniu pliku. Wybierz plik kolegi ponownie, aby bezpiecznie sprawdzić konflikty.','База изменилась после загрузки файла. Выбери файл коллеги повторно, чтобы безопасно проверить конфликты.','The database changed after import. Choose the colleague file again to review conflicts safely.','База змінилася після завантаження. Оберіть файл колеги повторно.'):obsadaPlan.state.error }}</p>
+       <div class="obs-plan-tools"><button type="button" :disabled="obsadaPlan.state.mergeBusy || obsadaPlan.state.mergeFolderAccess!=='granted' || obsadaPlan.state.error==='LOCAL_CHANGED_REPREVIEW_FILE'" @click="obsadaPlan.applyColleagueMerge()">{{ eMsg('Zapisz kopię i połącz','Сохранить копию и объединить','Back up and merge','Зберегти копію й об’єднати') }}</button><button type="button" @click="obsadaPlan.cancelColleagueMerge()">{{ eMsg('Anuluj','Отмена','Cancel','Скасувати') }}</button></div>
       </template>
       <p v-if="obsadaPlan.state.mergeMessage" class="obs-bridge-ok" role="status">{{ obsadaPlan.state.mergeMessage }}</p>
      </div>
@@ -3072,7 +3077,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-clean-office-teams-3"></script>
+<script src="js/obsada-planner.js?v=3.26.0-merge-folder-help-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-intel-process-filter-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.0-popovers-1"></script>
