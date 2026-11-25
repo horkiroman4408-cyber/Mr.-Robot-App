@@ -17,7 +17,7 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.27.0-employee-processes-safe-render-20261125-2';
+const CACHE_REVISION = 'v3.27.0-employee-nav-fix-20261125-3';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
@@ -53,9 +53,9 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/stock-intelligence.js',
-  'js/employee-processes.js?v=3.27.0-processes-safe-render-2',
+  'js/employee-processes.js?v=3.27.0-employee-nav-fix-3',
   'js/obsada-controls.js?v=3.26.1-source-help-1',
-  'js/app.js?v=3.27.0-processes-safe-render-2',
+  'js/app.js?v=3.27.0-employee-nav-fix-3',
   'js/bridge-setup.js?v=3.26.0-bridge-storage-2',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',

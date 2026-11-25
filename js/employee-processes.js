@@ -5,14 +5,20 @@ const pad=n=>String(n).padStart(2,'0');
 const dateKey=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const midnight=iso=>{if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso||'')))return NaN;const [y,m,d]=iso.split('-').map(Number);const t=new Date(y,m-1,d).getTime();return dateKey(new Date(t))===iso?t:NaN;};
 const clock=t=>{const d=new Date(t);return `${pad(d.getHours())}:${pad(d.getMinutes())}`;};
-const normalized=s=>String(s||'').replace(/\s+/g,'').toUpperCase();
+const normalized=s=>String(s??'').replace(/\s+/g,'').toUpperCase();
+function loginIdentity(value){
+ const code=normalized(value),match=/^(PD|PM|SPM)0*(\d+)$/.exec(code);
+ return match ? match[1]+String(Number(match[2])) : code;
+}
 function aliases(id,brand,originalLogin){
- const ids=new Set([normalized(id),normalized(originalLogin)].filter(Boolean));
- // PM/SPM is the public MOHITO alias of its underlying PD login.
- // Never rewrite a SINSAY PD login into a MOHITO one.
+ const ids=new Set();
+ const add=value=>{const raw=normalized(value);if(raw){ids.add(raw);ids.add(loginIdentity(raw));}};
+ add(id);add(originalLogin);
+ // PM/SPM are MOHITO aliases for the same underlying PD number.
+ // Keep the SINSAY PD namespace isolated from MOHITO.
  if(brand==='MOHITO')for(const value of [...ids]){
-  const match=/^(?:PM|SPM)(\d+)$/.exec(value);
-  if(match){ids.add('PM'+match[1]);ids.add('SPM'+match[1]);ids.add('PD'+match[1]);}
+  const match=/^(?:PM|SPM|PD)0*(\d+)$/.exec(value);
+  if(match){const number=String(Number(match[1]));add('PM'+number);add('SPM'+number);add('PD'+number);}
  }
  return ids;
 }
@@ -21,7 +27,7 @@ function create(records,ids,makeSlots,now=Date.now()){
  const allowed=ids instanceof Set?ids:new Set(ids||[]);
  const hours=[];const unique=new Set();
  for(const row of records){
-  if(!allowed.has(normalized(row?.login))||!row.process)continue;
+  if(!allowed.has(normalized(row?.login))&&!allowed.has(loginIdentity(row?.login))||!row.process)continue;
   const slots=makeSlots(row.day,row.shift);const slot=slots?.[Number(row.slot)];
   if(!slot||!Number.isFinite(slot.start)||!Number.isFinite(slot.end)||slot.end<=slot.start)continue;
   const id=[row.day,row.shift,row.slot,normalized(row.login),row.process].join('|');
