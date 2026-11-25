@@ -1466,3 +1466,17 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .employee-process-browse-card>span,#app .employee-process-browse-card>small{font-size:10px;color:var(--mr-c13,#64748b)}
 #app .employee-process-browse-card>strong{font-size:12px;line-height:1.25;overflow-wrap:anywhere}
 @media(max-width:790px){#app .employee-process-browse-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#app .employee-process-browse-card:nth-child(n+4){display:none}#app .employee-process-browse-card{padding:8px}#app .employee-process-calendar-chip{font-size:8px;padding:2px 1px}}
+
+/* Procesy: one shift per carousel card; theme-safe foreground for Light, Ivory and Dark. */
+#app .employee-process-browse-card{min-height:108px;color:inherit;background:var(--mr-c106,transparent)}
+#app .employee-process-browse-card.is-selected{border-color:#b94f5c;background:rgba(185,79,92,.065)}
+#app .employee-process-browse-card>span:first-child{color:inherit;opacity:.75;font-size:10px;font-weight:650}
+#app .employee-process-shift-title{color:inherit;font-size:11px;line-height:1.25;opacity:.9}
+#app .employee-process-shift-lines{display:flex;flex-direction:column;gap:6px;color:inherit;opacity:1;min-width:0}
+#app .employee-process-shift-process{display:flex;flex-direction:column;gap:2px;color:inherit;border-top:1px solid currentColor;padding-top:5px;border-color:var(--mr-c105,rgba(120,140,166,.3))}
+#app .employee-process-shift-time{color:inherit;opacity:.8;font-size:10px;line-height:1.3;font-variant-numeric:tabular-nums}
+#app .employee-process-shift-process>strong{color:inherit;font-size:11px;line-height:1.25;overflow-wrap:anywhere}
+#app .employee-process-source{color:inherit;opacity:.9}
+#app .employee-process-browse-card.is-selected>span:first-child,#app .employee-process-browse-card.is-selected .employee-process-shift-time{color:inherit;opacity:.9}
+#app .employee-process-day-head>span,#app .employee-process-details small,#app .employee-process-state{color:inherit;opacity:.75}
+@media(max-width:790px){#app .employee-process-browse-card{min-height:120px}#app .employee-process-browse-list{grid-template-columns:repeat(3,minmax(0,1fr))}}

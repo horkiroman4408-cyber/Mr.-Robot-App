@@ -1250,9 +1250,21 @@ const employeeProcessCalendarLabels=computed(()=>{
  return labels;
 });
 // Slide across the complete, saved Obsada assignment timeline; never changes planning data.
+// Read-only timeline: one card represents one shift, even with multiple processes.
+const employeeProcessShiftGroups=computed(()=>{
+ const groups=[];const byKey=new Map();
+ for(const item of employeeProcessIntervals.value){
+  const key=`${item.day}|${item.shift}`;
+  let group=byKey.get(key);
+  if(!group){group={key,day:item.day,shift:item.shift,start:item.start,end:item.end,processes:[]};byKey.set(key,group);groups.push(group);}
+  group.start=Math.min(group.start,item.start);group.end=Math.max(group.end,item.end);
+  group.processes.push(item);
+ }
+ return groups.sort((a,b)=>a.start-b.start||a.shift.localeCompare(b.shift));
+});
 const employeeProcessBrowseOffset=ref(0);
 const employeeProcessBrowseIndex=computed(()=>{
- const items=employeeProcessIntervals.value;
+ const items=employeeProcessShiftGroups.value;
  if(!items.length)return -1;
  const now=Number(obsadaPlan.clockNow)||Date.now();
  const active=items.findIndex(item=>item.start<=now&&item.end>now);
@@ -1261,19 +1273,19 @@ const employeeProcessBrowseIndex=computed(()=>{
  return Math.max(0,Math.min(items.length-1,anchor+employeeProcessBrowseOffset.value));
 });
 const employeeProcessBrowseItems=computed(()=>{
- const items=employeeProcessIntervals.value,focus=employeeProcessBrowseIndex.value;
+ const items=employeeProcessShiftGroups.value,focus=employeeProcessBrowseIndex.value;
  if(focus<0)return [];
  const from=Math.min(Math.max(0,focus-2),Math.max(0,items.length-5));
  return items.slice(from,from+5).map((item,index)=>({...item,browseIndex:from+index}));
 });
 function employeeProcessBrowse(delta){
  const index=employeeProcessBrowseIndex.value+delta;
- if(index>=0&&index<employeeProcessIntervals.value.length)employeeProcessBrowseOffset.value+=delta;
+ if(index>=0&&index<employeeProcessShiftGroups.value.length)employeeProcessBrowseOffset.value+=delta;
 }
 function employeeProcessFocus(index){
- if(!Number.isInteger(index)||index<0||index>=employeeProcessIntervals.value.length)return;
+ if(!Number.isInteger(index)||index<0||index>=employeeProcessShiftGroups.value.length)return;
  employeeProcessBrowseOffset.value+=index-employeeProcessBrowseIndex.value;
- employeeProcessGoDay(employeeProcessIntervals.value[index].day);
+ employeeProcessGoDay(employeeProcessShiftGroups.value[index].day);
 }
 function employeeProcessGoDay(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(day||'')))return;
@@ -3188,6 +3200,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeProcessDay,employeeProcessIntervals,employeeProcessSelectedDay,employeeProcessNearby,employeeProcessCalendarDays,employeeProcessCalendarLabels,employeeProcessBrowseIndex,employeeProcessBrowseItems,employeeProcessBrowse,employeeProcessFocus,employeeProcessGoDay,employeeProcessToday,employeeProcessDayMove,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryDisplayProcess,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamSelectTemplate,obsadaTeamRemoveTemplate,obsadaTeamClear,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeProcessDay,employeeProcessIntervals,employeeProcessSelectedDay,employeeProcessNearby,employeeProcessCalendarDays,employeeProcessCalendarLabels,employeeProcessShiftGroups,employeeProcessBrowseIndex,employeeProcessBrowseItems,employeeProcessBrowse,employeeProcessFocus,employeeProcessGoDay,employeeProcessToday,employeeProcessDayMove,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryDisplayProcess,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamSelectTemplate,obsadaTeamRemoveTemplate,obsadaTeamClear,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).component('mr-obsada-date',window.MRObsadaControls.date).component('mr-obsada-select',window.MRObsadaControls.select).mount('#app');
 
