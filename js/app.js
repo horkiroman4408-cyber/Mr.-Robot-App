@@ -1229,7 +1229,13 @@ const employeeCalendarLegend=computed(()=>[
 // It never changes KPI Grafik, process history, saved teams or confirmations.
 const employeeProcessDay=ref(window.MRObsadaPlanner.localDate());
 const employeeProcessIds=computed(()=>window.MREmployeeProcesses.aliases(employeeSelected.value?.id,employeeSelected.value?.brand,employeeSelected.value?.p?.login));
-const employeeProcessIntervals=computed(()=>window.MREmployeeProcesses.create(obsadaPlan.state.records,employeeProcessIds.value,window.MRObsadaPlanner.makeSlots,Number(obsadaPlan.clockNow)||Date.now()));
+const employeeProcessIntervals=computed(()=>{
+ try{
+  const api=window.MREmployeeProcesses;
+  if(!api||typeof api.create!=='function')return [];
+  return api.create(obsadaPlan.state.records,employeeProcessIds.value,window.MRObsadaPlanner.makeSlots,Number(obsadaPlan.clockNow)||Date.now());
+ }catch(err){console.warn('Mr. Robot: Procesy failed to read Obsada assignments',err);return [];}
+});
 const employeeProcessSelectedDay=computed(()=>window.MREmployeeProcesses.forDate(employeeProcessIntervals.value,employeeProcessDay.value,Number(obsadaPlan.clockNow)||Date.now()));
 const employeeProcessNearby=computed(()=>window.MREmployeeProcesses.around(employeeProcessIntervals.value,Number(obsadaPlan.clockNow)||Date.now()));
 const employeeProcessCalendarLabels=computed(()=>{
