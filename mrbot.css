@@ -46,7 +46,7 @@
  --mb-input:#ffffff;--mb-accent:#198bfa;--mb-shadow:0 14px 42px rgba(39,59,99,.18);
  color:var(--mb-text);
 }
-html[data-theme="dark"] #mrbot-root{
+html:is([data-theme="dark"],[data-theme="graphite"]) #mrbot-root{
  --mb-surface:#22232a;--mb-panel:#25262e;--mb-head:#2c2d36;
  --mb-text:#f0f2f7;--mb-muted:#adb4c3;--mb-line:#454754;
  --mb-bubble:#343643;--mb-chip:#323744;--mb-chip-border:#515a6b;
@@ -283,3 +283,53 @@ html[data-theme="dark"] #mrbot-root{
 #mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){max-height:none!important;overflow:visible!important;padding:9px 13px!important;display:block}
 #mrbot-root #mrbot-suggestions .mrbot-doc-footerbtn{width:100%;border-radius:9px!important;text-align:center;font-weight:750!important;padding:10px!important}
 @media(max-width:550px){#mrbot-root .mrbot-doc-view{padding:13px 13px 18px}}
+
+/* MR. BOT unified navigator, v3.6.19. Matches the compact documentation design. */
+#mrbot-root #mrbot-messages.mrbot-doc-active .mrbot-nav-view{padding-bottom:18px}
+#mrbot-root .mrbot-nav-itembody{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+#mrbot-root .mrbot-nav-description{font-size:11px;line-height:1.45;color:var(--mb-muted);overflow-wrap:anywhere}
+#mrbot-root #mrbot-messages .mrbot-nav-item{min-height:53px;gap:11px;padding:12px}
+#mrbot-root .mrbot-nav-item .mrbot-doc-emoji{width:27px;flex:none;font-size:17px;font-variant-numeric:tabular-nums;color:var(--mb-muted)}
+#mrbot-root .mrbot-nav-item .mrbot-doc-listname{font-size:12.5px;line-height:1.4}
+#mrbot-root .mrbot-nav-note{margin:15px 1px 0;font-size:10.5px;color:var(--mb-muted);line-height:1.55;text-align:center}
+#mrbot-root #mrbot-messages .mrbot-nav-more{width:100%;padding:10px 12px;border:1px solid var(--mb-line);border-radius:9px;background:var(--mb-chip);color:var(--mb-text);font-size:12px;font-weight:700;cursor:pointer}
+#mrbot-root #mrbot-messages .mrbot-nav-more:hover{background:var(--mb-bubble)}
+#mrbot-root #mrbot-suggestions:has(.mrbot-doc-footerbtn){border-top:1px solid var(--mb-line)}
+@media(max-width:550px){#mrbot-root #mrbot-messages .mrbot-nav-item{padding:11px 10px}}
+
+/* Match MR. BOT surfaces to the Graphite theme; no animation or dialogue changes. */
+html[data-theme="graphite"] #mrbot-root{--mb-surface:#25352e;--mb-panel:#25342e;--mb-head:#30483d;--mb-text:#edf7f2;--mb-muted:#b5d0c4;--mb-line:#466154;--mb-bubble:#32493d;--mb-chip:#304e42;--mb-chip-border:#4a7060;--mb-input:#253b31;--mb-accent:#287e70;--mb-shadow:0 16px 44px rgba(0,0,0,.36)}
+
+
+/* Ivory palette: appearance only; preserves MR. BOT behavior and motion. */
+html[data-theme="ivory"] #mrbot-root{
+ --mb-surface:#fffaf3;--mb-panel:#fffcf8;--mb-head:#f1e9dc;
+ --mb-text:#29382f;--mb-muted:#5b695e;--mb-line:#d8cdbd;
+ --mb-bubble:#f0e9de;--mb-chip:#ecf3eb;--mb-chip-border:#c6d9ca;
+ --mb-input:#fffcf7;--mb-accent:#246951;--mb-shadow:0 16px 44px rgba(83,69,49,.19);
+}
+html[data-theme="ivory"] #mrbot-suggestions button:hover{background:#e0ede2;color:#205b46}
+
+/* Dedicated knowledge-base chapters (theme tokens reused from MR. BOT). */
+#mrbot-root .mrbot-doc-group-label{font-size:10px;letter-spacing:.055em;text-transform:uppercase;color:var(--mb-muted);font-weight:750;margin:14px 0 8px}
+#mrbot-root .mrbot-doc-featured{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+#mrbot-root #mrbot-messages .mrbot-doc-feature{display:flex;align-items:center;gap:9px;min-width:0;text-align:left;background:var(--mb-surface);border:1px solid var(--mb-line);border-radius:10px;padding:9px 11px;color:var(--mb-text);cursor:pointer;font:inherit;min-height:44px}
+#mrbot-root #mrbot-messages .mrbot-doc-feature:hover,#mrbot-root #mrbot-messages .mrbot-doc-feature:focus-visible{background:var(--mb-bubble);border-color:var(--mb-accent)}
+#mrbot-root .mrbot-doc-feature-icon{font-size:17px;line-height:1;flex:none}
+#mrbot-root .mrbot-doc-feature-copy{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:8px;min-width:0;flex:1}
+#mrbot-root .mrbot-doc-feature-copy strong{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+#mrbot-root .mrbot-doc-feature-copy small{font-size:10px;color:var(--mb-muted);white-space:nowrap}
+#mrbot-root .mrbot-doc-related{display:flex;flex-direction:column;gap:8px;margin:14px 0;border-top:1px solid var(--mb-line);padding-top:14px}
+#mrbot-root .mrbot-doc-related h3{font-size:12px;font-weight:750;margin:0 0 3px}
+#mrbot-root #mrbot-messages .mrbot-doc-related-link{width:100%;text-align:left;padding:10px 12px;border:1px solid var(--mb-line);border-radius:10px;background:var(--mb-surface);color:var(--mb-accent);cursor:pointer;line-height:1.4;font:inherit;font-size:12px;font-weight:650}
+#mrbot-root #mrbot-messages .mrbot-doc-related-link:hover,#mrbot-root #mrbot-messages .mrbot-doc-related-link:focus-visible{background:var(--mb-bubble)}
+@media(max-width:340px){#mrbot-root .mrbot-doc-feature-copy{flex-wrap:wrap;gap:2px 7px}}
+
+/* MR. BOT Smart Context: small, calm suggestions in the existing help navigator. */
+#mrbot-root .mrbot-smart-context{margin:6px 0 8px;padding:9px 11px;border:1px solid var(--mb-line);border-radius:10px;background:var(--mb-surface)}
+#mrbot-root .mrbot-smart-context h3{margin:0 0 4px;font-size:12px;line-height:1.35}
+#mrbot-root .mrbot-smart-context .mrbot-doc-muted{margin:0;font-size:11px;line-height:1.45}
+#mrbot-root .mrbot-smart-links{margin-bottom:12px}
+#mrbot-root #mrbot-messages .mrbot-smart-links .mrbot-nav-item{min-height:39px;padding:7px 10px;gap:8px}
+#mrbot-root .mrbot-smart-links .mrbot-nav-item .mrbot-doc-emoji{font-size:14px;width:19px}
+#mrbot-root .mrbot-smart-links .mrbot-nav-item .mrbot-doc-listname{font-size:11.5px}
