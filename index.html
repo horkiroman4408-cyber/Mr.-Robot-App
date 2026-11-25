@@ -3160,8 +3160,8 @@
  <div class="employee-process-day-head"><strong>{{ eMsg('Przydziały w wybranym dniu','Назначения за выбранный день','Assignments on selected day','Призначення за обраний день') }}</strong><span>{{ employeeProcessSelectedDay.length }} {{ eMsg('przedziałów','интервалов','intervals','інтервалів') }}</span></div>
  <div v-if="employeeProcessSelectedDay.length" class="employee-process-timeline">
   <div v-for="(item,i) in employeeProcessSelectedDay" :key="item.start+'-'+item.process+'-'+i" class="employee-process-line" :class="'is-'+item.status">
-   <span class="employee-process-interval">{{ item.from }}–{{ item.to }}</span>
-   <div class="employee-process-details"><strong>{{ item.process }}</strong><small>{{ item.shift }}<template v-if="item.fromPreviousDay"> · {{ eMsg('zmiana z poprzedniego dnia','смена с предыдущего дня','shift from previous day','зміна з попереднього дня') }}</template></small></div>
+   <span class="employee-process-interval">{{ item.from }}–{{ item.to }}<template v-if="new Date(item.end).toDateString()!==new Date(item.start).toDateString()"> (+1)</template></span>
+   <div class="employee-process-details"><strong>{{ item.process }}</strong><small>{{ item.shift }}</small></div>
    <span class="employee-process-state">{{ item.status==='planned'?eMsg('Zaplanowane','Запланировано','Planned','Заплановано'):item.status==='current'?eMsg('Bieżąca godzina','Текущий час','Current hour','Поточна година'):eMsg('Czas minął','Время прошло','Time elapsed','Час минув') }}</span>
   </div>
  </div>
@@ -3208,7 +3208,7 @@
 <script src="js/obsada-team-intelligence.js?v=3.26.0-last-workdays-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.1-source-help-1"></script>
-<script src="js/employee-processes.js?v=3.27.0-procesy-native-20261125-5"></script>
+<script src="js/employee-processes.js?v=3.27.0-overnight-shift-day-20261125-8"></script>
 <script src="js/app.js?v=3.27.0-procesy-native-20261125-4"></script>
 <script src="js/pwa-register.js"></script>
 <script src="js/mrbot-knowledge.js"></script>

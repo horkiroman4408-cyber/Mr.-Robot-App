@@ -35,12 +35,15 @@ function create(records,ids,makeSlots,now=Date.now()){
  return intervals.map(x=>({...x,status:x.end<=now?'elapsed':x.start<=now?'current':'planned',from:clock(x.start),to:clock(x.end)}));
 }
 function forDate(intervals,day,now=Date.now()){
- const start=midnight(day);if(!Number.isFinite(start))return [];
- const end=new Date(start);end.setDate(end.getDate()+1);const finish=end.getTime();
- return (intervals||[]).filter(x=>x.start<finish&&x.end>start).map(x=>{
-  const from=Math.max(start,x.start),to=Math.min(finish,x.end);
-  return {...x,start:from,end:to,from:clock(from),to:to===finish?'24:00':clock(to),status:to<=now?'elapsed':from<=now?'current':'planned',fromPreviousDay:x.start<start};
- });
+ // An overnight assignment belongs entirely to the day on which its shift started.
+ // Never split it across midnight or repeat its tail on the next calendar day.
+ if(!Number.isFinite(midnight(day)))return [];
+ return (intervals||[]).filter(x=>x.day===day).map(x=>({
+  ...x,
+  from:clock(x.start),to:clock(x.end),
+  status:x.end<=now?'elapsed':x.start<=now?'current':'planned',
+  fromPreviousDay:false
+ }));
 }
 function around(intervals,now=Date.now()){
  const a=(intervals||[]),previous=a.filter(x=>x.end<=now).at(-1)||null;
