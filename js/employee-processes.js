@@ -34,13 +34,26 @@ function create(records,ids,makeSlots,now=Date.now()){
  for(const item of hours){const prev=intervals[intervals.length-1];if(prev&&prev.end===item.start&&prev.process===item.process&&prev.shift===item.shift&&prev.day===item.day){prev.end=item.end;}else intervals.push({...item});}
  return intervals.map(x=>({...x,status:x.end<=now?'elapsed':x.start<=now?'current':'planned',from:clock(x.start),to:clock(x.end)}));
 }
+// The workday belongs to the shift START date. Night hours after midnight
+// remain attached to their originating day, without changing saved records.
 function forDate(intervals,day,now=Date.now()){
- const start=midnight(day);if(!Number.isFinite(start))return [];
- const end=new Date(start);end.setDate(end.getDate()+1);const finish=end.getTime();
- return (intervals||[]).filter(x=>x.start<finish&&x.end>start).map(x=>{
-  const from=Math.max(start,x.start),to=Math.min(finish,x.end);
-  return {...x,start:from,end:to,from:clock(from),to:to===finish?'24:00':clock(to),status:to<=now?'elapsed':from<=now?'current':'planned',fromPreviousDay:x.start<start};
- });
+ if(!Number.isFinite(midnight(day)))return [];
+ return (intervals||[]).filter(x=>x.day===day).map(x=>({
+  ...x,status:x.end<=now?'elapsed':x.start<=now?'current':'planned'
+ }));
+}
+function calendarProcesses(intervals,year,month,days){
+ const result=new Map();
+ const prefix=`${year}-${pad(month)}-`;
+ for(const item of intervals||[]){
+  if(!item.day?.startsWith(prefix))continue;
+  const d=Number(item.day.slice(8));
+  if(!Number.isInteger(d)||d<1||d>days)continue;
+  if(!result.has(item.day))result.set(item.day,[]);
+  const names=result.get(item.day);
+  if(!names.includes(item.process))names.push(item.process);
+ }
+ return result;
 }
 function around(intervals,now=Date.now()){
  const a=(intervals||[]),previous=a.filter(x=>x.end<=now).at(-1)||null;
@@ -48,6 +61,6 @@ function around(intervals,now=Date.now()){
  const next=a.find(x=>x.start>now)||null;
  return {previous,current,next};
 }
-root.MREmployeeProcesses={aliases,create,forDate,around,dateKey,midnight};
+root.MREmployeeProcesses={aliases,create,forDate,calendarProcesses,around,dateKey,midnight};
 if(typeof module==='object'&&module.exports)module.exports=root.MREmployeeProcesses;
 })(typeof window!=='undefined'?window:globalThis);
