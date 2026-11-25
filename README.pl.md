@@ -11,7 +11,7 @@
 
   [English](./README.md) · **Polski** · [Русский](./README.ru.md)
 
-  ![Version](https://img.shields.io/badge/Version-3.26.1-486d99?style=flat-square) ![PWA](https://img.shields.io/badge/PWA-Installable-64748b?style=flat-square) ![Offline](https://img.shields.io/badge/Offline-Ready-398463?style=flat-square) ![Bridge](https://img.shields.io/badge/Bridge-0.3.29-716199?style=flat-square)  
+  ![Version](https://img.shields.io/badge/Version-3.27.0-486d99?style=flat-square) ![PWA](https://img.shields.io/badge/PWA-Installable-64748b?style=flat-square) ![Offline](https://img.shields.io/badge/Offline-Ready-398463?style=flat-square) ![Bridge](https://img.shields.io/badge/Bridge-0.3.29-716199?style=flat-square)  
   ![Privacy](https://img.shields.io/badge/Privacy-Local%20Processing-397f84?style=flat-square) ![Updates](https://img.shields.io/badge/Updates-Automatic-537b62?style=flat-square) ![Excel](https://img.shields.io/badge/Excel-XLSX%20%2F%20CSV-44765d?style=flat-square) ![Languages](https://img.shields.io/badge/Languages-PL%20RU%20EN%20UK-64748b?style=flat-square)
 </div>
 
@@ -65,7 +65,7 @@ W zależności od widoku można filtrować grupy, zmiany i daty, zapamiętywać 
 | **Planowanie** | Przydziały godzinowe, zespoły, grafiki, spóźnienia i wcześniejsze wyjścia |
 | **Plan na jutro** | Lista na kolejny dzień z podziałem na zespoły i nieobecności; Excel oraz druk |
 | **Historia** | Podgląd zapisów lokalnych i importowanych oraz rozbieżności |
-| **Analiza** | Porównywanie godzin i dni pracy między pracownikami, zespołami i procesami |
+| **Intelligence** | Porównywanie godzin i dni pracy między pracownikami, zespołami i procesami |
 
 **Planowanie w praktyce**
 
@@ -74,7 +74,7 @@ W zależności od widoku można filtrować grupy, zmiany i daty, zapamiętywać 
 - W lokalnym planie można korygować godziny, które już minęły; historia uwzględnia zakończone okresy pracy.
 - Plan na jutro respektuje wybranych pracowników i procesy. Zawiera osobne sekcje dla wybranych zespołów oraz `WOLNY` / `URLOP`, jeśli je uwzględniono.
 
-**Analiza w praktyce**
+**Intelligence w praktyce**
 
 Wybierz **tydzień, miesiąc lub własny zakres dat**, a potem pracowników lub zapisane zespoły. Możesz filtrować **jeden lub kilka procesów**: karty pokazują tylko wybrane procesy, sumują ich godziny i liczą dzień pracy na dwóch procesach tylko raz. **Ostatnia / Poprzednia** pokazują natomiast dwa ostatnie zakończone dni pracy ze *wszystkimi* procesami, niezależnie od filtra analizy. Statusy nieobecności pozostają osobnymi wskaźnikami.
 
@@ -126,7 +126,7 @@ Mr. Bot to **wbudowany, animowany asystent** Mr. Robot, a nie oddzielna usługa 
 | **Zapytaj Mr. Bota** | Odpowiedzi na obsługiwane pytania o moduły, import raportów, filtry i codzienną pracę |
 | **Baza wiedzy i instrukcje** | Objaśnienia udokumentowanych obliczeń, procesów i sposobu korzystania z narzędzi |
 | **Animowany asystent** | Reakcje wizualne na ładowanie, przetwarzanie, sukces, kopiowanie czy błędy |
-| **Funkcje Intelligence** | Kontekstowe objaśnienia w obsługiwanych widokach KPI, RS, MP i STOCK; zakładka Analiza w Obsada osobno podsumowuje historię pracy |
+| **Funkcje Intelligence** | Kontekstowe objaśnienia w obsługiwanych widokach KPI, RS, MP i STOCK; Obsada Intelligence osobno podsumowuje historię pracy |
 
 > [!NOTE]
 > Odpowiedzi Mr. Bota offline opierają się na przygotowanej wiedzy i regułach dialogu. **Nie jest to chatbot AI działający w chmurze**, nie przegląda samodzielnie systemów firmowych i nie tworzy nowych wyników bez wczytanych danych.

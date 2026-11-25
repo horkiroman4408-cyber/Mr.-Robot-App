@@ -1413,3 +1413,38 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 .mr-obs-control-layer .mr-obs-option.is-selected:is(:hover,:focus-visible){background:color-mix(in srgb,var(--obs-accent) 21%,transparent)}
 @media(hover:none){.mr-obs-control-layer .mr-obs-option-description{max-height:80px;opacity:1}}
 @media(prefers-reduced-motion:reduce){.mr-obs-control-layer .mr-obs-option-description{transition:none}}
+
+/* Read-only employee profile / Procesy. Kept separate from the KPI source calendar. */
+#app .employee-process-section{padding:21px 26px 28px;display:grid;gap:16px;color:var(--mr-c11,#243046)}
+#app .employee-process-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#app .employee-process-heading>div{display:grid;gap:4px}
+#app .employee-process-heading strong{font-size:15px}
+#app .employee-process-heading small,#app .employee-process-source{color:var(--mr-c13,#64748b);font-size:11px}
+#app .employee-process-source{padding:7px 10px;border-radius:12px;background:var(--mr-c105,rgba(120,140,166,.08))}
+#app .employee-process-navigation{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#app .employee-process-navigation button,#app .employee-process-navigation input{border:1px solid var(--mr-c105,#d6dee9);border-radius:11px;background:var(--mr-c106,#fff);color:inherit;min-height:36px;padding:7px 12px;font:inherit;font-size:12px;cursor:pointer}
+#app .employee-process-navigation button:focus-visible,#app .employee-process-navigation input:focus-visible{outline:2px solid #b94f5c;outline-offset:2px}
+#app .employee-process-navigation input{min-width:145px}
+#app .employee-process-navigation .employee-process-today{font-weight:700;color:#b94f5c}
+#app .employee-process-overview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#app .employee-process-overview-card{border:1px solid var(--mr-c105,#d6dee9);background:var(--mr-c106,#fff);border-radius:14px;min-width:0;padding:15px;display:grid;align-content:start;gap:7px}
+#app .employee-process-overview-card.is-current{border-color:rgba(185,79,92,.5);background:rgba(185,79,92,.065)}
+#app .employee-process-overview-card>span,#app .employee-process-overview-card>small{font-size:10px;color:var(--mr-c13,#64748b)}
+#app .employee-process-overview-card>strong{font-size:13px;overflow-wrap:anywhere}
+#app .employee-process-day-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+#app .employee-process-day-head span{font-size:11px;color:var(--mr-c13,#64748b)}
+#app .employee-process-timeline{border:1px solid var(--mr-c105,#d6dee9);border-radius:14px;overflow:hidden;background:var(--mr-c106,#fff)}
+#app .employee-process-line{display:flex;align-items:center;gap:14px;padding:13px 15px;border-bottom:1px solid var(--mr-c105,#d6dee9);border-left:3px solid #94a3b8}
+#app .employee-process-line:last-child{border-bottom:0}
+#app .employee-process-line.is-current{border-left-color:#b94f5c;background:rgba(185,79,92,.045)}
+#app .employee-process-line.is-planned{border-left-color:#d8a45e}
+#app .employee-process-interval{font-size:12px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap;min-width:85px}
+#app .employee-process-details{min-width:0;flex:1;display:grid;gap:3px}
+#app .employee-process-details strong{font-size:12px;overflow-wrap:anywhere}
+#app .employee-process-details small,#app .employee-process-state{font-size:10px;color:var(--mr-c13,#64748b)}
+#app .employee-process-state{text-align:right;white-space:nowrap}
+#app .employee-process-empty{border:1px dashed var(--mr-c105,#d6dee9);border-radius:13px;padding:25px 14px;text-align:center;font-size:12px;color:var(--mr-c13,#64748b)}
+#app .employee-process-disclaimer{font-size:11px;line-height:1.6;color:var(--mr-c13,#64748b);margin:0}
+#app .employee-calendar-day:has(.employee-process-calendar-marker){cursor:pointer;position:relative}
+#app .employee-process-calendar-marker{position:absolute;bottom:5px;right:8px;color:#b94f5c;font-size:11px;line-height:1}
+@media(max-width:620px){#app .employee-process-section{padding:15px}#app .employee-process-overview{grid-template-columns:1fr}#app .employee-process-line{flex-wrap:wrap;gap:6px}#app .employee-process-state{width:100%;text-align:left;padding-left:99px}}

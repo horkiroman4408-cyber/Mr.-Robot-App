@@ -17,12 +17,12 @@
 'use strict';
 
 const APP_PREFIX = 'Mr.-Robot-App';
-const CACHE_REVISION = 'v3.26.1-hub-rounded-corner-20261123-1';
+const CACHE_REVISION = 'v3.27.0-kpi-procesy-20261125-1';
 const SCOPE_KEY = new URL(self.registration.scope).pathname;
 const CACHE = APP_PREFIX + '@' + SCOPE_KEY + '@' + CACHE_REVISION;
 
 const PRECACHE_URLS = [
-  'css/obsada-module.css?v=3.26.1-hub-rounded-corner-1',
+  'css/obsada-module.css?v=3.27.0-employee-processes-1',
   'js/obsada.js?v=3.24.0-obsada-roster-20261113',
   'js/obsada-module.js?v=3.26.0-local-sync-conflict-ui-1',
   'js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1',
@@ -53,8 +53,9 @@ const PRECACHE_URLS = [
   'js/code128.js',
   'js/mrbot-intelligence.js',
   'js/stock-intelligence.js',
+  'js/employee-processes.js?v=3.27.0-employee-processes-1',
   'js/obsada-controls.js?v=3.26.1-source-help-1',
-  'js/app.js?v=3.26.1-source-filter-1',
+  'js/app.js?v=3.27.0-employee-processes-1',
   'js/bridge-setup.js?v=3.26.0-bridge-storage-2',
   'js/mrbot-dialogue-data.js',
   'js/mrbot.js',
