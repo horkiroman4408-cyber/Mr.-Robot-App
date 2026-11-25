@@ -3149,7 +3149,7 @@
   <button type="button" class="employee-process-browse-arrow" @click="employeeProcessBrowse(-1)" :disabled="employeeProcessBrowseIndex<=0" :aria-label="eMsg('Wcześniejsze','Ранее','Earlier','Раніше')">‹</button>
   <div class="employee-process-browse-list" v-if="employeeProcessBrowseItems.length">
    <button type="button" class="employee-process-browse-card" :class="{'is-selected':item.browseIndex===employeeProcessBrowseIndex,'is-current':item.status==='current'}" v-for="item in employeeProcessBrowseItems" :key="item.browseIndex" @click="employeeProcessFocus(item.browseIndex)">
-    <span>{{ item.browseIndex===employeeProcessBrowseIndex?eMsg('Wybrano','Выбрано','Selected','Обрано'):item.browseIndex<employeeProcessBrowseIndex?eMsg('Wcześniej','Ранее','Earlier','Раніше'):eMsg('Później','Далее','Later','Пізніше') }}</span>
+    <span>{{ item.browseIndex===employeeProcessBrowseIndex?eMsg('Wybrano','Выбрано','Selected','Обрано'):item.browseIndex&lt;employeeProcessBrowseIndex?eMsg('Wcześniej','Ранее','Earlier','Раніше'):eMsg('Później','Далее','Later','Пізніше') }}</span>
     <strong :title="item.process">{{ item.process }}</strong>
     <small>{{ item.day }} · {{ item.from }}–{{ item.to }}<template v-if="new Date(item.end).getDate()!==new Date(item.start).getDate()"> (+1)</template></small>
    </button>
