@@ -1480,3 +1480,19 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .employee-process-browse-card.is-selected>span:first-child,#app .employee-process-browse-card.is-selected .employee-process-shift-time{color:inherit;opacity:.9}
 #app .employee-process-day-head>span,#app .employee-process-details small,#app .employee-process-state{color:inherit;opacity:.75}
 @media(max-width:790px){#app .employee-process-browse-card{min-height:120px}#app .employee-process-browse-list{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* 3.27.0: shift-card accessibility - override inherited muted span color.
+   The generic >span rule was making the entire process list use --mr-c13,
+   which is dark-on-dark on Dark/Graphite and light-on-light on Ivory. */
+#app .employee-process-browse-card > .employee-process-shift-lines {
+  color: var(--mr-c11, #243046);
+  opacity: 1;
+}
+#app .employee-process-browse-card .employee-process-shift-process > strong {
+  color: inherit;
+  opacity: 1;
+}
+#app .employee-process-browse-card .employee-process-shift-time {
+  color: inherit;
+  opacity: .82;
+}
