@@ -1448,3 +1448,21 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
 #app .employee-calendar-day:has(.employee-process-calendar-marker){cursor:pointer;position:relative}
 #app .employee-process-calendar-marker{position:absolute;bottom:5px;right:8px;color:#b94f5c;font-size:11px;line-height:1}
 @media(max-width:620px){#app .employee-process-section{padding:15px}#app .employee-process-overview{grid-template-columns:1fr}#app .employee-process-line{flex-wrap:wrap;gap:6px}#app .employee-process-state{width:100%;text-align:left;padding-left:99px}}
+
+/* v3.27.0: employee calendar assignments and scrollable read-only history */
+#app .employee-calendar-day.employee-day-with-process{position:relative;justify-content:flex-start;gap:2px;padding-bottom:4px;cursor:pointer;min-height:70px}
+#app .employee-calendar-day.employee-day-with-process>.employee-calendar-shift-code{font-size:10px;line-height:1.1;margin:0}
+#app .employee-process-calendar-chips{display:flex;flex-direction:column;width:100%;min-width:0;gap:2px;margin-top:auto}
+#app .employee-process-calendar-chip{display:block;box-sizing:border-box;width:100%;min-width:0;max-width:100%;border:1px solid rgba(185,79,92,.23);background:rgba(185,79,92,.09);border-radius:5px;color:inherit;padding:2px 3px;font-size:9px;line-height:1.2;font-weight:650;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center;cursor:pointer}
+#app .employee-process-calendar-chip:hover{background:rgba(185,79,92,.2);border-color:#b94f5c}
+#app .employee-process-calendar-more{font-size:9px;text-align:center;opacity:.7}
+#app .employee-process-browse{display:flex;align-items:stretch;gap:8px;min-width:0}
+#app .employee-process-browse-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));flex:1;min-width:0;gap:8px}
+#app .employee-process-browse-arrow{flex:0 0 32px;min-width:32px;border:1px solid var(--mr-c105,#d6dee9);background:var(--mr-c106,#fff);border-radius:11px;color:inherit;font-size:23px;cursor:pointer}
+#app .employee-process-browse-arrow:disabled{opacity:.3;cursor:default}
+#app .employee-process-browse-card{min-width:0;min-height:96px;display:flex;flex-direction:column;gap:7px;padding:11px;border:1px solid var(--mr-c105,#d6dee9);background:var(--mr-c106,#fff);border-radius:12px;color:inherit;text-align:left;cursor:pointer}
+#app .employee-process-browse-card.is-selected{border-color:rgba(185,79,92,.55);background:rgba(185,79,92,.07)}
+#app .employee-process-browse-card:focus-visible,#app .employee-process-calendar-chip:focus-visible{outline:2px solid #b94f5c;outline-offset:1px}
+#app .employee-process-browse-card>span,#app .employee-process-browse-card>small{font-size:10px;color:var(--mr-c13,#64748b)}
+#app .employee-process-browse-card>strong{font-size:12px;line-height:1.25;overflow-wrap:anywhere}
+@media(max-width:790px){#app .employee-process-browse-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#app .employee-process-browse-card:nth-child(n+4){display:none}#app .employee-process-browse-card{padding:8px}#app .employee-process-calendar-chip{font-size:8px;padding:2px 1px}}

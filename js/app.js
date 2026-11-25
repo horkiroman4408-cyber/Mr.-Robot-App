@@ -1192,7 +1192,7 @@ const employeeProfileFields=computed(()=>{const s=employeeSelected.value;if(!s)r
 [eMsg('Pierwszy dzień','Первый день','First day','Перший день'),eDate(p.start)],
 ['PD',s.id],[eMsg('Status','Статус','Status','Статус'),s.active?eMsg('W grafiku','В графике','Active roster','У графіку'):eMsg('Poza grafikiem','Не в графике','Not on roster','Поза графіком')]
 ];});
-function employeeOpen(id){employeeProfile.value=eKey(id);employeeProfileTab.value='overview';employeeFilter.value='';if(!employeeSelected.value)showToast(eMsg('Brak danych dla '+id,'Нет данных для '+id,'No data for '+id,'Немає даних для '+id));}
+function employeeOpen(id){employeeProfile.value=eKey(id);employeeProfileTab.value='overview';employeeFilter.value='';employeeProcessBrowseOffset.value=0;if(!employeeSelected.value)showToast(eMsg('Brak danych dla '+id,'Нет данных для '+id,'No data for '+id,'Немає даних для '+id));}
 // Grafik pracownika: kod źródłowy pozostaje widoczny; 1L4 i L4 są wspólnie liczone.
 function pracownicySetPeriod(value){
  if(!/^\d{4}-(0[1-9]|1[0-2])$/.test(String(value||'')))return;
@@ -1234,8 +1234,47 @@ const employeeProcessSelectedDay=computed(()=>window.MREmployeeProcesses.forDate
 const employeeProcessNearby=computed(()=>window.MREmployeeProcesses.around(employeeProcessIntervals.value,Number(obsadaPlan.clockNow)||Date.now()));
 const employeeProcessCalendarDays=computed(()=>{
  const m=employeeCalendarMonth.value,ids=employeeProcessIntervals.value;
- return new Set(Array.from({length:m.days},(_,i)=>`${m.year}-${String(m.month+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`).filter(day=>window.MREmployeeProcesses.forDate(ids,day).length));
+ return new Set(Array.from({length:m.days},(_,i)=>`${m.year}-${String(m.month+1).padStart(2,'0')}-${String(i+1).padStart(2,'0')}`).filter(day=>ids.some(item=>item.day===day)));
 });
+// Display-only labels, grouped by the shift start day. Night hours stay on their original shift date.
+const employeeProcessCalendarLabels=computed(()=>{
+ const labels=new Map();
+ const m=employeeCalendarMonth.value,prefix=`${m.year}-${String(m.month+1).padStart(2,'0')}-`;
+ for(const item of employeeProcessIntervals.value){
+  if(!item.day?.startsWith(prefix))continue;
+  const n=Number(item.day.slice(8));if(!Number.isInteger(n)||n<1||n>m.days)continue;
+  if(!labels.has(item.day))labels.set(item.day,[]);
+  const names=labels.get(item.day);
+  if(!names.includes(item.process))names.push(item.process);
+ }
+ return labels;
+});
+// Slide across the complete, saved Obsada assignment timeline; never changes planning data.
+const employeeProcessBrowseOffset=ref(0);
+const employeeProcessBrowseIndex=computed(()=>{
+ const items=employeeProcessIntervals.value;
+ if(!items.length)return -1;
+ const now=Number(obsadaPlan.clockNow)||Date.now();
+ const active=items.findIndex(item=>item.start<=now&&item.end>now);
+ const next=items.findIndex(item=>item.start>now);
+ const anchor=active>=0?active:next>=0?next:items.length-1;
+ return Math.max(0,Math.min(items.length-1,anchor+employeeProcessBrowseOffset.value));
+});
+const employeeProcessBrowseItems=computed(()=>{
+ const items=employeeProcessIntervals.value,focus=employeeProcessBrowseIndex.value;
+ if(focus<0)return [];
+ const from=Math.min(Math.max(0,focus-2),Math.max(0,items.length-5));
+ return items.slice(from,from+5).map((item,index)=>({...item,browseIndex:from+index}));
+});
+function employeeProcessBrowse(delta){
+ const index=employeeProcessBrowseIndex.value+delta;
+ if(index>=0&&index<employeeProcessIntervals.value.length)employeeProcessBrowseOffset.value+=delta;
+}
+function employeeProcessFocus(index){
+ if(!Number.isInteger(index)||index<0||index>=employeeProcessIntervals.value.length)return;
+ employeeProcessBrowseOffset.value+=index-employeeProcessBrowseIndex.value;
+ employeeProcessGoDay(employeeProcessIntervals.value[index].day);
+}
 function employeeProcessGoDay(day){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(String(day||'')))return;
  employeeProcessDay.value=day;employeeProfileTab.value='processes';
@@ -3149,6 +3188,6 @@ mdtFilteredPolki11,mdtFilteredAllSelected,mdtToggleLoc,mdtSelectAll11,mdtClearSe
 stock,stockOnFile,stockOnDrop,stockReset,stockStats,stockPeriodsGrouped,stockTogglePeriod,stockClearPeriods,stockGenerate,stockFilteredLoc,stockAllLocSelected,stockToggleLoc,stockSelectAllLoc,stockCopySelectedLoc,
 przestoje,przestojeOnFile,przestojeOnDrop,przestojeReset,przestojeReport,fmtPrzestoj,fmtDateTime,przestojColor,
 kreseczki,kreseczkiGenerate,kreseczkiClear,kreseczkiSaveSvg,kreseczkiSavePng,kreseczkiPrint,artltt,artlttPreview,artlttRun,artlttClear,artlttDownload,artlttDownloadAll,geek,geekRetMode,geekListOptions,geekSelCount,geekT1,geekSelectAll,geekGroups,geekFilterNote,geekOpSelectAll,geekOpOptions,geekOpSelCount,geekGroupsFiltered,geekPct,geekOnFile,geekOnDrop,geekReset,geekCopyT1,geekCopyT1Values,geekCopyT2,geekCopyGroup,geekCopyList,
-kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeProcessDay,employeeProcessIntervals,employeeProcessSelectedDay,employeeProcessNearby,employeeProcessCalendarDays,employeeProcessGoDay,employeeProcessToday,employeeProcessDayMove,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryDisplayProcess,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamSelectTemplate,obsadaTeamRemoveTemplate,obsadaTeamClear,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
+kpiAuditFilterActive,kpiScalanieFilterActive,kpiRozkFilterActive,kpiNvFilterActive,mrSaved,mrSavedList,mrSavedTitle,mrClearAllSaved,mrRestore,mrRestoreStats,mrRestoreActive,mrRestoreText,mrRestoreStatus,mrRestorePercent,mrMobileText,mrMobileCanRestore,mrRestoreOneMobile,mrManualRestore,mrMemoryItems,mrMemoryBytes,mrMemorySize,mrMemoryDate,mrMemoryRemove,pracownicyFmtDate,pracownicy,pracownicyMohito,anyPracownicyLoaded,pracownicyMohitoOnFile,pracownicyMohitoOnDrop,pracownicyMohitoReset,pracownicySetPeriod,pracownicyOnFile,pracownicyOnDrop,pracownicyReset,employeeSearch,employeeMatches,employeeRoster,employeeTraining,employeeCurrentRows,employeeCurrent,employeeSelected,employeeProfile,employeeProfileTab,employeeProfileFields,employeeFilter,employeeFilteredTraining,employeeTrainingMinutes,employeeResignations,employeeTrainerName,employeeCalendarMonth,employeeSchedule,employeeCalendarLegend,employeeProcessDay,employeeProcessIntervals,employeeProcessSelectedDay,employeeProcessNearby,employeeProcessCalendarDays,employeeProcessCalendarLabels,employeeProcessBrowseIndex,employeeProcessBrowseItems,employeeProcessBrowse,employeeProcessFocus,employeeProcessGoDay,employeeProcessToday,employeeProcessDayMove,employeeOpen,employeeClose,employeeOnTrainingFile,employeeClearTraining,eDate,eTime,eDuration,eText,eMsg,obsada,obsadaPlan,obsadaHistoryAll,obsadaHistoryReconciliationVisible,obsadaHistoryFocus,obsadaHistoryGoToDiscrepancy,obsadaHistoryMonths,obsadaHistoryEmployees,obsadaHistoryProcesses,obsadaHistoryReport,obsadaHistoryTable,obsadaHistoryDisplayProcess,obsadaHistoryImportedProcessHours,obsadaHistoryPlanProcessHours,obsadaHistoryVerifiedProcessHours,obsadaHistoryPercent,obsadaTeam,obsadaTeamCandidates,obsadaTeamSummary,obsadaTeamReconciliationVisible,obsadaTeamSelectTemplate,obsadaTeamRemoveTemplate,obsadaTeamClear,obsadaTeamDayStatus,obsadaTeamToggle,obsadaTeamPreset,obsadaTeamMovePeriod,obsadaTeamPeriodLabel,obsadaTeamAddShift,obsadaTeamOpenEmployee,obsadaHistoryOptions,obsadaHistoryRowKey,obsadaHistorySelect,obsadaHistoryManage,obsadaHistoryManageSelected,obsadaBridge,obsadaBridgeRefresh,obsadaManualSyncFile,obsadaBridgeCheck,obsadaBridgeSaveSource,obsadaBridgeClearSource,obsadaBridgeChooseFolder,documentOpenReportsFolder,obsadaBridgePermissionOpen,kpiAttrOpts,kpiToggleAttr,kpiClearAttr,kpiToggleBrand,kpiBrandOptions,kpiIdentity,pracownicyKpiLookup};
 }}).component('mr-obsada-date',window.MRObsadaControls.date).component('mr-obsada-select',window.MRObsadaControls.select).mount('#app');
 
