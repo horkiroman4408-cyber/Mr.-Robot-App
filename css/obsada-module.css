@@ -1496,3 +1496,44 @@ html:is([data-theme="dark"],[data-theme="graphite"]) #app .obs-share-sync-chip.i
   color: inherit;
   opacity: .82;
 }
+
+
+/* Popup contrast isolation. Scoped to Obsada overlays teleported to <body>.
+   Root palette tokens --mr-c13 and --mr-c106 are TRANSLUCENT SURFACES in
+   several themes, not reliable text/surface colors for floating menus. */
+html[data-theme="light"] .mr-obs-control-layer.obsada-module,
+html:not([data-theme]) .mr-obs-control-layer.obsada-module{
+  --obs-surface:#ffffff;
+  --obs-text:#233047;
+  --obs-muted:#586779;
+  --obs-border:#d6dee9;
+}
+html[data-theme="ivory"] .mr-obs-control-layer.obsada-module{
+  --obs-surface:#fffaf2;
+  --obs-text:#443a31;
+  --obs-muted:#706356;
+  --obs-border:#ddd0c0;
+}
+html[data-theme="dark"] .mr-obs-control-layer.obsada-module{
+  --obs-surface:#192232;
+  --obs-text:#edf2fa;
+  --obs-muted:#b4c4d7;
+  --obs-border:#40516a;
+}
+html[data-theme="graphite"] .mr-obs-control-layer.obsada-module{
+  --obs-surface:#202b27;
+  --obs-text:#edf5f1;
+  --obs-muted:#b9cbc1;
+  --obs-border:#475b51;
+}
+.mr-obs-control-layer.obsada-module :is(.mr-obs-option,.mr-obs-select-search,.mr-obs-option-main){color:var(--obs-text)}
+.mr-obs-control-layer.obsada-module .mr-obs-option-description{
+  color:var(--obs-muted);
+  opacity:1;
+}
+.mr-obs-control-layer.obsada-module .mr-obs-option.is-selected{
+  background:color-mix(in srgb,var(--obs-accent) 16%,var(--obs-surface));
+}
+.mr-obs-control-layer.obsada-module .mr-obs-option:is(:hover,:focus-visible,.is-active){
+  background:color-mix(in srgb,var(--obs-accent) 12%,var(--obs-surface));
+}
