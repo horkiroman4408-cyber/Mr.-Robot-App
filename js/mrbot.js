@@ -266,7 +266,6 @@ let readmeMode=false,readmeIndex=0,readmeEntries=[];
 let chatMode=false,chatCategory=null,chatLast=-1,chatRecent=[],chatTimer=null;
 const chatReplyBags=new Map();let chatRecentTexts=[];
 function ui(){return UI[window.MRI18N?.language]||UI.pl;}
-function getReadme(){const lang=window.MRI18N?.language||'pl';return (window.MRBOT_README_KB||{})[lang]||(window.MRBOT_README_KB||{}).en||[];}
 function suggestionsFor(){const lang=window.MRI18N?.language||'pl';return (GUIDE[lang]||GUIDE.pl)[context()]||(GUIDE[lang]||GUIDE.pl).home;}
 
 const CHAT_UI={ru:{start:'💬 Поболтать',guide:'📚 Инструкции',back:'← Все темы',choose:'Выбери, о чём поговорим',again:'Ещё ответ',note:'Офлайн-диалоги · не искусственный интеллект',follow:'Продолжим?',intro:'Можем просто поговорить. Выбирай тему!'},pl:{start:'💬 Pogadajmy',guide:'📚 Instrukcje',back:'← Wszystkie tematy',choose:'Wybierz temat rozmowy',again:'Inna odpowiedź',note:'Dialogi offline · to nie AI',follow:'Kontynuujemy?',intro:'Wybierz temat rozmowy!'},en:{start:'💬 Let’s chat',guide:'📚 Guide',back:'← All topics',choose:'Choose a conversation topic',again:'Another reply',note:'Offline scripted chat · not AI',follow:'Keep talking?',intro:'Choose a topic and let’s talk!'},uk:{start:'💬 Побалакаємо',guide:'📚 Інструкції',back:'← Усі теми',choose:'Обери тему розмови',again:'Інша відповідь',note:'Офлайн-діалоги · не ШІ',follow:'Продовжимо?',intro:'Обери тему розмови!'}};
