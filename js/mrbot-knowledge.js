@@ -217,3 +217,110 @@ if(mp&&Array.isArray(mp.topics)){
   for(const item of entries[language])if(!readme[language].some(x=>x.title===item.title))readme[language].push(item);
  }
 })();
+
+/* MR. BOT documentation taxonomy refinement · KPI / Pracownicy / Procesy.
+ * Collapse the duplicate employee chapter into existing KPI material.
+ * Keep operational code and persisted data untouched. Four languages preserved.
+ */
+(function(){
+ 'use strict';
+ const docs=window.MRBOT_DOCS;
+ if(!Array.isArray(docs))return;
+ const kpi=docs.find(group=>group.id==='kpi');
+ const people=docs.find(group=>group.id==='employee-profile');
+ const obsada=docs.find(group=>group.id==='obsada');
+ if(!kpi||!people||!Array.isArray(kpi.topics))return;
+ const languages=['pl','ru','en','uk'];
+ const names={
+  pl:'KPI · Normy i pracownicy',
+  ru:'KPI · Нормы и сотрудники',
+  en:'KPI · Norms and employees',
+  uk:'KPI · Норми та працівники'
+ };
+ kpi.title=names;
+ const get=(group,id)=>group?.topics?.find(topic=>topic.id===id);
+ const uniqueLinks=(links)=>links.filter((link,i,all)=>all.findIndex(other=>other.category===link.category&&other.topic===link.topic)===i);
+ const connect=(category,id,targets)=>{
+  const entry=get(docs.find(group=>group.id===category),id);
+  if(entry)entry.related=uniqueLinks([...(entry.related||[]),...targets]);
+ };
+ const profile=get(people,'profile');
+ const processes=get(people,'processes');
+ const aliases=get(people,'aliases');
+ const employees=get(kpi,'employees');
+ const calendar=get(kpi,'calendar');
+ const idAlias=get(kpi,'id-alias');
+ const employeeCards=get(kpi,'employee-cards');
+ const brandAlias=get(kpi,'brand-alias');
+ if(!processes)return;
+ // Profile/alias instructions belong to existing KPI articles, not new duplicate topics.
+ const profileNotes={
+  pl:'Karta pracownika zawiera zakładki Grafik i Procesy. Procesy służy wyłącznie do odczytu lokalnych przydziałów z Obsada; brak wpisów nie dowodzi nieobecności pracownika.',
+  ru:'В карточке сотрудника есть вкладки Grafik и Procesy. Procesy только читает доступные локальные назначения Obsada; отсутствие записей не доказывает отсутствие сотрудника на работе.',
+  en:'The employee card includes Grafik and Procesy tabs. Procesy is read-only and shows locally available Obsada assignments; an empty history is not proof of absence.',
+  uk:'У картці працівника є Grafik і Procesy. Procesy лише читає доступні локальні призначення Obsada; відсутність записів не доводить відсутність працівника.'
+ };
+ const aliasNotes={
+  pl:'W widoku Procesy dla MOHITO możliwe jest dopasowanie PM/SPM do odpowiedniego PD; nie oznacza to zmiany wszystkich loginów PD na MOHITO. Wielkość liter i zbędne spacje nie wpływają na porównanie. Źródłowe godziny pozostają bez zmian.',
+  ru:'Во вкладке Procesy для MOHITO возможна связка PM/SPM с соответствующим PD; это не превращает все PD в MOHITO. При сравнении игнорируются регистр и лишние пробелы. Исходные часы не переписываются.',
+  en:'For MOHITO, Procesy can match PM/SPM with the corresponding PD alias; it does not reclassify all PD as MOHITO. Case and extra spaces are ignored. Source hour records are unchanged.',
+  uk:'Для MOHITO у Procesy можна зіставити PM/SPM з відповідним PD, але не всі PD стають MOHITO. Регістр і зайві пробіли ігноруються. Початкові погодинні записи не змінюються.'
+ };
+ for(const lang of languages){
+  if(employees?.tech?.[lang] && !employees.tech[lang].includes(profileNotes[lang]))employees.tech[lang]+='\n\n'+profileNotes[lang];
+  if(employeeCards?.basic?.[lang] && !employeeCards.basic[lang].includes('Procesy')){
+   const txt={pl:'Dostępne są również zakładki Grafik i Procesy.',ru:'Также доступны вкладки Grafik и Procesy.',en:'Grafik and Procesy tabs are also available.',uk:'Також доступні вкладки Grafik і Procesy.'};
+   employeeCards.basic[lang]+=' '+txt[lang];
+  }
+  if(idAlias?.tech?.[lang] && !idAlias.tech[lang].includes(aliasNotes[lang]))idAlias.tech[lang]+='\n\n'+aliasNotes[lang];
+ }
+ // Retain full original Procesy instructions as the one genuinely new KPI topic.
+ processes.id='processes';
+ processes.title={
+  pl:'Procesy pracownika · przydziały i kalendarz',
+  ru:'Procesy сотрудника · назначения и календарь',
+  en:'Employee Procesy · assignments and calendar',
+  uk:'Procesy працівника · призначення й календар'
+ };
+ if(!get(kpi,'processes'))kpi.topics.push(processes);
+ // Repoint every related-topic link away from the deleted chapter, drop self-links.
+ const remap={profile:'employees',processes:'processes',aliases:'id-alias'};
+ for(const group of docs){
+  for(const entry of group.topics||[]){
+   if(!Array.isArray(entry.related))continue;
+   const mapped=entry.related.map(link=>link.category==='employee-profile'?{category:'kpi',topic:remap[link.topic]||'employees'}:link);
+   entry.related=uniqueLinks(mapped.filter(link=>!(link.category===group.id&&link.topic===entry.id)));
+  }
+ }
+ connect('kpi','employees',[{category:'kpi',topic:'processes'}]);
+ connect('kpi','calendar',[{category:'kpi',topic:'processes'}]);
+ connect('kpi','id-alias',[{category:'kpi',topic:'processes'}]);
+ connect('kpi','brand-alias',[{category:'kpi',topic:'processes'}]);
+ connect('kpi','employee-cards',[{category:'kpi',topic:'processes'}]);
+ connect('kpi','processes',[{category:'kpi',topic:'calendar'},{category:'obsada',topic:'planning'},{category:'obsada',topic:'automatic'}]);
+ connect('obsada','overview',[{category:'kpi',topic:'processes'}]);
+ connect('obsada','planning',[{category:'kpi',topic:'processes'}]);
+ connect('obsada','history',[{category:'kpi',topic:'processes'}]);
+ connect('obsada','automatic',[{category:'kpi',topic:'processes'}]);
+ docs.splice(docs.indexOf(people),1);
+ // README-backed search excerpts must no longer create a second "Employees" article.
+ const readme=window.MRBOT_README_KB;
+ const oldNames={
+  pl:'Pracownicy · Grafik i Procesy',ru:'Сотрудники · Grafik и Procesy',
+  en:'Employees · Grafik and Procesy',uk:'Працівники · Grafik і Procesy'
+ };
+ const titles={
+  pl:'KPI · Procesy pracownika',ru:'KPI · Procesy сотрудника',
+  en:'KPI · Employee Procesy',uk:'KPI · Procesy працівника'
+ };
+ for(const lang of languages){
+  const list=readme?.[lang];if(!Array.isArray(list))continue;
+  const excerpt=list.find(item=>item.section===oldNames[lang]);
+  if(!excerpt)continue;
+  const parts=excerpt.text.split('\n\n');
+  // The second paragraph is the distinctive Procesy guide; profile and alias guides live in KPI.
+  excerpt.title=titles[lang];
+  excerpt.section=names[lang];
+  excerpt.text=(parts[1]||excerpt.text);
+ }
+})();
