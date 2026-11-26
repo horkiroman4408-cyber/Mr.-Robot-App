@@ -228,6 +228,8 @@ function smartContext(){
   artltt:['inne','artltt',null,null,'ARTLTT'],kreseczki:['inne','barcode',null,null,'Kreseczki'],
   'kpi-audit':['kpi','rates','other','use','KPI · Audyt'],'kpi-scalanie':['kpi','rates','other','use','KPI · Scalanie'],
   'kpi-rozkładanie':['kpi','rates','other','use','KPI · Rozkładanie'],'kpi-nadwevas':['kpi','nadwe','other','use','KPI · NADWE/VAS'],'kpi-pracownicy':['kpi','employees',null,null,'KPI · Pracownicy'],'kpi-stats':['kpi','rates',null,null,'KPI · Statistics'],
+  obsada:['obsada','overview',null,'sharepoint','Obsada'],
+  settings:['rights','license',null,null,'Ustawienia / O projekcie'],
   mp:['mp','audit',null,null,'MP']
  };
  const statsProcess=key.startsWith('kpi-stats-')?key.slice('kpi-stats-'.length):null;
