@@ -214,7 +214,7 @@ Mr.-Robot-App/
 
 Autorem projektu jest **Raman Horki**. Pomysły, informacje zwrotne i odtwarzalne zgłoszenia błędów można przekazywać przez [GitHub Issues](https://github.com/horkiroman4408-cyber/Mr.-Robot-App/issues).
 
-**Licencja:** w repozytorium nie opublikowano obecnie głównej licencji projektu. Publiczna dostępność kodu nie oznacza automatycznej zgody na jego kopiowanie, rozpowszechnianie czy komercyjne wykorzystanie. Komponenty firm trzecich zachowują własne informacje licencyjne. W razie potrzeby uzyskaj zgodę autora.
+**Licencja:** [Mr. Robot Personal & Workplace Use License](./LICENSE) ([Polski](./LICENSE.pl.md) · [Русский](./LICENSE.ru.md) · [Українська](./LICENSE.uk.md)). Oficjalna aplikacja jest bezpłatna do użytku osobistego i wewnętrznych zadań służbowych, również w innych organizacjach. Modyfikowanie oryginalnego kodu, również na potrzeby prywatne lub wewnętrzne, wymaga odrębnej zgody, z wyjątkiem uprawnień wynikających niezależnie z prawa lub licencji komponentów zewnętrznych. Publikowanie, sprzedaż i rozpowszechnianie innych wersji również wymaga odrębnych uprawnień lub zgody. **Nie jest to licencja open source.** Obowiązują odrębne [licencje komponentów zewnętrznych](./THIRD_PARTY_NOTICES.md), a zgoda dotyczy tylko materiałów, do których licencjodawca ma prawa.
 
 ---
 <div align="center">

@@ -214,7 +214,7 @@ Mr.-Robot-App/
 
 Created and maintained by **Raman Horki**. Contributions, feedback and reproducible bug reports are welcome through [GitHub Issues](https://github.com/horkiroman4408-cyber/Mr.-Robot-App/issues).
 
-**Licensing:** no top-level project license is currently published in this repository. Public source visibility does not automatically grant reuse, redistribution or commercial rights. Embedded third-party components retain their own license notices. Please contact the author for permission where required.
+**License:** [Mr. Robot Personal & Workplace Use License](./LICENSE) ([Polski](./LICENSE.pl.md) · [Русский](./LICENSE.ru.md) · [Українська](./LICENSE.uk.md)). The official application may be used free of charge for personal and internal workplace tasks, including in other organizations. Modification of the original source code, including for private or internal use, is not permitted without separate authorization, except as independently allowed by law or third-party licenses. Publishing, selling or distributing other versions also requires separate rights or permission. This is **not an open-source license**. [Third-party notices](./THIRD_PARTY_NOTICES.md) continue to apply, and the grant only covers materials the licensor is entitled to license.
 
 ---
 <div align="center">

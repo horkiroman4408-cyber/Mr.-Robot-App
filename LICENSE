@@ -1,0 +1,43 @@
+MR. ROBOT — PERSONAL & WORKPLACE USE LICENSE
+============================================
+
+Version 1.0 · 26 November 2026
+Copyright notice: © 2026 Raman Horki. All rights reserved, except as expressly permitted below.
+
+1. Scope and authority
+----------------------
+These terms apply only to original portions of the Mr. Robot application and related documentation for which Raman Horki is entitled to grant permission (the “Covered Material”). They do not grant rights to code, data, trademarks, or other material owned by employers, contributors, or third parties. If a provision conflicts with mandatory law or a superior rights holder’s rights, those rights prevail.
+
+2. Free permitted use
+---------------------
+Subject to the above limitation, individuals and organizations, including organizations other than the author's workplace, may access and run the official published Mr. Robot application without a fee for personal activities and ordinary internal workplace operations. This includes importing data lawfully accessible to the user, analyzing reports, planning staff assignments, and exporting resulting work products. This license does not grant permission to modify the application or its original source code, whether privately or within an organization. Copies technically necessary to run or access the official application are permitted. Any other copying or modification requires separate permission from the relevant rights holder, except where applicable mandatory law or third-party licenses independently allow it. This is a non-exclusive, non-transferable permission and does not grant sublicensing rights. Any access or use remains subject to applicable law, other rights holders' rights, and third-party licenses.
+
+3. Restrictions on source code and redistribution
+-------------------------------------------------
+Except as required by mandatory law, GitHub’s applicable terms, or a separate permission from the relevant rights holder, this license does not authorize modifying or creating derivative versions of the Covered Material (including for private or internal use); republishing, distributing, reselling, white-labeling, sublicensing, or hosting a competing copy of the application; or incorporating original Mr. Robot code into another product. Ordinary browser loading and caching necessary for authorized use are permitted.
+
+4. Attribution and identity
+---------------------------
+Where copies, modifications, or redistribution are separately authorized, preserve applicable copyright, origin, and license notices. Do not falsely claim to be the creator of the original Mr. Robot project or imply the creator’s endorsement. This license does not grant rights to the Mr. Robot name, logos, or branding beyond identification of the official application.
+
+5. Third-party components and platform rights
+---------------------------------------------
+Third-party libraries and assets are governed by their own licenses, which prevail for those components. The applicable permissions to view and fork a public GitHub repository under GitHub’s Terms of Service are not withdrawn by this document. Nothing here restricts non-waivable rights under applicable law, including statutory rights relating to computer programs.
+
+6. Workplace data, access and outputs
+-------------------------------------
+Users are responsible for obtaining any necessary employer, account, confidentiality, data-protection, and system permissions before using workplace reports, employee information, WMS, OpenReports, or SharePoint. Use of Mr. Robot grants no access to such systems. Users retain whatever rights they independently hold in data and generated reports; this license does not claim ownership of those outputs.
+
+7. No warranty; availability
+----------------------------
+To the extent permitted by applicable law, the Covered Material is made available “as is,” without a promise of uninterrupted operation, accuracy, fitness for a particular purpose, technical support, or future updates. It is not an authoritative HR, payroll, WMS, or legal system. Nothing in this clause excludes liability that cannot lawfully be excluded.
+
+8. Breach and additional permissions
+------------------------------------
+Permission under this license ends for a user who materially breaches these terms and fails to stop the breach after receiving reasonable notice, where notice is legally required. Separate written permission from the relevant rights holder is required for additional rights. A separate permission or agreement takes precedence within its own scope.
+
+9. Language and contact
+-----------------------
+The English text in LICENSE is the controlling project text; Polish, Russian and Ukrainian translations are provided for convenience. Questions and requests for separate authorization may be raised through the official project repository: https://github.com/horkiroman4408-cyber/Mr.-Robot-App.
+
+This is a custom source-available use license, NOT an open-source license. Any ownership uncertainty, particularly rights that may belong to an employer, must be resolved by the relevant rights holder before reliance on the purported grant.
