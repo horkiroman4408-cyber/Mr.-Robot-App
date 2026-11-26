@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css"><link rel="stylesheet" href="css/obsada-module.css?v=3.27.0-obsada-popup-contrast-20261125-11">
+<link rel="stylesheet" href="css/styles.css?v=3.27.0-about-license-ui-1"><link rel="stylesheet" href="css/obsada-module.css?v=3.27.0-obsada-popup-contrast-20261125-11">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -2634,22 +2634,43 @@
     </article>
    </div>
   </section>
-  <div id="settings-project" class="settings-about">
-   <section class="settings-card glass-strong project-card">
-    <div class="settings-card-heading"><span class="settings-eyebrow">{{ tr('O projekcie') }}</span><h2>Mr. Robot</h2></div>
-    <p>{{ tr('Mr. Robot to zestaw narzędzi do analizy raportów magazynowych, obliczania KPI oraz pracy z plikami Excel. Działa w przeglądarce i może pracować offline.') }}</p>
-    <p>{{ tr('Pliki są przetwarzane lokalnie. Projekt rozwija się dzięki pomysłom, zgłoszeniom błędów i współpracy.') }}</p>
-    <a class="project-link" href="https://github.com/horkiroman4408-cyber/Mr.-Robot-App" target="_blank" rel="noopener noreferrer" :title="tr('Otwiera się w nowej karcie')">{{ tr('Repozytorium i pełny opis') }} <span aria-hidden="true">↗</span><small>github.com/horkiroman4408-cyber/Mr.-Robot-App</small></a>
-   </section>
-   <section class="settings-card glass-strong creator-card">
-    <div class="settings-card-heading"><span class="settings-eyebrow">{{ tr('Autor projektu') }}</span><h2>Raman Horki</h2><p>{{ tr('Twórca Mr. Robot') }}</p></div>
-    <span class="creator-handle">horkiroman4408-cyber</span>
-    <p>{{ tr('Automatyzacja powtarzalnej pracy z raportami magazynowymi.') }}</p>
-    <p>{{ tr('Pomysł, błąd lub propozycja współpracy? Zostaw zgłoszenie w repozytorium projektu.') }}</p>
-    <a class="creator-link" href="https://github.com/horkiroman4408-cyber/Mr.-Robot-App" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-   </section>
+  <!-- MR-ABOUT-LICENSE-UI-20261126 -->
+<div id="settings-project" class="settings-about mr-about-v2">
+ <section class="settings-card glass-strong project-card mr-about-card">
+  <div class="settings-card-heading"><span class="settings-eyebrow">{{ tr('O projekcie') }}</span><h2>Mr. Robot</h2></div>
+  <p>{{ eMsg('Zestaw narzędzi do analizy KPI, planowania obsady i automatyzacji pracy magazynowej.','Инструменты для анализа KPI, планирования сотрудников и автоматизации складской работы.','A workspace for KPI analysis, workforce planning and warehouse automation.','Інструменти для аналізу KPI, планування персоналу та автоматизації складу.') }}</p>
+  <p>{{ eMsg('Przetwarzanie plików odbywa się lokalnie. Aplikacja może działać offline.','Обработка файлов происходит локально. Приложение может работать офлайн.','Files are processed locally. The app can work offline.','Файли обробляються локально. Застосунок може працювати офлайн.') }}</p>
+  <a class="mr-about-github-link" href="https://github.com/horkiroman4408-cyber/Mr.-Robot-App" target="_blank" rel="noopener noreferrer" :title="tr('Otwiera się w nowej karcie')"><svg class="mr-about-github" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.82c.56.1.76-.25.76-.55v-1.92c-3.1.68-3.76-1.32-3.76-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1.01 1.72 2.66 1.22 3.3.93.1-.73.39-1.22.72-1.5-2.48-.28-5.09-1.24-5.09-5.54 0-1.23.44-2.23 1.16-3.02-.12-.28-.51-1.42.11-2.96 0 0 .95-.3 3.08 1.16a10.75 10.75 0 0 1 5.6 0c2.13-1.46 3.07-1.16 3.07-1.16.62 1.54.23 2.68.12 2.96.72.79 1.15 1.79 1.15 3.02 0 4.31-2.61 5.26-5.1 5.53.4.35.76 1.04.76 2.1v3.12c0 .31.2.66.77.55A11.2 11.2 0 0 0 12 .8Z"/></svg><span>{{ eMsg('Repozytorium i dokumentacja','Репозиторий и документация','Repository & documentation','Репозиторій і документація') }}</span><span class="mr-about-external" aria-hidden="true">↗</span></a>
+ </section>
+ <section class="settings-card glass-strong creator-card mr-about-card">
+  <div class="settings-card-heading"><span class="settings-eyebrow">{{ tr('Autor projektu') }}</span><h2>Raman Horki</h2><p>{{ eMsg('Twórca i opiekun projektu Mr. Robot','Автор и разработчик Mr. Robot','Creator and maintainer of Mr. Robot','Автор і розробник Mr. Robot') }}</p></div>
+  <span class="creator-handle">horkiroman4408-cyber</span>
+  <p>{{ eMsg('Automatyzacja powtarzalnej pracy z raportami magazynowymi.','Автоматизация повторяющихся задач с отчётами склада.','Automating repetitive work with warehouse reports.','Автоматизація повторюваної роботи зі складськими звітами.') }}</p>
+  <p>{{ eMsg('Pomysł lub błąd? Zgłoś go w repozytorium.','Есть идея или нашли ошибку? Сообщите в репозитории.','Have an idea or found a bug? Open an issue in the repository.','Є ідея чи помилка? Повідомте в репозиторії.') }}</p>
+  <a class="mr-about-github-link" href="https://github.com/horkiroman4408-cyber" target="_blank" rel="noopener noreferrer"><svg class="mr-about-github" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 .8a11.2 11.2 0 0 0-3.54 21.82c.56.1.76-.25.76-.55v-1.92c-3.1.68-3.76-1.32-3.76-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.02-.7.08-.69.08-.69 1.13.08 1.72 1.16 1.72 1.16 1.01 1.72 2.66 1.22 3.3.93.1-.73.39-1.22.72-1.5-2.48-.28-5.09-1.24-5.09-5.54 0-1.23.44-2.23 1.16-3.02-.12-.28-.51-1.42.11-2.96 0 0 .95-.3 3.08 1.16a10.75 10.75 0 0 1 5.6 0c2.13-1.46 3.07-1.16 3.07-1.16.62 1.54.23 2.68.12 2.96.72.79 1.15 1.79 1.15 3.02 0 4.31-2.61 5.26-5.1 5.53.4.35.76 1.04.76 2.1v3.12c0 .31.2.66.77.55A11.2 11.2 0 0 0 12 .8Z"/></svg><span>{{ eMsg('Profil autora','Профиль автора','Author profile','Профіль автора') }}</span><span class="mr-about-external" aria-hidden="true">↗</span></a>
+ </section>
+ <section class="settings-card glass-strong mr-about-license-card">
+  <div class="mr-about-license-head"><span class="mr-about-license-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg></span><div class="mr-about-license-title"><h2>{{ eMsg('Licencja i prawa autorskie','Лицензия и авторские права','License & copyright','Ліцензія та авторські права') }}</h2><p>© 2026 Raman Horki · Personal & Workplace Use</p></div><span class="mr-about-rights">All rights reserved</span></div>
+  <p>{{ eMsg('Aplikacja jest przeznaczona do bezpłatnego użytku osobistego i wewnętrznego użytku służbowego, w zakresie dozwolonym przez uprawnionego. Kopiowanie i publikowanie zmodyfikowanego kodu wymaga odpowiednich praw lub zgody.','Приложение предназначено для бесплатного личного и внутреннего рабочего использования в пределах прав правообладателя. Копирование и публикация изменённого кода требуют соответствующих прав или разрешения.','The app is intended for free personal and internal workplace use where authorized by the rights holder. Copying or publishing modified code requires applicable rights or permission.','Застосунок призначений для безкоштовного особистого й внутрішнього робочого використання в межах дозволених прав. Копіювання та публікація зміненого коду потребують відповідних прав або дозволу.') }}</p>
+  <div class="mr-about-license-foot"><span>{{ eMsg('Warunki użytkowania · projekt do zatwierdzenia','Условия использования · проект для согласования','Use terms · draft for review','Умови використання · проєкт для погодження') }}</span><button type="button" class="mr-about-license-open" @click="$refs.mrLicenseDialog.showModal()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg><span>{{ eMsg('Pełna licencja (projekt)','Полная лицензия (проект)','Full license (draft)','Повна ліцензія (проєкт)') }}</span><span aria-hidden="true">↗</span></button></div>
+ </section>
+ <dialog ref="mrLicenseDialog" class="mr-about-license-dialog" @click.self="$refs.mrLicenseDialog.close()">
+  <div class="mr-about-dialog-head"><div><span class="settings-eyebrow">MR. ROBOT</span><h2>{{ eMsg('Projekt warunków użytkowania','Проект условий использования','Draft terms of use','Проєкт умов використання') }}</h2><p>© 2026 Raman Horki</p></div><button type="button" class="mr-about-dialog-close" @click="$refs.mrLicenseDialog.close()" :aria-label="eMsg('Zamknij','Закрыть','Close','Закрити')">×</button></div>
+  <div class="mr-about-dialog-content">
+   <p class="mr-about-draft-notice">{{ eMsg('To projekt informacyjny, nieopublikowana jeszcze licencja. Warunki wymagają zatwierdzenia przez uprawnionego oraz sprawdzenia praw do kodu i komponentów zewnętrznych.','Это информационный проект, ещё не опубликованная лицензия. Условия требуют утверждения правообладателем и проверки прав на код и сторонние компоненты.','This is a proposal, not yet a published license. Terms require rights-holder approval and review of code ownership and third-party components.','Це інформаційний проєкт, ще не опублікована ліцензія. Умови потребують схвалення правовласника та перевірки прав на код і сторонні компоненти.') }}</p>
+   <h3>{{ eMsg('1. Dozwolone korzystanie','1. Разрешённое использование','1. Permitted use','1. Дозволене використання') }}</h3>
+   <p>{{ eMsg('Korzystanie z udostępnionej aplikacji do własnych zadań, analiz, planowania i eksportów bez opłat, o ile osoba korzystająca ma wymagane uprawnienia.','Бесплатная работа с опубликованным приложением для своих задач, анализа, планирования и экспорта при наличии необходимых разрешений.','Free use of the published application for authorized tasks, analysis, planning and exports.','Безкоштовне користування опублікованим застосунком для дозволених завдань, аналізу, планування та експорту.') }}</p>
+   <h3>{{ eMsg('2. Kod i redystrybucja','2. Код и распространение','2. Code & redistribution','2. Код і розповсюдження') }}</h3>
+   <p>{{ eMsg('Kopiowanie kodu do innych produktów, rozpowszechnianie własnych wersji oraz oferowanie programu jako osobnej usługi wymagają odrębnych praw lub zgody.','Копирование кода в другие продукты, распространение собственных версий и предоставление программы как отдельной услуги требуют отдельных прав или разрешения.','Reusing code in other products, distributing modified versions or offering the software as a separate service requires applicable rights or permission.','Використання коду в інших продуктах, поширення змінених версій або надання програми як окремої послуги потребує прав чи дозволу.') }}</p>
+   <h3>{{ eMsg('3. Autorstwo','3. Авторство','3. Attribution','3. Авторство') }}</h3>
+   <p>{{ eMsg('Informacje o autorze i źródle projektu powinny pozostać zachowane w dozwolonych kopiach.','Сведения об авторе и исходном проекте должны сохраняться в разрешённых копиях.','Author and origin notices should be retained in permitted copies.','Відомості про автора та походження проєкту слід зберігати в дозволених копіях.') }}</p>
+   <h3>{{ eMsg('4. Wyjątki i komponenty zewnętrzne','4. Исключения и сторонние компоненты','4. Exceptions & third-party code','4. Винятки та сторонні компоненти') }}</h3>
+   <p>{{ eMsg('Powyższe zasady nie ograniczają obowiązujących przepisów ani praw przyznanych przez licencje bibliotek i komponentów zewnętrznych.','Эти положения не ограничивают действующее законодательство и права, предоставленные лицензиями сторонних библиотек и компонентов.','These provisions do not override applicable law or rights granted under third-party component licenses.','Ці положення не обмежують чинне законодавство або права за ліцензіями сторонніх компонентів.') }}</p>
   </div>
-  <aside class="settings-privacy"><strong>{{ tr('Dane i prywatność') }}</strong><p>{{ tr('Zmiana motywu lub języka nie usuwa wczytanych plików. Nazwy techniczne i dane raportów pozostają w oryginale.') }}</p></aside>
+  <div class="mr-about-dialog-actions"><button type="button" class="mr-about-license-open" @click="$refs.mrLicenseDialog.close()">{{ eMsg('Zamknij','Закрыть','Close','Закрити') }}</button></div>
+ </dialog>
+</div>
+<aside class="settings-privacy"><strong>{{ tr('Dane i prywatność') }}</strong><p>{{ tr('Zmiana motywu lub języka nie usuwa wczytanych plików. Nazwy techniczne i dane raportów pozostają w oryginale.') }}</p></aside>
  </section>
 </template>
 

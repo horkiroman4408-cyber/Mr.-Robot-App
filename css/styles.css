@@ -1979,3 +1979,40 @@ html.mr-mobile-lite #app .kpi-header-actions>button{width:100%;padding:.52rem .4
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0>.shrink-0:last-child{flex:1 1 auto!important;min-width:0!important;overflow:hidden}
  #app .kpi-header-row>.flex.items-center.gap-4.shrink-0 h1{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 }
+
+
+/* MR-ABOUT-LICENSE-UI-20261126 · Scope limited to Settings > O projekcie */
+#app .settings-about.mr-about-v2{align-items:stretch}
+#app .mr-about-v2 .mr-about-card{display:flex;flex-direction:column;min-height:245px}
+#app .mr-about-v2 .mr-about-card .mr-about-github-link{margin-top:auto}
+#app .mr-about-v2 .mr-about-github-link{display:inline-flex;align-items:center;gap:9px;align-self:flex-start;max-width:100%;min-height:40px;padding:9px 11px;border-radius:11px;text-decoration:none;font-size:12px;font-weight:750;color:var(--mr-focus,#2172db);background:color-mix(in srgb,var(--mr-focus,#2172db) 7%,transparent);border:1px solid transparent;transition:background .17s,border-color .17s}
+#app .mr-about-v2 .mr-about-github-link:hover{background:color-mix(in srgb,var(--mr-focus,#2172db) 12%,transparent);border-color:color-mix(in srgb,var(--mr-focus,#2172db) 18%,transparent)}
+#app .mr-about-v2 .mr-about-github-link:focus-visible,#app .mr-about-v2 button:focus-visible{outline:2px solid var(--mr-focus,#2172db);outline-offset:2px}
+#app .mr-about-v2 .mr-about-github-link svg{width:17px;height:17px;flex:none}
+#app .mr-about-v2 .mr-about-github-link .mr-about-external{font-size:13px;line-height:1;opacity:.75}
+#app .mr-about-v2 .mr-about-license-card{grid-column:1/-1;display:grid;gap:14px;min-width:0}
+#app .mr-about-v2 .mr-about-license-head{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+#app .mr-about-v2 .mr-about-license-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;flex:none;background:var(--mr-c104,rgba(120,140,166,.11));color:var(--mr-c11,#222a36)}
+#app .mr-about-v2 .mr-about-license-icon svg{width:23px;height:23px}
+#app .mr-about-v2 .mr-about-license-title{min-width:170px;flex:1}
+#app .mr-about-v2 .mr-about-license-title h2{margin:0 0 4px;font-size:16px;font-weight:760;color:var(--mr-c11,#222a36)}
+#app .mr-about-v2 .mr-about-license-title p{font-size:11px;line-height:1.4;margin:0;color:var(--mr-control-text,#64748b)}
+#app .mr-about-v2 .mr-about-rights{padding:7px 11px;border-radius:999px;background:var(--mr-c104,rgba(120,140,166,.11));border:1px solid var(--mr-control-border,rgba(140,155,170,.25));color:var(--mr-c11,#222a36);font-size:10px;font-weight:760;white-space:nowrap}
+#app .mr-about-v2 .mr-about-license-card>p{margin:0;line-height:1.7}
+#app .mr-about-v2 .mr-about-license-foot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-top:1px solid var(--mr-control-border,rgba(140,155,170,.24));padding-top:12px}
+#app .mr-about-v2 .mr-about-license-foot>span{color:var(--mr-control-text,#64748b);font-size:11px}
+#app .mr-about-v2 .mr-about-license-open{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;border:1px solid var(--mr-control-border,rgba(140,155,170,.25));border-radius:10px;background:var(--mr-c106,#fff);color:var(--mr-c11,#222a36);padding:7px 12px;font-size:12px;font-weight:750;cursor:pointer}
+#app .mr-about-v2 .mr-about-license-open svg{width:16px;height:16px;flex:none}
+.mr-about-license-dialog{width:min(620px,calc(100vw - 30px));max-height:min(84dvh,760px);padding:0;border:1px solid var(--mr-control-border,rgba(140,155,170,.25));border-radius:22px;background:var(--mr-c106,#fff);color:var(--mr-c11,#222a36);box-shadow:0 24px 90px rgba(0,0,0,.28);overflow:auto}
+.mr-about-license-dialog::backdrop{background:rgba(10,18,35,.60);backdrop-filter:blur(5px)}
+.mr-about-dialog-head{display:flex;gap:16px;align-items:flex-start;justify-content:space-between;padding:23px 25px 18px;border-bottom:1px solid var(--mr-control-border,rgba(140,155,170,.25))}
+.mr-about-dialog-head h2{font-size:20px;margin:8px 0 5px;font-weight:750}
+.mr-about-dialog-head p{font-size:12px;color:var(--mr-control-text,#64748b);margin:0}
+.mr-about-dialog-close{border:0;background:var(--mr-c104,rgba(120,140,166,.11));color:inherit;width:34px;height:34px;border-radius:10px;font-size:21px;cursor:pointer;flex:none}
+.mr-about-dialog-content{padding:21px 25px;font-size:13px;line-height:1.7}
+.mr-about-dialog-content h3{font-size:13px;font-weight:760;margin:17px 0 5px}
+.mr-about-dialog-content p{margin:0;color:var(--mr-c11,#222a36)}
+.mr-about-dialog-content .mr-about-draft-notice{padding:12px 14px;border:1px solid var(--mr-control-border,rgba(140,155,170,.25));border-radius:12px;background:var(--mr-c104,rgba(120,140,166,.09));font-size:12px;line-height:1.6}
+.mr-about-dialog-actions{display:flex;justify-content:flex-end;padding:13px 25px 20px}
+.mr-about-dialog-actions button{border:1px solid var(--mr-control-border,rgba(140,155,170,.25));border-radius:10px;background:var(--mr-c104,rgba(120,140,166,.09));color:inherit;padding:8px 13px;font-weight:700;cursor:pointer}
+@media(max-width:680px){#app .mr-about-v2 .mr-about-card{min-height:0}#app .mr-about-v2 .mr-about-license-head{align-items:flex-start}#app .mr-about-v2 .mr-about-rights{margin-left:57px}.mr-about-dialog-head,.mr-about-dialog-content{padding-left:18px;padding-right:18px}}
