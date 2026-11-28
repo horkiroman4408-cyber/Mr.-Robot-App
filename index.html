@@ -9,7 +9,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png?v=317-clean-corners"><link rel="shortcut icon" href="icons/favicon.ico?v=317-clean-corners">
 <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png?v=317-clean-corners">
 <style>[v-cloak]{display:none!important}</style>
-<link rel="stylesheet" href="css/styles.css?v=3.27.0-about-license-ui-1"><link rel="stylesheet" href="css/obsada-module.css?v=3.27.0-obsada-popup-contrast-20261125-11">
+<link rel="stylesheet" href="css/styles.css?v=3.27.0-about-license-ui-1"><link rel="stylesheet" href="css/obsada-module.css?v=3.27.0-team-conflicts-20261128-1">
 <link rel="stylesheet" href="css/mrbot.css">
 <script>window.MR_MOBILE_LITE=/iPhone|iPod|Android.*Mobile/i.test(navigator.userAgent)||(matchMedia('(max-width: 600px) and (pointer: coarse)').matches);if(window.MR_MOBILE_LITE)document.documentElement.classList.add('mr-mobile-lite');</script>
 <script src="js/i18n.js"></script>
@@ -459,6 +459,25 @@
       <p class="obs-quiet">{{ eMsg('Nowe zespoły i szablony edytuj w Zarządzaniu zapisanymi zespołami.','Новые команды и шаблоны создаются в Управлении сохранёнными командами.','Create and edit saved teams in Manage saved teams.','Створюйте й редагуйте команди в Керуванні збереженими командами.') }}</p>
       <div class="obs-day-team-form-actions"><button type="button" class="obs-day-team-confirm" :disabled="!obsadaPlan.state.teamSetupTemplate" @click="obsadaPlan.state.teamSetupMode='saved';obsadaPlan.setupDayTeam()">{{ eMsg('Dodaj na zmianę','Добавить на смену','Add to shift','Додати до зміни') }}</button><button type="button" @click="obsadaPlan.state.teamSetupOpen=false">{{ eMsg('Anuluj','Отмена','Cancel','Скасувати') }}</button></div>
      </div>
+     <div v-if="obsadaPlan.state.teamConflictPreview" class="obs-plan-delete-backdrop" @click.self="obsadaPlan.cancelTeamConflicts()">
+      <section class="obs-plan-delete-dialog obs-team-conflict-dialog" role="dialog" aria-modal="true" :aria-label="eMsg('Konflikty pracowników','Пересечения сотрудников','Worker overlaps','Перетини працівників')" @keydown.esc="obsadaPlan.cancelTeamConflicts()">
+       <div class="obs-plan-delete-heading"><div><strong>{{ eMsg('Sprawdź nakładające się zmiany','Проверь пересечения смен','Review overlapping shifts','Перевірте перетини змін') }}</strong><p>{{ obsadaPlan.state.teamConflictPreview.template }} · {{ obsadaPlan.state.teamConflictPreview.day }} · {{ obsadaPlan.shifts.find(x=>x.value===obsadaPlan.state.teamConflictPreview.shift)?.label }}</p></div><button type="button" class="obs-plan-delete-close" @click="obsadaPlan.cancelTeamConflicts()" :aria-label="eMsg('Zamknij','Закрыть','Close','Закрити')">×</button></div>
+       <p class="obs-quiet">{{ eMsg('Wybierz działanie osobno dla każdego pracownika. Domyślnie pozostają w dotychczasowej zmianie.','Выбери действие отдельно для каждого сотрудника. По умолчанию все остаются в прежних командах.','Choose separately for each employee. Everyone stays in their original team by default.','Оберіть дію окремо для кожного працівника. Типово всі залишаються у своїх командах.') }}</p>
+       <div class="obs-team-conflict-summary"><span>{{ eMsg('Bez konfliktu','Без конфликта','No overlap','Без перетину') }}: <b>{{ obsadaPlan.state.teamConflictPreview.clear.length }}</b></span><span>{{ eMsg('Do sprawdzenia','На проверку','Review','Перевірити') }}: <b>{{ obsadaPlan.state.teamConflictPreview.conflicts.length }}</b></span></div>
+       <div class="obs-team-conflict-list"><article v-for="entry in obsadaPlan.state.teamConflictPreview.conflicts" :key="entry.login" class="obs-team-conflict-item">
+        <div class="obs-team-conflict-worker"><strong>{{ entry.login }}</strong><span>{{ pracownicyKpiLookup(entry.login)?.name||'' }}</span></div>
+        <div v-for="source in entry.sources" :key="source.day+'|'+source.shift" class="obs-team-conflict-source"><span>{{ eMsg('Obecna zmiana','Текущая команда','Existing shift','Поточна зміна') }}: {{ obsadaPlan.shifts.find(x=>x.value===source.shift)?.label||source.shift }} · {{ source.day }}</span><small>{{ eMsg('Pokrywanie','Пересечение','Overlap','Перетин') }}: {{ source.period }}</small></div>
+        <label>{{ eMsg('Decyzja','Решение','Decision','Рішення') }}
+         <mr-obsada-select :lang="uiLanguage" v-model="obsadaPlan.state.teamConflictChoices[entry.login]" :aria-label="entry.login"><option value="keep">{{ eMsg('Pozostaw w starej zmianie','Оставить в прежней команде','Keep in old shift','Залишити у старій зміні') }}</option><option v-if="entry.canMove" value="move">{{ eMsg('Przenieś do nowej zmiany','Перевести в новую команду','Move to new shift','Перевести в нову зміну') }}</option></mr-obsada-select>
+        </label>
+        <p v-if="!entry.canMove" class="obs-team-conflict-note">{{ eMsg('Przeniesienie zablokowane: stara zmiana już trwa lub istnieją przydziały godzinowe. Historia pozostaje bez zmian.','Перенос недоступен: прежняя смена уже началась или есть часовые назначения. История сохраняется.','Move unavailable: existing shift has started or has hourly assignments. History is preserved.','Перенесення недоступне: стара зміна вже почалася або має погодинні призначення. Історія зберігається.') }}</p>
+       </article></div>
+       <p class="obs-quiet">{{ eMsg('Przy przeniesieniu zmienia się tylko skład zmian. Zapisane szablony i godziny pracy nie są usuwane.','При переносе изменяется только состав смен. Шаблоны и отработанные часы не удаляются.','Moving changes shift membership only. Saved templates and worked hours are never deleted.','Перенесення змінює лише склад змін. Шаблони та відпрацьовані години не видаляються.') }}</p>
+       <div class="obs-team-conflict-actions"><button type="button" @click="obsadaPlan.cancelTeamConflicts()">{{ eMsg('Anuluj','Отмена','Cancel','Скасувати') }}</button><button type="button" class="obs-day-dialog-done" @click="obsadaPlan.confirmParallelTeamConflicts()">{{ eMsg('Zatwierdź wybór','Подтвердить выбор','Confirm choices','Підтвердити вибір') }}</button></div>
+      </section>
+     </div>
+     <p v-if="obsadaPlan.state.error==='TEAM_CONFLICT_CHANGED'" class="obs-warning" role="alert">{{ eMsg('Skład zmienił się. Otwórz sprawdzanie ponownie.','Состав изменился. Повтори проверку пересечений.','Rosters changed. Review overlaps again.','Склад змінився. Повторіть перевірку.') }}</p>
+     <p v-if="obsadaPlan.state.error==='TEAM_CONFLICT_NO_MEMBERS'" class="obs-warning" role="alert">{{ eMsg('Nie wybrano nikogo do nowej zmiany.','Не выбраны сотрудники для новой смены.','No employees selected for the new shift.','Не обрано працівників для нової зміни.') }}</p>
      <p v-if="obsadaPlan.state.error==='TEAM_HAS_COMPLETED_HOURS'" class="obs-warning" role="alert">{{ eMsg('Nie można usunąć zmiany z zakończonymi godzinami. Popraw wpisy w Historii.','Нельзя удалить смену с уже завершёнными часами. Исправь записи через Историю.','Cannot remove a shift with completed hours. Correct records in History.','Не можна прибрати зміну з завершеними годинами. Виправте записи в Історії.') }}</p>
      <p v-if="obsadaPlan.state.error?.startsWith('TEAM_ROSTER_CONFLICT')" class="obs-warning" role="alert">{{ eMsg('Pracownik jest już na pokrywającej się zmianie. Sprawdź skład zespołów.','Сотрудник уже находится в пересекающейся смене. Проверь составы команд.','A worker is already on an overlapping shift. Check the team rosters.','Працівник уже є у зміні, що перетинається. Перевірте склади команд.') }}</p>
      <p v-if="obsadaPlan.state.error==='TEAM_SHIFT_EXISTS'" class="obs-warning" role="alert">{{ eMsg('Ten grafik ma już zespół. Wybierz inny grafik.','На этом графике уже есть команда. Выбери другой график.','This schedule already has a team. Choose another schedule.','Цей графік уже має команду. Оберіть інший.') }}</p>
@@ -3231,7 +3250,7 @@
 <script src="js/obsada.js?v=3.24.0-obsada-roster-20261113"></script>
 <script src="js/obsada-module.js?v=3.24.0-obsada-contract-repair-20261113"></script>
 <script src="js/obsada-merge.js?v=3.26.0-obsada-file-exchange-1"></script>
-<script src="js/obsada-planner.js?v=3.26.0-merge-folder-help-1"></script>
+<script src="js/obsada-planner.js?v=3.27.0-team-conflicts-20261128-1"></script>
 <script src="js/obsada-team-intelligence.js?v=3.26.0-last-workdays-1"></script>
 <script src="js/obsada-unified-history.js?v=3.26.0-worker-actions-1"></script>
 <script src="js/obsada-controls.js?v=3.26.1-source-help-1"></script>

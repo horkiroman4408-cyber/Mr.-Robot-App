@@ -226,7 +226,7 @@ function replaceImported(existing, incoming, sourceNames, keyFn){
  return [...existing.filter(r=>!affected.has([r.source,r.date,r.login].join('|'))),...incoming];
 }
 function create({reactive,computed,roster,source,sourceName,language}){
- const state=reactive({day:localDate(),printDay:nextDate(),printShift:'all',printShowAbsent:false,shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',mergeFolderAccess:'unknown',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionPanel:'menu',processHighlight:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),functionalProcesses:readFunctionalProcessSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
+ const state=reactive({day:localDate(),printDay:nextDate(),printShift:'all',printShowAbsent:false,shift:'06-18',mode:false,records:[],selectedLogin:'',search:'',newProcess:'',from:0,to:1,folderName:'',busy:false,dirty:false,status:'',error:'',active:false,additionalProcesses:[],hiddenProcesses:[],historyWindow:'week',importedHistory:[],importedStatuses:[],importedSource:'',importedAt:'',unrecognized:0,stanSnapshot:null,stanDate:'',stanShift:'',showDatabase:false,staffFilter:'all',processFilter:'',processDropdownOpen:false,showAllProcesses:false,visibleWorkers:45,removingLogin:'',shiftTeams:{},teamTemplates:{},templateName:'',selectedTemplate:'',confirmations:{},excludedHistory:[],teamSearch:'',teamPicker:false,undoAvailable:false,undoLabel:'',lastExcelSync:'',lastBrowserSave:'',syncError:'',pendingChanges:0,tombstones:[],mergePreview:null,mergeChoices:{},mergeFileName:'',mergeBusy:false,mergeMessage:'',mergeFolderAccess:'unknown',stanChanges:[],stanReviewDay:'',stanReviewShift:'',stanNotice:'',actionLogin:'',actionPanel:'menu',processHighlight:'',actionSelected:[],actionType:'WOLNY',actionFrom:localDate(),actionTo:localDate(),actionHour:0,readonlyHourStamp:null,combinedView:true,extraTemplate:'',extraShift:'14-22',teamConflictPreview:null,teamConflictChoices:{},teamSetupOpen:false,teamSetupMode:'saved',teamSetupTemplate:'',teamSetupShift:'14-22',teamSetupName:'',teamRosterOpen:false,dayTeamMenu:'',processMenuLogin:'',dayTeamScheduleOpen:false,dayTeamTargetShift:'',dayTeamNewShift:'',templateManagerOpen:false,templateDraftName:'',templateDraftMembers:[],templateDraftSearch:'',templateDraftError:'',otherDepartmentProcesses:readOtherDepartmentSelection(),functionalProcesses:readFunctionalProcessSelection(),otherDepartmentSettingsOpen:false,departmentDragProcess:"",departmentDragOver:""});
  let folderHandle=null,writing=false,queued=false,lastExportHash=null,undoSnapshot=null,revision=0,exportRevision=0,lastSavedRecords=[];
  const fingerprint=(records,history=[],statuses=[],teams={},stan=null,hiddenProcesses=[],confirmations={},excludedHistory=[],teamTemplates={},tombstones=[])=>JSON.stringify({tombstones:tombstones.map(t=>[t.key,t.at]).sort((a,b)=>a[0].localeCompare(b[0])),excludedHistory:[...excludedHistory].sort(),...(Object.keys(confirmations).length?{confirmations:Object.entries(confirmations).sort((a,b)=>a[0].localeCompare(b[0]))}:{}),stan:stan?{updatedAt:stan.updatedAt,...(stan.day?{day:stan.day,shift:stan.shift}:{}),intervals:stan.intervals.map(iv=>[iv.label,(iv.people||[]).map(p=>[p.login,p.process])])}:null,teams:Object.entries(teams).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0])),records:records.map(r=>[r.day,r.shift,r.slot,r.login,r.process]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),history:history.map(r=>[r.date,r.login,r.process,r.hours,r.source,r.sourceType]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),statuses:statuses.map(r=>[r.date,r.login,r.status,r.source]).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))),...(hiddenProcesses.length?{hiddenProcesses:[...hiddenProcesses].sort()}: {}),...(Object.keys(teamTemplates).length?{teamTemplates:Object.entries(teamTemplates).map(([k,v])=>[k,[...v].sort()]).sort((a,b)=>a[0].localeCompare(b[0]))}: {})});
  // Compare what actually survives XLSX serialization, not the live STAN model.
@@ -912,29 +912,81 @@ function create({reactive,computed,roster,source,sourceName,language}){
   state.templateName=state.selectedTemplate;state.staffFilter='all';state.visibleWorkers=45;
   await save();return state.status!=='BROWSER_SAVE_FAILED';
  }
- // Non-destructive addition of a saved roster to a separate shift on this date.
- // XLSX ZESPOLY already stores memberships keyed by date + shift.
- async function addParallelTeam(){
-  const members=state.teamTemplates[state.extraTemplate];
-  const shift=state.extraShift;
-  if(!Array.isArray(members)||!members.length||!SHIFT_OPTIONS.some(x=>x[0]===shift))return false;
-  const key=shiftKey(state.day,shift);
-  // Do not silently put one worker into overlapping rosters.
-  const shiftSlots=makeSlots(state.day,shift),times=new Set(shiftSlots.map(x=>x.start));
-  const overlaps=new Set();
-  for(const [otherKey,people] of Object.entries(state.shiftTeams)){
-   if(otherKey===key)continue;
-   const sep=otherKey.lastIndexOf('|'),otherDay=otherKey.slice(0,sep),otherShift=otherKey.slice(sep+1);
-   if(!makeSlots(otherDay,otherShift).some(x=>times.has(x.start)))continue;
-   for(const login of people)overlaps.add(login);
+ // Detect conflicts across midnight, including hours that already have assignments.
+ // A move is allowed only before the previous shift starts and only if no
+ // source assignments exist. This keeps all completed and planned hours intact.
+ function inspectParallelTeam(template,day,shift){
+  const members=state.teamTemplates[template];
+  if(!Array.isArray(members)||!members.length||!SHIFT_OPTIONS.some(x=>x[0]===shift))return null;
+  const targetKey=shiftKey(day,shift),slots=makeSlots(day,shift);
+  const times=new Set(slots.map(slot=>slot.start));
+  const names=[...new Set(members.map(norm).filter(Boolean))];
+  const now=Date.now(),issues=new Map();
+  const add=(login,sourceDay,sourceShift,kind)=>{
+   const sourceSlots=makeSlots(sourceDay,sourceShift);
+   const shared=sourceSlots.filter(slot=>times.has(slot.start));
+   if(!shared.length)return;
+   const hasAssignments=state.records.some(r=>r.day===sourceDay&&r.shift===sourceShift&&r.login===login);
+   const canMove=kind==='roster'&&sourceSlots[0]?.start>now&&!hasAssignments;
+   const date=shared[0].from+(sourceDay!==day?' · '+sourceDay:'');
+   const period=date+'–'+shared[shared.length-1].to;
+   if(!issues.has(login))issues.set(login,[]);
+   if(!issues.get(login).some(x=>x.day===sourceDay&&x.shift===sourceShift))issues.get(login).push({day:sourceDay,shift:sourceShift,period,kind,canMove,why:hasAssignments?'assigned':sourceSlots[0]?.start<=now?'started':kind==='record'?'assigned':''});
+  };
+  for(const [key,people] of Object.entries(state.shiftTeams)){
+   if(key===targetKey||!Array.isArray(people))continue;
+   const i=key.lastIndexOf('|');if(i<0)continue;
+   const oldDay=key.slice(0,i),oldShift=key.slice(i+1);
+   for(const login of names)if(people.map(norm).includes(login))add(login,oldDay,oldShift,'roster');
   }
-  const duplicates=members.map(norm).filter(login=>overlaps.has(login));
-  if(duplicates.length){state.error='TEAM_ROSTER_CONFLICT: '+[...new Set(duplicates)].join(', ');return false;}
-  state.error='';
-  const next=[...new Set([...(state.shiftTeams[key]||[]),...members.map(norm).filter(Boolean)])];
-  if(next.length===(state.shiftTeams[key]||[]).length)return true;
-  snapshot('parallel-team');state.shiftTeams={...state.shiftTeams,[key]:next};
-  state.combinedView=true;await save();return state.status!=='BROWSER_SAVE_FAILED';
+  for(const record of state.records){
+   if(record.day===day&&record.shift===shift)continue;
+   if(names.includes(record.login)&&times.has(makeSlots(record.day,record.shift)[record.slot]?.start))add(record.login,record.day,record.shift,'record');
+  }
+  return {day,shift,template,all:names,clear:names.filter(login=>!issues.has(login)),conflicts:names.filter(login=>issues.has(login)).map(login=>({login,sources:issues.get(login),canMove:issues.get(login).every(x=>x.canMove)}))};
+ }
+ function cancelTeamConflicts(){state.teamConflictPreview=null;state.teamConflictChoices={};state.error='';}
+ async function commitParallelTeam(preview,choices){
+  const key=shiftKey(preview.day,preview.shift),members=[...preview.clear],updated={...state.shiftTeams};
+  for(const conflict of preview.conflicts){
+   if(choices[conflict.login]!=='move'||!conflict.canMove)continue;
+   members.push(conflict.login);
+   for(const source of conflict.sources){
+    const oldKey=shiftKey(source.day,source.shift);
+    updated[oldKey]=(updated[oldKey]||[]).filter(login=>norm(login)!==conflict.login);
+    if(!updated[oldKey].length)delete updated[oldKey];
+   }
+  }
+  const next=[...new Set([...(updated[key]||[]),...members])];
+  if(next.length===(state.shiftTeams[key]||[]).length){cancelTeamConflicts();state.error='TEAM_CONFLICT_NO_MEMBERS';return false;}
+  snapshot('parallel-team');updated[key]=next;state.shiftTeams=updated;
+  state.error='';state.combinedView=true;cancelTeamConflicts();await save();return state.status!=='BROWSER_SAVE_FAILED';
+ }
+ // If a team has conflicting members, let the user decide per person before editing anything.
+ async function addParallelTeam(){
+  const preview=inspectParallelTeam(state.extraTemplate,state.day,state.extraShift);
+  if(!preview)return false;
+  const key=shiftKey(preview.day,preview.shift);
+  if(state.records.some(r=>r.day===preview.day&&r.shift===preview.shift)|| (state.shiftTeams[key]||[]).length){state.error='TEAM_SHIFT_EXISTS';return false;}
+  if(preview.conflicts.length){
+   state.teamConflictPreview=preview;
+   state.teamConflictChoices=Object.fromEntries(preview.conflicts.map(x=>[x.login,'keep']));
+   state.error='';return false;
+  }
+  return commitParallelTeam(preview,{});
+ }
+ async function confirmParallelTeamConflicts(){
+  const prev=state.teamConflictPreview;if(!prev)return false;
+  if(state.day!==prev.day||state.teamSetupTemplate!==prev.template||state.teamSetupShift!==prev.shift){cancelTeamConflicts();state.error='TEAM_CONFLICT_CHANGED';return false;}
+  const latest=inspectParallelTeam(prev.template,prev.day,prev.shift);
+  const sourceSignature=p=>JSON.stringify(p.conflicts.map(c=>[c.login,c.canMove,c.sources.map(x=>[x.day,x.shift,x.canMove,x.kind])]));
+  if(!latest||latest.all.join('|')!==prev.all.join('|')||sourceSignature(latest)!==sourceSignature(prev)){
+   cancelTeamConflicts();state.error='TEAM_CONFLICT_CHANGED';return false;
+  }
+  if((state.shiftTeams[shiftKey(prev.day,prev.shift)]||[]).length||state.records.some(r=>r.day===prev.day&&r.shift===prev.shift)){cancelTeamConflicts();state.error='TEAM_SHIFT_EXISTS';return false;}
+  const result=await commitParallelTeam(latest,state.teamConflictChoices);
+  if(result){selectDayShift(latest.shift);state.teamSetupOpen=false;}
+  return result;
  }
  async function removeDayTeam(code){
   if(!SHIFT_OPTIONS.some(s=>s[0]===code))return false;
@@ -1520,7 +1572,7 @@ function create({reactive,computed,roster,source,sourceName,language}){
    // Recheck the actual file before claiming a synchronized Excel after startup.
    if(folderHandle && typeof folderHandle.queryPermission==='function'){try{if(await folderHandle.queryPermission({mode:'readwrite'})==='granted')await syncIfAllowed(true);}catch(err){state.status='FOLDER_PERMISSION_REQUIRED';}}}catch(err){state.error=err.message||String(err);state.active=true;}}
  init();
- return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,openTomorrowPrint,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,isFunctionalProcess,setOtherDepartmentProcess,setProcessDisplayGroup,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,markLateArrival,clearLateArrival,lateArrival,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,checkMergeFolderAccess,reconnectMergeFolder,applyColleagueMerge,cancelColleagueMerge};
+ return {tomorrowPlan,tomorrowPlanAvailableShifts,printTomorrowPlan,openTomorrowPrint,exportTomorrowExcel,exportCandidates,exportVisiblePeople,exportVisibleAbsent,exportSelectedCount,exportWorkerChecked,exportPartChecked,setExportWorker,setExportPart,toggleVisibleExport,openTomorrowExport,closeTomorrowExport,confirmTomorrowExport,openProcessMenu,openProcessActions,removeProcessPerson,staffStatus,staffWorkingCount,isWorkerAbsentAt,canAssignPerson,state,templateNames,templateDraftCandidates,newTeamTemplate,addTemplateDraftMember,removeTemplateDraftMember,saveTemplateDraft,sharedTimeline,activeTeamShifts,dayTeams,chooseTemplateForManagement,selectDayShift,openDayTeamRoster,openDayTeamSchedule,closeDayTeamEditor,changeDayTeamSchedule,setupDayTeam,removeDayTeam,chooseSharedHour,combinedAtHour,displayedAssignments,combinedScheduled,staffEntries,listedStaffEntries,visibleStaffEntries,staffTotal,staffAssignedCount,staffFreeCount,focusStaffEntry,dragStaffEntry,staffProcess,openStaffActions,removeStaffMember,combinedConflicts,foreignCount,focusAssignment,addParallelTeam,confirmParallelTeamConflicts,cancelTeamConflicts,selectedWorkerProcess,saveTeamTemplate,loadTeamTemplate,deleteTeamTemplate,renameTeamTemplate,historyExclusionKey,isExcluded,toggleHistoryExclusion,removeHistoryPlan,manageHistoryRows,shifts,slots,teamKey,isConfirmed,finishedHours,futureHours,clockNow:computed(()=>clock.now),shiftHasEnded,shiftStatus,selectedSlot,current,readonlyRoster,readonlyDepartments,readonlyProcessChoices,isOtherDepartmentProcess,isFunctionalProcess,setOtherDepartmentProcess,setProcessDisplayGroup,restoreOtherDepartmentDefaults,startDepartmentDrag,endDepartmentDrag,leaveDepartmentDrop,dropDepartmentCard,readonlyTimeline,readonlyDisplayShifts,readonlySelectedHour,readonlyActiveShifts,chooseReadonlyHour,syncFromSharePoint,team,teamFree,teamCandidates,initialWorkers,listedWorkers,visibleWorkerList,unassigned,processes,processCatalog,existingProcess,processFilterExisting,processSuggestions,selectProcessSuggestion,processCards,currentPeopleCount,days,historyRows,importPreview,importFromCurrent,importHistoryFile,selectLogin,assign,remove,removeRange,chooseRemoval,confirmRemoval,openWorkerActions,toggleActionWorker,closeWorkerActions,applyDayStatus,markEarlyExit,markLateArrival,clearLateArrival,lateArrival,clearWorkerStatus,resumeWorker,removeFromSelectedHour,localAbsence,earlyExit,addTeamMember,removeTeamMember,restoreUndo,syncKind,canClose,syncTimeText,startDrag,drop,addProcess,hideProcess,seedFromSource,compareStanPlan,stanSelectedCount,selectStanReview,applyStanReview,dismissStanReview,chooseFolder,syncIfAllowed,resolveConflictWithBackup,download,importFile,getSharePointFolder,mergeKindLabel,previewColleagueFile,checkMergeFolderAccess,reconnectMergeFolder,applyColleagueMerge,cancelColleagueMerge};
 }
 root.MRObsadaPlanner={create,assignFromHour,autoHourConfirmed,finishedHourCount,historyExclusionKey,processKey,findProcessMatch,makeSlots,sheetRows,readWorkbook,readDatabase,buildWorkbook,validRecord,applyAssignment,dropAssignments,localDate,replaceImported,absenceDates,updateLocalAbsences,cutAfterHour,simultaneousAssignments,shiftHourForTimestamp,combinedTimeline,rosterAtTimestamp,splitRosterDepartments};
 if(typeof module==='object'&&module.exports)module.exports=root.MRObsadaPlanner;
